@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-
+#hey dude
 #############################
 #import main components
 from .CORE_Ressources.CORE_Manager import CORE_Manager
