@@ -96,7 +96,7 @@ class Manager:
         ############################################## 
         """
 
-        return self.CORE_Manager.set(identifier, *args, **kwargs)
+        self.CORE_Manager.set(identifier, *args, **kwargs)
         
         
     def help(self,command = None):

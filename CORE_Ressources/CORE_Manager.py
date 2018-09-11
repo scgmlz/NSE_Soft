@@ -31,7 +31,7 @@ import logging
 #import child components
 from .CORE_io        import IO_Manager
 from .CORE_Process   import Process_Manager 
-from .CORE_Process   import Masks 
+from .CORE_Masks   import Masks 
 from .CORE_Data      import Data_Structure 
 from .CORE_Fit       import get_fit_handler
 from .CORE_Result    import Result_Handler
