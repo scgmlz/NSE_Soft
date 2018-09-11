@@ -1445,10 +1445,19 @@ class Metadata:
 class Axes:
     '''
     ##############################################
-    This class will build axes to which the data
-    will be organised.
-
-    These will be sued mostly for parametrisation
+    This class will manage all the axes operations
+    and is therefore called axes. The main vars of
+    the class are the:
+    - axis name
+    - axis unit
+    - axis values
+    - and who populates the axis through ids
+    ———————
+    Input: -
+    ———————
+    Output: -
+    ———————
+    status: active
     ##############################################
     '''
     def __init__(self, data_structure):
@@ -1471,7 +1480,6 @@ class Axes:
         #generate axes
         self.generate(data_structure)
 
-
     def __str__(self):
 
         '''
@@ -1481,8 +1489,6 @@ class Axes:
         appropriate length and then fill the ids
         ##############################################
         '''
-        sys.stdout.flush()
-
         return ""
 
     def generate(self,data_structure):

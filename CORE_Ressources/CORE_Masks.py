@@ -234,6 +234,11 @@ class Masks:
 
         self.mask = mask_target[self.selected][0][0](shape,self.parameters)
 
+        #run the post masks commands
+        mask = self.mask
+        mask = self.run_commands(mask)
+        self.mask = mask
+
 
     def generate_default(self):
         '''
@@ -410,9 +415,6 @@ class Masks:
 
                 #move index forward
                 index += 1
-
-        #run the post masks commands
-        mask = self.run_commands(mask)
 
         return mask
 

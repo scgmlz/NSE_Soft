@@ -68,6 +68,21 @@ class Manager:
 
         self.CORE_Manager.run(command, *args, **kwargs)
 
+    def new(self,command, *args, **kwargs):
+        
+        """
+        ##############################################
+        In this function the user can run Core
+        commands from the python terminal by inputing
+        the command dictioanry key and the arguments.
+
+        -------
+        Input : command,*args, **kwargs
+        ############################################## 
+        """
+
+        self.CORE_Manager.new(command, *args, **kwargs)
+
     def get(self,command, *args, **kwargs):
         
         """

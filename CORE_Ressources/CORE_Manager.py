@@ -86,102 +86,117 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-        self.fun_dict = {}
+        self.new_fun_dict = {}
+        self.set_fun_dict = {}
+        self.get_fun_dict = {}
+        self.run_fun_dict = {}
 
-        self.fun_dict['print'] = [
-            self.Print,
-            "Basic print function with one argument."
-            ]
-
-        self.fun_dict['new data'] = [
+        self.new_fun_dict['data'] = [
             self.new_data,
             "Initiates a new data structure."
             ]
 
-        self.fun_dict['new mask'] = [
+        self.new_fun_dict['mask'] = [
             self.new_mask,
             "Initiates a new mask structure."
             ]
 
-        self.fun_dict['new fit'] = [
+        self.new_fun_dict['fit'] = [
             self.new_fit,
             "Initiates a new fit structure."
             ]
 
-        self.fun_dict['new result'] = [
+        self.new_fun_dict['result'] = [
             self.new_result,
             "Initiates a new fit structure."
             ]
 
-        self.fun_dict['new environement'] = [
+        self.new_fun_dict['environement'] = [
             self.new_environement,
             "Creates a new environement."
             ]
 
-        self.fun_dict['load data'] = [
-            self.load_data,
-            "Loads the data from a file path."
+        self.new_fun_dict['mask command'] = [
+            self.new_mask_command,
+            "Creates a new environement."
             ]
 
-        self.fun_dict['set data'] = [
+        ##############################################
+        ##############################################
+        #set methods methods
+        self.set_fun_dict['data'] = [
             self.set_current_data,
             "Set the current dataset through its dicitonary key."
             ]
 
-        self.fun_dict['set mask'] = [
+        self.set_fun_dict['mask'] = [
             self.set_current_mask,
             "Set the current mask through its dicitonary key."
             ]
 
-        self.fun_dict['set result'] = [
+        self.set_fun_dict['result'] = [
             self.set_current_result,
             "Set the current mask through its dicitonary key."
             ]
 
-        self.fun_dict['set mask template'] = [
+        self.set_fun_dict['mask template'] = [
             self.set_current_mask_template,
             "Selects one of the mask templates."
             ]
 
-        self.fun_dict['result'] = [
+        ##############################################
+        ##############################################
+        #get methods methods
+        self.get_fun_dict['result'] = [
             self.get_result,
             "returns the result of a fit."
             ]
 
+        self.get_fun_dict['print'] = [
+            self.Print,
+            "Basic print function with one argument."
+            ]
+
+        ##############################################
         ##############################################
         #computing methods
 
-        self.fun_dict['remove foils'] = [
+        self.run_fun_dict['load data'] = [
+            self.run_load_data,
+            "Loads the data from a file path."
+            ]
+
+        self.run_fun_dict['remove foils'] = [
             self.run_remove_foils,
             "Removes the foils predefined in the metadata."
             ]
 
-        self.fun_dict['process axis'] = [
+        self.run_fun_dict['process axis'] = [
             self.run_process_axis,
             "Set an absciss value from the metadata."
             ]
 
-        self.fun_dict['calculate shift'] = [
+        self.run_fun_dict['calculate shift'] = [
             self.run_calculate_shift,
             "Applies the current mask on the selected data."
             ]
 
-        self.fun_dict['calculate data contrast'] = [
+        self.run_fun_dict['calculate data contrast'] = [
             self.run_calculate_contrast,
             "Perform data contrast calculations."
             ]
 
-        self.fun_dict['calculate reference contrast'] = [
+        self.run_fun_dict['calculate reference contrast'] = [
             self.run_calculate_ref_contrast,
             "Perform reference contrast calculations."
             ]
 
-        self.fun_dict['calculate echo'] = [
+        self.run_fun_dict['calculate echo'] = [
             self.run_calculate_echo,
             "Calculate the echo time on the current dataset."
             ]
 
-        self.fun_dict['calculate intensity'] = [
+        self.run_fun_dict['calculate intensity'] = [
             self.run_calculate_intensity,
             "Calculate the intensity of SANS data."
             ]
@@ -204,14 +219,42 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-        if not command in list(self.fun_dict.keys()):
+        if not command in list(self.run_fun_dict.keys()):
 
             logging.warn(" The given command "+str(command)+" is not recognized...")
             logging.warn(" Run help for a list of commands.")
 
         else:
 
-            self.fun_dict[command][0](*args,**kwargs)
+            self.run_fun_dict[command][0](*args,**kwargs)
+
+
+    def new(self,command, *args, **kwargs):
+        '''
+        ##############################################
+        The run command is used to process calculations
+        on the provided data. All called commands will
+        be names 'run_command'
+        ———————
+        Input: 
+        - command to be evaluated (str)
+        - *args list of positional arguments
+        - **kwargs list of optional arguments
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        if not command in list(self.new_fun_dict.keys()):
+
+            logging.warn(" The given command "+str(command)+" is not recognized...")
+            logging.warn(" Run help for a list of commands.")
+
+        else:
+
+            self.new_fun_dict[command][0](*args,**kwargs)
+
 
     def get(self,command, *args, **kwargs):
         '''
@@ -231,17 +274,17 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-        if not command in list(self.fun_dict.keys()):
+        if not command in list(self.get_fun_dict.keys()):
 
             logging.warn("The given command "+str(command)+" is not recognized...")
             logging.warn("Run help for a list of commands.")
 
         else:
 
-            return self.fun_dict[command][0](*args,**kwargs)
+            return self.get_fun_dict[command][0](*args,**kwargs)
 
 
-    def set(self,identifier, name = '', location = '', value = None):
+    def set(self,command, *args, **kwargs):
         '''
         ##############################################
         In this function the user can run Core
@@ -259,14 +302,25 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-        if identifier == 'result value':
+        if command == 'result value':
             
-            self.res_dict[self.current_res_key].set_result(name, location,value)
+            self.res_dict[self.current_res_key].set_result(kwargs['name'], kwargs['location'],kwargs['value'])
             
 
-        elif identifier == 'fit parameter':
+        elif command == 'fit parameter':
 
-            self.fit_dict[self.current_fit_key].set_parameter(name, value)
+            self.fit_dict[self.current_fit_key].set_parameter(kwargs['name'], kwargs['value'])
+
+        else:
+
+            if not command in list(self.set_fun_dict.keys()):
+
+                logging.warn("The given command "+str(command)+" is not recognized...")
+                logging.warn("Run help for a list of commands.")
+
+            else:
+
+                return self.set_fun_dict[command][0](*args,**kwargs)
 
 
 
@@ -288,7 +342,7 @@ class CORE_Manager:
         '''
         if command == None:
 
-            for key, element in self.fun_dict.items():
+            for key, element in self.run_fun_dict.items():
 
                 print(key, element[1])
 
@@ -436,6 +490,21 @@ class CORE_Manager:
         #set environement
         self.set_current_env(title)
 
+    def new_mask_command(self, command_str = ''):
+        '''
+        ##############################################
+        This function sets the current data
+        with the right key
+        ———————
+        Input: 
+        - key (str)
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.mask_dict[self.current_mask_key].add_command(command_str)
 
     def set_current_data(self, key = None):
         '''
@@ -551,36 +620,51 @@ class CORE_Manager:
             else:
                 print("\nERROR: The key '"+str(key)+"' you have provided is not present in the dictionary...\n")
 
-
-    def run_remove_foils(self):
+    def set_current_mask_template(self, key = None):
         '''
         ##############################################
-        This function will initiate a new data class
-        and then set the current pointer to it.
+        This function will run through the 
         ———————
         Input: 
-        - title or key (str)
+        - key (str)
         ———————
         Output: -
         ———————
         status: active
         ##############################################
         '''
-        #generate the reduced key
-        current_data_key = self.current_data_key.split('_reduced')[0] + '_reduced'
+        self.mask_dict[self.current_mask_key].select_template(key = key)
 
-        #this will simply create the dataclass
-        self.data_dict[current_data_key] = self.process.MIEZE_run_remove_foils(
-            self.data_dict[self.current_data_key],
-            self.mask_dict[self.current_mask_key],
-            self.fit_dict[self.current_fit_key],
-            self.res_dict[self.current_res_key]
-        )
+    def get_result(self, name = '', key = None, last = True):
+        '''
+        ##############################################
+        Sets a parameter in the fit dicitonary
+        ———————
+        Input: 
+        - key (str)
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
 
-        #set it to the current data structure
-        self.set_current_data(key = current_data_key)
+        target = self.res_dict[self.current_res_key]
+
+        if last:
+
+            try:
+
+                return target.get_last_result(name, key)
+
+            except ValueError:
+
+                print("\nERROR: The name '"+str(name)+"' or key '"+str(key)+"'you have provided is not present in the dictionary. Error...\n")
+
+
+
  
-    def load_data(self, path = '', data_type = ''):
+    def run_load_data(self, path = '', data_type = ''):
         '''
         ##############################################
         this function will load a dataset from an 
@@ -625,21 +709,6 @@ class CORE_Manager:
             except ValueError:
 
                 print("\nERROR: Unable to load the data...\n")
-
-    def set_current_mask_template(self, key = None):
-        '''
-        ##############################################
-        This function will run through the 
-        ———————
-        Input: 
-        - key (str)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        self.mask_dict[self.current_mask_key].select_template(key = key)
                 
 
     def run_calculate_shift(self):
@@ -658,7 +727,7 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-        self.process.MIEZE_run_calculate_shift(
+        self.process.MIEZE_calculate_shift(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
             self.fit_dict[self.current_fit_key],
@@ -681,7 +750,7 @@ class CORE_Manager:
         ##############################################
         '''
 
-        self.process.MIEZE_run_calculate_contrast(
+        self.process.MIEZE_calculate_contrast(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
             self.fit_dict[self.current_fit_key],
@@ -704,7 +773,7 @@ class CORE_Manager:
         ##############################################
         '''
 
-        self.process.MIEZE_run_calculate_ref_contrast(
+        self.process.MIEZE_calculate_ref_contrast(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
             self.fit_dict[self.current_fit_key],
@@ -726,7 +795,7 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-        self.process.MIEZE_run_calculate_echo(
+        self.process.MIEZE_calculate_echo(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
             self.fit_dict[self.current_fit_key],
@@ -751,31 +820,34 @@ class CORE_Manager:
             self.fit_dict[self.current_fit_key],
             self.res_dict[self.current_res_key])
 
-    def get_result(self, name = '', key = None, last = True):
+    def run_remove_foils(self):
         '''
         ##############################################
-        Sets a parameter in the fit dicitonary
+        This function will initiate a new data class
+        and then set the current pointer to it.
         ———————
         Input: 
-        - key (str)
+        - title or key (str)
         ———————
         Output: -
         ———————
         status: active
         ##############################################
         '''
+        #generate the reduced key
+        current_data_key = self.current_data_key.split('_reduced')[0] + '_reduced'
 
-        target = self.res_dict[self.current_res_key]
+        #this will simply create the dataclass
+        self.data_dict[current_data_key] = self.process.MIEZE_remove_foils(
+            self.data_dict[self.current_data_key],
+            self.mask_dict[self.current_mask_key],
+            self.fit_dict[self.current_fit_key],
+            self.res_dict[self.current_res_key]
+        )
 
-        if last:
+        #set it to the current data structure
+        self.set_current_data(key = current_data_key)
 
-            try:
-
-                return target.get_last_result(name, key)
-
-            except ValueError:
-
-                print("\nERROR: The name '"+str(name)+"' or key '"+str(key)+"'you have provided is not present in the dictionary. Error...\n")
 
     def run_process_axis(self, axis = '', key = None):
         '''
@@ -801,3 +873,4 @@ class CORE_Manager:
         except ValueError:
 
             print("\nERROR: The name '"+str(axis)+"' or key '"+str(key)+"'you have provided is not present in the dictionary. Error...\n")
+
