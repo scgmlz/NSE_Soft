@@ -411,9 +411,8 @@ class Masks:
                 #move index forward
                 index += 1
 
-
+        #run the post masks commands
         mask = self.run_commands(mask)
-        # mask.real[abs(mask.real) > 8] = 0
 
         return mask
 

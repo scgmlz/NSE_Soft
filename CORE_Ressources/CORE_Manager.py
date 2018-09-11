@@ -29,12 +29,12 @@ import logging
 
 #############################
 #import child components
-from .CORE_io        import IO_Manager
-from .CORE_Process   import Process_Manager 
-from .CORE_Masks   import Masks 
-from .CORE_Data      import Data_Structure 
-from .CORE_Fit       import get_fit_handler
-from .CORE_Result    import Result_Handler
+from .CORE_io       import IO_Manager
+from .CORE_Process  import Process_Manager 
+from .CORE_Masks    import Masks 
+from .CORE_Data     import Data_Structure 
+from .CORE_Fit      import get_fit_handler
+from .CORE_Result   import Result_Handler
 
 class CORE_Manager:
 
@@ -143,54 +143,56 @@ class CORE_Manager:
             "Selects one of the mask templates."
             ]
 
-        self.fun_dict['calculate shift'] = [
-            self.calculate_shift,
-            "Applies the current mask on the selected data."
-            ]
-
-        self.fun_dict['calculate data contrast'] = [
-            self.calculate_contrast,
-            "Perform data contrast calculations."
-            ]
-
-        self.fun_dict['calculate reference contrast'] = [
-            self.calculate_ref_contrast,
-            "Perform reference contrast calculations."
-            ]
-
-        self.fun_dict['calculate echo'] = [
-            self.calculate_echo,
-            "Calculate the echo time on the current dataset."
-            ]
-
-        self.fun_dict['calculate intensity'] = [
-            self.calculate_intensity,
-            "Calculate the intensity of SANS data."
-            ]
-
         self.fun_dict['result'] = [
             self.get_result,
             "returns the result of a fit."
             ]
 
+        ##############################################
+        #computing methods
+
         self.fun_dict['remove foils'] = [
-            self.remove_foils,
+            self.run_remove_foils,
             "Removes the foils predefined in the metadata."
             ]
 
         self.fun_dict['process axis'] = [
-            self.process_axis,
+            self.run_process_axis,
             "Set an absciss value from the metadata."
+            ]
+
+        self.fun_dict['calculate shift'] = [
+            self.run_calculate_shift,
+            "Applies the current mask on the selected data."
+            ]
+
+        self.fun_dict['calculate data contrast'] = [
+            self.run_calculate_contrast,
+            "Perform data contrast calculations."
+            ]
+
+        self.fun_dict['calculate reference contrast'] = [
+            self.run_calculate_ref_contrast,
+            "Perform reference contrast calculations."
+            ]
+
+        self.fun_dict['calculate echo'] = [
+            self.run_calculate_echo,
+            "Calculate the echo time on the current dataset."
+            ]
+
+        self.fun_dict['calculate intensity'] = [
+            self.run_calculate_intensity,
+            "Calculate the intensity of SANS data."
             ]
 
 
     def run(self,command, *args, **kwargs):
         '''
         ##############################################
-        In this function the user can run Core
-        commands from the python terminal by inputing
-        the command dictioanry key and the arguments
-
+        The run command is used to process calculations
+        on the provided data. All called commands will
+        be names 'run_command'
         ———————
         Input: 
         - command to be evaluated (str)
@@ -550,7 +552,7 @@ class CORE_Manager:
                 print("\nERROR: The key '"+str(key)+"' you have provided is not present in the dictionary...\n")
 
 
-    def remove_foils(self):
+    def run_remove_foils(self):
         '''
         ##############################################
         This function will initiate a new data class
@@ -568,7 +570,7 @@ class CORE_Manager:
         current_data_key = self.current_data_key.split('_reduced')[0] + '_reduced'
 
         #this will simply create the dataclass
-        self.data_dict[current_data_key] = self.process.MIEZE_remove_foils(
+        self.data_dict[current_data_key] = self.process.MIEZE_run_remove_foils(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
             self.fit_dict[self.current_fit_key],
@@ -640,7 +642,7 @@ class CORE_Manager:
         self.mask_dict[self.current_mask_key].select_template(key = key)
                 
 
-    def calculate_shift(self):
+    def run_calculate_shift(self):
         '''
         ##############################################
         this function process the current echo times
@@ -656,36 +658,13 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-        self.process.MIEZE_calculate_shift(
+        self.process.MIEZE_run_calculate_shift(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
             self.fit_dict[self.current_fit_key],
             self.res_dict[self.current_res_key])
 
-    def calculate_contrast(self):
-        '''
-        ##############################################
-        this function process the current echo times
-        for the different measurements. Note that 
-        this operation will be performed solely on 
-        the data metadata and then appended in the 
-        same
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-
-        self.process.MIEZE_calculate_contrast(
-            self.data_dict[self.current_data_key],
-            self.mask_dict[self.current_mask_key],
-            self.fit_dict[self.current_fit_key],
-            self.res_dict[self.current_res_key])
-
-    def calculate_ref_contrast(self):
+    def run_calculate_contrast(self):
         '''
         ##############################################
         this function process the current echo times
@@ -702,13 +681,13 @@ class CORE_Manager:
         ##############################################
         '''
 
-        self.process.MIEZE_calculate_ref_contrast(
+        self.process.MIEZE_run_calculate_contrast(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
             self.fit_dict[self.current_fit_key],
             self.res_dict[self.current_res_key])
 
-    def calculate_echo(self):
+    def run_calculate_ref_contrast(self):
         '''
         ##############################################
         this function process the current echo times
@@ -724,13 +703,36 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-        self.process.MIEZE_calculate_echo(
+
+        self.process.MIEZE_run_calculate_ref_contrast(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
             self.fit_dict[self.current_fit_key],
             self.res_dict[self.current_res_key])
 
-    def calculate_intensity(self):
+    def run_calculate_echo(self):
+        '''
+        ##############################################
+        this function process the current echo times
+        for the different measurements. Note that 
+        this operation will be performed solely on 
+        the data metadata and then appended in the 
+        same
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.process.MIEZE_run_calculate_echo(
+            self.data_dict[self.current_data_key],
+            self.mask_dict[self.current_mask_key],
+            self.fit_dict[self.current_fit_key],
+            self.res_dict[self.current_res_key])
+
+    def run_calculate_intensity(self):
         '''
         ##############################################
         This funciton processes the intensity of SANS
@@ -775,7 +777,7 @@ class CORE_Manager:
 
                 print("\nERROR: The name '"+str(name)+"' or key '"+str(key)+"'you have provided is not present in the dictionary. Error...\n")
 
-    def process_axis(self, axis = '', key = None):
+    def run_process_axis(self, axis = '', key = None):
         '''
         ##############################################
         Sets a parameter in the fit dicitonary
