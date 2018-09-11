@@ -135,22 +135,6 @@ class Fit_Handler():
             return self.fun_dict[key]
 
 
-    def add_result(self, result):
-        '''
-        ##############################################
-        add a result to the reuslt manager
-        ———————
-        Input: target (Data_Structure)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        self.logs.add_log('info', 'Appending the fit result')
-
-        self.results.add_result(result)
-
     def set_method(self, target, identifier):
         '''
         ##############################################
@@ -189,21 +173,6 @@ class Fit_Handler():
         '''
         self.para_dict[name] = value
 
-
-    def generate_result(self, parameters):
-        '''
-        ##############################################
-        This function will allow the user to inject
-        fit parameters...
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        return self.results.generate_result(parameters)
         
 class Fit_SANS(Fit_Handler):
 
@@ -458,6 +427,14 @@ class Fit_MIEZE(Fit_Handler):
         self.para_dict['Reference']     = None
         self.para_dict['Select']        = []
     
+        ############################################
+        #set deafult pointers
+        self.para_dict['para_name'] = 'Temperature'
+        self.para_dict['echo_name'] = 'Echo'
+        self.para_dict['meas_name'] = 'Measurement'
+        self.para_dict['foil_name'] = 'Foil'
+        self.para_dict['tcha_name'] = 'Time Channel'
+
 
     def mieze_tau(self, metadata_object, target):
         '''
@@ -606,12 +583,23 @@ class Fit_MIEZE(Fit_Handler):
 
                 return reference
 
+        ############################################
+        #perform a test on the referece
+        elif len(value.split('name')) > 1 :
+
+            if self.para_dict[value] in target.axes.names:
+
+                return self.para_dict[value]
+
+            else:
+
+                print('The axis name does not exist in the provided data. Error...')
+                return False
 
         else:
 
             print('Value to test not found. Error...')
             return False
-
 
     def calc_contrast_fit(self,select, foils_in_echo, shift, target, mask, results):
         '''
@@ -630,11 +618,13 @@ class Fit_MIEZE(Fit_Handler):
         '''
         premask = mask.mask
         local_results = {}
-        para_name = 'Temperature'
-        echo_name = 'Echo'
-        meas_name = 'Measurement'
-        foil_name = 'Foil'
-        tcha_name = 'Time Channel'
+
+        #set up the parameter names
+        para_name = self.test_parameter('para_name', target, mask, results)
+        echo_name = self.test_parameter('echo_name', target, mask, results)
+        meas_name = self.test_parameter('meas_name', target, mask, results)
+        foil_name = self.test_parameter('foil_name', target, mask, results)
+        tcha_name = self.test_parameter('tcha_name', target, mask, results)
 
         ############################################
         #loop over elements
@@ -830,12 +820,11 @@ class Fit_MIEZE(Fit_Handler):
         select          = self.test_parameter('Select', target, mask, results)
         foils_in_echo   = self.test_parameter('foils_in_echo', target, mask, results)
         BG              = self.test_parameter('Background', target, mask, results)
-
-        para_name = 'Temperature'
-        echo_name = 'Echo'
-        meas_name = 'Measurement'
-        foil_name = 'Foil'
-        tcha_name = 'Time Channel'
+        
+        #set up the parameter names
+        para_name = self.test_parameter('para_name', target, mask, results)
+        echo_name = self.test_parameter('echo_name', target, mask, results)
+        meas_name = self.test_parameter('meas_name', target, mask, results)
 
         if any([element == False for element in [select, foils_in_echo, BG]]):
 
@@ -1120,11 +1109,12 @@ class Fit_MIEZE(Fit_Handler):
 
         ############################################
         #cycle over and fit
-        para_name = 'Temperature'
-        echo_name = 'Echo'
-        meas_name = 'Measurement'
-        foil_name = 'Foil'
-        tcha_name = 'Time Channel'
+        #set up the parameter names
+        para_name = self.test_parameter('para_name', target, mask, results)
+        echo_name = self.test_parameter('echo_name', target, mask, results)
+        meas_name = self.test_parameter('meas_name', target, mask, results)
+        foil_name = self.test_parameter('foil_name', target, mask, results)
+        tcha_name = self.test_parameter('tcha_name', target, mask, results)
 
         ############################################
         #loop over elements
@@ -1271,12 +1261,10 @@ class Fit_MIEZE(Fit_Handler):
         phase = {}
 
         ############################################
-        #cycle over and fit
-        para_name = 'Temperature'
-        echo_name = 'Echo'
-        meas_name = 'Measurement'
-        foil_name = 'Foil'
-        tcha_name = 'Time Channel'
+        #set up the parameter names
+        echo_name = self.test_parameter('echo_name', target, mask, results)
+        foil_name = self.test_parameter('foil_name', target, mask, results)
+        tcha_name = self.test_parameter('tcha_name', target, mask, results)
 
         ############################################
         #initialize

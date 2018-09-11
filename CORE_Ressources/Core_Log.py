@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 import copy
+import datetime
 
 class Log_Handler:
 
@@ -83,12 +84,63 @@ class Log_Handler:
         '''
         if selected == 'error':
 
-            self.error.append(message)
+            self.error.append([
+                datetime.datetime.now(),
+                message])
 
         elif selected == 'warning':
 
-            self.warning.append(message)
+            self.warning.append([
+                datetime.datetime.now(),
+                message])
 
         elif selected == 'info':
 
-            self.info.append(message)
+            self.info.append([
+                datetime.datetime.now(),
+                message])
+
+    def dump_log(self, path, level = 0):
+
+        '''
+        ##############################################
+        This function will dump the log to file with 
+        the adequat level. Note that level 0 inidicates
+        that everything should be writen while level
+        1,2,3 refere to 'error', 'error' + 'warnings'
+        'error'+'warnings'+'information'
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        log_array = self.return_last_log(level = level)
+
+
+    def return_single_array(self, level = 0):
+        '''
+        ##############################################
+        This function will dump the log to an array with 
+        the adequat level. Note that level 0 inidicates
+        that everything should be writen while level
+        1,2,3 refere to 'error', 'error' + 'warnings'
+        'error'+'warnings'+'information'
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        array = []
+
+        for log_list in [self.info, self.warning, self.error]:
+
+
+        return array
+        
