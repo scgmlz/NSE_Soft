@@ -23,10 +23,7 @@
 
 import time
 import datetime
-import inspect
-from pprint import pprint
 import pprint
-import sys
 
 from .Core_Log import Log_Handler
 
@@ -60,6 +57,7 @@ class Result_Handler:
         ##############################################
         '''
         self.results = []
+        self.log     = Log_Handler()
 
     def generate_result(self):
         '''
@@ -95,6 +93,15 @@ class Result_Handler:
         status: active
         ##############################################
         '''
+
+        #log it
+        self.log.add_log(
+            'info', 
+            'The user is asking for result name: '
+            + str(name)
+            + ' and key: '
+            + str(key))
+
         if name == '':
 
             return self.results[-1]
@@ -107,18 +114,34 @@ class Result_Handler:
 
                     if key == None:
                         
+                        #log it
+                        self.log.add_log(
+                            'info', 
+                            'Successfully returning result with name: '
+                            + str(name))
+
                         return self.results[i]
 
                     elif not key == None and key not in self.results[i].result_dict.keys():
 
-                        print('The key is not in the result dicitonary')
+                        #log it
+                        self.log.add_log(
+                            'error', 
+                            'Could not find the result with name: '
+                            + str(name)
+                            + ' and key: '
+                            + str(key))
 
                     else:
 
                         return self.results[i][key]
 
-            #obvioulsy we did not find anything so say it
-            print('Could not find the matching name: '+name+' for the result you are looking for... error ?')
+            #log it
+            self.log.add_log(
+                'error', 
+                'Could not find result with name: '
+                + str(name))
+
             return None
 
     def set_result(self, name = '' , position = ['None'], value = None):
@@ -159,12 +182,6 @@ class Result_Handler:
                 exec(eval_string)
 
                 return 0
-
-                
-
-
-
-
 
 class Result_Object:
     '''
@@ -268,13 +285,17 @@ class Result_Object:
             if key in dicitonary.keys():
                 
                 #log the request
-                self.log.add_log('info', 'Found the key: '+str(key))
+                self.log.add_log(
+                    'info', 
+                    'Found the key: '+str(key))
 
                 #return value
                 return dicitonary[key]
 
         #if we reach here we could not find the element
-        self.log.add_log('warning', 'Could not find the key: '+str(key)+', returning 0')
+        self.log.add_log(
+            'error', 
+            'Could not find the key: '+str(key)+', returning 0')
 
         return 0
 

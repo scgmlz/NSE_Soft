@@ -27,7 +27,6 @@ import numpy as np
 import scipy
 import warnings
 import copy
-import pprint
 import functools
 import math
 
@@ -90,7 +89,7 @@ class Fit_Handler():
         self.fun_dict   = {}
         self.ptr_dict   = {}
         self.para_dict  = {}
-        self.logs       = Log_Handler()
+        self.log        = Log_Handler()
         self.verbose    = False
 
     def __getitem__(self, key):
@@ -120,15 +119,15 @@ class Fit_Handler():
         '''
         if key == 'error':
 
-            return self.logs.return_last_log('error')
+            return self.log.return_last_log('error')
 
         elif key == 'info':
 
-            return self.logs.return_last_log('info')
+            return self.log.return_last_log('info')
 
         elif key == 'warning':
 
-            return self.logs.return_last_log('warning')
+            return self.log.return_last_log('warning')
 
         else:
 
@@ -335,7 +334,7 @@ class Fit_SANS(Fit_Handler):
         local_results.set_complete()
 
         #tell fit handler what happened
-        self.logs.add_log(
+        self.log.add_log(
             'Info', 
             'Computation of the intensity was a success')
 
@@ -978,7 +977,7 @@ class Fit_MIEZE(Fit_Handler):
         local_results.set_complete()
 
         #tell fit handler what happened
-        self.logs.add_log(
+        self.log.add_log(
             'Info', 
             'Computation of the contrast was was a success')
 
@@ -1080,7 +1079,7 @@ class Fit_MIEZE(Fit_Handler):
         local_results.set_complete()
 
         #tell fit handler what happened
-        self.logs.add_log(
+        self.log.add_log(
             'info', 
             'Fitting of the contrast was a success')
 
@@ -1229,7 +1228,7 @@ class Fit_MIEZE(Fit_Handler):
         
 
         #tell fit handler what happened
-        self.logs.add_log(
+        self.log.add_log(
             'info', 
             'Computation of the shift was a success')
 
@@ -1367,7 +1366,7 @@ class Fit_MIEZE(Fit_Handler):
         local_results.set_complete()
 
         #tell fit handler what happened
-        self.logs.add_log(
+        self.log.add_log(
             'Info', 
             'Fit of the phase was a success')
 
@@ -1421,7 +1420,7 @@ class Fit_MIEZE(Fit_Handler):
             local_results.set_complete()
 
             #tell fit handler what happened
-            self.logs.add_log(
+            self.log.add_log(
                 'error', 
                 'Fit failed: No counts present.')
 
@@ -1440,7 +1439,7 @@ class Fit_MIEZE(Fit_Handler):
             local_results.set_complete()
 
             #tell fit handler what happened
-            self.logs.add_log(
+            self.log.add_log(
                 'error', 
                 'Fit failed: Minuit failed to compute.')
 
@@ -1455,7 +1454,7 @@ class Fit_MIEZE(Fit_Handler):
             local_results.set_complete()
 
             #tell fit handler what happened
-            self.logs.add_log(
+            self.log.add_log(
                 'error', 
                 'Fit failed: Covariance not valid.')
 
@@ -1477,7 +1476,7 @@ class Fit_MIEZE(Fit_Handler):
             local_results.set_complete()
 
             #tell fit handler what happened
-            self.logs.add_log(
+            self.log.add_log(
                 'error', 
                 'Fit not trusted: Q = {:.2f} < {:.2f} = Qmin).'.
                 format(Q, Qmin))
@@ -1541,7 +1540,7 @@ class Fit_MIEZE(Fit_Handler):
         local_results.set_complete()
 
         #tell fit handler what happened
-        self.logs.add_log(
+        self.log.add_log(
             'info', 
             'Fit success')
 
