@@ -38,7 +38,7 @@ from scipy import optimize as op
 from scipy import stats as st
 
 
-from .CORE_Result import Log_Handler
+from .CORE_Log import Log_Handler
 
 
     

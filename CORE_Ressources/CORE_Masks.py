@@ -486,7 +486,7 @@ class Masks:
         # angular mask
         anglemask = theta <= (tmax-tmin)
 
-        return circmask*circmask2*anglemask
+        return circmask * circmask2 * anglemask
 
     def rect_mask(self, shape, parameters):
         
@@ -505,89 +505,89 @@ class Masks:
         
         self.mask = mask
 
-    # def gen_pregroup_mask_Vis(self,Target, parameters):
+    def gen_pregroup_mask_Vis(self,Target, parameters):
 
-    #     ############################################
-    #     #Unpack the parameters
-    #     shape           = [int(parameters[0][0]),int(parameters[0][1])]
-    #     center          = parameters[1]
-    #     inner_radius    = parameters[2]
-    #     outer_radius    = parameters[3]
-    #     angle_range     = parameters[4] 
-    #     r_width         = parameters[5]
-    #     phi_width       = parameters[6]
+        ############################################
+        #Unpack the parameters
+        shape           = [int(parameters[0][0]),int(parameters[0][1])]
+        center          = parameters[1]
+        inner_radius    = parameters[2]
+        outer_radius    = parameters[3]
+        angle_range     = parameters[4] 
+        r_width         = parameters[5]
+        phi_width       = parameters[6]
 
-    #     ############################################
-    #     #send out the shapes
-    #     index = 0
+        ############################################
+        #send out the shapes
+        index = 0
 
-    #     phi_array = [phi_step for phi_step in range(int((angle_range[1]-angle_range[0]) / phi_width))]
+        phi_array = [phi_step for phi_step in range(int((angle_range[1]-angle_range[0]) / phi_width))]
 
-    #     R_array = [r_step for r_step in range(int(((outer_radius-inner_radius)/r_width)))]
+        R_array = [r_step for r_step in range(int(((outer_radius-inner_radius)/r_width)))]
 
-    #     colors = matplotlib.cm.rainbow(np.linspace(0, 1, len(phi_array)*len(R_array)))
+        colors = matplotlib.cm.rainbow(np.linspace(0, 1, len(phi_array)*len(R_array)))
 
-    #     for phi_step in phi_array:
+        for phi_step in phi_array:
 
             
-    #         for r_step in R_array:
+            for r_step in R_array:
 
-    #             #Pack the parameters
-    #             parameters = [
-    #                 shape,
-    #                 center,
-    #                 inner_radius+(r_step+1)*r_width,
-    #                 inner_radius+r_step*r_width,
-    #                 (angle_range[0]+phi_step*phi_width,
-    #                 angle_range[0]+(phi_step+1)*phi_width)
-    #             ]
+                #Pack the parameters
+                parameters = [
+                    shape,
+                    center,
+                    inner_radius+(r_step+1)*r_width,
+                    inner_radius+r_step*r_width,
+                    (angle_range[0]+phi_step*phi_width,
+                    angle_range[0]+(phi_step+1)*phi_width)
+                ]
 
-    #             #append the mask
-    #             self.sector_mask_Vis(Target, parameters, color = matplotlib.colors.rgb2hex(colors[index][:3]))
+                #append the mask
+                self.sector_mask_Vis(Target, parameters, color = matplotlib.colors.rgb2hex(colors[index][:3]))
 
-    #             #move index forward
-    #             index += 1
+                #move index forward
+                index += 1
 
-    # def sector_mask_Vis(self, Target, parameters, color = "black"):
+    def sector_mask_Vis(self, Target, parameters, color = "black"):
 
-    #     ############################################
-    #     #Unpack the parameters
-    #     centre          = parameters[1]
-    #     outer_radius    = parameters[2]
-    #     inner_radius    = parameters[3]
-    #     angle_range     = parameters[4]
+        ############################################
+        #Unpack the parameters
+        centre          = parameters[1]
+        outer_radius    = parameters[2]
+        inner_radius    = parameters[3]
+        angle_range     = parameters[4]
 
-    #     ############################################
-    #     #send out the anular wedge
-    #     tmin,tmax = np.deg2rad(angle_range)
+        ############################################
+        #send out the anular wedge
+        tmin,tmax = np.deg2rad(angle_range)
 
-    #     Target.annular_wedge(
+        Target.annular_wedge(
 
-    #         x = [centre[0]],
-    #         y = [centre[1]],
-    #         inner_radius = inner_radius,
-    #         outer_radius = outer_radius,
-    #         start_angle  = tmin,
-    #         end_angle    = tmax,
-    #         color   = color,
-    #         alpha   = 0.5)
+            x = [centre[0]],
+            y = [centre[1]],
+            inner_radius = inner_radius,
+            outer_radius = outer_radius,
+            start_angle  = tmin,
+            end_angle    = tmax,
+            color   = color,
+            alpha   = 0.5)
 
-    # def rect_mask_Vis(self, Target, parameters):
+    def rect_mask_Vis(self, Target, parameters):
 
-    #     ############################################
-    #     #Unpack the parameters
-    #     centre  = parameters[1] 
-    #     width   = parameters[2]
-    #     height  = parameters[3]
-    #     print(parameters)
+        ############################################
+        #Unpack the parameters
+        centre  = parameters[1] 
+        width   = parameters[2]
+        height  = parameters[3]
+        print(parameters)
 
-    #     ############################################
-    #     #send out the rectangle
-    #     Target.rect(
-    #         x = [centre[0]],
-    #         y = [centre[1]],
-    #         width   = width,
-    #         height  = height,
-    #         color   = "black",
-    #         alpha   = 0.5)
+        ############################################
+        #send out the rectangle
+        Target.rect(
+            x = [centre[0]],
+            y = [centre[1]],
+            width   = width,
+            height  = height,
+            color   = "black",
+            alpha   = 0.5)
 

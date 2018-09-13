@@ -25,7 +25,7 @@ import numpy as np
 import sys
 import copy
 
-from CORE_Log import Log_Handler
+from .CORE_Log import Log_Handler
 
 class Data_Structure:
     '''
@@ -65,8 +65,6 @@ class Data_Structure:
 
         #set up the log
         self.log = Log_Handler()
-
-
 
     def __str__(self):
         '''
@@ -168,8 +166,6 @@ class Data_Structure:
 
                 id_array = self.axes.get_id_for_index(index)
 
-        
-        
         ##############################################
         #process output
         if len(id_array) == 0:
