@@ -208,7 +208,7 @@ class Result_Object:
 
         #set first metadata
         self.add_metadata('Date',   str(time.ctime()))
-        self.add_metadata('Start',  str(datetime.datetime.now()))
+        self.add_metadata('Start',  datetime.datetime.now())
 
     def __str__(self):
         '''

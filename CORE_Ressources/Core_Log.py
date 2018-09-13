@@ -72,8 +72,7 @@ class Log_Handler:
     def add_log(self, selected, message):
         '''
         ##############################################
-        Will return the last log entry for the 
-        selected type.
+        Add an event to the log.
         ———————
         Input: -
         ———————
@@ -86,22 +85,24 @@ class Log_Handler:
 
             self.error.append([
                 datetime.datetime.now(),
-                message])
+                message,
+                'ERROR'])
 
         elif selected == 'warning':
 
             self.warning.append([
                 datetime.datetime.now(),
-                message])
+                message,
+                'WARNING'])
 
         elif selected == 'info':
 
             self.info.append([
                 datetime.datetime.now(),
-                message])
+                message,
+                'INFORMATION'])
 
-    def dump_log(self, path, level = 0):
-
+    def dump_to_file(self, path, level = 0):
         '''
         ##############################################
         This function will dump the log to file with 
@@ -118,7 +119,37 @@ class Log_Handler:
         ##############################################
         '''
 
-        log_array = self.return_last_log(level = level)
+        log_array = self.return_single_array(level = level)
+
+        file = open(path, 'w')
+
+        for line in log_array:
+
+            file.write(str(line[0])+' '+line[2]+' '+line[1]+'\n')
+
+
+    def dump_to_console(self,level = 0):
+        '''
+        ##############################################
+        This function will dump the log to file with 
+        the adequat level. Note that level 0 inidicates
+        that everything should be writen while level
+        1,2,3 refere to 'error', 'error' + 'warnings'
+        'error'+'warnings'+'information'
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        log_array = self.return_single_array(level = level)
+
+        for line in log_array:
+
+            print(str(line[0])+' '+line[2]+' '+line[1])
 
 
     def return_single_array(self, level = 0):
@@ -137,10 +168,34 @@ class Log_Handler:
         status: active
         ##############################################
         '''
-        array = []
 
-        for log_list in [self.info, self.warning, self.error]:
+        #initialize
+        log_array = []
 
+        #create the list of lsits
+        if level == 0:
 
-        return array
+            log_lists = [self.info, self.warning, self.error]
+
+        elif level == 1:
+
+            log_lists = [self.error]
+
+        elif level == 2:
+
+            log_lists = [self.error, self.warning]
+
+        elif level == 3:
+
+            log_lists = [self.info, self.warning, self.error]
+            
+        #now populate all the warnings
+        for log_list in log_lists:
+            
+            log_array += list(log_list)
+
+        #now sort it 
+        log_array.sort()
+
+        return log_array
         
