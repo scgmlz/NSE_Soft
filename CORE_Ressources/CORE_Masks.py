@@ -25,6 +25,8 @@ import matplotlib
 import logging
 import numpy as np
 
+from .CORE_Log import Log_Handler
+
 class Masks:
 
     def __init__(self):
@@ -52,6 +54,7 @@ class Masks:
         self.selected   = None
         self.parameters = []
         self.commands   = []
+        self.log        = Log_Handler()
 
     def __str__(self):
         '''
@@ -102,8 +105,23 @@ class Masks:
         '''
 
         for command in self.commands:
+            
+            try:
 
-            exec(command)
+                exec(command)
+                self.log.add_log(
+                    'info',
+                    "Sucessfully applied '"
+                    +str(command)
+                    +"' on the mask")
+
+            except:
+
+                self.log.add_log(
+                    'error',
+                    "Failed to apply command '"
+                    +str(command)
+                    +"' on the mask")
 
         return mask
 
@@ -125,6 +143,12 @@ class Masks:
         ##############################################
         '''
         self.commands.append(command)
+
+        self.log.add_log(
+            'info',
+            "Added command '"
+            +str(command)
+            +"' to the mask process")
 
     def remove_command(self, command = '', index = None):
         '''
@@ -184,7 +208,11 @@ class Masks:
 
         if not key in self.all_masks.keys() and not key in self.all_pre_masks.keys():
 
-            logging.warn('The requested mask template does not exist')
+            self.log.add_log(
+                'error',
+                "The mask template '"
+                +str(key)
+                +"' could not be found")
 
         else:
 
@@ -197,6 +225,12 @@ class Masks:
             if  key in self.all_pre_masks.keys():
 
                 self.parameters = self.all_pre_masks[key][1:]
+
+            self.log.add_log(
+                'info',
+                "Sucessfully selected the template '"
+                +str(key)
+                +"'")
 
 
     def process_mask(self, target):
@@ -437,18 +471,22 @@ class Masks:
         #ensure stop angle > start angle
         if tmax<tmin:
             tmax += 2*np.pi
+
         #convert cartesian --> polar coordinates
         r2 = (x-cx)*(x-cx) + (y-cy)*(y-cy)
         theta = np.arctan2(y-cy,x-cx) - tmin
+
         #wrap angles between 0 and 2*pi
         theta %= (2*np.pi)
+
         #circular mask
         circmask    = r2 <  outer_radius*outer_radius
         circmask2   = r2 >= inner_radius*inner_radius
+
         # angular mask
         anglemask = theta <= (tmax-tmin)
 
-        return circmask*circmask2*anglemask
+        return circmask * circmask2 * anglemask
 
     def rect_mask(self, shape, parameters):
         
