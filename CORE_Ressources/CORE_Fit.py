@@ -21,13 +21,14 @@
 #
 # *****************************************************************************
 
+#############################
+#import general components
 import iminuit
 
 import numpy as np
 import scipy
 import warnings
 import copy
-import functools
 import math
 
 from scipy import special as sp
@@ -37,10 +38,9 @@ from scipy import constants as co
 from scipy import optimize as op
 from scipy import stats as st
 
-
+#############################
+#import child components
 from .CORE_Log import Log_Handler
-
-
     
 def get_fit_handler(select):
     '''
@@ -157,7 +157,7 @@ class Fit_Handler():
 
             print('The input keys do not match existing functions')
 
-    def set_parameter(self, name, value):
+    def set_parameter(self, name = '', value = ''):
         '''
         ##############################################
         This function will allow the user to inject
@@ -172,7 +172,6 @@ class Fit_Handler():
         '''
         self.para_dict[name] = value
 
-        
 class Fit_SANS(Fit_Handler):
 
     def __init__(self):
@@ -1143,7 +1142,7 @@ class Fit_MIEZE(Fit_Handler):
                 c_key   = key
                 c_meas  = None
 
-            #check if we switched the key
+            #check if we switched the measurement
             if not c_meas == meas and not new_target == False:
                 
                 #initialise the dictionary
@@ -1152,7 +1151,7 @@ class Fit_MIEZE(Fit_Handler):
                 #set the current keys
                 c_meas  = meas
 
-            #xheck if the data is rigth
+            #check if the data is right
             if not new_target == False:
 
                 #prepare

@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+#############################
+#import general components
 import copy
 import datetime
 
@@ -29,8 +31,12 @@ class Log_Handler:
     def __init__(self):
         '''
         ##############################################
-        This is the initializer of the fit log and
-        errors  handler class
+        This is the initializer of the log and
+        errors  handler class.
+
+        The print_level parameter is the setting in which
+        the log handler will print log inputs to the 
+        console as it is fed.
     
         ———————
         Input: -
@@ -40,9 +46,12 @@ class Log_Handler:
         status: active
         ##############################################
         '''
-        self.info       = []
-        self.warning    = []
-        self.error      = []
+        self.info           = []
+        self.warning        = []
+        self.error          = []
+        self.print_level    = ['error','warning']
+        self.children       = [] 
+        self.parent         = None 
 
     def return_last_log(self, selected):
         '''
@@ -81,26 +90,57 @@ class Log_Handler:
         status: active
         ##############################################
         '''
+
+        ##############################################
+        #are we fed by an error
         if selected == 'error':
 
+            #add error
             self.error.append([
                 datetime.datetime.now(),
                 message,
                 'ERROR'])
 
+            #print error
+            if  'error' in self.print_level:
+
+                line = self.error[-1]
+
+                print(str(line[0])+' '+line[2]+' '+line[1])
+
+        ##############################################
+        #are we fed by a warning
         elif selected == 'warning':
 
+            #add error
             self.warning.append([
                 datetime.datetime.now(),
                 message,
                 'WARNING'])
 
+            #print error
+            if  'warning' in self.print_level:
+
+                line = self.warning[-1]
+
+                print(str(line[0])+' '+line[2]+' '+line[1])
+
+        ##############################################
+        #are we fed by an information
         elif selected == 'info':
 
+            #add error
             self.info.append([
                 datetime.datetime.now(),
                 message,
                 'INFORMATION'])
+
+            #print error
+            if  'info' in self.print_level:
+
+                line = self.info[-1]
+
+                print(str(line[0])+' '+line[2]+' '+line[1])
 
     def dump_to_file(self, path, level = 0):
         '''
@@ -126,7 +166,6 @@ class Log_Handler:
         for line in log_array:
 
             file.write(str(line[0])+' '+line[2]+' '+line[1]+'\n')
-
 
     def dump_to_console(self,level = 0):
         '''

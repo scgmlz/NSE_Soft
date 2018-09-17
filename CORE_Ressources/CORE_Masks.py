@@ -21,10 +21,14 @@
 #
 # *****************************************************************************
 
+#############################
+#import general components
 import matplotlib
 import logging
 import numpy as np
 
+#############################
+#import child components
 from .CORE_Log import Log_Handler
 
 class Masks:
@@ -125,7 +129,7 @@ class Masks:
 
         return mask
 
-    def add_command(self, command):
+    def add_command(self, command_str = ''):
         '''
         ##############################################
         The user can here pass on commands here
@@ -142,12 +146,12 @@ class Masks:
         status: active
         ##############################################
         '''
-        self.commands.append(command)
+        self.commands.append(command_str)
 
         self.log.add_log(
             'info',
             "Added command '"
-            +str(command)
+            +str(command_str)
             +"' to the mask process")
 
     def remove_command(self, command = '', index = None):
@@ -184,7 +188,6 @@ class Masks:
         ##############################################
         '''
         self.commands = []
-
 
     def select_template(self, key = ''):
         '''
