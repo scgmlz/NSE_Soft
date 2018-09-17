@@ -31,11 +31,12 @@ from .CORE_Modules.CORE_Import_SANS_PAD import Import_SANS_PAD
 
 class IO_Manager:
 
-    def __init__(self):
+    def __init__(self, env):
 
         self.verbose = True
+        self.env     = env
 
-    def load_MIEZE_TOF(self,load_path, target):
+    def load_MIEZE_TOF(self,load_path):
         '''
         ##############################################
         This function will manage the load of tof
@@ -43,9 +44,9 @@ class IO_Manager:
         components
         ##############################################
         '''
-        load = Import_MIEZE_TOF(load_path,target)
+        Import_MIEZE_TOF(load_path,self.env.current_data)
 
-    def load_MIEZE_HD5(self,load_path, target):
+    def load_MIEZE_HD5(self,load_path):
         '''
         ##############################################
         This function will manage the load of tof
@@ -57,7 +58,7 @@ class IO_Manager:
         pass
 
 
-    def load_SANS_PAD(self,load_path, target):
+    def load_SANS_PAD(self,load_path):
         '''
         ##############################################
         This function will import the data from the 
@@ -65,6 +66,6 @@ class IO_Manager:
         ##############################################
         '''
 
-        load = Import_SANS_PAD(load_path,target)
+        Import_SANS_PAD(load_path,self.env.current_data)
 
          

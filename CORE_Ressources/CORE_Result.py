@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+#############################
+#import general components
 import time
 import datetime
 import pprint
@@ -169,6 +171,10 @@ class Result_Handler:
 
                 eval_string += "['"+str(element)+"']"
 
+            elif isinstance(element, int):
+    
+                eval_string += "['"+int(element)+"']"
+
             else:
 
                 eval_string += "["+str(element)+"]"
@@ -287,7 +293,11 @@ class Result_Object:
                 #log the request
                 self.log.add_log(
                     'info', 
-                    'Found the key: '+str(key))
+                    "Found the key: '"
+                    + str(key)
+                    + "' with the value: '"
+                    + str(dicitonary[key])
+                    + "'")
 
                 #return value
                 return dicitonary[key]
@@ -315,7 +325,6 @@ class Result_Object:
         #call the method
         self.add_result( key, value)
         
-
     def set_complete(self):
         '''
         ##############################################
@@ -359,7 +368,11 @@ class Result_Object:
         self.metadata_dict[name] = value
 
         #log it
-        self.log.add_log('info', 'Added '+name+' to the metadata')
+        self.log.add_log(
+            'info', 
+            "Added the entry'"
+            + name
+            + "' to the metadata")
 
     def add_parameter(self, name, value):
         '''
@@ -377,7 +390,11 @@ class Result_Object:
         self.parameter_dict[name] = value
 
         #log it
-        self.log.add_log('info', 'Added '+name+' to the parameters')
+        self.log.add_log(
+            'info', 
+            "Added the entry'"
+            + name
+            + "' to the parameters")
 
     def add_input(self, name, value):
         '''
@@ -395,7 +412,11 @@ class Result_Object:
         self.input_dict[name] = value
 
         #log it
-        self.log.add_log('info', 'Added '+name+' to the inputs')
+        self.log.add_log(
+            'info', 
+            "Added the entry'"
+            + name
+            + "' to the inputs")
 
     def add_result(self, name, value):
         '''
@@ -413,7 +434,11 @@ class Result_Object:
         self.result_dict[name] = value
 
         #log it
-        self.log.add_log('info', 'Added '+name+' to the results')
+        self.log.add_log(
+            'info', 
+            "Added the entry'"
+            + name
+            + "' to the results")
 
     def add_log(self, name, value):
         '''

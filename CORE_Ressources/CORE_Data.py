@@ -21,10 +21,14 @@
 #
 # *****************************************************************************
 
+#############################
+#import general components
 import numpy as np
 import sys
 import copy
 
+#############################
+#import child components
 from .CORE_Log import Log_Handler
 
 class Data_Structure:
@@ -1227,9 +1231,6 @@ class Data_Structure:
 
             return None
 
-
-
-
 class Data_Object:
     '''
     ##############################################
@@ -1799,7 +1800,7 @@ class Axes:
     def set_axis(self,idx, axis = []):
         '''
         ##############################################
-        set the unit of an axis ...
+        set the velues of an axis ...
         ———————
         Input: 
         - name (list of elements)
