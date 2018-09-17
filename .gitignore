@@ -109,3 +109,4 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+GUI_Ressources/__pycache__/__init__.cpython-37.pyc
