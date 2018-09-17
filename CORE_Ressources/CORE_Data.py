@@ -25,6 +25,8 @@ import numpy as np
 import sys
 import copy
 
+from .CORE_Log import Log_Handler
+
 class Data_Structure:
     '''
     ##############################################
@@ -61,6 +63,8 @@ class Data_Structure:
         self.metadata_class = Metadata(0)
         self.metadata = self.metadata_class.metadata
 
+        #set up the log
+        self.log = Log_Handler()
 
     def __str__(self):
         '''
@@ -99,6 +103,9 @@ class Data_Structure:
         else:
             output += "- No Metadata defined\n"
         output += "##########################################################\n\n"
+
+        #send it also out to the log
+        self.log.add_log('info', output)
 
         return output
 
@@ -159,8 +166,6 @@ class Data_Structure:
 
                 id_array = self.axes.get_id_for_index(index)
 
-        
-        
         ##############################################
         #process output
         if len(id_array) == 0:
@@ -281,7 +286,6 @@ class Data_Structure:
 
             self.metadata_objects[-1].links.append(self.id)
 
-        
         self.id += 1
 
     def add_metadata_object(self,dictionary):
@@ -440,7 +444,6 @@ class Data_Structure:
         status: active
         ##############################################
         '''
-
         if self.sanity_check():
 
             self.axes = Axes(self)
@@ -448,8 +451,6 @@ class Data_Structure:
         else:
 
             print("Data sanity check failed")
-
-
 
     def get_pos_from_id(self,idx):
         '''
@@ -533,18 +534,32 @@ class Data_Structure:
         ##############################################
         '''
 
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Trying to process a reduction of the datastructure')
+
         ##############################################
         #create the new structure
         new_data = Data_Structure()
+
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully created the new structure')
 
         #fill the appropriate elements
         for idx in id_array:
 
             new_data.inject_data_object(self.data_objects[self.get_pos_from_id(idx)])
             
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully injected the data_objects')
+
         #creat the reduction boolean mask
         mask = [isinstance(element, int) for element in index]
-
 
         #apply the mask
         for data_object in new_data.data_objects:
@@ -558,6 +573,11 @@ class Data_Structure:
                     new_index.append(int(data_object.index[i]))
 
             data_object.index = list(new_index)
+
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully processed the necessary axis reductions')
 
         #validate the structure
         new_data.validate()
@@ -580,6 +600,11 @@ class Data_Structure:
                     new_data.axes.idx[new_idx].append([])
 
                 new_idx +=1
+
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully fixed axis informations')
 
         ##############################################
         ##############################################
@@ -629,11 +654,25 @@ class Data_Structure:
         new_data.metadata_class = copy.deepcopy(self.metadata_class)
         new_data.metadata = new_data.metadata_class.metadata
 
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully fixed metadata informations')
+
         ##############################################
         ##############################################
         #transfer the axis information
         new_data.clean()
+
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Cleaning up')
         
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'returning new structure')
 
         return new_data
 
@@ -656,6 +695,11 @@ class Data_Structure:
 
             data_object.perform_backup()
 
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully Backed up all objects')
+
     def restore_backup(self):
         '''
         ##############################################
@@ -674,6 +718,11 @@ class Data_Structure:
         for data_object in self.data_objects:
 
             data_object.restore_backup()
+
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully restored the backup')
 
     def remove_from_axis(self, idx, array):
         '''
@@ -707,6 +756,16 @@ class Data_Structure:
         new_data.clean_data(equivalence)
 
         new_data.create_map()
+
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully removed points from axis')
+
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Returning result')
 
         return new_data
     
@@ -843,6 +902,11 @@ class Data_Structure:
 
             self.inject_data_object(copy.deepcopy(summed_object))
 
+        #send it also out to the log
+        self.log.add_log(
+            'info', 
+            'Sucessfully summed the data with increment '
+            +str(increment))
 
         #current length of the objects array
         if sum_metadata:
@@ -857,6 +921,11 @@ class Data_Structure:
 
                 element.meta_address = [self.metadata_objects[-1].meta_id]
 
+                #send it also out to the log
+                self.log.add_log(
+                    'info', 
+                    'Sucessfully summed the metadata with increment '
+                    +str(increment))
 
         self.validate()
 
@@ -873,6 +942,10 @@ class Data_Structure:
             self.axes.remove_from_axes(element)
 
         self.clean()
+
+        self.log.add_log(
+            'info', 
+            'Sucessfully cleaned up after summation')
 
     def clean(self):
         '''
@@ -937,12 +1010,33 @@ class Data_Structure:
         Input:
         - data_object
         ———————
-        Output: -
+        Output: 
+        - axis array (list)
         ———————
         status: active
         ##############################################
         '''
-        return self.axes.axes[self.axes.names.index(axis_name)]
+
+        if axis_name in self.axes.names:
+
+            #log it
+            self.log.add_log(
+                'info', 
+                "Providing the axis with name '"
+                +str(axis_name)
+                +"' to the user")
+
+            return self.axes.axes[self.axes.names.index(axis_name)]
+
+        else:
+
+            #log it
+            self.log.add_log(
+                'error', "Axis with name '"
+                +str(axis_name)
+                +"' does not exist")
+
+            return None
 
     def get_axis_len(self,axis_name):
         '''
@@ -954,12 +1048,34 @@ class Data_Structure:
         Input:
         - data_object
         ———————
-        Output: -
+        Output: 
+        - axis length (int)
         ———————
         status: active
         ##############################################
         '''
-        return self.axes.axes_len[self.axes.names.index(axis_name)]
+
+        if axis_name in self.axes.names:
+    
+            #log it
+            self.log.add_log(
+                'info', 
+                "Providing the axis length with name '"
+                +str(axis_name)
+                +"' to the user")
+
+            return self.axes.axes_len[self.axes.names.index(axis_name)]
+
+        else:
+
+            #log it
+            self.log.add_log(
+                'error', 
+                "Axis with name '"
+                +str(axis_name)
+                +"' does not exist")
+
+            return None
 
     def get_axis_unit(self,axis_name):
         '''
@@ -971,12 +1087,35 @@ class Data_Structure:
         Input:
         - data_object
         ———————
-        Output: -
+        Output: 
+        - axis name (str)
         ———————
         status: active
         ##############################################
         '''
-        return self.axes.units[self.axes.names.index(axis_name)]
+
+        if axis_name in self.axes.names:
+    
+            #log it
+            self.log.add_log(
+                'info', 
+                "Providing the unit of the axis with name '"
+                +str(axis_name)
+                +"' to the user")
+
+            return self.axes.units[self.axes.names.index(axis_name)]
+
+        else:
+
+            #log it
+            self.log.add_log(
+                'error', 
+                "Axis with name '"
+                +str(axis_name)
+                +"' does not exist")
+
+            return None
+
 
     def get_axis_idx(self,axis_name, value):
         '''
@@ -993,7 +1132,45 @@ class Data_Structure:
         status: active
         ##############################################
         '''
-        return self.axes.axes[self.axes.names.index(axis_name)].index(value)
+
+        if axis_name in self.axes.names:
+
+            if value in self.axes.axes[self.axes.names.index(axis_name)]:
+        
+                #log it
+                self.log.add_log(
+                    'info', 
+                    "Providing the index of '"
+                    +str(value)
+                    +"' on the axis with name '"
+                    +str(axis_name)
+                    +"' to the user")
+
+                return self.axes.axes[self.axes.names.index(axis_name)].index(value)
+
+            else:
+
+                #log it
+                self.log.add_log(
+                    'error',
+                    "The value '"
+                    +str(axis_name)
+                    +"' does not exist on the axis with name '"
+                    +str(axis_name)
+                    +"'")
+
+                return None
+
+        else:
+
+            #log it
+            self.log.add_log(
+                'error', 
+                "Axis with name '"
+                +str(axis_name)
+                +"' does not exist")
+
+            return None
 
     def get_axis_val(self,axis_name, idx):
         '''
@@ -1010,7 +1187,46 @@ class Data_Structure:
         status: active
         ##############################################
         '''
-        return self.axes.axes[self.axes.names.index(axis_name)][idx]
+
+        if axis_name in self.axes.names:
+    
+            if len(self.axes.axes[self.axes.names.index(axis_name)]) > idx:
+        
+                #log it
+                self.log.add_log(
+                    'info', 
+                    "Providing the value at idx '"
+                    +str(idx)
+                    +"' on the axis with name '"
+                    +str(axis_name)
+                    +"' to the user")
+
+                return self.axes.axes[self.axes.names.index(axis_name)][idx]
+
+            else:
+
+                #log it
+                self.log.add_log(
+                    'error',
+                    "The index '"
+                    +str(idx)
+                    +"' greater than the length if the axis with name '"
+                    +str(axis_name)
+                    +"'")
+
+                return None
+
+        else:
+
+            #log it
+            self.log.add_log(
+                'error', 
+                "Axis with name '"
+                +str(axis_name)
+                +"' does not exist")
+
+            return None
+
 
 
 
@@ -1044,19 +1260,14 @@ class Data_Object:
         fore set thevariables as local.
         ##############################################
         '''
-        self.id = int(id)
-
-        self.data = data
-
-        self.index = list(index)
+        self.id             = int(id)
+        self.data           = data
+        self.index          = list(index)
+        self.meta_address   = []
+        self.is_backed_up   = False
 
         self.get_type()
-
         self.get_dim()
-
-        self.meta_address = []
-
-        self.is_backed_up = False
 
     def __str__(self):
         '''
@@ -1262,11 +1473,9 @@ class Metadata:
 
         ############################################
         #intialise the metadata object
-        self.metadata = dict(dictionary)
-
-        self.links = []
-
-        self.meta_id = int(meta_id)
+        self.metadata   = dict(dictionary)
+        self.links      = []
+        self.meta_id    = int(meta_id)
 
 
     def __str__(self):

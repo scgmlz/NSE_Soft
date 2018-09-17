@@ -283,7 +283,6 @@ class CORE_Manager:
 
             return self.get_fun_dict[command][0](*args,**kwargs)
 
-
     def set(self,command, *args, **kwargs):
         '''
         ##############################################
@@ -321,8 +320,6 @@ class CORE_Manager:
             else:
 
                 return self.set_fun_dict[command][0](*args,**kwargs)
-
-
 
     def help(self, command = None):
         '''
@@ -458,7 +455,6 @@ class CORE_Manager:
 
         #set it to the current data structure
         self.set_current_mask(key = title)
-
 
     def new_environement(self, title = 'No_Name', select = 'MIEZE'):
         '''
@@ -749,7 +745,6 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-
         self.process.MIEZE_calculate_contrast(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],
@@ -772,7 +767,6 @@ class CORE_Manager:
         status: active
         ##############################################
         '''
-
         self.process.MIEZE_calculate_ref_contrast(
             self.data_dict[self.current_data_key],
             self.mask_dict[self.current_mask_key],

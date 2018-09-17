@@ -263,7 +263,7 @@ class Import_MIEZE_TOF:
 
                     for idx_3 in range(extra_dim[1]):
 
-                        address = (*index,idx_1,idx_2,idx_3)
+                        address = tuple(index) + (idx_1,idx_2,idx_3)
 
                         target[address] = data[idx_2,idx_3,:,:]
 
