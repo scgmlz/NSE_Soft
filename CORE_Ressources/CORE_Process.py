@@ -49,8 +49,6 @@ def get_process_handler(select, env):
         
         return None
 
-
-
 class Process_Handler:
 
     def __init__(self, env):
@@ -223,7 +221,6 @@ class Process_MIEZE(Process_Handler):
         Output: -
         ##############################################
         '''
-
         #generate the mask adapted to this dataset
         self.env.mask.process_mask(
             self.env.current_data)
@@ -272,7 +269,6 @@ class Process_SANS(Process_Handler):
         Output: -
         ##############################################
         '''
-
         #generate the mask adapted to this dataset
         self.env.mask.process_mask(
             self.env.current_data)

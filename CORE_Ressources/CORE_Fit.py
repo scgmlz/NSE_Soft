@@ -30,6 +30,7 @@ import scipy
 import warnings
 import copy
 import math
+import timeit
 
 from scipy import special as sp
 from scipy import integrate as integrate
@@ -618,11 +619,11 @@ class Fit_MIEZE(Fit_Handler):
         local_results = {}
 
         #set up the parameter names
-        para_name = self.test_parameter('para_name', target, mask, results)
-        echo_name = self.test_parameter('echo_name', target, mask, results)
-        meas_name = self.test_parameter('meas_name', target, mask, results)
-        foil_name = self.test_parameter('foil_name', target, mask, results)
-        tcha_name = self.test_parameter('tcha_name', target, mask, results)
+        para_name = self.para_dict['para_name']
+        echo_name = self.para_dict['echo_name']
+        meas_name = self.para_dict['meas_name']
+        foil_name = self.para_dict['foil_name']
+        tcha_name = self.para_dict['tcha_name']
 
         ############################################
         #loop over elements
@@ -702,6 +703,100 @@ class Fit_MIEZE(Fit_Handler):
                         result['mean']/monitor,
                         result['mean_error']/monitor]
 
+                    
+        return local_results
+
+    def calc_contrast_fit_single(self,foil, select, target, mask, results):
+        '''
+        ##############################################
+        This function will process the fit of the
+        given input.
+        ———————
+        Input: 
+        - select (list)
+        - MIEZE metadata object
+        - mask object
+        ———————
+        Output: 
+        - will return the result array 
+        ##############################################
+        '''
+        premask = mask.mask
+        local_results = {}
+        shift = results.get_last_result('Shift calculation', 'Shift')
+
+        #set up the parameter names
+        para_name = self.para_dict['para_name']
+        echo_name = self.para_dict['echo_name']
+        meas_name = self.para_dict['meas_name']
+        foil_name = self.para_dict['foil_name']
+        tcha_name = self.para_dict['tcha_name']
+
+        ############################################
+        #loop over elements
+        loop = [
+            (e1, e2) 
+            for e1 in select 
+            for e2 in target.get_axis(meas_name)]
+
+        for key, meas in loop:
+
+            #grab the data slice
+            new_target          = target.get_slice([key, meas])
+
+            #if measurement it 0 initate the dicitoanry
+            if meas == 0:
+
+                local_results[key]    = {}
+
+            if not new_target == False:
+                    
+                #print out the processing step
+                print(
+                    'Processing the contrast fit for: '
+                    +str(key)
+                    +target.get_axis_unit(para_name)
+                    +' measurement '
+                    +str(meas)
+                    +target.get_axis_unit(meas_name))
+
+                local_results[key][meas]    = {}
+
+                ############################################
+                for echo in new_target.get_axis(echo_name):
+
+                    #grab idx for the values.
+                    echo_idx_1  = new_target.get_axis_idx(echo_name, echo)
+                    foil_idx    = new_target.get_axis_idx(foil_name, foil)
+                        
+                    combined_data = np.array(
+                        [(np.multiply(shift[key][meas][echo][foil_idx,tcha_idx],premask)).sum() 
+                        for tcha_idx in range(new_target.get_axis_len(tcha_name))])
+                    
+                    ############################################
+                    #fit the data
+                    self['fit_cov'](
+                        results,
+                        combined_data, 
+                        np.sqrt(combined_data), 
+                        Qmin = 0.,
+                        time_chan = new_target.get_axis_len(tcha_name)
+                        )
+
+                    #process the result of the fit
+                    result = results.get_last_result('Fit data covariance')
+
+                    ############################################
+                    #get monitor value
+                    monitor = new_target.get_metadata([echo_idx_1,0,0])[0]['monitor']
+
+                    ############################################
+                    #process the result
+                    local_results[key][meas][echo] = [
+                        result['ampl']/monitor,
+                        result['ampl_error']/monitor,
+                        result['mean']/monitor,
+                        result['mean_error']/monitor]
                     
         return local_results
 
@@ -792,8 +887,7 @@ class Fit_MIEZE(Fit_Handler):
         local_results.add_log('info', 'Computation of the contrast was was a success')
         local_results.set_complete()
 
-
-    def calc_contrast(self,target, mask, results):
+    def calc_contrast(self,target, mask, results, select = False, foil = None):
         '''
         ##############################################
         uses self.shifted to combine foils and 
@@ -815,10 +909,13 @@ class Fit_MIEZE(Fit_Handler):
         ############################################
         #extract the relevant parameters
         shift           = results.get_last_result('Shift calculation', 'Shift')
-        select          = self.test_parameter('Select', target, mask, results)
-        foils_in_echo   = self.test_parameter('foils_in_echo', target, mask, results)
         BG              = self.test_parameter('Background', target, mask, results)
-        
+
+        if select == False:
+            select          = self.test_parameter('Select', target, mask, results)
+
+        foils_in_echo   = self.test_parameter('foils_in_echo', target, mask, results)
+
         #set up the parameter names
         para_name = self.test_parameter('para_name', target, mask, results)
         echo_name = self.test_parameter('echo_name', target, mask, results)
@@ -923,7 +1020,7 @@ class Fit_MIEZE(Fit_Handler):
                 if BG == None and not BG == key:
 
                     #set the contrast data
-                    ctrst = contrast_results[key][meas][echo][0]/contrast_results[key][meas][echo][2]
+                    ctrst = abs(contrast_results[key][meas][echo][0]/contrast_results[key][meas][echo][2])
                     ctrst_err = (
                         np.sqrt(
                             
@@ -980,6 +1077,186 @@ class Fit_MIEZE(Fit_Handler):
             'Info', 
             'Computation of the contrast was was a success')
 
+
+    def calc_contrast_single_foil(self, foil, select, target, mask, results):
+        '''
+        ##############################################
+        uses self.shifted to combine foils and 
+        calculates contrast for chosen foils for 
+        certain echos
+        ———————
+        Input: 
+        - MIEZE metadata object
+        - mask object
+        ———————
+        Output: -
+        ##############################################
+        '''
+        ##############################################
+        #Initialize the output dictionary with all def.
+        local_results = results.generate_result()
+        local_results.add_metadata('name', 'Contrast calculation single')
+
+        ############################################
+        #extract the relevant parameters
+        shift           = results.get_last_result('Shift calculation', 'Shift')
+        foils_in_echo   = self.para_dict['foils_in_echo']
+        BG              = self.para_dict['Background']
+        
+        #set up the parameter names
+        para_name = self.para_dict['para_name']
+        echo_name = self.para_dict['echo_name']
+        meas_name = self.para_dict['meas_name']
+
+        ############################################
+        #contrast calculation
+        contrast_results = self.calc_contrast_fit_single(
+            foil, 
+            select,
+            target, 
+            mask,
+            results)
+
+        ############################################
+        #initilise the contrast result
+        contrast            = {}
+        contrast_error      = {}
+        
+        ############################################
+        #process Background
+        if not BG == None:
+
+            print(
+                'Processing the Background contrast calculation for: '
+                +str(BG)
+                +target.axes.units[0])
+
+            BG_result = self.calc_contrast_fit(
+                [BG], 
+                foils_in_echo, 
+                shift, 
+                target, 
+                mask,
+                results)
+
+        ############################################
+        #prepare the axis for by adding different 
+        #measurements
+        axis = {}
+        pos  = {}
+
+        #set the loop
+        loop = [
+            (e1, e2) 
+            for e1 in select 
+            for e2 in target.get_axis(meas_name)]
+
+        #current values comparators
+        c_key   = None
+        
+        #loop
+        for key, meas in loop:
+
+            #grab the data slice
+            new_target          = target.get_slice([key, meas])
+
+            #check if we switched the key
+            if not c_key == key and not new_target == False:
+
+                #initialise the dictionary
+                axis[key] = []
+                pos[key]  = []
+
+                #set the current keys
+                c_key   = key
+
+            #grab axis information
+            if not new_target == False:
+
+                for i in range(new_target.get_axis_len(echo_name)):
+
+                    axis[key].append(new_target.get_axis_val(echo_name, i))
+                    pos[key].append((meas, new_target.get_axis_val(echo_name, i)))
+
+        ############################################
+        #now process the data on the axis
+        for key in axis.keys():
+
+            #if measurement it 0 initate the dicitoanry
+            contrast[key]       = []
+            contrast_error[key] = []
+
+            #grab the data slice
+            new_target          = target.get_slice([key])
+
+            #print it out
+            print(
+                'Processing the contrast calculation for: '
+                +str(key)
+                +target.get_axis_unit(para_name)
+                )
+
+            for meas, echo in pos[key]:
+
+                if BG == None and not BG == key:
+
+                    #set the contrast data
+                    ctrst = abs(contrast_results[key][meas][echo][0]/contrast_results[key][meas][echo][2])
+                    ctrst_err = (
+                        np.sqrt(
+                            
+                            (contrast_results[key][meas][echo][1]
+                            /contrast_results[key][meas][echo][0])**2
+
+                            +(contrast_results[key][meas][echo][3]
+                            /contrast_results[key][meas][echo][2])**2)
+
+                        *contrast_results[key][meas][echo][0]
+                        /contrast_results[key][meas][echo][2])
+
+                elif not BG == None and not BG == key:
+
+                    ctrst = ((
+                        abs(contrast_results[key][meas][echo][0])-abs(BG_result[BG][0][echo][0]))
+                        /(contrast_results[key][meas][echo][2]-BG_result[BG][0][echo][2]))
+
+                    ctrst_err =np.sqrt(
+
+                            (contrast_results[key][meas][echo][1]
+                                /(contrast_results[key][meas][echo][2]-BG_result[BG][0][echo][2]))**2
+
+                            + (BG_result[BG][0][echo][1]
+                                /(contrast_results[key][meas][echo][2]-BG_result[BG][0][echo][2]))**2
+
+                            + ((abs(contrast_results[key][meas][echo][0])
+                                -abs(BG_result[BG][0][echo][0]))
+                                /(contrast_results[key][meas][echo][2]-BG_result[BG][0][echo][2])**2
+                                *contrast_results[key][meas][echo][3])**2
+
+                            + ((abs(contrast_results[key][meas][echo][0])
+                                -abs(BG_result[BG][0][echo][0]))
+                                /(contrast_results[key][meas][echo][2]-BG_result[BG][0][echo][2])**2
+                                *BG_result[BG][0][echo][3])**2
+                    )
+
+                contrast[key].append(float(ctrst))
+                contrast_error[key].append(float(ctrst_err))
+
+        ##############################################
+        #finalize result and send it out
+        local_results['Axis']                 = axis
+        local_results['Contrast']             = contrast
+        local_results['Contrast_error']       = contrast_error
+        local_results['Background']           = BG
+    
+        #write the dictionary entries
+        local_results.add_log('info', 'Computation of the contrast was was a success')
+        local_results.set_complete()
+
+        #tell fit handler what happened
+        self.log.add_log(
+            'Info', 
+            'Computation of the contrast was was a success')
 
     def fit_contrast(self,target, mask, results):
         '''

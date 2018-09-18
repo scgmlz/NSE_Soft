@@ -17,28 +17,165 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Lenz <alexander.schober@mac.com>
+#   Alexander Schober <alexander.schober@mac.com>
 #
 # *****************************************************************************
-
+import matplotlib as mpl
+from ipywidgets import interact, interactive, fixed, interact_manual, widgets
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import cProfile
+import timeit
+import copy
 
 class GUI_Manager:
 
-    def __init__(self, Parent):
+    def __init__(self):
 
         ##############################################
         #initiate the core manager  
-        self.Parent = Parent
+        self.current_env = None
 
-    def run(self,command):
+    def launch_panel(self):
         '''
         ##############################################
-        In this function the user can run Core
-        commands from the python terminal by inputing
-        the command dictioanry key and the arguments
-
-        -------
-        Input : command, 
+         
         ##############################################
         '''
-        pass
+        self.meas = None
+        self.para = None
+        
+
+        def f(
+            para    = self.current_env.current_data.get_axis('Temperature')[0], 
+            meas    = self.current_env.current_data.get_axis('Measurement')[0], 
+            echo    = self.current_env.current_data.get_axis('Echo')[0], 
+            foil    = self.current_env.current_data.get_axis('Foil')[0], 
+            x0      = self.current_env.mask.parameters[0][0], 
+            y0      = self.current_env.mask.parameters[0][1], 
+            r_outer = self.current_env.mask.parameters[1], 
+            r_inner = self.current_env.mask.parameters[2], 
+            angle1  = self.current_env.mask.parameters[3][0], 
+            angle2  = self.current_env.mask.parameters[3][1]):
+            
+            para_idx = self.current_env.current_data.get_axis_idx('Temperature', para)
+            meas_idx = self.current_env.current_data.get_axis_idx('Measurement', meas)
+            echo_idx = self.current_env.current_data.get_axis_idx('Echo', echo)
+            foil_idx = self.current_env.current_data.get_axis_idx('Foil', foil)
+
+            if not para == self.para or not self.meas == meas:
+
+                start = timeit.default_timer()
+
+                self.data = self.current_env.current_data[para_idx,meas_idx,:,:,:]
+                self.reshaped = self.data.return_as_np()
+
+                self.meas = copy.deepcopy(meas)
+                self.para = copy.deepcopy(para)
+
+                stop = timeit.default_timer()
+                print('Time for geting array: ', stop - start)
+
+
+            fig = plt.figure(figsize=(15,10))
+
+            ax = fig.add_subplot(2,2,1)
+
+            #prepare the mask
+            parameters = [
+                [x0,y0],
+                r_outer,
+                r_inner,
+                [angle1,angle2]]
+
+            self.current_env.mask.set_parameters(parameters)
+            self.current_env.mask.process_mask(self.current_env.current_data)
+            mask = self.current_env.mask.mask
+            ax.imshow(
+                mask * np.sum(
+                    self.reshaped, 
+                    axis=(0,1,2)), 
+                    norm=mpl.colors.LogNorm(), 
+                    origin='lower', 
+                    cmap='viridis')
+
+            ax = fig.add_subplot(2,2,2)
+
+            counts = [
+                np.sum(mask*self.reshaped[echo_idx,foil_idx,timechannel]) 
+                for timechannel in range(16)]
+
+            start = timeit.default_timer()
+
+            self.current_env.fit.fit_data_cov(
+                self.current_env.results, 
+                counts, 
+                np.sqrt(counts), 
+                Qmin=0.)
+
+            fit = self.current_env.get_result('Fit data covariance')
+            stop = timeit.default_timer()
+            print('Time for fit: ', stop - start)
+
+            ax.errorbar(range(16), counts, np.sqrt(counts), fmt='o')
+
+            x = np.arange(0,15,0.01)
+
+            ax.errorbar(x, fit['ampl']*np.cos(x/16.*2*np.pi+fit['phase'])+fit['mean'])
+            ax.set_ylim(0, np.max(counts)*1.2)
+            ax.set_ylabel('counts')
+            ax.set_xlabel('time channel')
+            ax.text(0, np.max(counts)*1.15, r'contrast = %.2f $\pm$ %.2f' %(fit['pol'], fit['pol_error']['Cov']))
+
+            ax = fig.add_subplot(2,2,3)
+            start = timeit.default_timer()
+            self.current_env.fit.calc_contrast_single_foil(
+                foil, 
+                [para], 
+                self.current_env.current_data,
+                self.current_env.mask,
+                self.current_env.results)
+
+            stop = timeit.default_timer()
+            print('Time for fit_2: ', stop - start)
+
+            process = self.current_env.get_result('Contrast calculation single')
+
+            ax.errorbar(
+                process['Axis'][para], 
+                process['Contrast'][para], 
+                process['Contrast_error'][para], 
+                fmt='o')
+
+            ax.set_xscale('log')
+            ax.set_ylim(0,1.)
+            ax.set_xlabel('t(ns)')
+            ax.set_ylabel('contrast')
+
+            ax = fig.add_subplot(2,2,4)
+            mean_value = [np.sum(np.sum(self.reshaped[echo,:,:,:,:], axis=(0,1))*mask) for echo in range(self.reshaped.shape[0])]
+            ax.errorbar(process['Axis'][para], mean_value, np.sqrt(mean_value), fmt='o')
+            ax.set_xscale('log')
+            ax.set_ylim(0.,)
+            ax.set_xlabel('t(ns)')
+            ax.set_ylabel('mean value')
+
+            plt.show()
+
+
+
+        interact(
+            f,
+            para = self.current_env.current_data.get_axis('Temperature'),
+            meas = self.current_env.current_data.get_axis('Measurement'), 
+            echo = self.current_env.current_data.get_axis('Echo'), 
+            foil = self.current_env.current_data.get_axis('Foil'), 
+            x0=(0, 128, 1), 
+            y0=(0, 128, 1), 
+            r_outer=(0, 128, 1), 
+            r_inner=(0, 128, 1), 
+            angle1=(0,360,1), 
+            angle2=(0,360,1))

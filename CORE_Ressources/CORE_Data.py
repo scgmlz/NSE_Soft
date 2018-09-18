@@ -59,6 +59,7 @@ class Data_Structure:
         self.metadata_objects   = []
         self.metadata_adresses  = []
         self.map                = None
+        self.slices             = {}
 
         #logical variables
         self.add_meta_auto = True
@@ -227,6 +228,7 @@ class Data_Structure:
         ##############################################
         '''
         self.sanity_check()
+        self.delete_all_slices
         self.generate_axes()
         self.create_map()
 
@@ -484,6 +486,54 @@ class Data_Structure:
 
         return self.metadata_adresses.index(id)
 
+    def add_slice(self,array, data_structure):
+        '''
+        ##############################################
+        This method will allow the user to generate 
+        slices in advance to speed up the process. 
+        This will allow that a repeated operation is
+        not going to tax the ressources to much.
+
+        Some major operation on the dataset will 
+        obvioulsy reset the slices. 
+        ———————
+        Input: 
+        - 
+        ———————
+        Output: 
+        - datastructure
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        self.slices[repr(array)] = data_structure
+
+    def delete_all_slices(self):
+        '''
+        ##############################################
+        This method will allow the user to generate 
+        slices in advance to speed up the process. 
+        This will allow that a repeated operation is
+        not going to tax the ressources to much.
+
+        Some major operation on the dataset will 
+        obvioulsy reset the slices. 
+        ———————
+        Input: 
+        - 
+        ———————
+        Output: 
+        - datastructure
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        for key in self.slices.keys():
+
+            del self.slices[key]
+
     def get_slice(self,array):
         '''
         ##############################################
@@ -500,6 +550,13 @@ class Data_Structure:
         status: active
         ##############################################
         '''
+
+        #first check if it is already in the slice dictionary
+        if repr(array) in self.slices.keys():
+
+            return self.slices[repr(array)]
+
+        #or create it 
         index = []
 
         for i in range(self.axes.dim): 
@@ -520,7 +577,9 @@ class Data_Structure:
 
         else:
 
-            return self.process_reduction(index, id_array)
+            self.add_slice(array, self.process_reduction(index, id_array))
+
+            return self.slices[repr(array)]
 
     def process_reduction(self,index, id_array):
         '''

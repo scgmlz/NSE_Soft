@@ -124,7 +124,7 @@ class Result_Handler:
 
                         return self.results[i]
 
-                    elif not key == None and key not in self.results[i].result_dict.keys():
+                    elif not key == None and key not in self.results[i].result_dict:
 
                         #log it
                         self.log.add_log(
@@ -277,37 +277,33 @@ class Result_Object:
         status: active
         ##############################################
         ''' 
+        #for performace try first the result mode
+        try:
+            return self.result_dict[key]
+            
+        except:
+            
+            #if result didn't worj go to the newt stage
+            pointers = [
+                self.metadata_dict, 
+                self.parameter_dict, 
+                self.input_dict, 
+                self.result_dict]
 
-        #create the pointer
-        pointers = [
-            self.metadata_dict, 
-            self.parameter_dict, 
-            self.input_dict, 
-            self.result_dict]
+            #run through it
+            for dicitonary in pointers:
 
-        #run through it
-        for dicitonary in pointers:
+                if key in dicitonary:
+                    
+                    #return value
+                    return dicitonary[key]
 
-            if key in dicitonary.keys():
-                
-                #log the request
-                self.log.add_log(
-                    'info', 
-                    "Found the key: '"
-                    + str(key)
-                    + "' with the value: '"
-                    + str(dicitonary[key])
-                    + "'")
+            #if we reach here we could not find the element
+            self.log.add_log(
+                'error', 
+                'Could not find the key: '+str(key)+', returning 0')
 
-                #return value
-                return dicitonary[key]
-
-        #if we reach here we could not find the element
-        self.log.add_log(
-            'error', 
-            'Could not find the key: '+str(key)+', returning 0')
-
-        return 0
+            return 0
 
     def __setitem__(self, key, value):
         '''

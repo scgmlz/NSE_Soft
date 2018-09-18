@@ -76,6 +76,8 @@ class CORE_Manager:
         #set environement
         self.set_current_env(title)
 
+        self.current_env = self.env_dict[title]
+
         return self.env_dict[title]
 
     def set_current_env(self, key = None):
@@ -97,6 +99,8 @@ class CORE_Manager:
             if key in self.env_dict.keys():
 
                 self.current_env_key    = key
+
+                self.current_env = self.env_dict[key]
 
                 return self.env_dict[key]
 
