@@ -25,8 +25,9 @@
 from setuptools import setup, find_packages
 
 print(find_packages(exclude=['doc','test']))
+
 setup(
-    name = 'NSE',
+    name = 'NSE_Soft',
     version = '0.0.1',
     license = 'GPL',
     author = 'Dr. Alexander Schober',
