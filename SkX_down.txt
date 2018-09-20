@@ -1,0 +1,49 @@
+
+#############################################################################
+#Specify here the full path to the data
+Path : /Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/
+#############################################################################
+#Specify here the data to be disregarded
+# second argument is the dimension and third either a list() or range() command
+Ignore : 3 : (3,4)
+
+#############################################################################
+#Specify here the measurement parameters
+#
+
+Dim : Type : Temperature : Pixel : Pixel
+Unit : - : K : px : px
+
+Data : ['110_1'] : 0012 : range(2194, 2298) : (128x128)
+Data : ['100_1'] : 0012 : range(2681, 2725) : (128x128)
+Data : ['100_2'] : 0012 : range(2890, 2956) : (128x128)
+Data : ['BG'] : 0012 : range(1609, 1611) : (128x128)
+
+#############################################################################
+#Manage metadata to save
+#type : name_in_file         : name to assign in dataclass
+
+
+Metadata : Lambda : wavelength : float : 1 : A
+Metadata : SD : lsd : float : 1 : m
+Metadata : monitor1_value : monitor : int : 2e-3 : -
+Metadata : monitor1 : monitor : int : 2e-3 : -
+Metadata : timer_value : counttime : float : 1 : Hz
+
+Metadata : T_ccr_a_value : T_A : float : 1 : K
+Metadata : Temp1 : T_A : float : 1 : K
+Metadata : T_ccr_b_value : T_B : float : 1 : K
+Metadata : T_ccr_c_value : T_C : float : 1 : K
+Metadata : Temp2 : T_C : float : 1 : K
+Metadata : T_ccr_d_value : T_D : float : 1 : K
+
+Metadata : srx_value : chi : float : 1 : deg
+Metadata : sry_value : phi : float : 1 : deg
+Metadata : srz_value : omg : float : 1 : deg
+Metadata : sth_newport10_value : newport : float : 1 : K
+Metadata : Magnet : B : float : 1 : K
+Metadata : lockin_y_value : lockin_y : float : 1 : K
+Metadata : lockin_x_value : lockin_x : float : 1 : K
+Metadata : fg2_frequency_value : freq : float : 1 : K
+Metadata : fg2_power_value : power : float : 1 : K
+
