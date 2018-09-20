@@ -59,6 +59,7 @@ class Data_Structure:
         self.metadata_objects   = []
         self.metadata_adresses  = []
         self.map                = None
+        self.slices             = {}
 
         #logical variables
         self.add_meta_auto = True
@@ -156,19 +157,13 @@ class Data_Structure:
         
         ##############################################
         #process input
-        if index == 'all':
-
-            return copy.deepcopy(self)
+        if isinstance(index,int):
+            
+            id_array = self.axes.get_id_for_index([index])
 
         else:
 
-            if isinstance(index,int):
-                
-                id_array = self.axes.get_id_for_index([index])
-
-            else:
-
-                id_array = self.axes.get_id_for_index(index)
+            id_array = self.axes.get_id_for_index(index)
 
         ##############################################
         #process output
@@ -227,6 +222,7 @@ class Data_Structure:
         ##############################################
         '''
         self.sanity_check()
+        self.delete_all_slices()
         self.generate_axes()
         self.create_map()
 
@@ -278,7 +274,7 @@ class Data_Structure:
         status: active
         ##############################################
         '''
-        self.data_objects.append(Data_Object(self.id, data,index))
+        self.data_objects.append(Data_Object(self.id, data, index))
 
         self.data_adresses.append(self.id)
 
@@ -484,6 +480,54 @@ class Data_Structure:
 
         return self.metadata_adresses.index(id)
 
+    def add_slice(self,array, data_structure):
+        '''
+        ##############################################
+        This method will allow the user to generate 
+        slices in advance to speed up the process. 
+        This will allow that a repeated operation is
+        not going to tax the ressources to much.
+
+        Some major operation on the dataset will 
+        obvioulsy reset the slices. 
+        ———————
+        Input: 
+        - 
+        ———————
+        Output: 
+        - datastructure
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        self.slices[repr(array)] = data_structure
+
+    def delete_all_slices(self):
+        '''
+        ##############################################
+        This method will allow the user to generate 
+        slices in advance to speed up the process. 
+        This will allow that a repeated operation is
+        not going to tax the ressources to much.
+
+        Some major operation on the dataset will 
+        obvioulsy reset the slices. 
+        ———————
+        Input: 
+        - 
+        ———————
+        Output: 
+        - datastructure
+        ———————
+        status: active
+        ##############################################
+        '''
+        pointer = [key for key in self.slices.keys()]
+        for key in pointer:
+
+            del self.slices[key]
+
     def get_slice(self,array):
         '''
         ##############################################
@@ -500,6 +544,13 @@ class Data_Structure:
         status: active
         ##############################################
         '''
+
+        #first check if it is already in the slice dictionary
+        if repr(array) in self.slices.keys():
+
+            return self.slices[repr(array)]
+
+        #or create it 
         index = []
 
         for i in range(self.axes.dim): 
@@ -520,7 +571,9 @@ class Data_Structure:
 
         else:
 
-            return self.process_reduction(index, id_array)
+            self.add_slice(array, self.process_reduction(index, id_array))
+
+            return self.slices[repr(array)]
 
     def process_reduction(self,index, id_array):
         '''
@@ -679,54 +732,6 @@ class Data_Structure:
             'returning new structure')
 
         return new_data
-
-    def perform_backup(self):
-        '''
-        ##############################################
-        This instance will perform a backup of the 
-        data saved in each data object to allow for 
-        its modification. It can be restored through
-        self.restore_backup
-        ———————
-        Input:-
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        for data_object in self.data_objects:
-
-            data_object.perform_backup()
-
-        #send it also out to the log
-        self.log.add_log(
-            'info', 
-            'Sucessfully Backed up all objects')
-
-    def restore_backup(self):
-        '''
-        ##############################################
-        This instance will perform a backup of the 
-        data saved in each data object to allow for 
-        its modification. It can be restored through
-        self.restore_backup
-        ———————
-        Input:-
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        for data_object in self.data_objects:
-
-            data_object.restore_backup()
-
-        #send it also out to the log
-        self.log.add_log(
-            'info', 
-            'Sucessfully restored the backup')
 
     def remove_from_axis(self, idx, array):
         '''
@@ -904,7 +909,7 @@ class Data_Structure:
 
                 summed_object += self.data_objects[idx_0 + idx_1]
 
-            self.inject_data_object(copy.deepcopy(summed_object))
+            self.inject_data_object(summed_object)
 
         #send it also out to the log
         self.log.add_log(
@@ -1020,7 +1025,6 @@ class Data_Structure:
         status: active
         ##############################################
         '''
-
         if axis_name in self.axes.names:
 
             #log it
@@ -1058,7 +1062,6 @@ class Data_Structure:
         status: active
         ##############################################
         '''
-
         if axis_name in self.axes.names:
     
             #log it
@@ -1097,7 +1100,6 @@ class Data_Structure:
         status: active
         ##############################################
         '''
-
         if axis_name in self.axes.names:
     
             #log it
@@ -1136,7 +1138,6 @@ class Data_Structure:
         status: active
         ##############################################
         '''
-
         if axis_name in self.axes.names:
 
             if value in self.axes.axes[self.axes.names.index(axis_name)]:
@@ -1417,37 +1418,6 @@ class Data_Object:
 
                     break
 
-    def perform_backup(self):
-        '''
-        ##############################################
-        backup the data instance
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        self.data_backup = copy.deepcopy(self.data)
-
-        self.is_backed_up = True
-
-    def restore_backup(self):
-        '''
-        ##############################################
-        backup the data instance
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        if self.is_backed_up:
-
-            self.data = copy.deepcopy(self.data_backup)
 
 class Metadata:
 
@@ -1675,7 +1645,6 @@ class Axes:
         ############################################
         #process dimensionalilty
         self.dim = len(data_structure.data_objects[0].index)
-        self.data_structure = data_structure
 
         ############################################
         #set the local variable
@@ -1847,7 +1816,7 @@ class Axes:
 
         return self.axes[idx].index(val)
 
-    def collapse_axis(self, idx):
+    def collapse_axis(self, idx, data_structure):
         '''
         ##############################################
         In this method we will look at an axis and the
@@ -1877,7 +1846,7 @@ class Axes:
 
         ############################################
         #fix the objects and their axes
-        for i, data_object in enumerate(self.data_structure.data_objects):
+        for i, data_object in enumerate(data_structure.data_objects):
 
             data_object.index[idx] = transfer[i]
 
@@ -1888,12 +1857,11 @@ class Axes:
         self.axes[idx] = list(new_axis)
         self.idx[idx] = list(new_idx)   
 
-
         ############################################
         #reevaluate info
         self.evaluate_length()
 
-    def grab_meta(self, idx, key):
+    def grab_meta(self, idx, key, data_structure):
         '''
         ##############################################
         In this function we would like to grab the 
@@ -1914,14 +1882,14 @@ class Axes:
         values = []
         ids    = []
 
-        for data_object in self.data_structure.data_objects:
+        for data_object in data_structure.data_objects:
 
             value = '-'
 
             for address in data_object.meta_address:
                 try:
 
-                    value = self.data_structure.get_metadata_object(address)[key]
+                    value = data_structure.get_metadata_object(address)[key]
 
                 except:
                     pass

@@ -44,7 +44,9 @@ class IO_Manager:
         components
         ##############################################
         '''
+
         Import_MIEZE_TOF(load_path,self.env.current_data)
+
 
     def load_MIEZE_HD5(self,load_path):
         '''

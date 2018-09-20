@@ -48,7 +48,6 @@ class Masks:
         status: active
         ##############################################
         '''
-
         ############################################
         #run initialisation
         self.generate_default()
@@ -81,7 +80,7 @@ class Masks:
         output += "- Selected mask template: "+str(self.selected)+"\n"
         output += "- Parameters:\n"
 
-        for i in range(1,len(self.parameters)):
+        for i in range(0,len(self.parameters)):
 
             output += "          "+str(self.parameters[i])+"\n"
 
@@ -90,7 +89,6 @@ class Masks:
         output += "##########################################################\n\n"
 
         return output
-
 
     def run_commands(self, mask):
         '''
@@ -107,7 +105,6 @@ class Masks:
         status: active
         ##############################################
         '''
-
         for command in self.commands:
             
             try:
@@ -208,7 +205,6 @@ class Masks:
         status: active
         ##############################################
         '''
-
         if not key in self.all_masks.keys() and not key in self.all_pre_masks.keys():
 
             self.log.add_log(
@@ -235,6 +231,23 @@ class Masks:
                 +str(key)
                 +"'")
 
+    def set_parameters(self, parameters):
+        '''
+        ##############################################
+        Allows the user to inject the parameters of the
+        mask that he wants to use. It basically sets
+        self.parameters = parameters
+
+        ———————
+        Input: 
+        - data_structure
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''   
+        self.parameters = list(parameters)
 
     def process_mask(self, target):
         '''
@@ -291,7 +304,6 @@ class Masks:
         status: active
         ##############################################
         '''
-
         ############################################
         #Run all defautl masks
 

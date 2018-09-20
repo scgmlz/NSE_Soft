@@ -49,8 +49,6 @@ def get_process_handler(select, env):
         
         return None
 
-
-
 class Process_Handler:
 
     def __init__(self, env):
@@ -85,8 +83,8 @@ class Process_Handler:
         ############################################
         #fix the axes
         idx = self.env.current_data.axes.names.index(axis)
-        self.env.current_data.axes.grab_meta(idx, key)
-        self.env.current_data.axes.collapse_axis(idx)
+        self.env.current_data.axes.grab_meta(idx, key, self.env.current_data)
+        self.env.current_data.axes.collapse_axis(idx, self.env.current_data)
 
 
 class Process_MIEZE(Process_Handler):
@@ -223,7 +221,6 @@ class Process_MIEZE(Process_Handler):
         Output: -
         ##############################################
         '''
-
         #generate the mask adapted to this dataset
         self.env.mask.process_mask(
             self.env.current_data)
@@ -272,7 +269,6 @@ class Process_SANS(Process_Handler):
         Output: -
         ##############################################
         '''
-
         #generate the mask adapted to this dataset
         self.env.mask.process_mask(
             self.env.current_data)
