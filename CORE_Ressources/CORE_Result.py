@@ -45,7 +45,7 @@ class Result_Handler:
     ##############################################
     '''
 
-    def __init__(self):
+    def __init__(self, mode = 'List'):
         '''
         ##############################################
         This is the initializer of the fit results 
@@ -58,10 +58,34 @@ class Result_Handler:
         status: active
         ##############################################
         '''
-        self.results = []
-        self.log     = Log_Handler()
+        self.mode       = mode
 
-    def generate_result(self):
+        if self.mode == 'List':
+
+            self.results  =  []
+
+        elif self.mode == 'Dict':
+
+            self.results  =  {}
+
+        self.log        = Log_Handler()
+
+    def reset(self):
+        '''
+        ##############################################
+        Reset the result handler class by deleting 
+        all results. 
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.results.clear()
+
+    def generate_result(self, name):
         '''
         ##############################################
         This class will create a new result object and
@@ -74,10 +98,22 @@ class Result_Handler:
         status: active
         ##############################################
         '''
-        #add the element
-        self.results.append(Result_Object())
+        ##############################################
+        #dictionary mode
+        if self.mode == 'Dict':
 
-        return self.results[-1]
+            #add the element
+            self.results[name] = Result_Object(name)
+
+            return self.results[name]
+
+        ##############################################
+        #list mode
+        else:
+            #add the element
+            self.results.append(Result_Object(name))
+
+            return self.results[-1]
 
     def get_last_result(self, name = '', key = None):
         '''
@@ -95,7 +131,6 @@ class Result_Handler:
         status: active
         ##############################################
         '''
-
         #log it
         self.log.add_log(
             'info', 
@@ -104,6 +139,36 @@ class Result_Handler:
             + ' and key: '
             + str(key))
 
+        ##############################################
+        #dictionary mode
+        if self.mode == 'Dict':
+
+            if key == None:
+                        
+                #log it
+                self.log.add_log(
+                    'info', 
+                    'Successfully returning result with name: '
+                    + str(name))
+
+                return self.results[name]
+
+            elif not key == None and key not in self.results[name].result_dict:
+
+                #log it
+                self.log.add_log(
+                    'error', 
+                    'Could not find the result with name: '
+                    + str(name)
+                    + ' and key: '
+                    + str(key))
+
+            else:
+
+                return self.results[name][key]
+
+        ##############################################
+        #dlist mode
         if name == '':
 
             return self.results[-1]
@@ -162,9 +227,22 @@ class Result_Handler:
         ##############################################
         '''
 
-        #build the string
-        eval_string = "self.results[i]"
+        ##############################################
+        #dictionary mode
+        if self.mode == 'Dict':
 
+            #build the string
+            eval_string = "self.results['" + str(name) + "']"
+
+        ##############################################
+        #List mode
+        else:
+
+            #build the string
+            eval_string = "self.results[i]"
+
+        ##############################################
+        #Common part
         for element in position:
 
             if isinstance(element, str):
@@ -181,13 +259,23 @@ class Result_Handler:
 
         eval_string += " = value"
 
-        for i in range(len(self.results) - 1, -1, -1):
+        ##############################################
+        #dictionary mode
+        if self.mode == 'Dict':
 
-            if self.results[i]['name'] == name:
+            exec(eval_string)
 
-                exec(eval_string)
+        ##############################################
+        #List mode
+        else:
+                
+            for i in range(len(self.results) - 1, -1, -1):
 
-                return 0
+                if self.results[i]['name'] == name:
+
+                    exec(eval_string)
+
+                    return 0
 
 class Result_Object:
     '''
@@ -205,7 +293,7 @@ class Result_Object:
     ##############################################
     '''
 
-    def __init__(self):
+    def __init__(self, name):
         '''
         ##############################################
         Initialise a Result_object. Note that the
@@ -232,6 +320,7 @@ class Result_Object:
         #set first metadata
         self.add_metadata('Date',   str(time.ctime()))
         self.add_metadata('Start',  datetime.datetime.now())
+        self.add_metadata('name',   name)
 
     def __str__(self):
         '''

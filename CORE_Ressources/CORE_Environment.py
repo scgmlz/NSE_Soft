@@ -60,7 +60,7 @@ class Environment:
         self.data   = {}
 
         #initialize
-        self.new_data()
+        self.new_data(title = 'vertical MIEZE')
         self.new_fit(select)
         self.new_mask()
         self.new_results()
@@ -82,6 +82,11 @@ class Environment:
         status: active
         ##############################################
         '''
+
+        if len(self.data.keys())< 1:
+
+            self.initial_data_name = title
+
         #this will simply create the dataclass
         self.data[title] = Data_Structure()
 
@@ -145,7 +150,7 @@ class Environment:
         '''
 
         #this will simply create the dataclass
-        self.results = Result_Handler()
+        self.results = Result_Handler(mode = 'Dict')
 
     def new_mask(self):
         '''
@@ -208,3 +213,33 @@ class Environment:
             except ValueError:
 
                 print("\nERROR: The name '"+str(name)+"' or key '"+str(key)+"'you have provided is not present in the dictionary. Error...\n")
+
+
+    def purge(self, name = '', key = None, last = True):
+        '''
+        ##############################################
+        Will free memory be deleting all the data 
+        slices and the results. This is in an effort
+        to save RAM. 
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        #delete the current data slices
+        self.current_data = self.data[self.initial_data_name]
+        self.data[self.initial_data_name].delete_all_slices()
+        pointer = [key for key in self.data.keys()]
+
+        #delete the other datastructures
+        for key in pointer:
+
+            if not self.initial_data_name == key:
+
+                self.data[key].delete_all_slices()
+
+                del self.data[key]

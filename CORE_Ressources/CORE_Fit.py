@@ -249,8 +249,7 @@ class Fit_SANS(Fit_Handler):
         '''
         ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result()
-        local_results.add_metadata('name', 'Intensity')
+        local_results = results.generate_result( name = 'Intensity')
 
         ##############################################
         #Initialize the output dictionary with all def.
@@ -816,8 +815,7 @@ class Fit_MIEZE(Fit_Handler):
         '''
         ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result()
-        local_results.add_metadata('name', 'Reference contrast calculation')
+        local_results = results.generate_result(name = 'Reference contrast calculation')
 
         ############################################
         #extract the relevant parameters
@@ -903,8 +901,7 @@ class Fit_MIEZE(Fit_Handler):
         '''
         ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result()
-        local_results.add_metadata('name', 'Contrast calculation')
+        local_results = results.generate_result( name =  'Contrast calculation')
 
         ############################################
         #extract the relevant parameters
@@ -1094,8 +1091,7 @@ class Fit_MIEZE(Fit_Handler):
         '''
         ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result()
-        local_results.add_metadata('name', 'Contrast calculation single')
+        local_results = results.generate_result( name = 'Contrast calculation single')
 
         ############################################
         #extract the relevant parameters
@@ -1276,8 +1272,7 @@ class Fit_MIEZE(Fit_Handler):
         '''
         ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result()
-        local_results.add_metadata('name', 'Contrast fit')
+        local_results = results.generate_result( name = 'Contrast fit')
 
         ############################################
         #get the last contrast computaiton result
@@ -1374,8 +1369,7 @@ class Fit_MIEZE(Fit_Handler):
 
         ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result()
-        local_results.add_metadata('name', 'Shift calculation')
+        local_results = results.generate_result( name = 'Shift calculation')
 
         ############################################
         #extract the relevant parameters
@@ -1522,8 +1516,7 @@ class Fit_MIEZE(Fit_Handler):
         '''
         ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result()
-        local_results.add_metadata('name', 'Phase calculation')
+        local_results = results.generate_result( name = 'Phase calculation')
 
         ############################################
         #extract the relevant parameters
@@ -1597,7 +1590,7 @@ class Fit_MIEZE(Fit_Handler):
                 position    = position,
                 fit_des     = fit_des)
 
-            if not success and results.get_last_result().log.return_last_log('error') == 'cov_failed':
+            if not success and results.get_last_result('Fit data covariance').log.return_last_log('error') == 'cov_failed':
 
                 print ('covariance failed in echo %d on foil %d' %(echo, foil))
 
@@ -1613,7 +1606,7 @@ class Fit_MIEZE(Fit_Handler):
                     position    = position,
                     fit_des     = fit_des)
 
-                if not success and results.get_last_result().log.return_last_log('error') == 'cov_failed':
+                if not success and results.get_last_result('Fit data covariance').log.return_last_log('error') == 'cov_failed':
 
                     print ('covariance failed AGAIN (15 instead of 16 points were fitted) in echo %d on foil %d' %(echo, foil))
                     phase[echo][foil_idx, :, :] +=  -1*mask
@@ -1621,15 +1614,15 @@ class Fit_MIEZE(Fit_Handler):
                 else:
 
                     phase[echo][foil_idx, :, :] += ((
-                        results.get_last_result()['phase'] 
-                        + (np.pi if results.get_last_result()['ampl'] < 0 else 0
+                        results.get_last_result('Fit data covariance')['phase'] 
+                        + (np.pi if results.get_last_result('Fit data covariance')['ampl'] < 0 else 0
                         )) % (2. * np.pi))*mask
 
             else:
 
                 phase[echo][foil_idx, :, :] += ((
-                    results.get_last_result()['phase'] 
-                    + (np.pi if results.get_last_result()['ampl'] < 0 else 0
+                    results.get_last_result('Fit data covariance')['phase'] 
+                    + (np.pi if results.get_last_result('Fit data covariance')['ampl'] < 0 else 0
                     ))% (2. * np.pi))*mask
 
         ############################################
@@ -1675,8 +1668,7 @@ class Fit_MIEZE(Fit_Handler):
         '''
         ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result()
-        local_results.add_metadata('name', 'Fit data covariance')
+        local_results = results.generate_result( name = 'Fit data covariance')
 
         #the description
         local_results.add_log('info', fit_des)

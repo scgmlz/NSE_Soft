@@ -21,7 +21,8 @@
 #
 # *****************************************************************************
 
-#hey dude
+import matplotlib 
+matplotlib.use('TkAgg')
 #############################
 #import main components
 from .CORE_Ressources.CORE_Manager import CORE_Manager

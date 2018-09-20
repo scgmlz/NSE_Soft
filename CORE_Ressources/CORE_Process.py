@@ -83,8 +83,8 @@ class Process_Handler:
         ############################################
         #fix the axes
         idx = self.env.current_data.axes.names.index(axis)
-        self.env.current_data.axes.grab_meta(idx, key)
-        self.env.current_data.axes.collapse_axis(idx)
+        self.env.current_data.axes.grab_meta(idx, key, self.env.current_data)
+        self.env.current_data.axes.collapse_axis(idx, self.env.current_data)
 
 
 class Process_MIEZE(Process_Handler):
