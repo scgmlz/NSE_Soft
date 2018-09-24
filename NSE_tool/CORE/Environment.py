@@ -21,12 +21,12 @@
 #
 # *****************************************************************************
 
-from .CORE_Masks    import Masks 
-from .CORE_Data     import Data_Structure 
-from .CORE_Fit      import get_fit_handler
-from .CORE_Result   import Result_Handler
-from .CORE_Process  import get_process_handler
-from .CORE_io       import IO_Manager
+from .Masks    import Masks 
+from .Data     import Data_Structure 
+from .Fit      import get_fit_handler
+from .Result   import Result_Handler
+from .Process  import get_process_handler
+from .io       import IO_Manager
 
 class Environment:
     '''

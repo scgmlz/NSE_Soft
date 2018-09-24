@@ -33,7 +33,7 @@ import copy
 # from SimplePlot import SimplePlot as sp
 # import tkinter as tk
 
-class GUI_Manager:
+class Manager:
 
     def __init__(self):
 

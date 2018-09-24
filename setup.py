@@ -17,24 +17,26 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Lenz <alexander.schober@mac.com>
+#   Alexander Schober <alexander.schober@mac.com>
 #
 # *****************************************************************************
 
 
 from setuptools import setup, find_packages
 
-print(find_packages(exclude=['doc','test']))
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 
 setup(
-    name = 'NSE_Soft',
+    name = 'NSE_tool',
     version = '0.0.1',
     license = 'GPL',
     author = 'Dr. Alexander Schober',
+    install_requires = requirements,
     author_email = 'alex.schober@mac.com',
     description = 'NSE analysis package',
     packages = find_packages(exclude=['doc','test']),
-    package_data = {'NSE_Soft': ['RELEASE-VERSION']},
+    package_data = {'NSE_tool': ['RELEASE-VERSION']},
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
