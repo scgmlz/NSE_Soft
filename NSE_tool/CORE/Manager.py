@@ -29,10 +29,10 @@ import logging
 
 #############################
 #import child components
-from .CORE_io       import IO_Manager
-from .CORE_Environment    import Environment 
+from .io            import IO_Manager
+from .Environment   import Environment 
 
-class CORE_Manager:
+class Manager:
 
     def __init__(self, parent = None):
 

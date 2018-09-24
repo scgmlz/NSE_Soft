@@ -24,7 +24,6 @@
 #############################
 #import general components
 import iminuit
-
 import numpy as np
 import scipy
 import warnings
@@ -41,7 +40,7 @@ from scipy import stats as st
 
 #############################
 #import child components
-from .CORE_Log import Log_Handler
+from .Log import Log_Handler
     
 def get_fit_handler(select):
     '''
