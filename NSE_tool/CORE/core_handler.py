@@ -1,3 +1,4 @@
+
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Copyright (c) 2017 by the NSE analysis contributors (see AUTHORS)
@@ -30,9 +31,9 @@ import logging
 #############################
 #import child components
 from .io            import IO_Manager
-from .Environment   import Environment 
+from .environment   import Environment 
 
-class Manager:
+class Handler:
 
     def __init__(self, parent = None):
 

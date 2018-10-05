@@ -29,7 +29,7 @@ import copy
 
 #############################
 #import child components
-from .Log import Log_Handler
+from .log import Log_Handler
 
 class Data_Structure:
     '''

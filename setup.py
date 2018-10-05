@@ -27,12 +27,15 @@ from setuptools import setup, find_packages
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
+requirements.append('simpleplot')
+
 setup(
     name = 'NSE_tool',
     version = '0.0.1',
     license = 'GPL',
     author = 'Dr. Alexander Schober',
     install_requires = requirements,
+    dependency_links =['https://github.com/AlexanderSchober/simpleplot_qt/tarball/master#egg=SimplePlot-0.1'],
     author_email = 'alex.schober@mac.com',
     description = 'NSE analysis package',
     packages = find_packages(exclude=['doc','test']),
