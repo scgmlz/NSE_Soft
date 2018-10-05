@@ -26,8 +26,8 @@ import sys
 import io
 import numpy as np
 
-from .io_Modules.Import_MIEZE_TOF import Import_MIEZE_TOF
-from .io_Modules.Import_SANS_PAD import Import_SANS_PAD
+from .io_modules.import_mieze_tof import Import_MIEZE_TOF
+from .io_modules.import_sans_pad import Import_SANS_PAD
 
 class IO_Manager:
 

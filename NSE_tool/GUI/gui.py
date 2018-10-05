@@ -32,14 +32,11 @@ import cProfile
 import timeit
 import copy
 
-
-
-
+#new machinery
 import numpy as np
 from .qrangeslider import QRangeSlider
 from simpleplot.multi_canvas import Multi_Canvas
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import QThread, QObject, pyqtSignal, pyqtSlot
 import numpy as np
 import sys
 
@@ -675,7 +672,7 @@ class Manager:
 
         #initialize worker and thread
         self.worker = Worker(parameters)
-        self.threads.append(QThread())
+        self.threads.append(QtCore.QThread())
 
         #send the worker to the thread
         self.worker.moveToThread(self.threads[-1])
@@ -832,11 +829,11 @@ class Manager:
         self.cx.redraw()
         self.dx.redraw()
 
-class Worker(QObject):
+class Worker(QtCore.QObject):
 
     #the pyslots
-    finished = pyqtSignal()
-    intReady = pyqtSignal(int)
+    finished = QtCore.pyqtSignal()
+    intReady = QtCore.pyqtSignal(int)
 
     def __init__(self, parameters):
         '''
@@ -861,10 +858,10 @@ class Worker(QObject):
         status: active
         ##############################################
         '''
-        QObject.__init__(self)
+        QtCore.QObject.__init__(self)
         self.parameters = parameters
         
-    @pyqtSlot()
+    @QtCore.pyqtSlot()
     def run(self): # A slot takes no params
 
         '''
@@ -879,14 +876,10 @@ class Worker(QObject):
         ##############################################
         '''
         para    = self.parameters[1]
-        meas    = self.parameters[2]
-        echo    = self.parameters[3]
         foil    = self.parameters[4]
 
         ##############################################
         #process index
-        para_idx = self.parameters[5]
-        meas_idx = self.parameters[6]
         echo_idx = self.parameters[7]
         foil_idx = self.parameters[8]
 

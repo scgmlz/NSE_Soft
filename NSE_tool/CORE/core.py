@@ -30,7 +30,7 @@ import logging
 #############################
 #import child components
 from .io            import IO_Manager
-from .Environment   import Environment 
+from .environment   import Environment 
 
 class Manager:
 
