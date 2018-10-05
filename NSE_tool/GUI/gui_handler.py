@@ -42,7 +42,7 @@ import sys
 
 
 
-class Manager:
+class Handler:
 
     def __init__(self):
 

@@ -282,7 +282,7 @@ class Masks:
 
         shape = target.data_objects[0].dim
 
-        self.mask = mask_target[self.selected][0][0](shape,self.parameters)
+        self.mask = mask_target[self.selected][0](shape,self.parameters)
 
         #run the post masks commands
         mask = self.mask
