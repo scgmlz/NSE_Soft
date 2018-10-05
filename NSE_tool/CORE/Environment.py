@@ -21,11 +21,11 @@
 #
 # *****************************************************************************
 
-from .Masks    import Masks 
-from .Data     import Data_Structure 
-from .Fit      import get_fit_handler
-from .Result   import Result_Handler
-from .Process  import get_process_handler
+from .masks    import Masks 
+from .data     import Data_Structure 
+from .fit      import get_fit_handler
+from .result   import Result_Handler
+from .process  import get_process_handler
 from .io       import IO_Manager
 
 class Environment:
