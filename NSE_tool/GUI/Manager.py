@@ -372,18 +372,18 @@ class Manager:
         self.radi_in.setMax(200)
 
         self.widget_list.append([
-            QtWidgets.QLineEdit(str(self.radi_in.start())),
+            QtWidgets.QSpinBox(parent = self.main_widget),
             12, 0, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.radi_in_min = self.widget_list[-1][0]
-        self.radi_in_min.setFixedWidth(50)
+        #self.radi_in_min.setFixedWidth(50)
 
         self.widget_list.append([
-            QtWidgets.QLineEdit(str(self.radi_in.end())),
+            QtWidgets.QSpinBox(parent = self.main_widget),
             12, 1, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.radi_in_max = self.widget_list[-1][0]
-        self.radi_in_max.setFixedWidth(50)
+        #self.radi_in_max.setFixedWidth(50)
 
         #----------
         self.widget_list.append([
@@ -402,18 +402,18 @@ class Manager:
         self.angle_in.setMax(360)
 
         self.widget_list.append([
-            QtWidgets.QLineEdit(str(self.angle_in.start())),
+            QtWidgets.QSpinBox(parent = self.main_widget),
             15, 0, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.angle_in_min = self.widget_list[-1][0]
-        self.angle_in_min.setFixedWidth(50)
+        #self.angle_in_min.setFixedWidth(50)
 
         self.widget_list.append([
-            QtWidgets.QLineEdit(str(self.angle_in.end())),
+            QtWidgets.QSpinBox(parent = self.main_widget),
             15, 1, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.angle_in_max = self.widget_list[-1][0]
-        self.angle_in_max.setFixedWidth(50)
+        #self.angle_in_max.setFixedWidth(50)
 
         #----------
         self.widget_list.append([
@@ -440,13 +440,13 @@ class Manager:
         #connect elements
         self.radi_in.startValueChanged.connect(self.set_rad_text_start)
         self.radi_in.endValueChanged.connect(self.set_rad_text_end)
-        self.radi_in_min.textChanged.connect(self.set_rad_slider_start)
-        self.radi_in_max.textChanged.connect(self.set_rad_slider_end)
+        self.radi_in_min.valueChanged.connect(self.set_rad_slider_start)
+        self.radi_in_max.valueChanged.connect(self.set_rad_slider_end)
 
         self.angle_in.startValueChanged.connect(self.set_angle_text_start)
         self.angle_in.endValueChanged.connect(self.set_angle_text_end)
-        self.angle_in_min.textChanged.connect(self.set_angle_slider_start)
-        self.angle_in_max.textChanged.connect(self.set_angle_slider_end)
+        self.angle_in_min.valueChanged.connect(self.set_angle_slider_start)
+        self.angle_in_max.valueChanged.connect(self.set_angle_slider_end)
 
         self.para_drop.currentIndexChanged.connect(self.build_thread)
         self.meas_drop.currentIndexChanged.connect(self.build_thread)
@@ -456,10 +456,10 @@ class Manager:
         self.mask_drop.currentIndexChanged.connect(self.set_mask)
 
         self.pos_in.textChanged.connect(self.build_thread)
-        self.angle_in_min.textChanged.connect(self.build_thread)
-        self.angle_in_max.textChanged.connect(self.build_thread)
-        self.radi_in_min.textChanged.connect(self.build_thread)
-        self.radi_in_max.textChanged.connect(self.build_thread)
+        self.angle_in_min.valueChanged.connect(self.build_thread)
+        self.angle_in_max.valueChanged.connect(self.build_thread)
+        self.radi_in_min.valueChanged.connect(self.build_thread)
+        self.radi_in_max.valueChanged.connect(self.build_thread)
 
 
     def populate_vis(self, grid):
@@ -496,6 +496,12 @@ class Manager:
         self.cx = self.mycanvas.get_subplot(1,0)
         self.dx = self.mycanvas.get_subplot(1,1)
 
+        self.dx.zoomer.set_fixed(fixed = [False,True], fixed_range = [
+            None,
+            None,
+            0,1
+        ])
+
         self.ax.draw()
         self.bx.draw()
         self.cx.draw()
@@ -511,11 +517,11 @@ class Manager:
     #the slots for the radius
     def set_rad_text_start(self, value):
         
-        self.radi_in_min.setText(str(value))
+        self.radi_in_min.setValue(int(value))
 
     def set_rad_text_end(self, value):
         
-        self.radi_in_max.setText(str(value))
+        self.radi_in_max.setValue(int(value))
 
     def set_rad_slider_start(self, value):
     
@@ -529,11 +535,11 @@ class Manager:
     #the slots for the angle
     def set_angle_text_start(self, value):
         
-        self.angle_in_min.setText(str(value))
+        self.angle_in_min.setValue(int(value))
 
     def set_angle_text_end(self, value):
         
-        self.angle_in_max.setText(str(value))
+        self.angle_in_max.setValue(int(value))
 
     def set_angle_slider_start(self, value):
     
@@ -778,8 +784,17 @@ class Manager:
         x_1 = np.arange(0,15,0.01)
 
         #set the two bin
-        self.ax.add_plot('Bin', x, y, np.transpose(np.sum(self.reshaped, axis=(0,1,2))), Name = 'bin' )
-        self.bx.add_plot('Bin', x, y, np.transpose(self.mask * np.sum(self.reshaped, axis=(0,1,2))), Name = 'bin' )
+        self.ax.add_plot(
+            'Bin', 
+            x, 
+            y, 
+            np.transpose(np.sum(self.reshaped, axis=(0,1,2))), Name = 'bin' )
+
+        self.bx.add_plot(
+            'Bin', 
+            x, 
+            y,
+            np.transpose(self.mask * np.sum(self.reshaped, axis=(0,1,2))), Name = 'bin' )
 
         #set the main scatter plot of the counts
         self.cx.add_plot(
@@ -803,9 +818,13 @@ class Manager:
 
         if not self.process == None:
 
-            self.dx.add_plot('Scatter', self.process['Axis'][para], self.process['Contrast'][para], Style = ['-','s','10'], Log = [False,False])
+            self.dx.add_plot(
+                'Scatter', 
+                self.process['Axis'][para], 
+                self.process['Contrast'][para], 
+                Style   = ['-','s','10'], 
+                Log     = [True,False])
 
-        
         ##############################################
         #draw the plots
         self.ax.redraw()
