@@ -27,7 +27,7 @@ import time
 import datetime
 import pprint
 
-from .CORE_Log import Log_Handler
+from .Log import Log_Handler
 
 class Result_Handler:
     '''

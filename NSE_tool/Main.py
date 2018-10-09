@@ -21,12 +21,12 @@
 #
 # *****************************************************************************
 
-import matplotlib 
-matplotlib.use('TkAgg')
+# import matplotlib 
+# matplotlib.use('TkAgg')
 #############################
 #import main components
-from .CORE_Ressources.CORE_Manager import CORE_Manager
-from .GUI_Ressources.GUI_Manager import GUI_Manager
+from .CORE.Manager import Manager as CORE_Manager
+from .GUI.Manager import Manager as GUI_Manager
 
 
 class Manager (CORE_Manager, GUI_Manager):
