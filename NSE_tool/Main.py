@@ -25,8 +25,8 @@
 # matplotlib.use('TkAgg')
 #############################
 #import main components
-from .CORE.Manager import Manager as CORE_Manager
-from .GUI.Manager import Manager as GUI_Manager
+from .core.core_handler import Handler as CORE_Manager
+from .gui.gui_handler   import Handler as GUI_Manager
 
 
 class Manager (CORE_Manager, GUI_Manager):
