@@ -785,13 +785,15 @@ class Handler:
             'Bin', 
             x, 
             y, 
-            np.transpose(np.sum(self.reshaped, axis=(0,1,2))), Name = 'bin' )
+            np.log10(
+                np.transpose(
+                    np.sum(self.reshaped, axis=(0,1,2)))+1), Name = 'bin' )
 
         self.bx.add_plot(
             'Bin', 
             x, 
             y,
-            np.transpose(self.mask * np.sum(self.reshaped, axis=(0,1,2))), Name = 'bin' )
+            np.log10(np.transpose(self.mask * np.sum(self.reshaped, axis=(0,1,2)))+1 ), Name = 'bin')
 
         #set the main scatter plot of the counts
         self.cx.add_plot(
