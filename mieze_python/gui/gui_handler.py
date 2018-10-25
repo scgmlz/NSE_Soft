@@ -373,14 +373,14 @@ class Handler:
             12, 0, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.radi_in_min = self.widget_list[-1][0]
-        #self.radi_in_min.setFixedWidth(50)
+        self.radi_in_min.setMaximum(128)
 
         self.widget_list.append([
             QtWidgets.QSpinBox(parent = self.main_widget),
             12, 1, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.radi_in_max = self.widget_list[-1][0]
-        #self.radi_in_max.setFixedWidth(50)
+        self.radi_in_max.setMaximum(128)
 
         #----------
         self.widget_list.append([
@@ -403,14 +403,14 @@ class Handler:
             15, 0, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.angle_in_min = self.widget_list[-1][0]
-        #self.angle_in_min.setFixedWidth(50)
+        self.angle_in_min.setMaximum(360)
 
         self.widget_list.append([
             QtWidgets.QSpinBox(parent = self.main_widget),
             15, 1, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.angle_in_max = self.widget_list[-1][0]
-        #self.angle_in_max.setFixedWidth(50)
+        self.angle_in_max.setMaximum(360)
 
         #----------
         self.widget_list.append([
@@ -445,18 +445,11 @@ class Handler:
         self.angle_in_min.valueChanged.connect(self.set_angle_slider_start)
         self.angle_in_max.valueChanged.connect(self.set_angle_slider_end)
 
-        self.para_drop.currentIndexChanged.connect(self.build_thread)
-        self.meas_drop.currentIndexChanged.connect(self.build_thread)
-        self.echo_drop.currentIndexChanged.connect(self.build_thread)
-        self.foil_drop.currentIndexChanged.connect(self.build_thread)
+
 
         self.mask_drop.currentIndexChanged.connect(self.set_mask)
 
-        self.pos_in.textChanged.connect(self.build_thread)
-        self.angle_in_min.valueChanged.connect(self.build_thread)
-        self.angle_in_max.valueChanged.connect(self.build_thread)
-        self.radi_in_min.valueChanged.connect(self.build_thread)
-        self.radi_in_max.valueChanged.connect(self.build_thread)
+
 
 
     def populate_vis(self, grid):
@@ -606,16 +599,21 @@ class Handler:
         
         ##############################################
         #grab them all
-        para    = self.environment.current_data.get_axis('Temperature')
+        para    = self.environment.current_data.get_axis('Type')
         meas    = self.environment.current_data.get_axis('Measurement')
         echo    = self.environment.current_data.get_axis('Echo')
         foil    = self.environment.current_data.get_axis('Foil')
         x0      = self.environment.mask.parameters[0][0]
         y0      = self.environment.mask.parameters[0][1]
-        r_outer = self.environment.mask.parameters[1]
-        r_inner = self.environment.mask.parameters[2]
+        r_inner = self.environment.mask.parameters[1]
+        r_outer = self.environment.mask.parameters[2]
         angle1  = self.environment.mask.parameters[3][0]
         angle2  = self.environment.mask.parameters[3][1]
+
+        print(para)
+        print(meas)
+        print(echo)
+        print(foil)
 
         ##############################################
         #set the dropdown menues
@@ -646,6 +644,17 @@ class Handler:
         self.set_angle_text_end(angle2)
         self.set_angle_slider_start(angle1)
         self.set_angle_slider_end(angle2)
+
+        self.para_drop.currentIndexChanged.connect(self.build_thread)
+        self.meas_drop.currentIndexChanged.connect(self.build_thread)
+        self.echo_drop.currentIndexChanged.connect(self.build_thread)
+        self.foil_drop.currentIndexChanged.connect(self.build_thread)
+
+        self.pos_in.textChanged.connect(self.build_thread)
+        self.angle_in_min.valueChanged.connect(self.build_thread)
+        self.angle_in_max.valueChanged.connect(self.build_thread)
+        self.radi_in_min.valueChanged.connect(self.build_thread)
+        self.radi_in_max.valueChanged.connect(self.build_thread)
 
         ##############################################
         #run the plot
@@ -704,7 +713,7 @@ class Handler:
 
         ##############################################
         #grab the parameters from the UI
-        para    = self.environment.current_data.get_axis('Temperature')[self.para_drop.currentIndex()]
+        para    = self.environment.current_data.get_axis('Type')[self.para_drop.currentIndex()]
         meas    = self.environment.current_data.get_axis('Measurement')[self.meas_drop.currentIndex()]
         echo    = self.environment.current_data.get_axis('Echo')[self.echo_drop.currentIndex()]
         foil    = self.environment.current_data.get_axis('Foil')[self.foil_drop.currentIndex()]
@@ -717,15 +726,15 @@ class Handler:
 
         ##############################################
         #process index
-        para_idx = self.environment.current_data.get_axis_idx('Temperature', para)
+        para_idx = self.environment.current_data.get_axis_idx('Type', para)
         meas_idx = self.environment.current_data.get_axis_idx('Measurement', meas)
         echo_idx = self.environment.current_data.get_axis_idx('Echo', echo)
         foil_idx = self.environment.current_data.get_axis_idx('Foil', foil)
 
         parameters = [
             [x0,y0],
-            r_outer,
             r_inner,
+            r_outer,
             [angle1,angle2]]
 
         self.environment.mask.set_parameters(parameters)
@@ -787,13 +796,23 @@ class Handler:
             y, 
             np.log10(
                 np.transpose(
-                    np.sum(self.reshaped, axis=(0,1,2)))+1), Name = 'bin' )
+                    np.sum(
+                        self.reshaped[
+                            self.echo_drop.currentIndex(),
+                            self.foil_drop.currentIndex()], 
+                        axis=(0)))+1), Name = 'bin' )
 
         self.bx.add_plot(
             'Bin', 
             x, 
             y,
-            np.log10(np.transpose(self.mask * np.sum(self.reshaped, axis=(0,1,2)))+1 ), Name = 'bin')
+            np.log10(np.transpose(
+                self.mask * np.sum(
+                    self.reshaped[
+                        self.echo_drop.currentIndex(),
+                        self.foil_drop.currentIndex()
+                    ], 
+                    axis=(0)))+1 ), Name = 'bin')
 
         #set the main scatter plot of the counts
         self.cx.add_plot(

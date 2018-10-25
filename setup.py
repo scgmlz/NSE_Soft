@@ -30,7 +30,7 @@ with open('requirements.txt') as f:
 requirements.append('simpleplot')
 
 setup(
-    name = 'NSE_tool',
+    name = 'mieze_python',
     version = '0.0.1',
     license = 'GPL',
     author = 'Dr. Alexander Schober',
@@ -39,7 +39,7 @@ setup(
     author_email = 'alex.schober@mac.com',
     description = 'NSE analysis package',
     packages = find_packages(exclude=['doc','test']),
-    package_data = {'NSE_tool': ['RELEASE-VERSION']},
+    package_data = {'mieze_python': ['RELEASE-VERSION']},
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

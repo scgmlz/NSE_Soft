@@ -21,8 +21,7 @@
 #
 # *****************************************************************************
 
-# import matplotlib 
-# matplotlib.use('TkAgg')
+
 #############################
 #import main components
 from .core.core_handler import Handler as CORE_Manager
@@ -36,10 +35,6 @@ class Manager (CORE_Manager, GUI_Manager):
     Here lies the main NSE tool manager class. It can be
     accessed in the python terminal through: 
     "from NSE.Main import Manager as NSE"
-
-    Note that setting GUI = True will launch the Tk/Tlc
-    based interface.
-     
     ##############################################
     '''
 

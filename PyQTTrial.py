@@ -31,7 +31,7 @@ def main():
  
     tool = NSE()
     vertical_env = tool.new_environment(title = 'vertical MIEZE', select = 'MIEZE')
-    vertical_env.io.load_MIEZE_TOF('Examples/LoadSkXCon.txt')
+    vertical_env.io.load_MIEZE_TOF('Examples/SkXSixfold.txt')
     vertical_env.mask.select_template(key = 'Pre_SkX_peak_SkXCon')
     foils_in_echo = []
     for i in range(5):

@@ -401,7 +401,7 @@ class Masks:
 
         self.all_pre_masks = {
             'Pre_SkX_peak': [
-                (self.gen_pregroup_mask),
+                (self.gen_pregroup_mask_circ),
                 (31,31), 
                 57, 
                 102, 
@@ -410,25 +410,34 @@ class Masks:
                 13],
 
             'Pre_SkX_peak_Sixfold': [
-                (self.gen_pregroup_mask),
+                (self.gen_pregroup_mask_circ),
                 (28,34), 
-                45, 
                 90, 
+                45, 
                 (17,56), 
                 15, 
                 13],
 
             'Pre_SkX_peak_SkXCon': [
-                (self.gen_pregroup_mask),
+                (self.gen_pregroup_mask_circ),
                 (28,34), 
                 65,
                 85, 
                 (80,104), 
                 10, 
-                11]
+                11],
+
+            'Pre_tile': [
+                (self.gen_pregroup_mask_square),
+                (0,0), 
+                0,
+                0,
+                128,
+                128]
             }
 
-    def gen_pregroup_mask(self, shape, parameters):
+
+    def gen_pregroup_mask_circ(self, shape, parameters):
 
         ############################################
         #Unpack the parameters
@@ -438,7 +447,6 @@ class Masks:
         angle_range     = parameters[3] 
         r_width         = parameters[4]
         phi_width       = parameters[5]
-       
         
         ############################################
         #Process
@@ -453,8 +461,8 @@ class Masks:
                 #Pack the parameters
                 parameters = [
                     centre,
-                    inner_radius+(r_step+1)*r_width,
                     inner_radius+r_step*r_width,
+                    inner_radius+(r_step+1)*r_width,
                     (angle_range[0]+phi_step*phi_width,
                     angle_range[0]+(phi_step+1)*phi_width)
                 ]
@@ -467,13 +475,34 @@ class Masks:
 
         return mask
 
+    def gen_pregroup_mask_square(self, shape, parameters):
+    
+        ############################################
+        #Unpack the parameters
+        centre          = parameters[0]
+        x_dim           = parameters[1]
+        y_dim           = parameters[2]
+        n_x             = parameters[1]
+        n_y             = parameters[2]
+       
+        
+        ############################################
+        #Process
+        mask = np.zeros(shape, dtype=np.int)
+
+        for x in range(mask.shape[0]/n_x):
+            for y in range(mask.shape[1]/n_y):
+                pass#mask[x*n:x*n+(n), y*n:y*n+(n)] = x*shape[0]/n + y + 1
+
+        return 0#mask
+
     def sector_mask(self, shape, parameters):
 
         ############################################
         #Unpack the parameters
         centre          = parameters[0]
-        outer_radius    = parameters[1]
-        inner_radius    = parameters[2]
+        inner_radius    = parameters[1]
+        outer_radius    = parameters[2]
         angle_range     = parameters[3]
 
         ############################################
@@ -509,7 +538,7 @@ class Masks:
         #Unpack the parameters
         centre  = parameters[0] 
         width   = parameters[1]
-        height  = parameters[3]
+        height  = parameters[2]
         
         ############################################
         #create the mask
@@ -518,4 +547,4 @@ class Masks:
         cx, cy = centre
         mask[int(cy - height/2):int(cy + height/2),int(cx - width/2):int(cx + width/2)] = True
         
-        self.mask = mask
+        return mask
