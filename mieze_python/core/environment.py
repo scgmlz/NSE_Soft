@@ -21,12 +21,12 @@
 #
 # *****************************************************************************
 
-from .masks    import Masks 
-from .data     import Data_Structure 
-from .fit      import get_fit_handler
-from .result   import Result_Handler
-from .process  import get_process_handler
-from .io       import IO_Manager
+from .masks         import Masks 
+from .data          import Data_Structure 
+from .fit_handler   import get_fit_handler
+from .result        import Result_Handler
+from .process       import get_process_handler
+from .io            import IO_Manager
 
 class Environment:
     '''
@@ -82,7 +82,6 @@ class Environment:
         status: active
         ##############################################
         '''
-
         if len(self.data.keys())< 1:
 
             self.initial_data_name = title
@@ -129,7 +128,6 @@ class Environment:
         status: active
         ##############################################
         '''
-
         #this will simply create the dataclass
         self.fit = get_fit_handler(select)
 
@@ -148,7 +146,6 @@ class Environment:
         status: active
         ##############################################
         '''
-
         #this will simply create the dataclass
         self.results = Result_Handler(mode = 'Dict')
 
@@ -165,7 +162,6 @@ class Environment:
         status: active
         ##############################################
         '''
-
         #this will simply create the dataclass
         self.mask = Masks()
 
@@ -229,7 +225,6 @@ class Environment:
         status: active
         ##############################################
         '''
-
         #delete the current data slices
         self.current_data = self.data[self.initial_data_name]
         self.data[self.initial_data_name].delete_all_slices()

@@ -17,53 +17,34 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Schober <alex.schober@mac.com>
+#   Alexander Schober <alexander.schober@mac.com>
 #
 # *****************************************************************************
 
-#############################
-#import general components
-import iminuit
-import numpy as np
-import scipy
-import warnings
-import copy
-import math
-import timeit
- 
 
-#############################
-#import child components
-from .fit_modules.fit_mieze import Fit_MIEZE
-from .fit_modules.fit_sans import Fit_SANS
-    
-def get_fit_handler(select):
-    '''
-    ##############################################
-    Will return the right fit manager depending 
-    on the initial input
-    ———————
-    Input: target (Data_Structure)
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
-    '''
-
-    if select == 'MIEZE':
-
-        return Fit_MIEZE()
-
-    if select == 'SANS':
-
-        return Fit_SANS()
-
-    else:
-
-        print('Could not find the fit class you are looking for. Error...')
-        
-        return None
+from setuptools import setup, find_packages
 
 
-
+setup(
+    name = 'mieze_python',
+    version = '0.0.1',
+    license = 'GPL',
+    author = 'Dr. Alexander Schober',
+    author_email = 'alex.schober@mac.com',
+    description = 'NSE analysis package',
+    packages = find_packages(exclude=['doc','test']),
+    package_data = {'mieze_python': ['RELEASE-VERSION']},
+    classifiers = [
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'Natural Language :: English',
+        'License :: OSI Approved :: GPL License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Human Machine Interfaces',
+        'Topic :: Scientific/Engineering :: Physics',
+    ],
+)

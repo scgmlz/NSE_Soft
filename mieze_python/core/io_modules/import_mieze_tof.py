@@ -191,8 +191,6 @@ class Import_MIEZE_TOF:
 
         return [temp_axis_definition, real_idx_definition, real_axis_definition, extra_dim]
 
-
-
     def fetch_data_tof(self,container, axes):
 
         '''

@@ -394,7 +394,7 @@ class Masks:
             'SkX_peak_SkXCon': [
                 (self.sector_mask),
                 (28,34), 
-                85, 
+                20, 
                 65, 
                 (82,100)]
             }

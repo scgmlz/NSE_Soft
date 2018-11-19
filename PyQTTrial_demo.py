@@ -22,7 +22,7 @@
 # *****************************************************************************
 
 import os
-from NSE_tool.Main import Manager as NSE
+from mieze_python.Main import Manager as NSE
 from pprint import pprint
 import sys 
 
@@ -39,13 +39,12 @@ def main():
     foils_in_echo.append([1,1,0,1,1,1])
     foils_in_echo.append([1,1,0,1,1,1])
     foils_in_echo.append([0,0,0,0,1,0])
-    foils_in_echo.append([0,0,0,0,1,0])
 
     #set the values to be processed as data
     Select = [28.40, 28.60, 28.80, 28.95, 29.05, 29.15, 29.25, 29.35, 29.45, 29.60, 29.75]
 
     #set the reference value
-    Reference = 28.6
+    Reference = [28.6,0]
 
     #set the background
     Background = None

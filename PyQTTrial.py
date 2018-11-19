@@ -22,9 +22,10 @@
 # *****************************************************************************
 
 import os
-from NSE_tool.Main import Manager as NSE
+from mieze_python.Main import Manager as NSE
 from pprint import pprint
 import sys 
+import numpy as np
 
  
 def main():
@@ -32,20 +33,21 @@ def main():
     tool = NSE()
     vertical_env = tool.new_environment(title = 'vertical MIEZE', select = 'MIEZE')
     vertical_env.io.load_MIEZE_TOF('Examples/SkXSixfold.txt')
-    vertical_env.mask.select_template(key = 'Pre_SkX_peak_SkXCon')
+    vertical_env.mask.select_template(key = 'SkX_between_peaks_Sixfold')
+    vertical_env.mask.set_parameters([[0,0], 0, 128,[0, 360],128, 128])
+
     foils_in_echo = []
     for i in range(5):
         foils_in_echo.append([1,1,1,1,1,1])
     foils_in_echo.append([1,1,0,1,1,1])
     foils_in_echo.append([1,1,0,1,1,1])
     foils_in_echo.append([0,0,0,0,1,0])
-    foils_in_echo.append([0,0,0,0,1,0])
 
     #set the values to be processed as data
     Select = [28.40, 28.60, 28.80, 28.95, 29.05, 29.15, 29.25, 29.35, 29.45, 29.60, 29.75]
 
     #set the reference value
-    Reference = 28.6
+    Reference = [28.6,0]
 
     #set the background
     Background = None
@@ -59,6 +61,8 @@ def main():
     vertical_env.process.remove_foils()
     vertical_env.process.calculate_shift()
     vertical_env.mask.select_template(key = 'SkX_peak_SkXCon')
+
+    #np.save('data', vertical_env.current_data.return_as_np())
 
     tool.launch_sp(vertical_env)
 

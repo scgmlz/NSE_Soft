@@ -125,3 +125,18 @@ class Fit_Handler():
         ##############################################
         '''
         self.para_dict[name] = value
+
+    def test_parameter(self, value, target, mask, results):
+        '''
+        ##############################################
+        Test function placeholder
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        return value

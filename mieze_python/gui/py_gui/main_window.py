@@ -21,49 +21,34 @@
 #
 # *****************************************************************************
 
-#############################
-#import general components
-import iminuit
-import numpy as np
-import scipy
-import warnings
-import copy
-import math
-import timeit
- 
 
-#############################
-#import child components
-from .fit_modules.fit_mieze import Fit_MIEZE
-from .fit_modules.fit_sans import Fit_SANS
-    
-def get_fit_handler(select):
+from PyQt5 import QtWidgets, QtGui, QtCore
+import sys
+import os
+from scipy.ndimage import imread
+
+from ..qt_gui.main_window_ui import Ui_main_import_window 
+
+
+class MainWindowLayout(Ui_main_import_window):
     '''
     ##############################################
-    Will return the right fit manager depending 
-    on the initial input
+    This is the main window element that will later
+    be the item managin the rest of the system. 
+    Note that at a later point we will feature
+    drag and drop onto this window.
     ———————
-    Input: target (Data_Structure)
+    Input: -
     ———————
     Output: -
     ———————
     status: active
     ##############################################
     '''
+    def __init__(self, window):
 
-    if select == 'MIEZE':
-
-        return Fit_MIEZE()
-
-    if select == 'SANS':
-
-        return Fit_SANS()
-
-    else:
-
-        print('Could not find the fit class you are looking for. Error...')
-        
-        return None
-
-
+        #set up the window
+        Ui_main_import_window.__init__(self)
+        self.window = window
+        self.setupUi(window)
 

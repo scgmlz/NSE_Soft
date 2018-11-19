@@ -599,7 +599,7 @@ class Handler:
         
         ##############################################
         #grab them all
-        para    = self.environment.current_data.get_axis('Type')
+        para    = self.environment.current_data.get_axis('Temperature')
         meas    = self.environment.current_data.get_axis('Measurement')
         echo    = self.environment.current_data.get_axis('Echo')
         foil    = self.environment.current_data.get_axis('Foil')
@@ -609,11 +609,6 @@ class Handler:
         r_outer = self.environment.mask.parameters[2]
         angle1  = self.environment.mask.parameters[3][0]
         angle2  = self.environment.mask.parameters[3][1]
-
-        print(para)
-        print(meas)
-        print(echo)
-        print(foil)
 
         ##############################################
         #set the dropdown menues
@@ -713,7 +708,7 @@ class Handler:
 
         ##############################################
         #grab the parameters from the UI
-        para    = self.environment.current_data.get_axis('Type')[self.para_drop.currentIndex()]
+        para    = self.environment.current_data.get_axis('Temperature')[self.para_drop.currentIndex()]
         meas    = self.environment.current_data.get_axis('Measurement')[self.meas_drop.currentIndex()]
         echo    = self.environment.current_data.get_axis('Echo')[self.echo_drop.currentIndex()]
         foil    = self.environment.current_data.get_axis('Foil')[self.foil_drop.currentIndex()]
@@ -726,7 +721,7 @@ class Handler:
 
         ##############################################
         #process index
-        para_idx = self.environment.current_data.get_axis_idx('Type', para)
+        para_idx = self.environment.current_data.get_axis_idx('Temperature', para)
         meas_idx = self.environment.current_data.get_axis_idx('Measurement', meas)
         echo_idx = self.environment.current_data.get_axis_idx('Echo', echo)
         foil_idx = self.environment.current_data.get_axis_idx('Foil', foil)
@@ -928,16 +923,34 @@ class Worker(QtCore.QObject):
 
             self.fit = self.environment.get_result('Fit data covariance')
 
-            self.environment.fit.calc_contrast_single_foil(
-                    foil, 
-                    [para], 
+        except:
+            print('Fit failed')
+
+        self.environment.fit.calcCtrstMain( 
+            self.environment.current_data,
+            self.environment.mask,
+            self.environment.results,
+            select = [para],
+            foil = foil)
+
+        self.process = self.environment.get_result('Contrast calculation')
+
+        print(self.process)
+
+        try:
+
+            self.environment.fit.calcCtrstMain( 
                     self.environment.current_data,
                     self.environment.mask,
-                    self.environment.results)
+                    self.environment.results,
+                    select = [para],
+                    foil = foil)
 
-            self.process = self.environment.get_result('Contrast calculation single')
+            self.process = self.environment.get_result('Contrast calculation')
+
+            print(self.process)
 
         except:
-            pass
+            print('Contrast')
 
         self.finished.emit()
