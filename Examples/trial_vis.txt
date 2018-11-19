@@ -1,0 +1,45 @@
+
+#############################################################################
+#Specify here the full path to the data
+Path : /Users/alexanderschober/Desktop/Archive/
+#############################################################################
+#Specify here the data to be disregarded
+# second argument is the dimension and third either a list() or range() command
+Ignore : 3 : (3,4)
+
+#############################################################################
+#Specify here the measurement parameters
+#
+
+Dim : Temperature : Measurement : Echo : Foil : Time Channel : Pixel : Pixel
+Unit : K : - : s : - : - : px : px
+
+Data : [28.40,0] : 0012 : range(2727, 2736) : (8x16x128x128)
+Data : [62.00,0] : 0012 : [2736]+[i for i in range(2739, 2747)] : (8x16x128x128)
+Data : [28.60,0] : 0012 : range(2747, 2756) : (8x16x128x128)
+Data : [28.80,0] : 0012 : range(2813, 2822) : (8x16x128x128)
+Data : [28.95,0] : 0012 : range(2774, 2783) : (8x16x128x128)
+Data : [29.05,0] : 0012 : range(2804, 2813) : (8x16x128x128)
+Data : [29.15,0] : 0012 : range(2765, 2774) : (8x16x128x128)
+Data : [29.25,0] : 0012 : range(2858, 2867) : (8x16x128x128)
+Data : [29.35,0] : 0012 : range(2756, 2765) : (8x16x128x128)
+Data : [29.45,0] : 0012 : range(2849, 2858) : (8x16x128x128)
+Data : [29.60,0] : 0012 : range(2792, 2801) : (8x16x128x128)
+Data : [29.75,0] : 0012 : range(2783, 2792) : (8x16x128x128)
+Data : [30.50,0] : 0012 : range(2840, 2849) : (8x16x128x128)
+
+#############################################################################
+#Manage metadata to save
+#type : name_in_file         : name to assign in dataclass
+
+Metadata : cbox_0a_fg_freq_value : freq_0 : float : 1 : Hz
+Metadata : cbox_0b_fg_freq_value : freq_1 : float : 1 : Hz
+Metadata : selector_lambda_value : wavelength : float : 1 : A
+Metadata : psd_distance_value : lsd : float : 1 : m
+Metadata : monitor1_value : monitor : float : 1 : -
+Metadata : monitor1 : monitor : float : 1 : -
+Metadata : T_ccr_a_value : T_A : float : 1 : K
+Metadata : T_ccr_b_value : T_B : float : 1 : K
+Metadata : T_ccr_c_value : T_C : float : 1 : K
+Metadata : T_ccr_d_value : T_D : float : 1 : K
+Metadata : B_value : Bs : float : 1 : K

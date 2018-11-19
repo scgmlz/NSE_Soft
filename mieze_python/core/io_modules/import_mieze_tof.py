@@ -191,8 +191,6 @@ class Import_MIEZE_TOF:
 
         return [temp_axis_definition, real_idx_definition, real_axis_definition, extra_dim]
 
-
-
     def fetch_data_tof(self,container, axes):
 
         '''
@@ -282,7 +280,10 @@ class Import_MIEZE_TOF:
 
                 target.axes.set_name(idx,name)
                 target.axes.set_unit(idx,units[idx])
-                target.axes.set_axis(idx,[float(element) for element in real_axis_definition[idx]])
+                try:
+                    target.axes.set_axis(idx,[float(element) for element in real_axis_definition[idx]])
+                except:
+                    target.axes.set_axis(idx,[element for element in real_axis_definition[idx]])
 
             except:
                 pass
