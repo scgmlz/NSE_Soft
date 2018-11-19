@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Lenz <alexander.schober@mac.com>
+#   Alexander Schober <alex.schober@mac.com>
 #
 # *****************************************************************************
 
@@ -28,7 +28,7 @@ from .core.core_handler import Handler as CORE_Manager
 from .gui.gui_handler   import Handler as GUI_Manager
 
 
-class Manager (CORE_Manager, GUI_Manager):
+class Mieze (CORE_Manager, GUI_Manager):
 
     '''
     ##############################################
