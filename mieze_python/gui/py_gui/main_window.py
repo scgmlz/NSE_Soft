@@ -17,40 +17,38 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Lenz <alexander.schober@mac.com>
+#   Alexander Schober <alex.schober@mac.com>
 #
 # *****************************************************************************
 
-# import matplotlib 
-# matplotlib.use('TkAgg')
-#############################
-#import main components
-from .CORE.Manager import Manager as CORE_Manager
-from .GUI.Manager import Manager as GUI_Manager
+
+from PyQt5 import QtWidgets, QtGui, QtCore
+import sys
+import os
+from scipy.ndimage import imread
+
+from ..qt_gui.main_window_ui import Ui_main_import_window 
 
 
-class Manager (CORE_Manager, GUI_Manager):
-
+class MainWindowLayout(Ui_main_import_window):
     '''
     ##############################################
-    Here lies the main NSE tool manager class. It can be
-    accessed in the python terminal through: 
-    "from NSE.Main import Manager as NSE"
-
-    Note that setting GUI = True will launch the Tk/Tlc
-    based interface.
-     
+    This is the main window element that will later
+    be the item managin the rest of the system. 
+    Note that at a later point we will feature
+    drag and drop onto this window.
+    ———————
+    Input: -
+    ———————
+    Output: -
+    ———————
+    status: active
     ##############################################
     '''
+    def __init__(self, window):
 
-    def __init__(self, GUI = False):
+        #set up the window
+        Ui_main_import_window.__init__(self)
+        self.window = window
+        self.setupUi(window)
 
-        ##############################################
-        #initiate the core manager  
-        CORE_Manager.__init__(self)
-
-        ##############################################
-        #initiate the GUI manager if need be
-        if GUI == True:
-
-            GUI_Manager.__init__(self)

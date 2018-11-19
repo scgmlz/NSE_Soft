@@ -23,20 +23,29 @@
 
 
 from setuptools import setup, find_packages
+from pip._internal import main as pipmain
+
+
+def install(package):
+    pipmain(['install', package])
 
 with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+    requirements = f.readlines()
+    
+    for item in requirements:
+        install(item)
 
 setup(
-    name = 'NSE_tool',
+    name = 'mieze_python',
     version = '0.0.1',
     license = 'GPL',
     author = 'Dr. Alexander Schober',
-    install_requires = requirements,
+#    install_requires = requirements,
+#    dependency_links =['https://github.com/AlexanderSchober/simpleplot_qt/tarball/master#egg=SimplePlot-0.1'],
     author_email = 'alex.schober@mac.com',
     description = 'NSE analysis package',
     packages = find_packages(exclude=['doc','test']),
-    package_data = {'NSE_tool': ['RELEASE-VERSION']},
+    package_data = {'mieze_python': ['RELEASE-VERSION']},
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

@@ -22,52 +22,30 @@
 # *****************************************************************************
 
 
-import sys
-import io
-import numpy as np
+#############################
+#import main components
+from .core.core_handler import Handler as CORE_Manager
+from .gui.gui_handler   import Handler as GUI_Manager
 
-from .io_Modules.Import_MIEZE_TOF import Import_MIEZE_TOF
-from .io_Modules.Import_SANS_PAD import Import_SANS_PAD
 
-class IO_Manager:
+class Mieze (CORE_Manager, GUI_Manager):
 
-    def __init__(self, env):
+    '''
+    ##############################################
+    Here lies the main NSE tool manager class. It can be
+    accessed in the python terminal through: 
+    "from NSE.Main import Manager as NSE"
+    ##############################################
+    '''
 
-        self.verbose = True
-        self.env     = env
+    def __init__(self, GUI = False):
 
-    def load_MIEZE_TOF(self,load_path):
-        '''
         ##############################################
-        This function will manage the load of tof
-        files through different smaller import
-        components
+        #initiate the core manager  
+        CORE_Manager.__init__(self)
+
         ##############################################
-        '''
+        #initiate the GUI manager if need be
+        if GUI == True:
 
-        Import_MIEZE_TOF(load_path,self.env.current_data)
-
-
-    def load_MIEZE_HD5(self,load_path):
-        '''
-        ##############################################
-        This function will manage the load of tof
-        files through different smaller import
-        components
-        ##############################################
-        '''
-
-        pass
-
-
-    def load_SANS_PAD(self,load_path):
-        '''
-        ##############################################
-        This function will import the data from the 
-        PAD format. 
-        ##############################################
-        '''
-
-        Import_SANS_PAD(load_path,self.env.current_data)
-
-         
+            GUI_Manager.__init__(self)

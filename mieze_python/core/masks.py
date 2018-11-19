@@ -29,7 +29,7 @@ import numpy as np
 
 #############################
 #import child components
-from .Log import Log_Handler
+from .log import Log_Handler
 
 class Masks:
 
@@ -282,7 +282,7 @@ class Masks:
 
         shape = target.data_objects[0].dim
 
-        self.mask = mask_target[self.selected][0][0](shape,self.parameters)
+        self.mask = mask_target[self.selected][0](shape,self.parameters)
 
         #run the post masks commands
         mask = self.mask
@@ -309,99 +309,99 @@ class Masks:
 
         self.all_masks = {
             'DB_5': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (31,35), 
                 5, 
                 0, 
                 (0,360)],
 
             '10x10_tile': [
-                (self.rect_mask, self.rect_mask_Vis),
+                (self.rect_mask),
                 (100,100), 
                 10,  
                 10],
 
             'SkX_peak': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (31,35), 
                 100, 
                 55, 
                 (8,46)],
 
             'SkX_peak_circ': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (100,70), 
                 20, 
                 0, 
                 (0,360)],
 
             'SkX_peak_small': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (31,35), 
                 82, 
                 72, 
                 (22,32)],
 
             'SkX_between_peaks': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (31,35), 
                 100, 
                 55, 
                 (46,70)],
 
             'noDB': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (31,35), 
                 100, 
                 55, 
                 (0,360)],
 
             'DB_sixfold': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (27,33), 
                 5, 
                 0, 
                 (0,360)],
 
             'SkX_peak_Sixfold': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (27,33), 
                 90, 
                 47, 
                 (15,52)],
 
             'SkX_between_peaks_Sixfold': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (27,33),
                 90, 
                 47, 
                 (52,80)],
 
             'noDB_Sixfold': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (31,35), 
                 100, 
                 42, 
                 (0,360)],
 
             'SkX_peak_circ_Sixfold': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (84,69), 
                 20,
                 0, 
                 (0,360)],
 
             'SkX_peak_SkXCon': [
-                (self.sector_mask, self.sector_mask_Vis),
+                (self.sector_mask),
                 (28,34), 
-                85, 
+                20, 
                 65, 
                 (82,100)]
             }
 
         self.all_pre_masks = {
             'Pre_SkX_peak': [
-                (self.gen_pregroup_mask, self.gen_pregroup_mask_Vis),
+                (self.gen_pregroup_mask_circ),
                 (31,31), 
                 57, 
                 102, 
@@ -410,25 +410,34 @@ class Masks:
                 13],
 
             'Pre_SkX_peak_Sixfold': [
-                (self.gen_pregroup_mask, self.gen_pregroup_mask_Vis),
+                (self.gen_pregroup_mask_circ),
                 (28,34), 
-                45, 
                 90, 
+                45, 
                 (17,56), 
                 15, 
                 13],
 
             'Pre_SkX_peak_SkXCon': [
-                (self.gen_pregroup_mask, self.gen_pregroup_mask_Vis),
+                (self.gen_pregroup_mask_circ),
                 (28,34), 
                 65,
                 85, 
                 (80,104), 
                 10, 
-                11]
+                11],
+
+            'Pre_tile': [
+                (self.gen_pregroup_mask_square),
+                (0,0), 
+                0,
+                0,
+                128,
+                128]
             }
 
-    def gen_pregroup_mask(self, shape, parameters):
+
+    def gen_pregroup_mask_circ(self, shape, parameters):
 
         ############################################
         #Unpack the parameters
@@ -438,7 +447,6 @@ class Masks:
         angle_range     = parameters[3] 
         r_width         = parameters[4]
         phi_width       = parameters[5]
-       
         
         ############################################
         #Process
@@ -453,8 +461,8 @@ class Masks:
                 #Pack the parameters
                 parameters = [
                     centre,
-                    inner_radius+(r_step+1)*r_width,
                     inner_radius+r_step*r_width,
+                    inner_radius+(r_step+1)*r_width,
                     (angle_range[0]+phi_step*phi_width,
                     angle_range[0]+(phi_step+1)*phi_width)
                 ]
@@ -467,13 +475,34 @@ class Masks:
 
         return mask
 
+    def gen_pregroup_mask_square(self, shape, parameters):
+    
+        ############################################
+        #Unpack the parameters
+        centre          = parameters[0]
+        x_dim           = parameters[1]
+        y_dim           = parameters[2]
+        n_x             = parameters[1]
+        n_y             = parameters[2]
+       
+        
+        ############################################
+        #Process
+        mask = np.zeros(shape, dtype=np.int)
+
+        for x in range(mask.shape[0]/n_x):
+            for y in range(mask.shape[1]/n_y):
+                pass#mask[x*n:x*n+(n), y*n:y*n+(n)] = x*shape[0]/n + y + 1
+
+        return 0#mask
+
     def sector_mask(self, shape, parameters):
 
         ############################################
         #Unpack the parameters
         centre          = parameters[0]
-        outer_radius    = parameters[1]
-        inner_radius    = parameters[2]
+        inner_radius    = parameters[1]
+        outer_radius    = parameters[2]
         angle_range     = parameters[3]
 
         ############################################
@@ -509,7 +538,7 @@ class Masks:
         #Unpack the parameters
         centre  = parameters[0] 
         width   = parameters[1]
-        height  = parameters[3]
+        height  = parameters[2]
         
         ############################################
         #create the mask
@@ -518,91 +547,4 @@ class Masks:
         cx, cy = centre
         mask[int(cy - height/2):int(cy + height/2),int(cx - width/2):int(cx + width/2)] = True
         
-        self.mask = mask
-
-    def gen_pregroup_mask_Vis(self,Target, parameters):
-
-        ############################################
-        #Unpack the parameters
-        shape           = [int(parameters[0][0]),int(parameters[0][1])]
-        center          = parameters[1]
-        inner_radius    = parameters[2]
-        outer_radius    = parameters[3]
-        angle_range     = parameters[4] 
-        r_width         = parameters[5]
-        phi_width       = parameters[6]
-
-        ############################################
-        #send out the shapes
-        index = 0
-
-        phi_array = [phi_step for phi_step in range(int((angle_range[1]-angle_range[0]) / phi_width))]
-
-        R_array = [r_step for r_step in range(int(((outer_radius-inner_radius)/r_width)))]
-
-        colors = matplotlib.cm.rainbow(np.linspace(0, 1, len(phi_array)*len(R_array)))
-
-        for phi_step in phi_array:
-
-            
-            for r_step in R_array:
-
-                #Pack the parameters
-                parameters = [
-                    shape,
-                    center,
-                    inner_radius+(r_step+1)*r_width,
-                    inner_radius+r_step*r_width,
-                    (angle_range[0]+phi_step*phi_width,
-                    angle_range[0]+(phi_step+1)*phi_width)
-                ]
-
-                #append the mask
-                self.sector_mask_Vis(Target, parameters, color = matplotlib.colors.rgb2hex(colors[index][:3]))
-
-                #move index forward
-                index += 1
-
-    def sector_mask_Vis(self, Target, parameters, color = "black"):
-
-        ############################################
-        #Unpack the parameters
-        centre          = parameters[1]
-        outer_radius    = parameters[2]
-        inner_radius    = parameters[3]
-        angle_range     = parameters[4]
-
-        ############################################
-        #send out the anular wedge
-        tmin,tmax = np.deg2rad(angle_range)
-
-        Target.annular_wedge(
-
-            x = [centre[0]],
-            y = [centre[1]],
-            inner_radius = inner_radius,
-            outer_radius = outer_radius,
-            start_angle  = tmin,
-            end_angle    = tmax,
-            color   = color,
-            alpha   = 0.5)
-
-    def rect_mask_Vis(self, Target, parameters):
-
-        ############################################
-        #Unpack the parameters
-        centre  = parameters[1] 
-        width   = parameters[2]
-        height  = parameters[3]
-        print(parameters)
-
-        ############################################
-        #send out the rectangle
-        Target.rect(
-            x = [centre[0]],
-            y = [centre[1]],
-            width   = width,
-            height  = height,
-            color   = "black",
-            alpha   = 0.5)
-
+        return mask
