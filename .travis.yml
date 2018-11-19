@@ -26,11 +26,7 @@ install:
   - python setup.py install
   - sh travis.sh bootstrap
 script:
-  - sh travis.sh run_tests --coverage
-  - pip3 install python-coveralls;
-  - pip3 install codecov;
-  - coveralls
-  - codecov
+  - pytest
 
 
 notifications:
