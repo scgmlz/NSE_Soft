@@ -1,13 +1,28 @@
 language: python
 sudo: required
-python:
-  - "3.6"
+matrix:
+    include:
+        - os: linux
+          language: python
+          python: 3.6
+        - os: osx
+          language: generic
+
 cache: pip
 install:
-  - pip install --upgrade pip
-  - pip install -r requirements.txt
-  - pip install git+git://github.com/pyqtgraph/pyqtgraph.git
-  - pip install git+git://github.com/AlexanderSchober/simpleplot_qt.git
+  - pip3 install --upgrade pip
+  - pip3 install -r requirements.txt
+  - pip3 install git+git://github.com/pyqtgraph/pyqtgraph.git
+  - pip3 install git+git://github.com/AlexanderSchober/simpleplot_qt.git
   - python setup.py install
+  - sh travis.sh bootstrap
 script:
-  python Test/test.py
+  - sh travis.sh run_tests --coverage
+  - pip3 install python-coveralls;
+  - pip3 install codecov;
+  - coveralls
+  - codecov
+
+
+notifications:
+  email: false
