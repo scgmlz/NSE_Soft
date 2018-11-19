@@ -23,17 +23,17 @@
 
 
 from setuptools import setup, find_packages
-from pip._internal import main as pipmain
+# from pip._internal import main as pipmain
 
 
-def install(package):
-    pipmain(['install', package])
+# def install(package):
+#     pipmain(['install', package])
 
-with open('requirements.txt') as f:
-    requirements = f.readlines()
+# with open('requirements.txt') as f:
+#     requirements = f.readlines()
     
-    for item in requirements:
-        install(item)
+#     for item in requirements:
+#         install(item)
 
 setup(
     name = 'mieze_python',
