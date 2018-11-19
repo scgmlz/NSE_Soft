@@ -4,9 +4,9 @@ matrix:
         - os: linux
           language: python
           python: 3.6
-        - os: osx
-          language: python
-          python: 3.6
+        # - os: osx
+        #   language: python
+        #   python: 3.6
 
 cache: pip
 before_install:
@@ -17,9 +17,7 @@ install:
   - pip3 install git+git://github.com/pyqtgraph/pyqtgraph.git
   - pip3 install git+git://github.com/AlexanderSchober/simpleplot_qt.git
   - python setup.py install
-script:
-  - pytest
-
-
-notifications:
-  email: false
+  
+script: nosetests
+after_success:
+  - coveralls
