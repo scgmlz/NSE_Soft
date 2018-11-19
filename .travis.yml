@@ -1,4 +1,10 @@
-language: python
+env:
+    global:
+        - PACKAGE="UnitTesting-example" # Package name
+        - SUBLIME_TEXT_VERSION="3"
+        # use UNITTESTING_TAG to specific tag of UnitTesting
+        # - UNITTESTING_TAG="master"
+
 sudo: required
 matrix:
     include:

@@ -23,6 +23,7 @@
 
 from setuptools import setup, find_packages
 import mieze_python
+
 setup(
     name = 'mieze_python',
     version = mieze_python.__version__,
