@@ -40,7 +40,7 @@ def loadData_0(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/001221'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001221'
     path_list = [
         '86.tof',
         '87.tof',
@@ -76,7 +76,7 @@ def loadData_1(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/001223'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001223'
     path_list = [
         '87.tof',
         '88.tof',
@@ -112,7 +112,7 @@ def loadData_2(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/00122'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/00122'
     path_list = [
         '396.tof',
         '398.tof',
@@ -145,7 +145,7 @@ def loadData_3(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/001224'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001224'
     path_list = [
         '08.tof',
         '09.tof',
@@ -176,7 +176,7 @@ def loadData_4(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/00122'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/00122'
     path_list = [
         '412.tof',
         '413.tof',
@@ -212,7 +212,7 @@ def loadData_5(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/00122'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/00122'
     path_list = [
         '320.tof',
         '321.tof',
@@ -248,7 +248,7 @@ def loadData_6(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/001223'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001223'
     path_list = [
         '48.tof',
         '49.tof',
@@ -283,7 +283,7 @@ def loadData_7(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/001223'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001223'
     path_list = [
         '34.tof',
         '35.tof',
@@ -319,7 +319,7 @@ def loadData_8(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/00122416.tof'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/00122416.tof'
     path_list = [
         '']
     current_object.file_handler.addFiles([
@@ -348,7 +348,7 @@ def loadData_9(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/001224'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001224'
     path_list = [
         '18.tof',
         '19.tof',
@@ -384,7 +384,7 @@ def loadData_10(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/00122'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/00122'
     path_list = [
         '362.tof',
         '363.tof',
@@ -420,7 +420,7 @@ def loadData_11(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/001224'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001224'
     path_list = [
         '34.tof',
         '35.tof',
@@ -456,7 +456,7 @@ def loadData_12(import_object):
     current_object.meta_handler.selected_meta = selected_meta
     
     ########## The file paths ##########
-    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober 2/201806_RESEDA/data/001223'
+    common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001223'
     path_list = [
         '06.tof',
         '07.tof',

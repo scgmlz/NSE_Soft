@@ -34,8 +34,8 @@ Data : [28.40,0] : 0012 : range(2306, 2314) : (8x16x128x128)
 
 Metadata : cbox_0a_fg_freq_value : freq_0 : float : 1 : Hz
 Metadata : cbox_0b_fg_freq_value : freq_1 : float : 1 : Hz
-Metadata : selector_lambda_value : wavelength : float : 1 : A
-Metadata : psd_distance_value : lsd : float : 1 : m
+Metadata : selector_lambda_value : wavelength : float : 1.e-10 : A
+Metadata : psd_distance_value : lsd : float : 1.e9 : m
 Metadata : monitor1_value : monitor : float : 1 : -
 Metadata : monitor1 : monitor : float : 1 : -
 Metadata : T_ccr_a_value : T_A : float : 1 : K

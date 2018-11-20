@@ -24,8 +24,8 @@ Data : ['BG'] : 0012 : range(1609, 1611) : (128x128)
 #type : name_in_file         : name to assign in dataclass
 
 
-Metadata : Lambda : wavelength : float : 1 : A
-Metadata : SD : lsd : float : 1 : m
+Metadata : Lambda : wavelength : float : 1.e-10 : A
+Metadata : SD : lsd : float : 1.e9 : m
 Metadata : monitor1_value : monitor : int : 2e-3 : -
 Metadata : monitor1 : monitor : int : 2e-3 : -
 Metadata : timer_value : counttime : float : 1 : Hz
