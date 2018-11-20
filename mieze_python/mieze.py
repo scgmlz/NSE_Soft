@@ -25,7 +25,7 @@
 #############################
 #import main components
 from .core.core_handler import Handler as CORE_Manager
-from .gui.gui_handler   import Handler as GUI_Manager
+# from .gui.gui_handler   import Handler as GUI_Manager
 
 
 class Mieze (CORE_Manager, GUI_Manager):
@@ -44,8 +44,8 @@ class Mieze (CORE_Manager, GUI_Manager):
         #initiate the core manager  
         CORE_Manager.__init__(self)
 
-        ##############################################
-        #initiate the GUI manager if need be
-        if GUI == True:
+        # ##############################################
+        # #initiate the GUI manager if need be
+        # if GUI == True:
 
-            GUI_Manager.__init__(self)
+        #     GUI_Manager.__init__(self)
