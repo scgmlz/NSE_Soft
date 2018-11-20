@@ -52,10 +52,10 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         '''
         ############################################
         #unpack the container
-        wavelength  = metadata_object['wavelength']
+        wavelength  = metadata_object['wavelength']*1e-10
         freq_0      = metadata_object['freq_0']
         freq_1      = metadata_object['freq_1']
-        lsd         = metadata_object['lsd']
+        lsd         = metadata_object['lsd']*1.e9
         wavelength_error    = target.metadata_class['Wavelength error'] 
         lsd_error           = target.metadata_class['Distance error']
 
@@ -320,6 +320,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
                 (np.multiply(reso_target[echo_idx, foil_idx, timechannel],mask)).sum()
                 for timechannel in range(reso_target.get_axis_len(tcha_name))
                 ]
+            print('######COUNTS#####', np.sum(counts))
             
             #process the errors
             count_error = np.sqrt([float(count) for count in counts])

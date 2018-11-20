@@ -27,10 +27,10 @@ import sys
 import os
 from scipy.ndimage import imread
 
-from ..qt_gui.main_window_ui import Ui_main_import_window 
+from ..qt_gui.mainwindow_ui import Ui_MIEZETool 
 
 
-class MainWindowLayout(Ui_main_import_window):
+class MainWindowLayout(Ui_MIEZETool):
     '''
     ##############################################
     This is the main window element that will later
@@ -48,7 +48,7 @@ class MainWindowLayout(Ui_main_import_window):
     def __init__(self, window):
 
         #set up the window
-        Ui_main_import_window.__init__(self)
+        Ui_MIEZETool.__init__(self)
         self.window = window
         self.setupUi(window)
 
