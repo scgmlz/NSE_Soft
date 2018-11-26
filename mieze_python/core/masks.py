@@ -395,7 +395,7 @@ class Masks:
                 (self.sector_mask),
                 (28,34), 
                 65, 
-                20, 
+                85, 
                 (82,100)]
             }
 
@@ -494,7 +494,7 @@ class Masks:
             for y in range(mask.shape[1]/n_y):
                 pass#mask[x*n:x*n+(n), y*n:y*n+(n)] = x*shape[0]/n + y + 1
 
-        return 0#mask
+        return mask
 
     def sector_mask(self, shape, parameters):
 

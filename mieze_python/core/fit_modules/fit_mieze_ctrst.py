@@ -91,7 +91,6 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                     combined_data = self.combineData(
                         key, meas, echo, shift, target, new_target, 
                         premask, foil, foils_in_echo )
-                    print('#####COMBINE',np.sum(combined_data))
                     local_results[key][meas][echo] = self.fitSinus(
                         results, combined_data, new_target, echo)
 
@@ -176,8 +175,6 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
             #logical check
             if foils_in_echo[echo_idx_0][foil_idx] == 1:
-                print('#####PREMASK', np.sum(premask))
-
                 data_array = []
                 for tcha_idx in range(new_target.get_axis_len(tcha_name)):
                     data_array.append((np.multiply(shift[key][meas][echo][foil_idx,tcha_idx],premask)).sum())

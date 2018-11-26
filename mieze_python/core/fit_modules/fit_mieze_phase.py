@@ -320,7 +320,6 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
                 (np.multiply(reso_target[echo_idx, foil_idx, timechannel],mask)).sum()
                 for timechannel in range(reso_target.get_axis_len(tcha_name))
                 ]
-            print('######COUNTS#####', np.sum(counts))
             
             #process the errors
             count_error = np.sqrt([float(count) for count in counts])
