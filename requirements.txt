@@ -5,5 +5,4 @@ seaborn
 matplotlib
 scipy
 pyqt5
-pyopengl
-
+pyopengl 

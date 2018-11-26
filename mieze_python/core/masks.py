@@ -311,8 +311,8 @@ class Masks:
             'DB_5': [
                 (self.sector_mask),
                 (31,35), 
-                5, 
                 0, 
+                5, 
                 (0,360)],
 
             '10x10_tile': [
@@ -324,78 +324,78 @@ class Masks:
             'SkX_peak': [
                 (self.sector_mask),
                 (31,35), 
-                100, 
                 55, 
+                100, 
                 (8,46)],
 
             'SkX_peak_circ': [
                 (self.sector_mask),
                 (100,70), 
-                20, 
                 0, 
+                20, 
                 (0,360)],
 
             'SkX_peak_small': [
                 (self.sector_mask),
                 (31,35), 
-                82, 
                 72, 
+                82, 
                 (22,32)],
 
             'SkX_between_peaks': [
                 (self.sector_mask),
                 (31,35), 
-                100, 
                 55, 
+                100, 
                 (46,70)],
 
             'noDB': [
                 (self.sector_mask),
                 (31,35), 
-                100, 
                 55, 
+                100, 
                 (0,360)],
 
             'DB_sixfold': [
                 (self.sector_mask),
                 (27,33), 
-                5, 
                 0, 
+                5, 
                 (0,360)],
 
             'SkX_peak_Sixfold': [
                 (self.sector_mask),
                 (27,33), 
-                90, 
                 47, 
+                90, 
                 (15,52)],
 
             'SkX_between_peaks_Sixfold': [
                 (self.sector_mask),
                 (27,33),
-                90, 
                 47, 
+                90, 
                 (52,80)],
 
             'noDB_Sixfold': [
                 (self.sector_mask),
                 (31,35), 
-                100, 
                 42, 
+                100, 
                 (0,360)],
 
             'SkX_peak_circ_Sixfold': [
                 (self.sector_mask),
                 (84,69), 
-                20,
-                0, 
+                0,
+                20, 
                 (0,360)],
 
             'SkX_peak_SkXCon': [
                 (self.sector_mask),
                 (28,34), 
-                20, 
                 65, 
+                85, 
                 (82,100)]
             }
 
@@ -412,8 +412,8 @@ class Masks:
             'Pre_SkX_peak_Sixfold': [
                 (self.gen_pregroup_mask_circ),
                 (28,34), 
-                90, 
                 45, 
+                90, 
                 (17,56), 
                 15, 
                 13],
@@ -494,7 +494,7 @@ class Masks:
             for y in range(mask.shape[1]/n_y):
                 pass#mask[x*n:x*n+(n), y*n:y*n+(n)] = x*shape[0]/n + y + 1
 
-        return 0#mask
+        return mask
 
     def sector_mask(self, shape, parameters):
 

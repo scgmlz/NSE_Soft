@@ -28,6 +28,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from .main_window           import MainWindowLayout
 from .import_window         import ImportWindowLayout
 from .meta_window           import MetadataWindowLayout
+from .display_raw_window    import DisplayRawWindowLayout
 
 class WindowHandler:
     '''
@@ -55,6 +56,7 @@ class WindowHandler:
         self.window_dictionary['MainWindow']    = [MainWindowLayout, None]
         self.window_dictionary['Import']        = [ImportWindowLayout, 'MainWindow']
         self.window_dictionary['MetaWindow']    = [MetadataWindowLayout, 'Import']
+        self.window_dictionary['RawVisual']     = [DisplayRawWindowLayout, 'Import']
 
         self.active_windows = {}
 

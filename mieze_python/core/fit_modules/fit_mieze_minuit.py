@@ -124,16 +124,13 @@ class Fit_MIEZE_Minuit(Fit_Handler):
         ##############################################
         #pack the variables and set the starts
         self.minuit_parameters = [contrast,SEtime,contrasterr]
-
         Gamma0 = 10.
 
         ##############################################
         #create fit object and fit
         fit = iminuit.Minuit(
             self.fit_exp,
-
             Gamma = Gamma0,
-
             pedantic=False,
             print_level=0)
 

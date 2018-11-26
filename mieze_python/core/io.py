@@ -164,7 +164,36 @@ class IO_Manager:
         status: active
         ##############################################
         '''
-        self.generator.generate(self.import_objects)
+        self.env.new_data(self.generator.generate(self.import_objects))
+
+    def load_MIEZE_TOF(self,load_path):
+        '''
+        ##############################################
+        This function will manage the load of tof
+        files through different smaller import
+        components
+        ##############################################
+        '''
+        Import_MIEZE_TOF(load_path,self.env.current_data)
+
+    def load_MIEZE_HD5(self,load_path):
+        '''
+        ##############################################
+        This function will manage the load of tof
+        files through different smaller import
+        components
+        ##############################################
+        '''
+        pass
+
+    def load_SANS_PAD(self,load_path):
+        '''
+        ##############################################
+        This function will import the data from the 
+        PAD format. 
+        ##############################################
+        '''
+        Import_SANS_PAD(load_path,self.env.current_data)
 
 class Generator:
 
@@ -181,8 +210,10 @@ class Generator:
         status: active
         ##############################################
         '''
-        axes,idx = self.getAxes(import_objects)
-        data = self.populateData(axes, idx, import_objects)
+        axes,idx    = self.getAxes(import_objects)
+        data        = self.populateData(axes, idx, import_objects)
+        data        = self.setAxes( data,axes)
+        return data
 
     def getAxes(self, import_objects):
         '''
@@ -220,6 +251,41 @@ class Generator:
 
         return axes,idx
 
+    def setAxes(self, data, axes):
+        '''
+        ##############################################
+        This routine will grab the axes and put them
+        into the datastructure.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        data.axes.set_name(0, 'Parameter')
+        data.axes.set_name(1, 'Measurement')
+        data.axes.set_name(2, 'Echo time')
+        data.axes.set_name(3, 'Foil')
+        data.axes.set_name(4, 'Time channel')
+
+        data.axes.set_axis(0, axes[0])
+        data.axes.set_axis(1, axes[1])
+        data.axes.set_axis(2, axes[2])
+        data.axes.set_axis(3, [e for e in range(
+            len(data.axes.axes[3]))])
+        data.axes.set_axis(4,  [e for e in range(
+            len(data.axes.axes[4]))])
+
+        # data.axes.set_name(0, 'Parameter')
+        # data.axes.set_name(1, 'Measurement')
+        # data.axes.set_name(2, 'Echo time')
+        # data.axes.set_name(3, 'Foil')
+        # data.axes.set_name(4, 'Time channel')
+
+        return data
+
     def populateData(self, axes, idx, import_objects):
         '''
         ##############################################
@@ -242,17 +308,15 @@ class Generator:
                 loadeddata = np.fromfile(f, dtype=np.int32)[:np.prod(import_object.data_handler.dimension)]
                 data = loadeddata.reshape(*import_object.data_handler.dimension)
                 f.close()
-                print(import_object.data_handler.dimension)
                 
                 for idx_1 in range(import_object.data_handler.dimension[0]):
                     for idx_2 in range(import_object.data_handler.dimension[1]):
-                        print(idx_1,idx_2)
                         address = list(idx[i][j]) + [idx_1,idx_2]
                         data_struct[address] = data[idx_1,idx_2,:,:]
 
         data_struct.validate()
 
-        print(data_struct)
+        return data_struct
 
 
 class ImportObject:
@@ -426,6 +490,23 @@ class FileHandler:
                 self.total_path_files.append(element)
                 self.nice_path_files.append(element.split(os.path.sep)[-1])
 
+    def removeFile(self, index):
+        '''
+        ##############################################
+        This routine will get the file names and try
+        to test store them and create a nice 
+        representation for the display.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        del self.total_path_files[index]
+        del self.nice_path_files[index]
+
     def genPrev(self, index):
         '''
         ##############################################
@@ -446,6 +527,26 @@ class FileHandler:
             data = np.sum(data, axis=0)
 
         self.current_preview = np.log10(data+1)
+
+    def getElement(self, index_array):
+        '''
+        ##############################################
+        Generate a preview of a file
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        target = self.total_path_files[index_array[0]]
+
+        with open(target) as f:
+            loadeddata = np.fromfile(f, dtype=np.int32)[:8*16*128*128]
+            data = loadeddata.reshape(8,16,128,128)
+
+        return np.log10(data[index_array[1], index_array[2]]+1)
 
     def script(self, indent):
         '''
@@ -478,37 +579,6 @@ class FileHandler:
         script += (indent+1) * "    " + "common_path + item for item in path_list])\n"
 
         return script
-
-    # def load_MIEZE_TOF(self,load_path):
-    #     '''
-    #     ##############################################
-    #     This function will manage the load of tof
-    #     files through different smaller import
-    #     components
-    #     ##############################################
-    #     '''
-    #     Import_MIEZE_TOF(load_path,self.env.current_data)
-
-    # def load_MIEZE_HD5(self,load_path):
-    #     '''
-    #     ##############################################
-    #     This function will manage the load of tof
-    #     files through different smaller import
-    #     components
-    #     ##############################################
-    #     '''
-    #     pass
-
-    # def load_SANS_PAD(self,load_path):
-    #     '''
-    #     ##############################################
-    #     This function will import the data from the 
-    #     PAD format. 
-    #     ##############################################
-    #     '''
-    #     Import_SANS_PAD(load_path,self.env.current_data)
-
-
 
 class MetaHandler:
     
@@ -748,7 +818,7 @@ class MetaHandler:
         '''
         self.values['Parameter']    = 'Not given'
         self.values['Measurement']  = 'Not given'
-        self.values['Echo']         = 'Not given'
+        self.values['Echo']         = ['Not given']
 
         for element in self.selected_meta:
             if element[2] == 'Parameter':
@@ -774,7 +844,7 @@ class MetaHandler:
                     float(e)*float(element[3])  for e in self.values[element[0]]]
 
         if all([(element in self.values.keys()) for element in [
-            'Freq. first','Freq. second','Wavelength','lsd']]) and self.values['Echo'] == 'Not given':
+            'Freq. first','Freq. second','Wavelength','lsd']]) and self.values['Echo'][0] == 'Not given':
 
             self.values['Echo'] = [0]*len(self.values['Wavelength'])
 

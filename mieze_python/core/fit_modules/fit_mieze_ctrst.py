@@ -91,7 +91,6 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                     combined_data = self.combineData(
                         key, meas, echo, shift, target, new_target, 
                         premask, foil, foils_in_echo )
-
                     local_results[key][meas][echo] = self.fitSinus(
                         results, combined_data, new_target, echo)
 
@@ -174,11 +173,8 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             echo_idx_0  = target.get_axis_idx(echo_name, echo)
             foil_idx    = new_target.get_axis_idx(foil_name, foil)
 
-            
-
             #logical check
             if foils_in_echo[echo_idx_0][foil_idx] == 1:
-
                 data_array = []
                 for tcha_idx in range(new_target.get_axis_len(tcha_name)):
                     data_array.append((np.multiply(shift[key][meas][echo][foil_idx,tcha_idx],premask)).sum())
@@ -591,7 +587,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             ref_error   = np.asarray([contrast_ref_error[echo] for echo in x])
             
             if not reference == None:
-                y       = abs(data / ref_data)
+                y       = np.abs(data / ref_data)
                 y_error = y * np.sqrt(
                     (data_error / data) ** 2
                     + (ref_error / ref_data) ** 2)

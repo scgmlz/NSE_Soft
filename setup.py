@@ -21,23 +21,12 @@
 #
 # *****************************************************************************
 
-
 from setuptools import setup, find_packages
-from pip._internal import main as pipmain
-
-
-def install(package):
-    pipmain(['install', package])
-
-with open('requirements.txt') as f:
-    requirements = f.readlines()
-    
-    for item in requirements:
-        install(item)
+import mieze_python
 
 setup(
     name = 'mieze_python',
-    version = '0.0.1',
+    version = mieze_python.__version__,
     license = 'GPL',
     author = 'Dr. Alexander Schober',
 #    install_requires = requirements,

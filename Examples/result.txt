@@ -1,15 +1,15 @@
-2018-10-22 10:01:00.826555 INFORMATION Added the entry'Date' to the metadata
-2018-10-22 10:01:00.826558 INFORMATION Added the entry'Start' to the metadata
-2018-10-22 10:01:00.826559 INFORMATION Added the entry'name' to the metadata
-2018-10-22 10:01:00.835615 INFORMATION Added the entry'Gamma' to the results
-2018-10-22 10:01:00.835620 INFORMATION Added the entry'Gamma_error' to the results
-2018-10-22 10:01:00.835622 INFORMATION Added the entry'Curve' to the results
-2018-10-22 10:01:00.835624 INFORMATION Added the entry'Parameters' to the results
-2018-10-22 10:01:00.835625 INFORMATION Added the entry'Select' to the results
-2018-10-22 10:01:00.835627 INFORMATION Added the entry'BG' to the results
-2018-10-22 10:01:00.835628 INFORMATION Added the entry'Reference' to the results
-2018-10-22 10:01:00.835630 INFORMATION Added the entry'Axis' to the results
-2018-10-22 10:01:00.835631 INFORMATION Added the entry'Axis_unit' to the results
-2018-10-22 10:01:00.835633 INFORMATION Fitting of the contrast was a success
-2018-10-22 10:01:00.835636 INFORMATION Added the entry'End' to the metadata
-2018-10-22 10:01:00.835641 INFORMATION Added the entry'Duration' to the metadata
+2018-11-26 09:28:44.821629 INFORMATION Added the entry'Date' to the metadata
+2018-11-26 09:28:44.821631 INFORMATION Added the entry'Start' to the metadata
+2018-11-26 09:28:44.821632 INFORMATION Added the entry'name' to the metadata
+2018-11-26 09:28:44.831855 INFORMATION Added the entry'Gamma' to the results
+2018-11-26 09:28:44.831862 INFORMATION Added the entry'Gamma_error' to the results
+2018-11-26 09:28:44.831864 INFORMATION Added the entry'Curve' to the results
+2018-11-26 09:28:44.831865 INFORMATION Added the entry'Parameters' to the results
+2018-11-26 09:28:44.831867 INFORMATION Added the entry'Select' to the results
+2018-11-26 09:28:44.831869 INFORMATION Added the entry'BG' to the results
+2018-11-26 09:28:44.831870 INFORMATION Added the entry'Reference' to the results
+2018-11-26 09:28:44.831872 INFORMATION Added the entry'Axis' to the results
+2018-11-26 09:28:44.831874 INFORMATION Added the entry'Axis_unit' to the results
+2018-11-26 09:28:44.831882 INFORMATION Fitting of the contrast was a success
+2018-11-26 09:28:44.831893 INFORMATION Added the entry'End' to the metadata
+2018-11-26 09:28:44.831900 INFORMATION Added the entry'Duration' to the metadata

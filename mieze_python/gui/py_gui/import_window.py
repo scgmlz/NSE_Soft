@@ -127,15 +127,22 @@ class ImportWindowLayout(Ui_import_window):
         status: active
         ##############################################
         '''
+        #connect buttons
         self.data_button_meta_add.clicked.connect(self.openMetadataWindow)
         self.data_button_meta_remove.clicked.connect(self.removeMeta)
         self.data_button_meta_all.clicked.connect(self.propagateMeta)
         self.data_button_files_add.clicked.connect(self.getFiles)
         self.data_button_files_reset.clicked.connect(self.resetFiles)
+        self.data_button_populate.clicked.connect(self.populate)
+        self.data_button_files_remove.clicked.connect(self.removeFile)
+
+        #connect lists
         self.data_list_files.clicked.connect(self.setPrev)
         self.data_list_loaded.currentItemChanged.connect(self.setCurrentElement)
-        self.data_button_populate.clicked.connect(self.populate)
+
         #self.data_button_generate.clicked.connect(self.generate)
+
+        #connect actions
         self.actionSave.triggered.connect(self.save)
         self.actionLoad.triggered.connect(self.load)
         self.actionAdd_Element.triggered.connect(self.addElement)
@@ -161,6 +168,21 @@ class ImportWindowLayout(Ui_import_window):
         '''
         self.window_manager.newWindow('MetaWindow')
         self.window_manager.active_windows['MetaWindow'].target.link(self.meta_handler)
+
+    def openVisualWindow(self):
+        '''
+        ##############################################
+        This routine will launch the metadat window.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.window_manager.newWindow('RawVisual')
+        self.window_manager.active_windows['RawVisual'].target.link(self.import_object)
 
     def removeMeta(self):
         '''
@@ -245,6 +267,7 @@ class ImportWindowLayout(Ui_import_window):
             ])
 
         self.elements[-1][0].setSizeHint(self.elements[-1][1].widget.size())
+        self.elements[-1][1].vis_button.clicked.connect(self.openVisualWindow)
 
         self.data_list_loaded.setItemWidget(
             self.elements[-1][0],
@@ -393,6 +416,22 @@ class ImportWindowLayout(Ui_import_window):
             self.file_model.appendRow(item)
     
         self.data_list_files.setModel(self.file_model)
+
+    def removeFile(self):
+        '''
+        ##############################################
+        This will reset the file view and the 
+        associated core io routine.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.file_handler.removeFile(self.data_list_files.currentIndex().row())
+        self.setFileList()
         
     def resetFiles(self):
         '''

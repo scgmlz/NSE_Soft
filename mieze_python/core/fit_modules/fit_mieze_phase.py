@@ -52,10 +52,10 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         '''
         ############################################
         #unpack the container
-        wavelength  = metadata_object['wavelength']
+        wavelength  = metadata_object['wavelength']*1e-10
         freq_0      = metadata_object['freq_0']
         freq_1      = metadata_object['freq_1']
-        lsd         = metadata_object['lsd']
+        lsd         = metadata_object['lsd']*1.e9
         wavelength_error    = target.metadata_class['Wavelength error'] 
         lsd_error           = target.metadata_class['Distance error']
 
