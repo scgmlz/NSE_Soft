@@ -104,7 +104,10 @@ class IO_Manager:
         script += (indent+1) * "    " +"for i in range("+str(len(self.import_objects))+"):\n"
         script += (indent+2) * "    " +"gui.setCurrentElement(i)\n"
         script += (indent+2) * "    " +"gui.populate()\n"
-
+        script += indent * "    " +"else:\n"
+        script += (indent+1) * "    " +"for i in range("+str(len(self.import_objects))+"):\n"  
+        script += (indent+2) * "    " +"env.io.import_objects[i].processObject()\n"
+            
         for i,element in enumerate(self.import_objects):
             script += "\ndef loadData_"+str(i)+"(import_object):\n"
             script += indent * "    " + "#################################\n"
@@ -164,7 +167,8 @@ class IO_Manager:
         status: active
         ##############################################
         '''
-        self.env.new_data(self.generator.generate(self.import_objects))
+        self.env.data[self.env.initial_data_name] = self.generator.generate(self.import_objects)
+        self.env.set_current_data(self.env.initial_data_name)
 
     def load_MIEZE_TOF(self,load_path):
         '''
@@ -266,9 +270,9 @@ class Generator:
         '''
         data.axes.set_name(0, 'Parameter')
         data.axes.set_name(1, 'Measurement')
-        data.axes.set_name(2, 'Echo time')
+        data.axes.set_name(2, 'Echo Time')
         data.axes.set_name(3, 'Foil')
-        data.axes.set_name(4, 'Time channel')
+        data.axes.set_name(4, 'Time Channel')
 
         data.axes.set_axis(0, axes[0])
         data.axes.set_axis(1, axes[1])
@@ -304,6 +308,8 @@ class Generator:
 
         for i,import_object in enumerate(import_objects):
             for j,path in enumerate(import_object.file_handler.total_path_files):
+                data_struct.add_metadata_object(self.generateMetadata(import_object, j))
+
                 f = open(path,'rb')
                 loadeddata = np.fromfile(f, dtype=np.int32)[:np.prod(import_object.data_handler.dimension)]
                 data = loadeddata.reshape(*import_object.data_handler.dimension)
@@ -318,6 +324,24 @@ class Generator:
 
         return data_struct
 
+    def generateMetadata(self,import_object, index):
+        '''
+        ##############################################
+        Here is the routine managing the metadata 
+        handling.
+        ##############################################
+        '''
+        metadata = {}
+        for key in import_object.meta_handler.values.keys():
+            metadata[key] = [
+                key,
+                'float',
+                import_object.meta_handler.values[key][index],
+                '-'
+                ]
+
+        return metadata
+                
 
 class ImportObject:
     
@@ -841,6 +865,9 @@ class MetaHandler:
                     float(e)*float(element[3])  for e in self.values[element[0]]]
             elif element[2] == 'lsd':
                     self.values['lsd'] = [
+                    float(e)*float(element[3])  for e in self.values[element[0]]]
+            elif element[2] == 'Monitor':
+                    self.values['Monitor'] = [
                     float(e)*float(element[3])  for e in self.values[element[0]]]
 
         if all([(element in self.values.keys()) for element in [

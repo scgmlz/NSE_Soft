@@ -147,6 +147,7 @@ class ImportWindowLayout(Ui_import_window):
         self.actionLoad.triggered.connect(self.load)
         self.actionAdd_Element.triggered.connect(self.addElement)
         self.actionRemove_Element.triggered.connect(self.removeElement)
+        self.actionGenerate_Dataset.triggered.connect(self.generateDataset)
 
         #the dimension fields
         self.data_input_foils.textChanged.connect(self.dimChanged)
@@ -274,6 +275,34 @@ class ImportWindowLayout(Ui_import_window):
             self.elements[-1][1].widget)
 
         self.setCurrentElement(len(self.io_core.import_objects)-1)
+
+    def addElementSilent(self,i):
+        '''
+        ##############################################
+        Add an element into the list which is loaded 
+        from a custome widget
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        self.elements.append([
+            QtWidgets.QListWidgetItem(self.data_list_loaded),
+            LoadedDataWidget(self.io_core.import_objects[i].data_handler) 
+            ])
+
+        self.elements[-1][0].setSizeHint(self.elements[-1][1].widget.size())
+        self.elements[-1][1].vis_button.clicked.connect(self.openVisualWindow)
+
+        self.data_list_loaded.setItemWidget(
+            self.elements[-1][0],
+            self.elements[-1][1].widget)
+
+        self.setCurrentElement(i)
 
     def removeElement(self):
         '''
@@ -511,6 +540,41 @@ class ImportWindowLayout(Ui_import_window):
             self.meta_handler.values,
             self.file_handler.nice_path_files)
         self.current_element.initialize()
+
+    def populateAll(self):
+        '''
+        ##############################################
+        This routine will call the genrator for the 
+        currently active object.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        for i in range(len(self.io_core.import_objects)):
+            self.addElementSilent(i)
+            self.populate()
+
+    def generateDataset(self):
+        '''
+        ##############################################
+        This routine will call the genrator for the 
+        currently active object.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.io_core.generate()
+        self.window_manager.active_windows['MainWindow'].target.refreshData()
+        self.window.close()
+        del self.window_manager.active_windows['Import']
 
     def save(self):
         '''

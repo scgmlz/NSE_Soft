@@ -332,13 +332,20 @@ class Import_MIEZE_TOF:
             for element in meta_array:
                 
                 if len(line.split(element[1]+' :')) > 1:
-                    
-                    metadata[element[2]] = [
-                        element[2],
-                        element[3],
-                        line.split(element[1]+' : ')[1].split(element[-1])[0],
-                        element[4]
-                        ]
+                    try:
+                        metadata[element[2]] = [
+                            element[2],
+                            element[3],
+                            str(float(line.split(element[1]+' : ')[1].split(element[-1])[0])*float(element[4])),
+                            element[4]
+                            ]
+                    except:
+                        metadata[element[2]] = [
+                            element[2],
+                            element[3],
+                            line.split(element[1]+' : ')[1].split(element[-1])[0],
+                            element[4]
+                            ]
 
         f.seek(0)
         return metadata

@@ -78,10 +78,8 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                 print(
                     'Processing the contrast fit for: '
                     +str(key)
-                    +target.get_axis_unit(para_name)
                     +' measurement '
-                    +str(meas)
-                    +target.get_axis_unit(meas_name))
+                    +str(meas))
 
                 local_results[key][meas]    = {}
 
@@ -129,7 +127,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         ############################################
         #
         echo_idx_1  = new_target.get_axis_idx(echo_name, echo)
-        monitor = new_target.get_metadata([echo_idx_1,0,0])[0]['monitor']
+        monitor = new_target.get_metadata([echo_idx_1,0,0])[0]['Monitor']
 
         ############################################
         #process the result
@@ -214,8 +212,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         #fit and calculate the contrast
         print(
             'Processing the reference contrast calculation for: '
-            +str(reference)
-            +target.axes.units[0])
+            +str(reference))
 
         reference = reference[0] 
 
@@ -348,8 +345,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
             print(
                 'Processing the Background contrast calculation for: '
-                +str(BG)
-                +target.axes.units[0])
+                +str(BG))
 
             BG_result = self.calcCtrstFit(
                 [BG],foils_in_echo, shift, 
@@ -386,9 +382,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             #print it out
             print(
                 'Processing the contrast calculation for: '
-                +str(key)
-                +target.get_axis_unit(para_name)
-                )
+                +str(key))
 
         ##############################################
         #finalize result and send it out

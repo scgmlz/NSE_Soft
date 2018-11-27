@@ -52,10 +52,10 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         '''
         ############################################
         #unpack the container
-        wavelength  = metadata_object['wavelength']*1e-10
-        freq_0      = metadata_object['freq_0']
-        freq_1      = metadata_object['freq_1']
-        lsd         = metadata_object['lsd']*1.e9
+        wavelength  = metadata_object['Wavelength']
+        freq_0      = metadata_object['Freq. first']
+        freq_1      = metadata_object['Freq. second']
+        lsd         = metadata_object['lsd']
         wavelength_error    = target.metadata_class['Wavelength error'] 
         lsd_error           = target.metadata_class['Distance error']
 
@@ -274,6 +274,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         selected_ref    = self.para_dict['Reference']
         reso_target     = target.get_slice(selected_ref)
         premask         = mask.mask
+        print(reso_target)
 
         ############################################
         #initialise variables

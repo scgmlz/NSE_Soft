@@ -92,6 +92,23 @@ class Environment:
         #set it to the current data structure
         self.set_current_data(key = title)
 
+
+    def initalize(self, title = 'No_Name'):
+        '''
+        ##############################################
+        This function will initiate a new data class
+        and then set the current pointer to it.
+        ———————
+        Input: 
+        - title or key (str)
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.data   = {}
+
     def set_current_data(self, key = None):
         '''
         ##############################################

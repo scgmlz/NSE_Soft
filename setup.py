@@ -34,7 +34,8 @@ setup(
     author_email = 'alex.schober@mac.com',
     description = 'NSE analysis package',
     packages = find_packages(exclude=['doc','test']),
-    package_data = {'mieze_python': ['RELEASE-VERSION']},
+    package_data = {'mieze_python': ['RELEASE-VERSION'],'mieze_python.core.process_modules.defaults': ['*.txt']},
+    
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
