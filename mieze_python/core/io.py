@@ -333,6 +333,7 @@ class Generator:
         '''
         metadata = {}
         for key in import_object.meta_handler.values.keys():
+            print(import_object.meta_handler.values[key], key)
             metadata[key] = [
                 key,
                 'float',
@@ -840,8 +841,8 @@ class MetaHandler:
         status: active
         ##############################################
         '''
-        self.values['Parameter']    = 'Not given'
-        self.values['Measurement']  = 'Not given'
+        self.values['Parameter']    = ['Not given']
+        self.values['Measurement']  = ['Not given']
         self.values['Echo']         = ['Not given']
 
         for element in self.selected_meta:
@@ -883,3 +884,10 @@ class MetaHandler:
                     float(self.values['lsd'][i])
                 )
                 del val
+
+        if self.values['Parameter'][0] == 'Not given':
+            del self.values['Parameter']
+        if self.values['Measurement'][0] == 'Not given':
+            del self.values['Measurement']
+        if self.values['Echo'][0] == 'Not given':
+            del self.values['Echo']
