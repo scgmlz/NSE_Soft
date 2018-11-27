@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+import os
+
 def get_process_handler(select, env):
     '''
     ##############################################
@@ -61,7 +63,6 @@ class Process_Handler:
         Output: -
         ##############################################
         '''
-
         self.env = env
 
     def extract_from_metadata(self, axis, key):
@@ -79,13 +80,11 @@ class Process_Handler:
         Output: -
         ##############################################
         '''
-
         ############################################
         #fix the axes
         idx = self.env.current_data.axes.names.index(axis)
         self.env.current_data.axes.grab_meta(idx, key, self.env.current_data)
         self.env.current_data.axes.collapse_axis(idx, self.env.current_data)
-
 
 class Process_MIEZE(Process_Handler):
 
@@ -107,6 +106,30 @@ class Process_MIEZE(Process_Handler):
         #initialize the superclass
         Process_Handler.__init__(self, env)
         self.env = env
+        self.initalize()
+
+    def initalize(self):
+        '''
+        ##############################################
+        Initialize the default python scipts so that 
+        the system can be set.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ##############################################
+        '''
+        self.default_scripts = []
+        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/import_process.py','r') as f:
+            self.default_scripts.append(f.read())
+        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/phase_process.py','r') as f:
+            self.default_scripts.append(f.read())
+        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/reduction_process.py','r') as f:
+            self.default_scripts.append(f.read())
+        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/post_process.py','r') as f:
+            self.default_scripts.append(f.read())
+
+        self.editable_scripts = list(self.default_scripts)
 
     def calculate_echo(self):
         '''
@@ -120,6 +143,28 @@ class Process_MIEZE(Process_Handler):
         Output: -
         ##############################################
         '''
+
+        self.env.fit.set_parameter( 
+            name = 'para_name', 
+            value = self.env.current_data.axes.names[0])
+        
+        self.env.fit.set_parameter( 
+            name = 'meas_name', 
+            value = self.env.current_data.axes.names[1])
+
+        self.env.fit.set_parameter( 
+            name = 'echo_name', 
+            value = self.env.current_data.axes.names[2])
+
+        self.env.fit.set_parameter( 
+            name = 'foil_name', 
+            value = self.env.current_data.axes.names[3])
+
+        self.env.fit.set_parameter( 
+            name = 'tcha_name', 
+            value = self.env.current_data.axes.names[4])
+
+        print(self.env.current_data.axes.names)
         ############################################
         #process the echo time
         for metadata_object in self.env.current_data.metadata_objects:
@@ -129,7 +174,7 @@ class Process_MIEZE(Process_Handler):
                 self.env.current_data)
 
         self.extract_from_metadata(
-            'Echo', 
+            self.env.current_data.axes.names[2], 
             'tau')
 
     def remove_foils(self):

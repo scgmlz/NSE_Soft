@@ -22,6 +22,9 @@ def loadData(env, gui = None):
         for i in range(13):
             gui.setCurrentElement(i)
             gui.populate()
+    else:
+        for i in range(13):
+            env.io.import_objects[i].processObject()
 
 def loadData_0(import_object):
     #################################
@@ -250,13 +253,14 @@ def loadData_6(import_object):
     ########## The file paths ##########
     common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001223'
     path_list = [
-        '48.tof',
-        '49.tof',
-        '50.tof',
-        '51.tof',
-        '52.tof',
-        '53.tof',
-        '54.tof']
+        '34.tof',
+        '35.tof',
+        '36.tof',
+        '37.tof',
+        '38.tof',
+        '39.tof',
+        '40.tof',
+        '41.tof']
     current_object.file_handler.addFiles([
         common_path + item for item in path_list])
     ########## The data handler ##########
@@ -285,14 +289,13 @@ def loadData_7(import_object):
     ########## The file paths ##########
     common_path = '/Users/alexanderschober/Downloads/Data_analysis_Schober/201806_RESEDA/data/001223'
     path_list = [
-        '34.tof',
-        '35.tof',
-        '36.tof',
-        '37.tof',
-        '38.tof',
-        '39.tof',
-        '40.tof',
-        '41.tof']
+        '48.tof',
+        '49.tof',
+        '50.tof',
+        '51.tof',
+        '52.tof',
+        '53.tof',
+        '54.tof']
     current_object.file_handler.addFiles([
         common_path + item for item in path_list])
     ########## The data handler ##########

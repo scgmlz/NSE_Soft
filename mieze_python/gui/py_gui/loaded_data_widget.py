@@ -98,8 +98,15 @@ class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
         '''
 
         new_val_dict = dict(val_dict)
-        del new_val_dict['Parameter']
-        del new_val_dict['Measurement']
+        try:
+            del new_val_dict['Parameter']
+        except:
+            pass
+        try:
+            del new_val_dict['Measurement']
+        except:
+            pass
+        
 
         self.clearTable()
         self.setTable(new_val_dict, file_list)
