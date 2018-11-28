@@ -333,14 +333,12 @@ class Generator:
         '''
         metadata = {}
         for key in import_object.meta_handler.values.keys():
-            print(import_object.meta_handler.values[key], key)
             metadata[key] = [
                 key,
                 'float',
                 import_object.meta_handler.values[key][index],
                 '-'
                 ]
-
         return metadata
                 
 

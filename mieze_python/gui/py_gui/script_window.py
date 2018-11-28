@@ -96,10 +96,24 @@ class ScriptWindowLayout(Ui_script_window):
         ##############################################
         '''
         self.env = env
-        self.script_text_import.setText(self.env.process.default_scripts[0])
-        self.script_text_phase.setText(self.env.process.default_scripts[1])
-        self.script_text_reduction.setText(self.env.process.default_scripts[2])
-        self.script_text_post.setText(self.env.process.default_scripts[3])
+        self.refresh()
+
+    def refresh(self):
+        '''
+        ##############################################
+
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''        
+        self.script_text_import.setText(self.env.process.editable_scripts[0])
+        self.script_text_phase.setText(self.env.process.editable_scripts[1])
+        self.script_text_reduction.setText(self.env.process.editable_scripts[2])
+        self.script_text_post.setText(self.env.process.editable_scripts[3])
 
     def connect(self):
         '''
@@ -117,6 +131,8 @@ class ScriptWindowLayout(Ui_script_window):
         self.script_button_phase_run.clicked.connect(self.runPhase)
         self.script_button_reduction_run.clicked.connect(self.runReduction)
         self.script_button_post_run.clicked.connect(self.runPost)
+        self.actionLoad_scripts.triggered.connect(self.loadScripts)
+        self.actionSave_scripts.triggered.connect(self.saveScripts)
 
     def runImport(self):
         print(type(self.script_text_import.toPlainText()))
@@ -130,3 +146,55 @@ class ScriptWindowLayout(Ui_script_window):
 
     def runPost(self):
         exec(compile(self.script_text_post.toPlainText(), '<string>', 'exec'))
+
+    def saveScripts(self):
+        '''
+        ##############################################
+
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        filters = "mieze_script_save.py"
+
+        file_path = QtWidgets.QFileDialog.getSaveFileName(
+                self.window, 
+                'Select file',
+                filters)[0]
+
+        self.env.process.saveScripts(
+            file_path,
+            [
+                self.script_text_import.toPlainText(),
+                self.script_text_phase.toPlainText(),
+                self.script_text_reduction.toPlainText(),
+                self.script_text_post.toPlainText()
+            ])
+
+
+    def loadScripts(self):
+        '''
+        ##############################################
+
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        filters = "*.py"
+
+        file_path = QtWidgets.QFileDialog.getOpenFileName(
+                self.window, 
+                'Select file',
+                filters)[0]
+
+        self.env.process.loadScripts(
+            file_path)
+        self.refresh()
