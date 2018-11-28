@@ -7,8 +7,6 @@ matrix:
       - os: osx
         language: generic
         env: PYTHON=3.6
-      - os: windows
-        env: PYTHON_VERSION=3.6
 cache: pip
   directories:
     - $HOME/dl_cache
