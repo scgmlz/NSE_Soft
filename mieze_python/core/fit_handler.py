@@ -17,40 +17,53 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Lenz <alexander.schober@mac.com>
+#   Alexander Schober <alex.schober@mac.com>
 #
 # *****************************************************************************
 
-# import matplotlib 
-# matplotlib.use('TkAgg')
 #############################
-#import main components
-from .core.core_handler import Handler as CORE_Manager
-from .gui.gui_handler   import Handler as GUI_Manager
+#import general components
+import iminuit
+import numpy as np
+import scipy
+import warnings
+import copy
+import math
+import timeit
+ 
 
-
-class Manager (CORE_Manager, GUI_Manager):
-
+#############################
+#import child components
+from .fit_modules.fit_mieze import Fit_MIEZE
+from .fit_modules.fit_sans import Fit_SANS
+    
+def get_fit_handler(select):
     '''
     ##############################################
-    Here lies the main NSE tool manager class. It can be
-    accessed in the python terminal through: 
-    "from NSE.Main import Manager as NSE"
-
-    Note that setting GUI = True will launch the Tk/Tlc
-    based interface.
-     
+    Will return the right fit manager depending 
+    on the initial input
+    ———————
+    Input: target (Data_Structure)
+    ———————
+    Output: -
+    ———————
+    status: active
     ##############################################
     '''
 
-    def __init__(self, GUI = False):
+    if select == 'MIEZE':
 
-        ##############################################
-        #initiate the core manager  
-        CORE_Manager.__init__(self)
+        return Fit_MIEZE()
 
-        ##############################################
-        #initiate the GUI manager if need be
-        if GUI == True:
+    if select == 'SANS':
 
-            GUI_Manager.__init__(self)
+        return Fit_SANS()
+
+    else:
+
+        print('Could not find the fit class you are looking for. Error...')
+        
+        return None
+
+
+
