@@ -8,8 +8,6 @@ matrix:
         language: generic
         env: PYTHON=3.6
 cache: pip
-  directories:
-    - $HOME/dl_cache
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew update
