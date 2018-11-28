@@ -28,6 +28,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 #private dependencies
 from ...gui.qt_gui.script_window_ui import Ui_script_window
 from ...gui.py_gui.python_syntax import PythonHighlighter
+from ...gui.py_gui.gui_handler import Panel
 
 
 class ScriptWindowLayout(Ui_script_window):
@@ -129,13 +130,13 @@ class ScriptWindowLayout(Ui_script_window):
         '''
         self.script_button_import_run.clicked.connect(self.runImport)
         self.script_button_phase_run.clicked.connect(self.runPhase)
+        self.script_button_phase_view.clicked.connect(self.runPanel)
         self.script_button_reduction_run.clicked.connect(self.runReduction)
         self.script_button_post_run.clicked.connect(self.runPost)
         self.actionLoad_scripts.triggered.connect(self.loadScripts)
         self.actionSave_scripts.triggered.connect(self.saveScripts)
 
     def runImport(self):
-        print(type(self.script_text_import.toPlainText()))
         exec(compile(self.script_text_import.toPlainText(), '<string>', 'exec'))
 
     def runPhase(self):
@@ -175,7 +176,6 @@ class ScriptWindowLayout(Ui_script_window):
                 self.script_text_post.toPlainText()
             ])
 
-
     def loadScripts(self):
         '''
         ##############################################
@@ -198,3 +198,18 @@ class ScriptWindowLayout(Ui_script_window):
         self.env.process.loadScripts(
             file_path)
         self.refresh()
+
+    def runPanel(self):
+        '''
+        ##############################################
+
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.tool = Panel(self.env, self.panel_widget)
+        

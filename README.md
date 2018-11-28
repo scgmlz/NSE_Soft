@@ -25,4 +25,4 @@ Open a terminal window in the directory of the distribution and execute the foll
         
 ## Running the package
 
-The software can be launched from the python interpreter through 'from mieze_python.main import Manager as mieze'. it is equally possible to launch it from a jupyter notebook using the same instruction. 
+The software can be launched from the python interpreter through 'from mieze_python.mieze import Mieze'. it is equally possible to launch it from a jupyter notebook using the same instruction. 
