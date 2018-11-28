@@ -274,7 +274,6 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         selected_ref    = self.para_dict['Reference']
         reso_target     = target.get_slice(selected_ref)
         premask         = mask.mask
-        print(reso_target)
 
         ############################################
         #initialise variables
@@ -311,7 +310,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         for mask_num, echo, foil in loop:
             #select only one mask
             mask = premask == mask_num
-
+            
             #grab the idx for the echo
             echo_idx = reso_target.get_axis_idx(echo_name, echo)
             foil_idx = reso_target.get_axis_idx(foil_name, foil)

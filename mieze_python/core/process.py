@@ -131,6 +131,61 @@ class Process_MIEZE(Process_Handler):
 
         self.editable_scripts = list(self.default_scripts)
 
+    def loadScripts(self, path):
+        '''
+        ##############################################
+        Initialize the default python scipts so that 
+        the system can be set.
+        ———————
+        Input: 
+        - path (str) file path to be loaded
+        ———————
+        Output: -
+        ##############################################
+        '''
+        with open(path,'r') as f:
+            text = f.read()
+
+        strings = [
+            text.split('##--IMPORT--##')[1],
+            text.split('##--PHASE--##')[1],
+            text.split('##--REDUCTION--##')[1],
+            text.split('##--POST--##')[1]
+        ]
+        self.editable_scripts = list(strings)
+
+
+    def saveScripts(self, path, strings):
+        '''
+        ##############################################
+        Initialize the default python scipts so that 
+        the system can be set.
+        ———————
+        Input: 
+        - path (str) file path to be saved
+        - strings([str]) scripts 
+        ———————
+        Output: -
+        ##############################################
+        '''
+        string = (
+            "##--IMPORT--##\n"
+            + strings[0]
+            + "\n##--IMPORT--##\n"
+            + "##--PHASE--##\n"
+            + strings[1]
+            + "\n##--PHASE--##\n"
+            + "##--REDUCTION--##\n"
+            + strings[2]
+            + "\n##--REDUCTION--##\n"
+            + "##--POST--##\n"
+            + strings[3]
+            + "\n##--POST--##\n")
+
+        f = open(path, 'w')
+        f.write(string)
+        f.close()
+
     def calculate_echo(self):
         '''
         ##############################################

@@ -11,6 +11,7 @@ Open a terminal window in the directory of the distribution and execute the foll
         sudo apt-get install python3-pip
         sudo pip3 install git+git://github.com/pyqtgraph/pyqtgraph.git
         sudo pip3 install git+git://github.com/AlexanderSchober/simpleplot_qt.git
+        sudo pip3 install -r requirements.txt
         sudo setup.py install
         
 - MacOs:
@@ -19,6 +20,7 @@ Open a terminal window in the directory of the distribution and execute the foll
         brew install python
         sudo pip3 install git+git://github.com/pyqtgraph/pyqtgraph.git
         sudo pip3 install git+git://github.com/AlexanderSchober/simpleplot_qt.git
+        sudo pip3 install -r requirements.txt
         sudo setup.py install
         
 ## Running the package
