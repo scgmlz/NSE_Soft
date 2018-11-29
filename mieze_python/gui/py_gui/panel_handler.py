@@ -21,17 +21,6 @@
 #
 # *****************************************************************************
 
-# #old machinrery
-# import matplotlib as mpl
-# from ipywidgets import interact, interactive, fixed, interact_manual, widgets
-# from mpl_toolkits.axes_grid1 import make_axes_locatable
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# import matplotlib.colors as colors
-# import cProfile
-# import timeit
-# import copy
-
 #new machinery
 import numpy as np
 from .qrangeslider import QRangeSlider
@@ -41,11 +30,11 @@ import sys
 
 
 
-class Panel:
-    def __init__(self, env, widget):
-        self.launch_sp(env, widget)
+class PanelHandler:
+    def __init__(self, env, main_widget, parameter_layout, mask_layout):
+        self.launch_sp(env, main_widget, parameter_layout, mask_layout)
 
-    def launch_sp(self, environment, widget):
+    def launch_sp(self, environment, main_widget, parameter_layout, mask_layout):
         '''
         ##############################################
         This will be the mieze panel able to manage 
@@ -64,9 +53,9 @@ class Panel:
         #set up parameters
         self.environment = environment
         self.threads = []
-        self.setup_frame(widget)
+        self.setup_frame(main_widget, parameter_layout, mask_layout)
 
-    def setup_frame(self, widget):
+    def setup_frame(self, main_widget, parameter_layout, mask_layout):
         '''
         ##############################################
         populate the window layout. The grid is the main
@@ -81,36 +70,34 @@ class Panel:
         status: active
         ##############################################
         '''
-        self.main_widget    = widget
-
-        #set the main environement layouts
-        self.main_container     = QtWidgets.QHBoxLayout()
+        self.main_widget    = main_widget
 
         #the parameter layouts 
-        self.para_group         = QtWidgets.QGroupBox('Parameters options')
+        self.para_group         = parameter_layout
         self.para_vbox          = QtWidgets.QVBoxLayout()
         self.para_grid          = QtWidgets.QGridLayout()
+
+        self.mask_group         = mask_layout
+        self.mask_vbox          = QtWidgets.QVBoxLayout()
+        self.mask_grid          = QtWidgets.QGridLayout()
         
-        self.vis_group          = QtWidgets.QGroupBox('Visualisation')
         self.vis_grid           = QtWidgets.QGridLayout()
 
         #populate 
         self.populate_para(self.para_grid)
+        self.populate_mask(self.mask_grid)
         self.populate_vis(self.vis_grid)
 
         #set inner layouts
         self.para_vbox.addLayout(self.para_grid)
         self.para_vbox.addStretch(1)
         self.para_group.setLayout(self.para_vbox)
-        self.para_group.setFixedWidth(200)
-        self.vis_group.setLayout(self.vis_grid)
 
-        #add the elements
-        self.main_container.addWidget(self.para_group)
-        self.main_container.addWidget(self.vis_group)
+        self.mask_vbox.addLayout(self.mask_grid)
+        self.mask_vbox.addStretch(1)
+        self.mask_group.setLayout(self.mask_vbox)
         
-        #apply the layout to the main widget
-        self.main_widget.setLayout(self.main_container)
+        self.main_widget.setLayout(self.vis_grid)
 
     def populate_para(self, grid):
         '''
@@ -132,33 +119,33 @@ class Panel:
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Parameter:', parent = self.main_widget),
+            QtWidgets.QLabel('Parameter:', parent = self.para_group),
             0, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.para_group),
             1, 0, 1, 2, None])
 
         self.para_drop = self.widget_list[-1][0]
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Measurement:', parent = self.main_widget),
+            QtWidgets.QLabel('Measurement:', parent = self.para_group),
             2, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.para_group),
             3, 0, 1, 2, None])
 
         self.meas_drop = self.widget_list[-1][0]
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Echo time:', parent = self.main_widget),
+            QtWidgets.QLabel('Echo time:', parent = self.para_group),
             4, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.para_group),
             5, 0, 1, 2, None])
 
         self.echo_drop = self.widget_list[-1][0]
@@ -169,28 +156,56 @@ class Panel:
             6, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
         
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.para_group),
             7, 0, 1, 2, None])
 
         self.foil_drop = self.widget_list[-1][0]
 
+        ##############################################
+        #add the tabs
+        for element in self.widget_list:
+
+            grid.addWidget(element[0], element[1], element[2], element[3] , element[4])
+            
+            #manage alignement
+            if not element[5] == None:
+                element[0].setAlignment(element[5])
+
+    def populate_mask(self, grid):
+        '''
+        ##############################################
+        populate the window layout. The grid is the main
+        input of this method and all elements will be 
+        placed accordingly.
+        ———————
+        Input: 
+        - Qt layout grid
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        #initialise the tab
+        self.widget_list    = []
+
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Position (x,y):', parent = self.main_widget),
+            QtWidgets.QLabel('Position (x,y):', parent = self.mask_group),
             8, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QLineEdit('0, 0',parent = self.main_widget),
+            QtWidgets.QLineEdit('0, 0',parent = self.mask_group),
             9, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.pos_in = self.widget_list[-1][0]
             
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Radius (inner, outer):', parent = self.main_widget),
+            QtWidgets.QLabel('Radius (inner, outer):', parent = self.mask_group),
             10, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
-        self.radi_in = QRangeSlider(parent = self.main_widget)
+        self.radi_in = QRangeSlider(parent = self.mask_group)
         self.radi_in.setFixedHeight(30)
         self.radi_in.setFixedWidth(160)
 
@@ -202,14 +217,14 @@ class Panel:
         self.radi_in.setMax(200)
 
         self.widget_list.append([
-            QtWidgets.QSpinBox(parent = self.main_widget),
+            QtWidgets.QSpinBox(parent = self.mask_group),
             12, 0, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.radi_in_min = self.widget_list[-1][0]
         self.radi_in_min.setMaximum(128)
 
         self.widget_list.append([
-            QtWidgets.QSpinBox(parent = self.main_widget),
+            QtWidgets.QSpinBox(parent = self.mask_group),
             12, 1, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.radi_in_max = self.widget_list[-1][0]
@@ -217,10 +232,10 @@ class Panel:
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Angle (left, right):', parent = self.main_widget),
+            QtWidgets.QLabel('Angle (left, right):', parent = self.mask_group),
             13, 0, 1 , 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
-        self.angle_in = QRangeSlider(parent = self.main_widget)
+        self.angle_in = QRangeSlider(parent = self.mask_group)
         self.angle_in.setFixedHeight(30)
         self.angle_in.setFixedWidth(160)
 
@@ -232,14 +247,14 @@ class Panel:
         self.angle_in.setMax(360)
 
         self.widget_list.append([
-            QtWidgets.QSpinBox(parent = self.main_widget),
+            QtWidgets.QSpinBox(parent = self.mask_group),
             15, 0, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.angle_in_min = self.widget_list[-1][0]
         self.angle_in_min.setMaximum(360)
 
         self.widget_list.append([
-            QtWidgets.QSpinBox(parent = self.main_widget),
+            QtWidgets.QSpinBox(parent = self.mask_group),
             15, 1, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.angle_in_max = self.widget_list[-1][0]
@@ -247,11 +262,11 @@ class Panel:
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Default Mask:', parent = self.main_widget),
+            QtWidgets.QLabel('Default Mask:', parent = self.mask_group),
             16, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.mask_group),
             17, 0, 1, 2, None])
 
         self.mask_drop = self.widget_list[-1][0]

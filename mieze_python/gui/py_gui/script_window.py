@@ -29,7 +29,7 @@ import traceback
 #private dependencies
 from ...gui.qt_gui.script_window_ui     import Ui_script_window
 from ...gui.py_gui.python_syntax        import PythonHighlighter
-from ...gui.py_gui.gui_handler          import Panel
+from ...gui.py_gui.panel_handler        import PanelHandler
 from ...gui.py_gui.dialog               import dialog 
 
 
@@ -100,7 +100,11 @@ class ScriptWindowLayout(Ui_script_window):
         '''
         self.env = env
         self.refresh()
-        self.tool = Panel(self.env, self.panel_widget)
+        self.tool = PanelHandler(
+            self.env, 
+            self.panel_widget,
+            self.para_group,
+            self.mask_group)
 
     def refresh(self):
         '''
