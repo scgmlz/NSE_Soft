@@ -64,10 +64,7 @@ class Panel:
         #set up parameters
         self.environment = environment
         self.threads = []
-
-
         self.setup_frame(widget)
-        self.load_initial()
 
     def setup_frame(self, widget):
         '''
@@ -766,7 +763,6 @@ class Worker(QtCore.QObject):
         ##############################################
         #try to calculate
         try:
-
             self.environment.fit.fit_data_cov(
                 self.environment.results, 
                 self.counts, 
@@ -787,8 +783,6 @@ class Worker(QtCore.QObject):
 
         self.process = self.environment.get_result('Contrast calculation')
 
-        print(self.process)
-
         try:
 
             self.environment.fit.calcCtrstMain( 
@@ -799,8 +793,6 @@ class Worker(QtCore.QObject):
                     foil = foil)
 
             self.process = self.environment.get_result('Contrast calculation')
-
-            print(self.process)
 
         except:
             print('Contrast')

@@ -24,11 +24,13 @@
 
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
+import traceback
 
 #private dependencies
-from ...gui.qt_gui.script_window_ui import Ui_script_window
-from ...gui.py_gui.python_syntax import PythonHighlighter
-from ...gui.py_gui.gui_handler import Panel
+from ...gui.qt_gui.script_window_ui     import Ui_script_window
+from ...gui.py_gui.python_syntax        import PythonHighlighter
+from ...gui.py_gui.gui_handler          import Panel
+from ...gui.py_gui.dialog               import dialog 
 
 
 class ScriptWindowLayout(Ui_script_window):
@@ -98,6 +100,7 @@ class ScriptWindowLayout(Ui_script_window):
         '''
         self.env = env
         self.refresh()
+        self.tool = Panel(self.env, self.panel_widget)
 
     def refresh(self):
         '''
@@ -137,17 +140,49 @@ class ScriptWindowLayout(Ui_script_window):
         self.actionSave_scripts.triggered.connect(self.saveScripts)
 
     def runImport(self):
-        exec(compile(self.script_text_import.toPlainText(), '<string>', 'exec'))
+        try:
+            exec(compile(self.script_text_import.toPlainText(), '<string>', 'exec'))
+        except Exception as e:
+            dialog(
+                icon = 'error', 
+                title= 'Script error',
+                message = 'Your script has encountered an error.',
+                add_message = str(e),
+                det_message = traceback.format_exc())
 
     def runPhase(self):
-        exec(compile(self.script_text_phase.toPlainText(), '<string>', 'exec'))
+        try:
+            exec(compile(self.script_text_phase.toPlainText(), '<string>', 'exec'))
+        except Exception as e:
+            dialog(
+                icon = 'error', 
+                title= 'Script error',
+                message = 'Your script has encountered an error.',
+                add_message = str(e),
+                det_message = traceback.format_exc())
 
     def runReduction(self):
-        exec(compile(self.script_text_reduction.toPlainText(), '<string>', 'exec'))
-
+        try:
+            exec(compile(self.script_text_reduction.toPlainText(), '<string>', 'exec'))
+        except Exception as e:
+            dialog(
+                icon = 'error', 
+                title= 'Script error',
+                message = 'Your script has encountered an error.',
+                add_message = str(e),
+                det_message = traceback.format_exc())
+        
     def runPost(self):
-        exec(compile(self.script_text_post.toPlainText(), '<string>', 'exec'))
-
+        try:
+            exec(compile(self.script_text_post.toPlainText(), '<string>', 'exec'))
+        except Exception as e:
+            dialog(
+                icon = 'error', 
+                title= 'Script error',
+                message = 'Your script has encountered an error.',
+                add_message = str(e),
+                det_message = traceback.format_exc())
+        
     def saveScripts(self):
         '''
         ##############################################
@@ -211,5 +246,6 @@ class ScriptWindowLayout(Ui_script_window):
         status: active
         ##############################################
         '''
-        self.tool = Panel(self.env, self.panel_widget)
+        self.tool.load_initial()
+
         

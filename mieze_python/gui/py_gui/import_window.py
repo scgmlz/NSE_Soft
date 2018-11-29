@@ -32,6 +32,7 @@ import copy
 from ...gui.qt_gui.data_import_ui       import Ui_import_window
 from ...gui.py_gui.loaded_data_widget   import LoadedDataWidget
 from ...gui.py_gui.meta_widget          import MetaWidget 
+from ...gui.py_gui.dialog               import dialog 
 
 #private plotting library
 from simpleplot.multi_canvas import Multi_Canvas
@@ -168,7 +169,7 @@ class ImportWindowLayout(Ui_import_window):
         ##############################################
         '''
         if len(self.elements) == 0:
-            self.dialog(
+            dialog(
                 icon = 'error', 
                 title= 'No data element set',
                 message = 'No data element initialised. Add one first...',
@@ -687,41 +688,3 @@ class ImportWindowLayout(Ui_import_window):
         self.window.raise_()
         self.window.activateWindow()
         
-    def dialog(self, icon = None, message = None, add_message = None, det_message = None, title = None):
-        '''
-        ##############################################
-        
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        msg = QtWidgets.QMessageBox()
-        if icon == 'error':
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-        elif icon == 'info':
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-        elif icon == 'warning':
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-        else:
-            icon = 'warning'
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-        
-        if not message == None:
-            msg.setText(message)
-        if not add_message == None:
-            msg.setInformativeText(add_message)
-        if not det_message == None:
-            msg.setDetailedText(det_message)
-        if not title == None:
-            msg.setText(title)
-        else:
-            msg.setWindowTitle(icon)
-        if not message == None:
-            msg.setText(message)
-        
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        msg.exec_()
