@@ -1,9 +1,9 @@
 import unittest
 
-import mieze_python
-from mieze_python.mieze import Mieze
+import miezepy
+from miezepy.mieze import Mieze
 
 class Test_launch(unittest.TestCase):
     def test_launch_version(self):
-        self.assertEqual(mieze_python.__version__,'0.0.1')
+        self.assertEqual(miezepy.__version__,'0.0.1')
         

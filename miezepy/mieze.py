@@ -64,8 +64,8 @@ if __name__ == '__main__':
         "Examples/file.py")#, 
         #app.gui.active_windows['Import'].target)
     env.io.generate()
-    app.gui.active_windows['MainWindow'].target.openLoad(env.name)
-    app.gui.active_windows['MainWindow'].target.refreshData()
+    # app.gui.active_windows['MainWindow'].target.openLoad(env.name)
+    app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
 
 
     #app.gui.active_windows['Import'].target.link(env.io)

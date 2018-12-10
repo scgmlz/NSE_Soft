@@ -21,50 +21,38 @@
 #
 # *****************************************************************************
 
-
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
 import sys
 import os
 import copy
+import time
 
 #private dependencies
-from ...gui.qt_gui.data_import_ui       import Ui_import_window
+from ..qt_gui.main_data_import_ui       import Ui_data_import
 from ...gui.py_gui.loaded_data_widget   import LoadedDataWidget
 from ...gui.py_gui.meta_widget          import MetaWidget 
+from ...gui.py_gui.dialog               import dialog 
+from ...gui.py_gui.drag_drop_file       import DropListView 
 
 #private plotting library
 from simpleplot.multi_canvas import Multi_Canvas
 
-
-class ImportWindowLayout(Ui_import_window):
-    '''
-    ##############################################
-    This class will manage the raw import 
-    machinery. the UI is inherited through 
-    Ui_main_window from the Qt designer anf then
-    converted through pyuic5
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
-    '''
-    def __init__(self, window, window_manager):
-
-        ##############################################
-        #Local pointers
-        Ui_import_window.__init__(self)
-
-        self.window_manager = window_manager
-        self.window         = window
+class PageDataWidget(Ui_data_import):
+    
+    def __init__(self, stack, parent):
+    
+        Ui_data_import.__init__(self)
+        self.parent         = parent
+        self.stack          = stack
+        self.local_widget   = QtWidgets.QWidget() 
+        self.setupUi(self.local_widget)
         self.setup()
         self.connect()
-
         self.elements       = []
         self.meta_elements  = []
+        self.hidden_graph   = False
+        self.io_core        = None
 
     def setup(self):
         '''
@@ -80,12 +68,28 @@ class ImportWindowLayout(Ui_import_window):
         status: active
         ##############################################
         '''
-        self.setupUi(self.window)
 
+        ##############################################
+        #add the file drop
+        self.data_list_files = DropListView(self.data_group_dialog, 'tof_file_drop')
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.data_list_files.sizePolicy().hasHeightForWidth())
+        self.data_list_files.setSizePolicy(sizePolicy)
+        self.data_list_files.setMinimumSize(QtCore.QSize(0, 30))
+        self.data_list_files.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerItem)
+        self.data_list_files.setObjectName("data_list_files")
+        self.add_custome_file.addWidget(self.data_list_files)
+
+        ##############################################
+        #add the file drop
         self.data_list_loaded.setStyleSheet(
             "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
             "QListWidget::item:selected { background-color: palette(Mid)  }")
 
+        ##############################################
+        #add the 
         self.mycanvas    = Multi_Canvas(
             self.data_widget_graph,
             grid        = [[True]],
@@ -135,19 +139,12 @@ class ImportWindowLayout(Ui_import_window):
         self.data_button_files_reset.clicked.connect(self.resetFiles)
         self.data_button_populate.clicked.connect(self.populate)
         self.data_button_files_remove.clicked.connect(self.removeFile)
+        self.data_button_prev.clicked.connect(self.hide_preview)
 
         #connect lists
         self.data_list_files.clicked.connect(self.setPrev)
+        self.data_list_files.drop_success.connect(self.addFiles)
         self.data_list_loaded.currentItemChanged.connect(self.setCurrentElement)
-
-        #self.data_button_generate.clicked.connect(self.generate)
-
-        #connect actions
-        self.actionSave.triggered.connect(self.save)
-        self.actionLoad.triggered.connect(self.load)
-        self.actionAdd_Element.triggered.connect(self.addElement)
-        self.actionRemove_Element.triggered.connect(self.removeElement)
-        self.actionGenerate_Dataset.triggered.connect(self.generateDataset)
 
         #the dimension fields
         self.data_input_foils.textChanged.connect(self.dimChanged)
@@ -168,15 +165,35 @@ class ImportWindowLayout(Ui_import_window):
         ##############################################
         '''
         if len(self.elements) == 0:
-            self.dialog(
+            dialog(
                 icon = 'error', 
                 title= 'No data element set',
                 message = 'No data element initialised. Add one first...',
                 add_message='You can add a dataset by going to File>add element.')
 
         else:
-            self.window_manager.newWindow('MetaWindow')
-            self.window_manager.active_windows['MetaWindow'].target.link(self.meta_handler)
+            self.parent.window_manager.newWindow('MetaWindow')
+            self.parent.window_manager.active_windows['MetaWindow'].target.link(self.meta_handler)
+
+    def hide_preview(self):
+        '''
+        ##############################################
+        This routine will launch the metadat window.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.hidden_graph = not self.hidden_graph
+        self.data_widget_graph.setVisible(self.hidden_graph)
+
+        if self.hidden_graph:
+            self.data_button_prev.setText('Hide')
+        else:
+            self.data_button_prev.setText('Show')
 
     def openVisualWindow(self):
         '''
@@ -190,8 +207,8 @@ class ImportWindowLayout(Ui_import_window):
         status: active
         ##############################################
         '''
-        self.window_manager.newWindow('RawVisual')
-        self.window_manager.active_windows['RawVisual'].target.link(self.import_object)
+        self.parent.window_manager.newWindow('RawVisual')
+        self.parent.window_manager.active_windows['RawVisual'].target.link(self.import_object)
 
     def removeMeta(self):
         '''
@@ -255,11 +272,13 @@ class ImportWindowLayout(Ui_import_window):
         self.setMetaList()
         self.setDimInputs()
 
+        self.elements[index][1].widget.setFocus()
+
     def addElement(self):
         '''
         ##############################################
         Add an element into the list which is loaded 
-        from a custome widget
+        from a custom widget
         ———————
         Input: -
         ———————
@@ -288,7 +307,7 @@ class ImportWindowLayout(Ui_import_window):
         '''
         ##############################################
         Add an element into the list which is loaded 
-        from a custome widget
+        from a custom widget
         ———————
         Input: -
         ———————
@@ -371,7 +390,7 @@ class ImportWindowLayout(Ui_import_window):
         '''
         ##############################################
         Add an element into the list which is loaded 
-        from a custome widget
+        from a custom widget
         ———————
         Input: -
         ———————
@@ -420,16 +439,38 @@ class ImportWindowLayout(Ui_import_window):
         status: active
         ##############################################
         '''
-        filter      = "All (*);; TOF (*.tof);;PAD (*.pad)"
-        file_name   = QtWidgets.QFileDialog()
-        file_name.setFileMode(QtWidgets.QFileDialog.ExistingFiles)
-        names       = file_name.getOpenFileNames(
-            self.window,
-            'Select files ...',
-            '',
-            filter)
+        if len(self.elements) == 0:
+            dialog(
+            icon = 'error', 
+            title= 'No data element set',
+            message = 'No data element initialised. Add one first...',
+            add_message='You can add a dataset by going to File>add element.')
 
-        self.file_handler.addFiles(names[0])
+        else:
+            filter      = "All (*);; TOF (*.tof);;PAD (*.pad)"
+            file_name   = QtWidgets.QFileDialog()
+            file_name.setFileMode(QtWidgets.QFileDialog.ExistingFiles)
+            names       = file_name.getOpenFileNames(
+                self.parent.window,
+                'Select files ...',
+                '',
+                filter)
+            self.addFiles(names[0])
+
+    def addFiles(self, filenames):
+        '''
+        ##############################################
+        Adding files to the data either through the 
+        filedialog or the drag and drop.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.file_handler.addFiles(filenames)
         self.setFileList()
 
     def setFileList(self):
@@ -549,6 +590,16 @@ class ImportWindowLayout(Ui_import_window):
             self.file_handler.nice_path_files)
         self.current_element.initialize()
 
+        for pointer in self.io_core.import_objects:
+            try:
+                pointer.meta_handler.values['Echo']
+            except:
+                dialog(
+                    icon = 'error', 
+                    title= 'Echo time not processed',
+                    message = 'The echo time has not been processed. This is probably due to a lack of deinitions. See details...',
+                    add_message='The calculation of the echo time require the presence of the Wavelength, the first and second frequency attributed the the first and second RF coils and finally the lsd distance in between them extracted from the metadata. One or multiple of them are missing. Please rectify.')
+
     def populateAll(self):
         '''
         ##############################################
@@ -562,14 +613,23 @@ class ImportWindowLayout(Ui_import_window):
         status: active
         ##############################################
         '''
+        self.parent.setActivity(
+            "Populating data", 
+            0, 
+            len(self.io_core.import_objects))
+        
         for i in range(len(self.io_core.import_objects)):
+            self.parent.setProgress("Adding element "+str(i+1), i+1)
             self.addElementSilent(i)
+            self.parent.setProgress("Populating element "+str(i+1), i+1)
             self.populate()
+            
+        self.parent.fadeActivity()
 
     def generateDataset(self):
         '''
         ##############################################
-        This routine will call the genrator for the 
+        This routine will call the generator for the 
         currently active object.
         ———————
         Input: -
@@ -580,9 +640,7 @@ class ImportWindowLayout(Ui_import_window):
         ##############################################
         '''
         self.io_core.generate()
-        self.window_manager.active_windows['MainWindow'].target.refreshData()
-        self.window.close()
-        del self.window_manager.active_windows['Import']
+        self.parent.widgetClasses[0].refreshData()
 
     def save(self):
         '''
@@ -600,11 +658,9 @@ class ImportWindowLayout(Ui_import_window):
         filters = "mieze_save.py"
 
         file_path = QtWidgets.QFileDialog.getSaveFileName(
-                self.window, 
+                self.parent.window, 
                 'Select file',
                 filters)[0]
-
-        self.focusWindow()
         self.io_core.saveToPython(file_path)
         
     def load(self):
@@ -623,12 +679,11 @@ class ImportWindowLayout(Ui_import_window):
         filters = "*.py"
 
         file_path = QtWidgets.QFileDialog.getOpenFileName(
-                self.window, 
+                self.parent.window, 
                 'Select file',
                 filters)[0]
-        self.focusWindow()
         self.clear()
-        self.io_core.load(file_path, self)
+        self.io_core.loadFromPython(file_path, self)
         
     def dimChanged(self):
         '''
@@ -669,59 +724,3 @@ class ImportWindowLayout(Ui_import_window):
         self.data_input_time_channel.setText(str(self.data_handler.dimension[1]))
         self.data_input_pix_x.setText(str(self.data_handler.dimension[2]))
         self.data_input_pix_y.setText(str(self.data_handler.dimension[3]))
-
-    def focusWindow(self):
-        '''
-        ##############################################
-        This routine will simply propagate the
-        current meta information to all other meta 
-        windows.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        self.window.raise_()
-        self.window.activateWindow()
-        
-    def dialog(self, icon = None, message = None, add_message = None, det_message = None, title = None):
-        '''
-        ##############################################
-        
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        msg = QtWidgets.QMessageBox()
-        if icon == 'error':
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-        elif icon == 'info':
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-        elif icon == 'warning':
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-        else:
-            icon = 'warning'
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
-        
-        if not message == None:
-            msg.setText(message)
-        if not add_message == None:
-            msg.setInformativeText(add_message)
-        if not det_message == None:
-            msg.setDetailedText(det_message)
-        if not title == None:
-            msg.setText(title)
-        else:
-            msg.setWindowTitle(icon)
-        if not message == None:
-            msg.setText(message)
-        
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        msg.exec_()

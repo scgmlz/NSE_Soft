@@ -67,7 +67,7 @@ class Environment:
         
         self.process = get_process_handler(select, self)
         self.io      = IO_Manager(self)
-        
+
     def new_data(self, title = 'No_Name'):
         '''
         ##############################################
@@ -92,8 +92,7 @@ class Environment:
         #set it to the current data structure
         self.set_current_data(key = title)
 
-
-    def initalize(self, title = 'No_Name'):
+    def saveToPy(self, path):
         '''
         ##############################################
         This function will initiate a new data class
@@ -107,7 +106,16 @@ class Environment:
         status: active
         ##############################################
         '''
-        self.data   = {}
+        script = ""
+        indent = 1
+
+        script += "def setEnv(handler):\n"
+        script += indent * "    " +"env = handler.new_environment('"+str(self.name)+"')\n"
+        script += indent * "    " +"return env\n"
+
+        f = open(path, 'w')
+        f.write(script)
+        f.close()
 
     def set_current_data(self, key = None):
         '''
@@ -220,11 +228,9 @@ class Environment:
         if last:
 
             try:
-
                 return self.results.get_last_result(name, key)
 
             except ValueError:
-
                 print("\nERROR: The name '"+str(name)+"' or key '"+str(key)+"'you have provided is not present in the dictionary. Error...\n")
 
 

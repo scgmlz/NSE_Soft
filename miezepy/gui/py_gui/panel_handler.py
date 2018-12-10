@@ -21,36 +21,20 @@
 #
 # *****************************************************************************
 
-# #old machinrery
-# import matplotlib as mpl
-# from ipywidgets import interact, interactive, fixed, interact_manual, widgets
-# from mpl_toolkits.axes_grid1 import make_axes_locatable
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# import matplotlib.colors as colors
-# import cProfile
-# import timeit
-# import copy
-
 #new machinery
 import numpy as np
 from .qrangeslider import QRangeSlider
 from simpleplot.multi_canvas import Multi_Canvas
 from PyQt5 import QtWidgets, QtCore, QtGui
-import numpy as np
 import sys
 
 
 
-class Handler:
+class PanelHandler:
+    def __init__(self, main_widget, parameter_layout, mask_layout):
+        self.launch_sp(main_widget, parameter_layout, mask_layout)
 
-    def __init__(self):
-
-        ##############################################
-        #initiate the core manager  
-        self.current_env = None
-
-    def launch_panel(self, environement):
+    def launch_sp(self, main_widget, parameter_layout, mask_layout):
         '''
         ##############################################
         This will be the mieze panel able to manage 
@@ -64,175 +48,10 @@ class Handler:
         status: active
         ##############################################
         '''
-
-        #set the local environement for visualisaiton
-        self.vis_env = environement
-
-        # #initialise parameters
-        # self.meas = None
-        # self.para = None
-        
-
-        # def vis(
-        #     para    = self.vis_env.current_data.get_axis('Temperature')[0], 
-        #     meas    = self.vis_env.current_data.get_axis('Measurement')[0], 
-        #     echo    = self.vis_env.current_data.get_axis('Echo')[0], 
-        #     foil    = self.vis_env.current_data.get_axis('Foil')[0], 
-        #     x0      = self.vis_env.mask.parameters[0][0], 
-        #     y0      = self.vis_env.mask.parameters[0][1], 
-        #     r_outer = self.vis_env.mask.parameters[1], 
-        #     r_inner = self.vis_env.mask.parameters[2], 
-        #     angle1  = self.vis_env.mask.parameters[3][0], 
-        #     angle2  = self.vis_env.mask.parameters[3][1]):
-            
-        #     '''
-        #     ##############################################
-        #     The cisualisation function
-        #     ———————
-        #     Input: -
-        #     ———————
-        #     Output: -
-        #     ———————
-        #     status: active
-        #     ##############################################
-        #     '''
-
-        #     para_idx = self.vis_env.current_data.get_axis_idx('Temperature', para)
-        #     meas_idx = self.vis_env.current_data.get_axis_idx('Measurement', meas)
-        #     echo_idx = self.vis_env.current_data.get_axis_idx('Echo', echo)
-        #     foil_idx = self.vis_env.current_data.get_axis_idx('Foil', foil)
-
-        #     if not para == self.para or not self.meas == meas:
-
-        #         self.data = self.vis_env.current_data[para_idx,meas_idx,:,:,:]
-        #         self.reshaped = self.data.return_as_np()
-
-        #         self.meas = copy.deepcopy(meas)
-        #         self.para = copy.deepcopy(para)
-
-
-        #     fig = plt.figure(figsize=(15,10))
-
-        #     ax = fig.add_subplot(2,2,1)
-
-        #     #prepare the mask
-        #     parameters = [
-        #         [x0,y0],
-        #         r_outer,
-        #         r_inner,
-        #         [angle1,angle2]]
-
-        #     self.vis_env.mask.set_parameters(parameters)
-        #     self.vis_env.mask.process_mask(self.vis_env.current_data)
-        #     mask = self.vis_env.mask.mask
-        #     ax.imshow(
-        #         mask * np.sum(
-        #             self.reshaped, 
-        #             axis=(0,1,2)), 
-        #             norm=mpl.colors.LogNorm(), 
-        #             origin='lower', 
-        #             cmap='viridis')
-
-        #     ax = fig.add_subplot(2,2,2)
-
-        #     counts = [
-        #         np.sum(mask*self.reshaped[echo_idx,foil_idx,timechannel]) 
-        #         for timechannel in range(16)]
-
-    
-        #     self.vis_env.fit.fit_data_cov(
-        #         self.vis_env.results, 
-        #         counts, 
-        #         np.sqrt(counts), 
-        #         Qmin=0.)
-
-        #     fit = self.vis_env.get_result('Fit data covariance')
-
-        #     ax.errorbar(range(16), counts, np.sqrt(counts), fmt='o')
-        #     x = np.arange(0,15,0.01)
-        #     ax.errorbar(x, fit['ampl']*np.cos(x/16.*2*np.pi+fit['phase'])+fit['mean'])
-        #     ax.set_ylim(0, np.max(counts)*1.2)
-        #     ax.set_ylabel('counts')
-        #     ax.set_xlabel('time channel')
-        #     ax.text(0, np.max(counts)*1.15, r'contrast = %.2f $\pm$ %.2f' %(fit['pol'], fit['pol_error']['Cov']))
-
-        #     ax = fig.add_subplot(2,2,3)
-    
-        #     self.vis_env.fit.calc_contrast_single_foil(
-        #         foil, 
-        #         [para], 
-        #         self.vis_env.current_data,
-        #         self.vis_env.mask,
-        #         self.vis_env.results)
-
-        #     process = self.vis_env.get_result('Contrast calculation single')
-
-        #     ax.errorbar(
-        #         process['Axis'][para], 
-        #         process['Contrast'][para], 
-        #         process['Contrast_error'][para], 
-        #         fmt='o')
-
-        #     ax.set_xscale('log')
-        #     ax.set_ylim(0,1.)
-        #     ax.set_xlabel('t(ns)')
-        #     ax.set_ylabel('contrast')
-
-        #     ax = fig.add_subplot(2,2,4)
-        #     mean_value = [np.sum(np.sum(self.reshaped[echo,:,:,:,:], axis=(0,1))*mask) for echo in range(self.reshaped.shape[0])]
-        #     ax.errorbar(process['Axis'][para], mean_value, np.sqrt(mean_value), fmt='o')
-        #     ax.set_xscale('log')
-        #     ax.set_ylim(0.,)
-        #     ax.set_xlabel('t(ns)')
-        #     ax.set_ylabel('mean value')
-
-        #     plt.show()
-
-        # #set the function
-        # interact(
-        #     vis,
-        #     para    = self.vis_env.current_data.get_axis('Temperature'),
-        #     meas    = self.vis_env.current_data.get_axis('Measurement'), 
-        #     echo    = self.vis_env.current_data.get_axis('Echo'), 
-        #     foil    = self.vis_env.current_data.get_axis('Foil'), 
-        #     x0      = (0, 128, 1), 
-        #     y0      = (0, 128, 1), 
-        #     r_outer = (0, 128, 1), 
-        #     r_inner = (0, 128, 1), 
-        #     angle1  = (0,360,1), 
-        #     angle2  = (0,360,1))
-
-
-    def launch_sp(self, environment):
-        '''
-        ##############################################
-        This will be the mieze panel able to manage 
-        the visualisation of data. 
-        ———————
-        Input: 
-        - environement class
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-
-        ##############################################
-        #set up parameters
-        self.environment = environment
         self.threads = []
+        self.setup_frame(main_widget, parameter_layout, mask_layout)
 
-        ##############################################
-        #set up the app
-        app 	            = QtWidgets.QApplication(sys.argv)
-
-        self.setup_frame()
-        self.load_initial()
-
-        sys.exit(app.exec_())
-
-    def setup_frame(self):
+    def setup_frame(self, main_widget, parameter_layout, mask_layout):
         '''
         ##############################################
         populate the window layout. The grid is the main
@@ -247,37 +66,34 @@ class Handler:
         status: active
         ##############################################
         '''
-        self.main_widget    = QtWidgets.QWidget()
-        self.main_widget.show()
-
-        #set the main environement layouts
-        self.main_container     = QtWidgets.QHBoxLayout()
+        self.main_widget    = main_widget
 
         #the parameter layouts 
-        self.para_group         = QtWidgets.QGroupBox('Parameters options')
+        self.para_group         = parameter_layout
         self.para_vbox          = QtWidgets.QVBoxLayout()
         self.para_grid          = QtWidgets.QGridLayout()
+
+        self.mask_group         = mask_layout
+        self.mask_vbox          = QtWidgets.QVBoxLayout()
+        self.mask_grid          = QtWidgets.QGridLayout()
         
-        self.vis_group          = QtWidgets.QGroupBox('Visualisation')
         self.vis_grid           = QtWidgets.QGridLayout()
 
         #populate 
         self.populate_para(self.para_grid)
+        self.populate_mask(self.mask_grid)
         self.populate_vis(self.vis_grid)
 
         #set inner layouts
         self.para_vbox.addLayout(self.para_grid)
         self.para_vbox.addStretch(1)
         self.para_group.setLayout(self.para_vbox)
-        self.para_group.setFixedWidth(200)
-        self.vis_group.setLayout(self.vis_grid)
 
-        #add the elements
-        self.main_container.addWidget(self.para_group)
-        self.main_container.addWidget(self.vis_group)
+        self.mask_vbox.addLayout(self.mask_grid)
+        self.mask_vbox.addStretch(1)
+        self.mask_group.setLayout(self.mask_vbox)
         
-        #apply the layout to the main widget
-        self.main_widget.setLayout(self.main_container)
+        self.main_widget.setLayout(self.vis_grid)
 
     def populate_para(self, grid):
         '''
@@ -299,33 +115,33 @@ class Handler:
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Parameter:', parent = self.main_widget),
+            QtWidgets.QLabel('Parameter:', parent = self.para_group),
             0, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.para_group),
             1, 0, 1, 2, None])
 
         self.para_drop = self.widget_list[-1][0]
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Measurement:', parent = self.main_widget),
+            QtWidgets.QLabel('Measurement:', parent = self.para_group),
             2, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.para_group),
             3, 0, 1, 2, None])
 
         self.meas_drop = self.widget_list[-1][0]
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Echo time:', parent = self.main_widget),
+            QtWidgets.QLabel('Echo time:', parent = self.para_group),
             4, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.para_group),
             5, 0, 1, 2, None])
 
         self.echo_drop = self.widget_list[-1][0]
@@ -336,28 +152,56 @@ class Handler:
             6, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
         
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.para_group),
             7, 0, 1, 2, None])
 
         self.foil_drop = self.widget_list[-1][0]
 
+        ##############################################
+        #add the tabs
+        for element in self.widget_list:
+
+            grid.addWidget(element[0], element[1], element[2], element[3] , element[4])
+            
+            #manage alignement
+            if not element[5] == None:
+                element[0].setAlignment(element[5])
+
+    def populate_mask(self, grid):
+        '''
+        ##############################################
+        populate the window layout. The grid is the main
+        input of this method and all elements will be 
+        placed accordingly.
+        ———————
+        Input: 
+        - Qt layout grid
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        #initialise the tab
+        self.widget_list    = []
+
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Position (x,y):', parent = self.main_widget),
+            QtWidgets.QLabel('Position (x,y):', parent = self.mask_group),
             8, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QLineEdit('0, 0',parent = self.main_widget),
+            QtWidgets.QLineEdit('0, 0',parent = self.mask_group),
             9, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.pos_in = self.widget_list[-1][0]
             
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Radius (inner, outer):', parent = self.main_widget),
+            QtWidgets.QLabel('Radius (inner, outer):', parent = self.mask_group),
             10, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
-        self.radi_in = QRangeSlider(parent = self.main_widget)
+        self.radi_in = QRangeSlider(parent = self.mask_group)
         self.radi_in.setFixedHeight(30)
         self.radi_in.setFixedWidth(160)
 
@@ -369,14 +213,14 @@ class Handler:
         self.radi_in.setMax(200)
 
         self.widget_list.append([
-            QtWidgets.QSpinBox(parent = self.main_widget),
+            QtWidgets.QSpinBox(parent = self.mask_group),
             12, 0, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.radi_in_min = self.widget_list[-1][0]
         self.radi_in_min.setMaximum(128)
 
         self.widget_list.append([
-            QtWidgets.QSpinBox(parent = self.main_widget),
+            QtWidgets.QSpinBox(parent = self.mask_group),
             12, 1, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.radi_in_max = self.widget_list[-1][0]
@@ -384,10 +228,10 @@ class Handler:
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Angle (left, right):', parent = self.main_widget),
+            QtWidgets.QLabel('Angle (left, right):', parent = self.mask_group),
             13, 0, 1 , 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
-        self.angle_in = QRangeSlider(parent = self.main_widget)
+        self.angle_in = QRangeSlider(parent = self.mask_group)
         self.angle_in.setFixedHeight(30)
         self.angle_in.setFixedWidth(160)
 
@@ -399,14 +243,14 @@ class Handler:
         self.angle_in.setMax(360)
 
         self.widget_list.append([
-            QtWidgets.QSpinBox(parent = self.main_widget),
+            QtWidgets.QSpinBox(parent = self.mask_group),
             15, 0, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.angle_in_min = self.widget_list[-1][0]
         self.angle_in_min.setMaximum(360)
 
         self.widget_list.append([
-            QtWidgets.QSpinBox(parent = self.main_widget),
+            QtWidgets.QSpinBox(parent = self.mask_group),
             15, 1, 1, 1, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.angle_in_max = self.widget_list[-1][0]
@@ -414,11 +258,11 @@ class Handler:
 
         #----------
         self.widget_list.append([
-            QtWidgets.QLabel('Default Mask:', parent = self.main_widget),
+            QtWidgets.QLabel('Default Mask:', parent = self.mask_group),
             16, 0, 1, 2, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter])
 
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.main_widget),
+            QtWidgets.QComboBox( parent = self.mask_group),
             17, 0, 1, 2, None])
 
         self.mask_drop = self.widget_list[-1][0]
@@ -445,12 +289,7 @@ class Handler:
         self.angle_in_min.valueChanged.connect(self.set_angle_slider_start)
         self.angle_in_max.valueChanged.connect(self.set_angle_slider_end)
 
-
-
         self.mask_drop.currentIndexChanged.connect(self.set_mask)
-
-
-
 
     def populate_vis(self, grid):
         '''
@@ -470,7 +309,6 @@ class Handler:
 
         #initialise container widget
         widget      = QtWidgets.QWidget()
-        self.data   = self.environment.current_data.return_as_np()
 
         self.mycanvas    = Multi_Canvas(
             widget,
@@ -539,7 +377,6 @@ class Handler:
         
         self.angle_in.setEnd(int(value))
 
-
     def set_mask(self):
         '''
         ##############################################
@@ -583,7 +420,7 @@ class Handler:
         self.set_angle_slider_start(angle1)
         self.set_angle_slider_end(angle2)
 
-    def load_initial(self):
+    def load_initial(self, env):
         '''
         ##############################################
         This method will set  p the widgets initial 
@@ -596,13 +433,20 @@ class Handler:
         status: active
         ##############################################
         '''
+        self.environment = env
+        self.data   = self.environment.current_data.return_as_np()
         
         ##############################################
         #grab them all
-        para    = self.environment.current_data.get_axis('Temperature')
-        meas    = self.environment.current_data.get_axis('Measurement')
-        echo    = self.environment.current_data.get_axis('Echo')
-        foil    = self.environment.current_data.get_axis('Foil')
+        para    = self.environment.current_data.get_axis(
+            self.environment.current_data.axes.names[0])
+        meas    = self.environment.current_data.get_axis(
+            self.environment.current_data.axes.names[1])
+        echo    = self.environment.current_data.get_axis(
+            self.environment.current_data.axes.names[2])
+        foil    = self.environment.current_data.get_axis(
+            self.environment.current_data.axes.names[3])
+
         x0      = self.environment.mask.parameters[0][0]
         y0      = self.environment.mask.parameters[0][1]
         r_inner = self.environment.mask.parameters[1]
@@ -653,7 +497,7 @@ class Handler:
 
         ##############################################
         #run the plot
-        self.build_thread()
+        #self.build_thread()
 
     def build_thread(self):
         '''
@@ -708,10 +552,19 @@ class Handler:
 
         ##############################################
         #grab the parameters from the UI
-        para    = self.environment.current_data.get_axis('Temperature')[self.para_drop.currentIndex()]
-        meas    = self.environment.current_data.get_axis('Measurement')[self.meas_drop.currentIndex()]
-        echo    = self.environment.current_data.get_axis('Echo')[self.echo_drop.currentIndex()]
-        foil    = self.environment.current_data.get_axis('Foil')[self.foil_drop.currentIndex()]
+        para    = self.environment.current_data.get_axis(
+            self.environment.current_data.axes.names[0])[
+                self.para_drop.currentIndex()]
+        meas    = self.environment.current_data.get_axis(
+            self.environment.current_data.axes.names[1])[
+                self.meas_drop.currentIndex()]
+        echo    = self.environment.current_data.get_axis(
+            self.environment.current_data.axes.names[2])[
+                self.echo_drop.currentIndex()]
+        foil    = self.environment.current_data.get_axis(
+            self.environment.current_data.axes.names[3])[
+                self.foil_drop.currentIndex()]
+
         x0      = float(str(self.pos_in.text()).split(",")[0])
         y0      = float(str(self.pos_in.text()).split(",")[1])
         r_inner = float(self.radi_in.start())
@@ -721,10 +574,18 @@ class Handler:
 
         ##############################################
         #process index
-        para_idx = self.environment.current_data.get_axis_idx('Temperature', para)
-        meas_idx = self.environment.current_data.get_axis_idx('Measurement', meas)
-        echo_idx = self.environment.current_data.get_axis_idx('Echo', echo)
-        foil_idx = self.environment.current_data.get_axis_idx('Foil', foil)
+        para_idx = self.environment.current_data.get_axis_idx(
+            self.environment.current_data.axes.names[0],
+            para)
+        meas_idx = self.environment.current_data.get_axis_idx(
+            self.environment.current_data.axes.names[1],
+            meas)
+        echo_idx = self.environment.current_data.get_axis_idx(
+            self.environment.current_data.axes.names[2],
+            echo)
+        foil_idx = self.environment.current_data.get_axis_idx(
+            self.environment.current_data.axes.names[3], 
+            foil)
 
         parameters = [
             [x0,y0],
@@ -914,7 +775,6 @@ class Worker(QtCore.QObject):
         ##############################################
         #try to calculate
         try:
-
             self.environment.fit.fit_data_cov(
                 self.environment.results, 
                 self.counts, 
@@ -935,8 +795,6 @@ class Worker(QtCore.QObject):
 
         self.process = self.environment.get_result('Contrast calculation')
 
-        print(self.process)
-
         try:
 
             self.environment.fit.calcCtrstMain( 
@@ -947,8 +805,6 @@ class Worker(QtCore.QObject):
                     foil = foil)
 
             self.process = self.environment.get_result('Contrast calculation')
-
-            print(self.process)
 
         except:
             print('Contrast')

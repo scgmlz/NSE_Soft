@@ -304,9 +304,6 @@ class Masks:
         status: active
         ##############################################
         '''
-        ############################################
-        #Run all defautl masks
-
         self.all_masks = {
             'DB_5': [
                 (self.sector_mask),
@@ -435,7 +432,6 @@ class Masks:
                 128,
                 128]
             }
-
 
     def gen_pregroup_mask_circ(self, shape, parameters):
 

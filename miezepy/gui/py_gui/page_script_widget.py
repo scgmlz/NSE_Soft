@@ -21,43 +21,32 @@
 #
 # *****************************************************************************
 
-
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
+import traceback
 
 #private dependencies
-from ...gui.qt_gui.script_window_ui import Ui_script_window
-from ...gui.py_gui.python_syntax import PythonHighlighter
+from ..qt_gui.main_script_ui        import Ui_script_widget
+from ...gui.py_gui.python_syntax        import PythonHighlighter
+from ...gui.py_gui.panel_handler        import PanelHandler
+from ...gui.py_gui.dialog               import dialog 
 
 
-class ScriptWindowLayout(Ui_script_window):
-    '''
-    ##############################################
-    This class will manage the raw import 
-    machinery. the UI is inherited through 
-    Ui_main_window from the Qt designer anf then
-    converted through pyuic5
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
-    '''
-    def __init__(self, window, window_manager):
-
-        ##############################################
-        #Local pointers
-        Ui_script_window.__init__(self)
-
-        self.window_manager = window_manager
-        self.window         = window
+class PageScriptWidget(Ui_script_widget):
+    
+    def __init__(self, stack, parent):
+        
+        Ui_script_widget.__init__(self)
+        self.parent         = parent
+        self.stack          = stack
+        self.local_widget   = QtWidgets.QWidget() 
+        self.setupUi(self.local_widget)
         self.setup()
         self.connect()
 
         self.elements       = []
         self.meta_elements  = []
+        self.env            = None
 
     def setup(self):
         '''
@@ -73,7 +62,6 @@ class ScriptWindowLayout(Ui_script_window):
         status: active
         ##############################################
         '''
-        self.setupUi(self.window)
         self.syntaxHighliter_0 = PythonHighlighter(
             self.script_text_import.document())
         self.syntaxHighliter_1 = PythonHighlighter(
@@ -82,6 +70,11 @@ class ScriptWindowLayout(Ui_script_window):
             self.script_text_reduction.document())
         self.syntaxHighliter_3 = PythonHighlighter(
             self.script_text_post.document())
+
+        self.tool = PanelHandler(
+            self.panel_widget,
+            self.para_group,
+            self.mask_group)
 
     def link(self, env):
         '''
@@ -129,23 +122,89 @@ class ScriptWindowLayout(Ui_script_window):
         '''
         self.script_button_import_run.clicked.connect(self.runImport)
         self.script_button_phase_run.clicked.connect(self.runPhase)
+        self.script_button_phase_view.clicked.connect(self.runPanel)
         self.script_button_reduction_run.clicked.connect(self.runReduction)
         self.script_button_post_run.clicked.connect(self.runPost)
-        self.actionLoad_scripts.triggered.connect(self.loadScripts)
-        self.actionSave_scripts.triggered.connect(self.saveScripts)
+
+        self.script_text_import.textChanged.connect(self.updateEditable_0)
+        self.script_text_phase.textChanged.connect(self.updateEditable_1)
+        self.script_text_reduction.textChanged.connect(self.updateEditable_2)
+        self.script_text_post.textChanged.connect(self.updateEditable_3)
+
+    def updateEditable_0(self):
+        try:
+            self.env.process.editable_scripts[0] = self.script_text_import.toPlainText()
+        except:
+            pass
+
+    def updateEditable_1(self):
+        try:
+            self.env.process.editable_scripts[1] = self.script_text_phase.toPlainText()
+        except:
+            pass
+
+    def updateEditable_2(self):
+        try:
+            self.env.process.editable_scripts[2] = self.script_text_reduction.toPlainText()
+        except:
+            pass
+
+    def updateEditable_3(self):
+        try:
+            self.env.process.editable_scripts[3] = self.script_text_post.toPlainText()
+        except:
+            pass
 
     def runImport(self):
-        print(type(self.script_text_import.toPlainText()))
-        exec(compile(self.script_text_import.toPlainText(), '<string>', 'exec'))
+        try:
+            exec(compile(self.script_text_import.toPlainText(), '<string>', 'exec'))
+        except Exception as e:
+            dialog(
+                icon = 'error', 
+                title= 'Script error',
+                message = 'Your script has encountered an error.',
+                add_message = str(e),
+                det_message = traceback.format_exc())
 
     def runPhase(self):
-        exec(compile(self.script_text_phase.toPlainText(), '<string>', 'exec'))
+        try:
+            exec(compile(self.script_text_phase.toPlainText(), '<string>', 'exec'))
+        except Exception as e:
+            dialog(
+                icon = 'error', 
+                title= 'Script error',
+                message = 'Your script has encountered an error.',
+                add_message = str(e),
+                det_message = traceback.format_exc())
 
     def runReduction(self):
-        exec(compile(self.script_text_reduction.toPlainText(), '<string>', 'exec'))
-
+        try:
+            exec(compile(self.script_text_reduction.toPlainText(), '<string>', 'exec'))
+        except Exception as e:
+            dialog(
+                icon = 'error', 
+                title= 'Script error',
+                message = 'Your script has encountered an error.',
+                add_message = str(e),
+                det_message = traceback.format_exc())
+        
     def runPost(self):
-        exec(compile(self.script_text_post.toPlainText(), '<string>', 'exec'))
+        try:
+            exec(compile(self.script_text_post.toPlainText(), '<string>', 'exec'))
+        except Exception as e:
+            dialog(
+                icon = 'error', 
+                title= 'Script error',
+                message = 'Your script has encountered an error.',
+                add_message = str(e),
+                det_message = traceback.format_exc())
+        
+    def runAll(self):
+        self.runImport()
+        self.runPhase()
+        self.runPanel()
+        self.runReduction()
+        self.runPost()
 
     def saveScripts(self):
         '''
@@ -175,7 +234,6 @@ class ScriptWindowLayout(Ui_script_window):
                 self.script_text_post.toPlainText()
             ])
 
-
     def loadScripts(self):
         '''
         ##############################################
@@ -198,3 +256,19 @@ class ScriptWindowLayout(Ui_script_window):
         self.env.process.loadScripts(
             file_path)
         self.refresh()
+
+    def runPanel(self):
+        '''
+        ##############################################
+
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.tool.load_initial(self.env)
+
+        
