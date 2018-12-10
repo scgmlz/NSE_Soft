@@ -33,6 +33,7 @@ from ..qt_gui.main_data_import_ui       import Ui_data_import
 from ...gui.py_gui.loaded_data_widget   import LoadedDataWidget
 from ...gui.py_gui.meta_widget          import MetaWidget 
 from ...gui.py_gui.dialog               import dialog 
+from ...gui.py_gui.drag_drop_file       import DropListView 
 
 #private plotting library
 from simpleplot.multi_canvas import Multi_Canvas
@@ -65,10 +66,28 @@ class PageDataWidget(Ui_data_import):
         status: active
         ##############################################
         '''
+
+        ##############################################
+        #add the file drop
+        self.data_list_files = DropListView(self.data_group_dialog, 'tof_file_drop')
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.data_list_files.sizePolicy().hasHeightForWidth())
+        self.data_list_files.setSizePolicy(sizePolicy)
+        self.data_list_files.setMinimumSize(QtCore.QSize(0, 30))
+        self.data_list_files.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerItem)
+        self.data_list_files.setObjectName("data_list_files")
+        self.add_custome_file.addWidget(self.data_list_files)
+
+        ##############################################
+        #add the file drop
         self.data_list_loaded.setStyleSheet(
             "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
             "QListWidget::item:selected { background-color: palette(Mid)  }")
 
+        ##############################################
+        #add the 
         self.mycanvas    = Multi_Canvas(
             self.data_widget_graph,
             grid        = [[True]],
@@ -121,6 +140,7 @@ class PageDataWidget(Ui_data_import):
 
         #connect lists
         self.data_list_files.clicked.connect(self.setPrev)
+        self.data_list_files.drop_success.connect(self.addFiles)
         self.data_list_loaded.currentItemChanged.connect(self.setCurrentElement)
 
         #the dimension fields
@@ -410,8 +430,23 @@ class PageDataWidget(Ui_data_import):
                 'Select files ...',
                 '',
                 filter)
-            self.file_handler.addFiles(names[0])
-            self.setFileList()
+            self.addFiles(names[0])
+
+
+    def addFiles(self, filenames):
+        '''
+        ##############################################
+
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.file_handler.addFiles(filenames)
+        self.setFileList()
 
     def setFileList(self):
         '''
