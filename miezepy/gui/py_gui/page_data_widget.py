@@ -249,6 +249,8 @@ class PageDataWidget(Ui_data_import):
         self.setMetaList()
         self.setDimInputs()
 
+        self.elements[index][1].widget.setFocus()
+
     def addElement(self):
         '''
         ##############################################
@@ -282,7 +284,7 @@ class PageDataWidget(Ui_data_import):
         '''
         ##############################################
         Add an element into the list which is loaded 
-        from a custome widget
+        from a custom widget
         ———————
         Input: -
         ———————
@@ -432,11 +434,11 @@ class PageDataWidget(Ui_data_import):
                 filter)
             self.addFiles(names[0])
 
-
     def addFiles(self, filenames):
         '''
         ##############################################
-
+        Adding files to the data either through the 
+        filedialog or the drag and drop.
         ———————
         Input: -
         ———————
