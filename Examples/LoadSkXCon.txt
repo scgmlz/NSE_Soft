@@ -32,14 +32,14 @@ Data : [30.50,0] : 0012 : range(2840, 2849) : (8x16x128x128)
 #Manage metadata to save
 #type : name_in_file         : name to assign in dataclass
 
-Metadata : cbox_0a_fg_freq_value : freq_0 : float : 1 : Hz
-Metadata : cbox_0b_fg_freq_value : freq_1 : float : 1 : Hz
-Metadata : selector_lambda_value : wavelength : float : 1 : A
-Metadata : psd_distance_value : lsd : float : 1 : m
-Metadata : monitor1_value : monitor : float : 1 : -
-Metadata : monitor1 : monitor : float : 1 : -
+Metadata : cbox_0a_fg_freq_value : Freq. first : float : 1 : Hz
+Metadata : cbox_0b_fg_freq_value : Freq. second : float : 1 : Hz
+Metadata : selector_lambda_value : Wavelength : float : 1.e-10 : A
+Metadata : psd_distance_value : lsd : float : 1.e9 : m
+Metadata : monitor1_value : Monitor : float : 1 : -
+Metadata : monitor1 : Monitor : float : 1 : -
 Metadata : T_ccr_a_value : T_A : float : 1 : K
 Metadata : T_ccr_b_value : T_B : float : 1 : K
 Metadata : T_ccr_c_value : T_C : float : 1 : K
 Metadata : T_ccr_d_value : T_D : float : 1 : K
-Metadata : B_value : Bs : float : 1 : K
+Metadata : B_value : Bs : float : 1 : T

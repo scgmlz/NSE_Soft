@@ -21,25 +21,21 @@
 #
 # *****************************************************************************
 
-
 from setuptools import setup, find_packages
-
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
-
-requirements.append('simpleplot')
+import miezepy
 
 setup(
-    name = 'NSE_tool',
-    version = '0.0.1',
+    name = 'miezepy',
+    version = miezepy.__version__,
     license = 'GPL',
     author = 'Dr. Alexander Schober',
-    install_requires = requirements,
-    dependency_links =['https://github.com/AlexanderSchober/simpleplot_qt/tarball/master#egg=SimplePlot-0.1'],
+#    install_requires = requirements,
+#    dependency_links =['https://github.com/AlexanderSchober/simpleplot_qt/tarball/master#egg=SimplePlot-0.1'],
     author_email = 'alex.schober@mac.com',
     description = 'NSE analysis package',
     packages = find_packages(exclude=['doc','test']),
-    package_data = {'NSE_tool': ['RELEASE-VERSION']},
+    package_data = {'miezepy': ['RELEASE-VERSION'],'miezepy.core.process_modules.defaults': ['*.txt']},
+    
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
