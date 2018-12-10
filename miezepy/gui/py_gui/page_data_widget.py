@@ -590,6 +590,16 @@ class PageDataWidget(Ui_data_import):
             self.file_handler.nice_path_files)
         self.current_element.initialize()
 
+        for pointer in self.io_core.import_objects:
+            try:
+                pointer.meta_handler.values['Echo']
+            except:
+                dialog(
+                    icon = 'error', 
+                    title= 'Echo time not processed',
+                    message = 'The echo time has not been processed. This is probably due to a lack of deinitions. See details...',
+                    add_message='The calculation of the echo time require the presence of the Wavelength, the first and second frequency attributed the the first and second RF coils and finally the lsd distance in between them extracted from the metadata. One or multiple of them are missing. Please rectify.')
+
     def populateAll(self):
         '''
         ##############################################
