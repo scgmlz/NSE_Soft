@@ -198,7 +198,6 @@ class Process_MIEZE(Process_Handler):
         Output: -
         ##############################################
         '''
-
         self.env.fit.set_parameter( 
             name = 'para_name', 
             value = self.env.current_data.axes.names[0])
@@ -244,7 +243,6 @@ class Process_MIEZE(Process_Handler):
         Output: -
         ##############################################
         '''
-
         #preprocess
         self.env.set_current_data(
             key = self.env.current_data_key.split('_reduced')[0])

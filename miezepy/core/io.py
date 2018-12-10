@@ -137,6 +137,10 @@ class IO_Manager:
             exec(code,globals())
 
         loadData(self.env, gui)
+        try:
+            self.generate()
+        except:
+            pass
 
     def loadFromText(self, path, gui = None):
         '''
@@ -157,7 +161,7 @@ class IO_Manager:
         '''
         ##############################################
         This is the method that will create a data
-        structure poopulate it and then send it's 
+        structure populate it and then send it's 
         content to the main environment handler.
         ———————
         Input: -
@@ -204,7 +208,7 @@ class Generator:
     def generate(self, import_objects):
         '''
         ##############################################
-        Main genrator function that will manage the 
+        Main generator function that will manage the 
         import of all the required elments
         ———————
         Input: -
@@ -295,7 +299,7 @@ class Generator:
         ##############################################
         compute the axes from all the import objects
         and then stick them together and finally 
-        remove repettitions through sets
+        remove repetitions through sets
         ———————
         Input: -
         ———————

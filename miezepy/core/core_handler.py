@@ -1,0 +1,268 @@
+
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# Copyright (c) 2017 by the NSE analysis contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Alexander Schober <alex.schober@mac.com>
+#
+# *****************************************************************************
+
+#############################
+#import general components
+import sys  
+import numpy as np
+import os
+import logging
+import glob
+
+#############################
+#import child components
+from .io            import IO_Manager
+from .environment   import Environment 
+
+def setEnv(handler):
+    pass
+
+class Handler:
+
+    def __init__(self, parent = None):
+
+        ##############################################
+        #initiate the core manager  
+        self.parent = parent
+        self.reset()
+        self.info_string = ''
+        self.info_val    = 0
+
+    def reset(self):
+        '''
+        ##############################################
+        This will genrate the dictionary for the 
+        loaded data and link the other core classes
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.env_dict  = {}
+
+    def new_environment(self, title = 'No_Name', select = 'MIEZE'):
+        '''
+        ##############################################
+        This function will automise the environment
+        creation for the user.
+        ———————
+        Input: 
+        - title or key (str)
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        title_present = True
+
+        while title_present:
+
+            if title in self.env_dict.keys():
+                title = title + "_bis"
+
+            else:
+                title_present = False
+
+        #link to an environment
+        self.env_dict[title] = Environment(title = title, select = select)
+
+        #set environment
+        self.set_current_env(title)
+
+        self.current_env = self.env_dict[title]
+
+        return self.env_dict[title]
+
+    def set_current_env(self, key = None):
+        '''
+        ##############################################
+        This function sets the current data
+        with the right key
+        ———————
+        Input: 
+        - key (str)
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        if not key == None:
+
+            if key in self.env_dict.keys():
+
+                self.current_env_key    = key
+
+                self.current_env = self.env_dict[key]
+
+                return self.env_dict[key]
+
+            else:
+                print("\nERROR: The key '"+str(key)+"' you have provided is not present in the dictionary...\n")
+
+
+    def saveSession(self, path, data_bool = True, mask_bool = False, script_bool = False):
+        '''
+        ##############################################
+        Save the session to be loaded again later on
+        ———————
+        Input: 
+        - key (str)
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        for key in self.env_dict.keys():
+            env_dir = os.path.join(path,self.env_dict[key].name)
+            if not os.path.exists(env_dir):
+                os.makedirs(env_dir)
+            self.env_dict[key].saveToPy(os.path.join(env_dir,"env_def.py"))
+
+            if data_bool:
+                data_dir = os.path.join(env_dir,"data")
+                if not os.path.exists(data_dir):
+                    os.makedirs(data_dir)
+                self.env_dict[key].io.saveToPython(
+                    os.path.join(data_dir,key+"_data.py")
+                )
+
+            if mask_bool:
+                mask_dir = os.path.join(env_dir,"mask")
+                if not os.path.exists(mask_dir):
+                    os.makedirs(mask_dir)
+
+            if script_bool:
+                data_dir = os.path.join(env_dir,"script")
+                if not os.path.exists(data_dir):
+                    os.makedirs(data_dir)
+                self.env_dict[key].process.saveScripts(
+                    os.path.join(data_dir,key+"_script.py"),
+                    self.env_dict[key].process.editable_scripts
+                )
+    
+    def prepSessionLoad(self, path, data_bool = True, mask_bool = False, script_bool = False):
+        '''
+        ##############################################
+        Prepare the eventual load of a session.
+        ———————
+        Input: 
+        - key (str)
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        env_file_list = [
+            element for element in glob.iglob(os.path.join(
+                path,'**','*env_def.py'), recursive=True)]
+
+        data_folder_list    = [None]*len(env_file_list)
+        mask_folder_list    = [None]*len(env_file_list)
+        script_folder_list  = [None]*len(env_file_list)
+
+        for i,env_folder in enumerate([os.path.dirname(element) for element in env_file_list]):
+            data_list = [
+                element for element in glob.iglob(os.path.join(
+                    env_folder,'**','*_data.py'), recursive=True)]
+            mask_list = [
+                element for element in glob.iglob(os.path.join(
+                    env_folder,'**','*_mask.py'), recursive=True)]
+            script_list = [
+                element for element in glob.iglob(os.path.join(
+                    env_folder,'**','*_script.py'), recursive=True)]
+
+            if len(data_list) > 0 and data_bool:
+                data_folder_list[i]     = data_list[0]
+
+            if len(mask_list) > 0 and mask_bool:
+                mask_folder_list[i]     = mask_list[0]
+
+            if len(script_list) > 0 and script_bool:
+                script_folder_list[i]   = script_list[0]
+
+        self.prep_load_list = [
+            env_file_list,
+            data_folder_list,
+            mask_folder_list,
+            script_folder_list]
+
+        return self.prep_load_list
+
+    def sessionLoad(self, add_bool, main_window = None):
+        '''
+        ##############################################
+        Prepare the eventual load of a session.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+
+        if not add_bool:
+            self.reset()
+
+        for i, path in enumerate(self.prep_load_list[0]):
+
+            if not main_window == None:
+                main_window.setProgress(
+                    'Setting env '+str(i),
+                    i)
+
+            with open(path) as f:
+                code = compile(f.read(), path, 'exec')
+                exec(code,globals())
+
+            env = setEnv(self)
+
+            if not self.prep_load_list[1][i] == None:
+                if not main_window == None:
+                    main_window.setProgress(
+                        'Loading data '+str(i),
+                        i)
+                env.io.loadFromPython(self.prep_load_list[1][i])
+            
+            # if not prep_load_list[2][i] == None:
+            #     if not main_window == None:
+            #         main_window.setProgress(
+            #             'Setting mask '+str(i),
+            #             i)
+            #     env.io.loadFromPython(prep_load_list[1][i])
+            
+            if not self.prep_load_list[3][i] == None:
+                if not main_window == None:
+                    main_window.setProgress(
+                        'Setting script '+str(i),
+                        i)
+                env.process.loadScripts(self.prep_load_list[3][i])
+        

@@ -72,7 +72,6 @@ class MetadataWindowLayout(Ui_select_meta):
         self.meta_button_cancel.clicked.connect(self.cancel)
         self.meta_button_reset.clicked.connect(self.reset)
 
-        
     def link(self, meta_class):
         '''
         ##############################################
@@ -94,7 +93,7 @@ class MetadataWindowLayout(Ui_select_meta):
         '''
         ##############################################
         This method checks if the data has been set
-        in a previsou instance
+        in a previous instance.
         ———————
         Input: -
         ———————
@@ -109,13 +108,11 @@ class MetadataWindowLayout(Ui_select_meta):
             self.meta_class.checkPresence()
             self.setList()
 
-
-
     def grabFile(self):
         '''
         ##############################################
         Open a folder and set the path and then scan 
-        it automatically on path change
+        it automatically on path change.
         ———————
         Input: -
         ———————
@@ -226,7 +223,7 @@ class MetadataWindowLayout(Ui_select_meta):
             self.window.parent.windowState() & ~QtCore.Qt.WindowMinimized 
             | QtCore.Qt.WindowActive)
         self.window.parent.activateWindow()
-        self.window.parent.target.setMetaList()
+        self.window.parent.target.widgetClasses[1].setMetaList()
         self.window.close()
 
     def cancel(self):
@@ -263,10 +260,4 @@ class MetadataWindowLayout(Ui_select_meta):
         '''
         self.meta_class.reset()
         self.scanFile()
-        self.window.parent.target.setMetaList()
-
-
-
-
-
-
+        self.window.parent.target.widgetClasses[1].setMetaList()

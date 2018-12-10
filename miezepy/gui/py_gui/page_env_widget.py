@@ -21,38 +21,20 @@
 #
 # *****************************************************************************
 
-
 from PyQt5 import QtWidgets, QtGui, QtCore
-import sys
-import os
-from scipy.ndimage import imread
+from functools import partial
 
-from ..qt_gui.mainwindow_ui import Ui_MIEZETool 
-from ..py_gui.env_widget    import EnvWidget
+from ..qt_gui.main_env_widget_ui    import Ui_env_widget
+from ..py_gui.env_widget            import EnvWidget
 
-
-class MainWindowLayout(Ui_MIEZETool):
-    '''
-    ##############################################
-    This is the main window element that will later
-    be the item managin the rest of the system. 
-    Note that at a later point we will feature
-    drag and drop onto this window.
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
-    '''
-    def __init__(self, window, window_manager):
-
-        #set up the window
-        Ui_MIEZETool.__init__(self)
-        self.window = window
-        self.window_manager = window_manager
-        self.setupUi(window)
+class PageEnvWidget(Ui_env_widget):
+    
+    def __init__(self, stack, parent):
+        Ui_env_widget.__init__(self)
+        self.parent         = parent
+        self.stack          = stack
+        self.local_widget   = QtWidgets.QWidget() 
+        self.setupUi(self.local_widget)
         self.connect()
 
     def connect(self):
@@ -67,12 +49,12 @@ class MainWindowLayout(Ui_MIEZETool):
         status: active
         ##############################################
         '''
-        self.actionAdd_Environement.triggered.connect(self.addEnvironment)
+        self.main_widget_env.currentRowChanged.connect(self.setCurrentElement)
 
     def link(self, handler):
         '''
         ##############################################
-        link the class that will mnage the current 
+        link the class that will manage the current 
         input output.
         ———————
         Input: 
@@ -85,12 +67,13 @@ class MainWindowLayout(Ui_MIEZETool):
         '''
         self.handler = handler 
         self.initialize()
+        self.refreshList()
 
     def initialize(self):
         '''
         ##############################################
         This method checks if the data has been set
-        in a previsou instance
+        in a previous instance.
         ———————
         Input: -
         ———————
@@ -99,12 +82,48 @@ class MainWindowLayout(Ui_MIEZETool):
         status: active
         ##############################################
         '''
+        self.main_widget_env.clear()
+        self.envs_widgets = []
         self.envs = []
+        
+    def refreshList(self):
+        '''
+        ##############################################
+        refresh and rebuild the view
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.initialize()
+
+        for key in self.handler.env_dict.keys():
+
+            self.envs.append(EnvWidget(self.handler.env_dict[key]))
+            self.envs_widgets.append(QtWidgets.QListWidgetItem(self.main_widget_env))
+
+
+        for env, env_widget in zip(self.envs, self.envs_widgets):
+
+            env_widget.setSizeHint(env.widget.size())
+            self.main_widget_env.addItem(env_widget)
+            self.main_widget_env.setItemWidget(
+                env_widget,
+                env.widget)
+
+            env.load_clicked.connect(partial(self.openLoad, env.env))
+            env.script_clicked.connect(partial(self.openScript, env.env))
+
+        if len(self.envs) > 0:
+            self.setCurrentElement(len(self.envs)-1)
 
     def addEnvironment(self):
         '''
         ##############################################
-        Add an evironement to the system
+        Add an environment to the system
         ———————
         Input: -
         ———————
@@ -115,20 +134,7 @@ class MainWindowLayout(Ui_MIEZETool):
         '''
         env = self.handler.new_environment()
 
-        self.envs.append([
-            QtWidgets.QListWidgetItem(self.main_widget_env),
-            EnvWidget(env)
-            ])
-
-        self.envs[-1][0].setSizeHint(self.envs[-1][1].widget.size())
-        self.main_widget_env.setItemWidget(
-            self.envs[-1][0],
-            self.envs[-1][1].widget)
-
-        self.envs[-1][1].load_clicked.connect(self.openLoad)
-        self.envs[-1][1].script_clicked.connect(self.openScript)
-
-        self.setCurrentElement(len(self.envs)-1)
+        self.refreshList()
 
     def setCurrentElement(self, row = None):
         '''
@@ -148,6 +154,8 @@ class MainWindowLayout(Ui_MIEZETool):
         else:
             index = self.main_widget_env.currentRow()
 
+        self.main_widget_env.itemWidget(self.main_widget_env.item(index)).setFocus()
+
     def refreshData(self):
         '''
         ##############################################
@@ -161,41 +169,39 @@ class MainWindowLayout(Ui_MIEZETool):
         ##############################################
         '''
         for env in self.envs:
-            env[1].refreshData()
+            env.refreshData()
 
-    def openLoad(self, env_name):
+    def openLoad(self, env):
         '''
         ##############################################
         open the load window through the current 
-        biutton system
+        button system
         ———————
         Input: 
-        - env_name (str) is the name of the envionment
+        - env_name (str) is the name of the environment
         ———————
         Output: -
         ———————
         status: active
         ##############################################
         '''
-        self.window_manager.newWindow('Import')
-        self.window_manager.active_windows['Import'].target.link(
-            self.handler.env_dict[env_name].io)
-        self.window_manager.active_windows['Import'].target.populateAll()
+        self.parent.widgetClasses[1].link(env.io)
+        self.parent.widgetClasses[1].populateAll()
+        self.parent.refreshChecked(index = 1)
 
-    def openScript(self, env_name):
+    def openScript(self, env):
         '''
         ##############################################
         open the load window through the current 
-        biutton system
+        button system
         ———————
         Input: 
-        - env_name (str) is the name of the envionment
+        - env_name (str) is the name of the environment
         ———————
         Output: -
         ———————
         status: active
         ##############################################
         '''
-        self.window_manager.newWindow('Scripts')
-        self.window_manager.active_windows['Scripts'].target.link(
-            self.handler.env_dict[env_name])
+        self.parent.widgetClasses[2].link(env)
+        self.parent.refreshChecked(index = 2)

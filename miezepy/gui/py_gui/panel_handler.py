@@ -31,10 +31,10 @@ import sys
 
 
 class PanelHandler:
-    def __init__(self, env, main_widget, parameter_layout, mask_layout):
-        self.launch_sp(env, main_widget, parameter_layout, mask_layout)
+    def __init__(self, main_widget, parameter_layout, mask_layout):
+        self.launch_sp(main_widget, parameter_layout, mask_layout)
 
-    def launch_sp(self, environment, main_widget, parameter_layout, mask_layout):
+    def launch_sp(self, main_widget, parameter_layout, mask_layout):
         '''
         ##############################################
         This will be the mieze panel able to manage 
@@ -48,10 +48,6 @@ class PanelHandler:
         status: active
         ##############################################
         '''
-
-        ##############################################
-        #set up parameters
-        self.environment = environment
         self.threads = []
         self.setup_frame(main_widget, parameter_layout, mask_layout)
 
@@ -313,7 +309,6 @@ class PanelHandler:
 
         #initialise container widget
         widget      = QtWidgets.QWidget()
-        self.data   = self.environment.current_data.return_as_np()
 
         self.mycanvas    = Multi_Canvas(
             widget,
@@ -425,7 +420,7 @@ class PanelHandler:
         self.set_angle_slider_start(angle1)
         self.set_angle_slider_end(angle2)
 
-    def load_initial(self):
+    def load_initial(self, env):
         '''
         ##############################################
         This method will set  p the widgets initial 
@@ -438,6 +433,8 @@ class PanelHandler:
         status: active
         ##############################################
         '''
+        self.environment = env
+        self.data   = self.environment.current_data.return_as_np()
         
         ##############################################
         #grab them all

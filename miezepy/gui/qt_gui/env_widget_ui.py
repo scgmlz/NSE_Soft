@@ -20,6 +20,15 @@ class Ui_env_widget(object):
         env_widget.setMinimumSize(QtCore.QSize(0, 250))
         env_widget.setMaximumSize(QtCore.QSize(16777215, 250))
         env_widget.setBaseSize(QtCore.QSize(0, 250))
+        env_widget.setStyleSheet("#env_widget{\n"
+"background-color: rgb(255, 255, 255);}\n"
+"\n"
+"#env_widget:focus{\n"
+"background-color: rgb(220, 220, 220);\n"
+"\n"
+"}\n"
+"\n"
+"")
         self.horizontalLayout = QtWidgets.QHBoxLayout(env_widget)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.groupBox = QtWidgets.QGroupBox(env_widget)

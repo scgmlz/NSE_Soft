@@ -25,7 +25,7 @@ from setuptools import setup, find_packages
 import mieze_python
 
 setup(
-    name = 'mieze_python',
+    name = 'miezepy',
     version = mieze_python.__version__,
     license = 'GPL',
     author = 'Dr. Alexander Schober',
@@ -34,7 +34,7 @@ setup(
     author_email = 'alex.schober@mac.com',
     description = 'NSE analysis package',
     packages = find_packages(exclude=['doc','test']),
-    package_data = {'mieze_python': ['RELEASE-VERSION'],'mieze_python.core.process_modules.defaults': ['*.txt']},
+    package_data = {'miezepy': ['RELEASE-VERSION'],'miezepy.core.process_modules.defaults': ['*.txt']},
     
     classifiers = [
         'Development Status :: 5 - Production/Stable',
