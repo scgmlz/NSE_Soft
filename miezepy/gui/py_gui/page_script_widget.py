@@ -130,9 +130,6 @@ class PageScriptWidget(Ui_script_widget):
         self.script_text_reduction.textChanged.connect(self.updateEditable_2)
         self.script_text_post.textChanged.connect(self.updateEditable_3)
 
-        # self.actionLoad_scripts.triggered.connect(self.loadScripts)
-        # self.actionSave_scripts.triggered.connect(self.saveScripts)
-
     def updateEditable_0(self):
         try:
             self.env.process.editable_scripts[0] = self.script_text_import.toPlainText()
@@ -201,6 +198,13 @@ class PageScriptWidget(Ui_script_widget):
                 add_message = str(e),
                 det_message = traceback.format_exc())
         
+    def runAll(self):
+        self.runImport()
+        self.runPhase()
+        self.runPanel()
+        self.runReduction()
+        self.runPost()
+
     def saveScripts(self):
         '''
         ##############################################

@@ -82,8 +82,10 @@ class MainWindowLayout(Ui_MIEZETool):
         self.save_button.clicked.connect(self.refreshChecked)
 
         #Menu actions
-        self.actionAddEnvironment.triggered.connect(self.addEnvironment)
-
+        self.actionAddEnv.triggered.connect(
+            partial(self.actionDispatcher, 0, self.widgetClasses[0].addEnvironment))
+        self.actionRemoveEnv.triggered.connect(
+            partial(self.actionDispatcher, 0, self.widgetClasses[0].deleteEnvironment))
 
         self.actionAdd_element.triggered.connect(
             partial(self.actionDispatcher, 1, self.widgetClasses[1].addElement))
@@ -100,6 +102,16 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(self.actionDispatcher, 2, self.widgetClasses[2].saveScripts))
         self.actionLoadScript.triggered.connect(
             partial(self.actionDispatcher, 2, self.widgetClasses[2].loadScripts))
+        self.actionImport.triggered.connect(
+            partial(self.actionDispatcher, 2, self.widgetClasses[2].runImport))
+        self.actionPhase.triggered.connect(
+            partial(self.actionDispatcher, 2, self.widgetClasses[2].runPhase))
+        self.actionReduction.triggered.connect(
+            partial(self.actionDispatcher, 2, self.widgetClasses[2].runReduction))
+        self.actionVisual.triggered.connect(
+            partial(self.actionDispatcher, 2, self.widgetClasses[2].runPost))
+        self.actionAll.triggered.connect(
+            partial(self.actionDispatcher, 2, self.widgetClasses[2].runAll))
 
         self.actionLoad_Session.triggered.connect(
             partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].getLoadPath, True)))
@@ -123,6 +135,8 @@ class MainWindowLayout(Ui_MIEZETool):
         ##############################################
         '''
         if not self.stack.currentIndex() == index:
+            if index == 0:
+                self.refreshChecked(0)
             if index == 1:
                 self.widgetClasses[1].link(self.handler.current_env.io)
                 self.widgetClasses[1].populateAll()

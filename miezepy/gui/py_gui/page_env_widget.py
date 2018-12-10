@@ -136,6 +136,30 @@ class PageEnvWidget(Ui_env_widget):
 
         self.refreshList()
 
+    def deleteEnvironment(self):
+        '''
+        ##############################################
+        Add an environment to the system
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        index = self.main_widget_env.currentRow()
+
+        for key in self.handler.env_dict.keys():
+            if self.handler.env_dict[key].name == self.envs[index].env.name:
+                key_to_delete = key
+                break
+
+        del self.handler.env_dict[key_to_delete]
+        
+        self.refreshList()
+
+
     def setCurrentElement(self, row = None):
         '''
         ##############################################
@@ -154,7 +178,10 @@ class PageEnvWidget(Ui_env_widget):
         else:
             index = self.main_widget_env.currentRow()
 
-        self.main_widget_env.itemWidget(self.main_widget_env.item(index)).setFocus()
+        try:
+            self.main_widget_env.itemWidget(self.main_widget_env.item(index)).setFocus()
+        except:
+            pass
 
     def refreshData(self):
         '''

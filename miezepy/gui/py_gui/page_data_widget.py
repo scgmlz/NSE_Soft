@@ -51,6 +51,7 @@ class PageDataWidget(Ui_data_import):
         self.connect()
         self.elements       = []
         self.meta_elements  = []
+        self.hidden_graph   = False
 
     def setup(self):
         '''
@@ -137,6 +138,7 @@ class PageDataWidget(Ui_data_import):
         self.data_button_files_reset.clicked.connect(self.resetFiles)
         self.data_button_populate.clicked.connect(self.populate)
         self.data_button_files_remove.clicked.connect(self.removeFile)
+        self.data_button_prev.clicked.connect(self.hide_preview)
 
         #connect lists
         self.data_list_files.clicked.connect(self.setPrev)
@@ -171,6 +173,26 @@ class PageDataWidget(Ui_data_import):
         else:
             self.parent.window_manager.newWindow('MetaWindow')
             self.parent.window_manager.active_windows['MetaWindow'].target.link(self.meta_handler)
+
+    def hide_preview(self):
+        '''
+        ##############################################
+        This routine will launch the metadat window.
+        ———————
+        Input: -
+        ———————
+        Output: -
+        ———————
+        status: active
+        ##############################################
+        '''
+        self.hidden_graph = not self.hidden_graph
+        self.data_widget_graph.setVisible(self.hidden_graph)
+
+        if self.hidden_graph:
+            self.data_button_prev.setText('Hide')
+        else:
+            self.data_button_prev.setText('Show')
 
     def openVisualWindow(self):
         '''
