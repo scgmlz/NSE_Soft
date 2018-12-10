@@ -22,11 +22,11 @@
 # *****************************************************************************
 
 from setuptools import setup, find_packages
-import mieze_python
+import miezepy
 
 setup(
     name = 'miezepy',
-    version = mieze_python.__version__,
+    version = miezepy.__version__,
     license = 'GPL',
     author = 'Dr. Alexander Schober',
 #    install_requires = requirements,
