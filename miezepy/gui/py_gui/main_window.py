@@ -118,7 +118,7 @@ class MainWindowLayout(Ui_MIEZETool):
         self.actionSave_Session.triggered.connect(
             partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].getSavePath, True)))
 
-    def actionDispatcher(self,index, method):
+    def actionDispatcher(self,index, method = None):
         '''
         ##############################################
         This will dispatch the actions to the right 
@@ -138,16 +138,19 @@ class MainWindowLayout(Ui_MIEZETool):
             if index == 0:
                 self.refreshChecked(0)
             if index == 1:
-                self.widgetClasses[1].link(self.handler.current_env.io)
-                self.widgetClasses[1].populateAll()
+                if not self.widgetClasses[1].io_core == self.handler.current_env.io:
+                    self.widgetClasses[1].link(self.handler.current_env.io)
+                    self.widgetClasses[1].populateAll()
                 self.refreshChecked(1)
             elif index == 2:
-                self.widgetClasses[2].link(self.handler.current_env)
+                if not self.widgetClasses[2].env == self.handler.current_env:
+                    self.widgetClasses[2].link(self.handler.current_env)
                 self.refreshChecked(2)
             elif index == 3:
                 self.refreshChecked(3)
 
-        method()
+        if not method == None:
+            method()
 
     def link(self, handler):
         '''

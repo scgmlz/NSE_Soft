@@ -156,7 +156,7 @@ class PageEnvWidget(Ui_env_widget):
                 break
 
         del self.handler.env_dict[key_to_delete]
-        
+
         self.refreshList()
 
 
@@ -212,9 +212,11 @@ class PageEnvWidget(Ui_env_widget):
         status: active
         ##############################################
         '''
-        self.parent.widgetClasses[1].link(env.io)
-        self.parent.widgetClasses[1].populateAll()
-        self.parent.refreshChecked(index = 1)
+        for key in self.handler.env_dict.keys():
+            if self.handler.env_dict[key].name == env.name:
+                self.handler.set_current_env(key)
+
+        self.parent.actionDispatcher(1)
 
     def openScript(self, env):
         '''
@@ -230,5 +232,8 @@ class PageEnvWidget(Ui_env_widget):
         status: active
         ##############################################
         '''
-        self.parent.widgetClasses[2].link(env)
-        self.parent.refreshChecked(index = 2)
+        for key in self.handler.env_dict.keys():
+            if self.handler.env_dict[key].name == env.name:
+                self.handler.set_current_env(key)
+
+        self.parent.actionDispatcher(2)

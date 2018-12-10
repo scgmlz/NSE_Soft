@@ -46,6 +46,7 @@ class PageScriptWidget(Ui_script_widget):
 
         self.elements       = []
         self.meta_elements  = []
+        self.env            = None
 
     def setup(self):
         '''

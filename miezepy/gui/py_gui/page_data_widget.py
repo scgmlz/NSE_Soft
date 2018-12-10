@@ -52,6 +52,7 @@ class PageDataWidget(Ui_data_import):
         self.elements       = []
         self.meta_elements  = []
         self.hidden_graph   = False
+        self.io_core        = None
 
     def setup(self):
         '''
