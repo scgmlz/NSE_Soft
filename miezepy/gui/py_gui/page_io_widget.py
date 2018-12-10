@@ -65,7 +65,7 @@ class PageIOWidget(Ui_io_widget):
         self.io_check_save_mask.stateChanged.connect(self.triggerNodeLoad)
         self.io_check_save_scripts.stateChanged.connect(self.triggerNodeLoad)
 
-    def getLoadPath(self):
+    def getLoadPath(self, quick = False):
         '''
         ##############################################
         connect the actions to their respective buttons
@@ -83,6 +83,9 @@ class PageIOWidget(Ui_io_widget):
 
         self.io_input_load_path.setText(file_path)
         self.triggerNodeLoad()
+
+        if quick:
+            self.load()
 
     def triggerNodeLoad(self):
         '''
@@ -156,7 +159,7 @@ class PageIOWidget(Ui_io_widget):
         model = FileTreeModel(root_node)
         self.io_tree_load.setModel(model)
 
-    def getSavePath(self):
+    def getSavePath(self, quick = False):
         '''
         ##############################################
         
@@ -174,6 +177,9 @@ class PageIOWidget(Ui_io_widget):
 
         self.io_input_save_path.setText(file_path)
         self.triggerNodeSave()
+
+        if quick:
+            self.save()
 
     def triggerNodeSave(self):
         '''
@@ -306,7 +312,7 @@ class PageIOWidget(Ui_io_widget):
             self.io_check_load_add.isChecked(),
             main_window = self.parent)
         self.parent.fadeActivity()
-        
+
         self.parent.link(self.handler)
         
 

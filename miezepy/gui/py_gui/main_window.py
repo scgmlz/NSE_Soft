@@ -84,6 +84,7 @@ class MainWindowLayout(Ui_MIEZETool):
         #Menu actions
         self.actionAddEnvironment.triggered.connect(self.addEnvironment)
 
+
         self.actionAdd_element.triggered.connect(
             partial(self.actionDispatcher, 1, self.widgetClasses[1].addElement))
         self.actionRemove_element.triggered.connect(
@@ -99,6 +100,11 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(self.actionDispatcher, 2, self.widgetClasses[2].saveScripts))
         self.actionLoadScript.triggered.connect(
             partial(self.actionDispatcher, 2, self.widgetClasses[2].loadScripts))
+
+        self.actionLoad_Session.triggered.connect(
+            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].getLoadPath, True)))
+        self.actionSave_Session.triggered.connect(
+            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].getSavePath, True)))
 
     def actionDispatcher(self,index, method):
         '''
@@ -124,6 +130,8 @@ class MainWindowLayout(Ui_MIEZETool):
             elif index == 2:
                 self.widgetClasses[2].link(self.handler.current_env)
                 self.refreshChecked(2)
+            elif index == 3:
+                self.refreshChecked(3)
 
         method()
 
