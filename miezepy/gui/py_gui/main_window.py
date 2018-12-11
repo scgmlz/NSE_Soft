@@ -103,13 +103,13 @@ class MainWindowLayout(Ui_MIEZETool):
         self.actionLoadScript.triggered.connect(
             partial(self.actionDispatcher, 2, self.widgetClasses[2].loadScripts))
         self.actionImport.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].runImport))
+            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,0)))
         self.actionPhase.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].runPhase))
+            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,1)))
         self.actionReduction.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].runReduction))
+            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,2)))
         self.actionVisual.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].runPost))
+            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,3)))
         self.actionAll.triggered.connect(
             partial(self.actionDispatcher, 2, self.widgetClasses[2].runAll))
 
@@ -320,7 +320,7 @@ class MainWindowLayout(Ui_MIEZETool):
         status: active
         ##############################################
         '''
-        #make it voisble in case it was hidden
+        #make it visible in case it was hidden
         self.main_label_progress_0.show()
         self.main_label_progress_1.show()
         self.main_bar_progress.show()
