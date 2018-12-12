@@ -214,7 +214,10 @@ class MyTableModel(QtCore.QAbstractTableModel):
     def rowCount(self, parent):
         return len(self.mylist)
     def columnCount(self, parent):
-        return len(self.mylist[0])
+        if len(self.mylist) > 0:
+            return len(self.mylist[0])
+        else:
+            return 0
     def data(self, index, role):
         if not index.isValid():
             return None

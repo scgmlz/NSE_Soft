@@ -33,7 +33,7 @@ from .io_modules.import_sans_pad import Import_SANS_PAD
 from .data import Data_Structure
 
 def loadData(env,gui):
-    pass
+    return ''
 
 class IO_Manager:
 
@@ -97,22 +97,30 @@ class IO_Manager:
         script += (indent+1) * "    " +"for i in range("+str(len(self.import_objects))+"):\n"
         script += (indent+2) * "    " +"env.io.addObject()\n"
 
-        for i,element in enumerate(self.import_objects):
-            script += indent * "    " +"loadData_"+str(i)+"(env.io.import_objects["+str(i)+"])\n"
+        script += indent * "    " + "import_result  = [None]*"+str(len(self.import_objects))+"\n"
 
+        for i,element in enumerate(self.import_objects):
+            script += indent * "    " +"import_result["+str(i)+"] = loadData_"+str(i)+"(env.io.import_objects["+str(i)+"])\n"
+
+        script += indent * "    " + "passed = all([all([subelement[0] for subelement in element]) for element in import_result])\n"
         script += indent * "    " +"if not gui == None:\n"
         script += (indent+1) * "    " +"for i in range("+str(len(self.import_objects))+"):\n"
         script += (indent+2) * "    " +"gui.setCurrentElement(i)\n"
-        script += (indent+2) * "    " +"gui.populate()\n"
+        script += (indent+2) * "    " +"if passed:\n"  
+        script += (indent+3) * "    " +"gui.populate()\n"
         script += indent * "    " +"else:\n"
         script += (indent+1) * "    " +"for i in range("+str(len(self.import_objects))+"):\n"  
-        script += (indent+2) * "    " +"env.io.import_objects[i].processObject()\n"
-            
+        script += (indent+2) * "    " +"if passed:\n"  
+        script += (indent+3) * "    " +"env.io.import_objects[i].processObject()\n"
+        script += indent * "    " +"return import_result\n"
+
         for i,element in enumerate(self.import_objects):
             script += "\ndef loadData_"+str(i)+"(import_object):\n"
             script += indent * "    " + "#################################\n"
             script += indent * "    " + "########## add element ##########\n"
-            script += indent * "    " + "current_object = import_object\n"
+            script += indent * "    " + "current_object  = import_object\n"
+            script += indent * "    " + "meta_files_found = [True,'']\n"
+            script += indent * "    " + "data_files_found = [True,'']\n"
             script += element.script(indent)
 
         f = open(path, 'w')
@@ -132,15 +140,20 @@ class IO_Manager:
         status: active
         ##############################################
         '''
+        self.reset()
+         
         with open(path) as f:
             code = compile(f.read(), path, 'exec')
             exec(code,globals())
 
-        loadData(self.env, gui)
+        result = loadData(self.env, gui)
+
         try:
             self.generate()
         except:
             pass
+
+        return result
 
     def loadFromText(self, path, gui = None):
         '''
@@ -209,7 +222,7 @@ class Generator:
         '''
         ##############################################
         Main generator function that will manage the 
-        import of all the required elments
+        import of all the required elements
         ———————
         Input: -
         ———————
@@ -228,7 +241,7 @@ class Generator:
         ##############################################
         compute the axes from all the import objects
         and then stick them together and finally 
-        remove repettitions through sets
+        remove repetitions through sets
         ———————
         Input: -
         ———————
@@ -261,16 +274,8 @@ class Generator:
 
     def setAxes(self, data, axes):
         '''
-        ##############################################
         This routine will grab the axes and put them
         into the datastructure.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         data.axes.set_name(0, 'Parameter')
         data.axes.set_name(1, 'Measurement')
@@ -296,17 +301,9 @@ class Generator:
 
     def populateData(self, axes, idx, import_objects):
         '''
-        ##############################################
         compute the axes from all the import objects
         and then stick them together and finally 
         remove repetitions through sets
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         data_struct = Data_Structure()
 
@@ -330,10 +327,8 @@ class Generator:
 
     def generateMetadata(self,import_object, index):
         '''
-        ##############################################
         Here is the routine managing the metadata 
         handling.
-        ##############################################
         '''
         metadata = {}
         for key in import_object.meta_handler.values.keys():
@@ -475,6 +470,8 @@ class DataHandler:
         script += indent * "    " + "current_object.data_handler.meas = '"+str(self.meas) + "'\n"
         script += indent * "    " + "current_object.data_handler.reference = "+str(self.reference) + "\n"
         script += indent * "    " + "current_object.data_handler.background = "+str(self.background) + "\n"
+        script += indent * "    " + "return [meta_files_found, data_files_found]\n"
+
         return script
 
 class FileHandler:
@@ -497,6 +494,12 @@ class FileHandler:
         '''
         self.total_path_files = []
         self.nice_path_files  = []
+
+    def filesExist(self, file_path_array):
+        '''
+        Checks if all the files in a path array actually exist
+        '''
+        return all([os.path.isfile(file_path) for file_path in file_path_array])
 
     def addFiles(self, file_path_array):
         '''
@@ -588,23 +591,26 @@ class FileHandler:
         status: active
         ##############################################
         '''
-        common_path = os.path.commonprefix(self.total_path_files)
+        common_path = str(os.path.sep).join(os.path.commonprefix(self.total_path_files).split(os.path.sep)[:-1])
 
         script = ""
         script += indent * "    " + "\n"
         script += indent * "    " + "########## The file paths ##########\n"
-        script += indent * "    " + "common_path = '" + common_path + "'\n"
 
-        script += indent * "    " + "path_list = [\n"
+        script += (indent+0) * "    " + "common_path = '" + common_path + "'\n"
+        script += (indent+0) * "    " + "path_list = [\n"
         for item in self.total_path_files:
-            script += (indent+1) * "    " + "'" + item.split(common_path)[1] + "',\n"
+            script += (indent+1) * "    " + "'" + str(os.path.sep).join(item.split(common_path)[1].split(os.path.sep)[1:]) + "',\n"
 
         script = script[:-2]
         script += "]\n"
-        
-        script += indent * "    " + "current_object.file_handler.addFiles([\n"
-        script += (indent+1) * "    " + "common_path + item for item in path_list])\n"
+        script += (indent+0) * "    " + "if current_object.file_handler.filesExist([\n"
+        script += (indent+1) * "    " + "os.path.join(common_path,item) for item in path_list]):\n"
 
+        script += (indent+1) * "    " + "current_object.file_handler.addFiles([\n"
+        script += (indent+2) * "    " + "os.path.join(common_path,item) for item in path_list])\n"
+        script += indent * "    " + "else:\n"
+        script += (indent+1) * "    " + "data_files_found = [False,common_path]\n"
         return script
 
 class MetaHandler:
@@ -629,18 +635,21 @@ class MetaHandler:
         script = ""
         script += indent * "    " + "\n"
         script += indent * "    " + "########## The meta info ##########\n"
-        script += indent * "    " + "path = '"+self.path+"'\n"
-        script += indent * "    " + "current_object.meta_handler.buildMeta(path)\n"
-        script += indent * "    " + "selected_meta = ["
+        script += indent * "    " + "try:\n"
+        script += (indent+1) * "    " + "path = '"+self.path+"'\n"
+        script += (indent+1) * "    " + "current_object.meta_handler.buildMeta(path)\n"
+        script += (indent+1) * "    " + "selected_meta = ["
         for element in self.selected_meta:
-            script += "\n"+ (indent+1) * "    " + "["
+            script += "\n"+ (indent+2) * "    " + "["
             for item in element:
                 script += "'"+item +"' ,"
             script = script [:-1]
             script += "],"
         script = script [:-1]
         script += "]\n"
-        script += indent * "    " + "current_object.meta_handler.selected_meta = selected_meta\n"
+        script += (indent+1) * "    " + "current_object.meta_handler.selected_meta = selected_meta\n"
+        script += indent * "    " + "except:\n"
+        script += (indent+1) * "    " + "meta_files_found = [False,path]\n"
         return script
 
     def buildMeta(self, file_path):
@@ -698,6 +707,7 @@ class MetaHandler:
         for element in self.metadata_temp:
             if element[1] == name:
                 element[0] = value
+                break
 
     def setMeta(self):
         '''
@@ -796,9 +806,10 @@ class MetaHandler:
         ##############################################
         '''
         self.values = {}
+        self.values_set = {}
 
         for element in self.selected_meta:
-            self.values[element[0]] = []
+            self.values[element[0]]     = []
 
     def extractMeta(self,file_path):
         '''
@@ -814,7 +825,9 @@ class MetaHandler:
         '''
         f           = open(file_path,'rb')
         line        = f.readlines()
-        
+        for element in self.selected_meta:
+            self.values_set[element[0]] = False
+
         for binaryLine in line:
             try:
                 line = binaryLine.decode('ascii').replace('\n','')
@@ -825,9 +838,10 @@ class MetaHandler:
                     marker = line.split(" : ")[0].replace(" ", "")
 
                     for element in self.selected_meta:
-                        if element[0] == marker:
+                        if element[0] == marker and not self.values_set[element[0]]:
                             self.values[element[0]].append(
                                 nums[0][0] + nums[0][-1])
+                            self.values_set[element[0]] = True
             except:
                 pass
 

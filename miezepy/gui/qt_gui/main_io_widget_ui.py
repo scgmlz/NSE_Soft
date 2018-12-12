@@ -120,8 +120,8 @@ class Ui_io_widget(object):
         self.groupBox_2.setTitle(_translate("io_widget", "Save Session"))
         self.io_label_save_path.setText(_translate("io_widget", "Path:"))
         self.io_button_save_path.setText(_translate("io_widget", "..."))
-        self.io_check_save_data.setText(_translate("io_widget", "Load Data"))
-        self.io_check_save_mask.setText(_translate("io_widget", "Load Masks"))
-        self.io_check_save_scripts.setText(_translate("io_widget", "Load scripts"))
+        self.io_check_save_data.setText(_translate("io_widget", "Save Data"))
+        self.io_check_save_mask.setText(_translate("io_widget", "Save Masks"))
+        self.io_check_save_scripts.setText(_translate("io_widget", "Save scripts"))
         self.io_button_save.setText(_translate("io_widget", "Save"))
 
