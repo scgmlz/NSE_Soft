@@ -32,7 +32,7 @@ setup(
 #    install_requires = requirements,
 #    dependency_links =['https://github.com/AlexanderSchober/simpleplot_qt/tarball/master#egg=SimplePlot-0.1'],
     author_email = 'alex.schober@mac.com',
-    description = 'NSE analysis package',
+    description = 'Mieze analysis package',
     packages = find_packages(exclude=['doc','test']),
     package_data = {'miezepy': ['RELEASE-VERSION'],'miezepy.core.process_modules.defaults': ['*.txt']},
     

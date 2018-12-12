@@ -29,7 +29,8 @@ class Ui_MIEZETool(object):
         self.widget.setStyleSheet("")
         self.widget.setObjectName("widget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
-        self.verticalLayout.setSpacing(30)
+        self.verticalLayout.setContentsMargins(5, 5, 5, 5)
+        self.verticalLayout.setSpacing(35)
         self.verticalLayout.setObjectName("verticalLayout")
         self.env_button = QtWidgets.QPushButton(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
@@ -37,7 +38,8 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.env_button.sizePolicy().hasHeightForWidth())
         self.env_button.setSizePolicy(sizePolicy)
-        self.env_button.setMinimumSize(QtCore.QSize(64, 51))
+        self.env_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.env_button.setMaximumSize(QtCore.QSize(16777215, 30))
         self.env_button.setAutoFillBackground(False)
         self.env_button.setStyleSheet("#env_button { \n"
 "background-color: transparent; \n"
@@ -52,7 +54,7 @@ class Ui_MIEZETool(object):
 "\n"
 "")
         self.env_button.setText("")
-        self.env_button.setIconSize(QtCore.QSize(64, 64))
+        self.env_button.setIconSize(QtCore.QSize(45, 64))
         self.env_button.setCheckable(True)
         self.env_button.setChecked(True)
         self.env_button.setAutoRepeat(False)
@@ -67,7 +69,8 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.data_button.sizePolicy().hasHeightForWidth())
         self.data_button.setSizePolicy(sizePolicy)
-        self.data_button.setMinimumSize(QtCore.QSize(64, 51))
+        self.data_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.data_button.setMaximumSize(QtCore.QSize(16777215, 40))
         self.data_button.setAutoFillBackground(False)
         self.data_button.setStyleSheet("#data_button { \n"
 "background-color: transparent; \n"
@@ -80,7 +83,7 @@ class Ui_MIEZETool(object):
 "background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.50033, fy:0.505682,stop:0 rgba(94, 0, 255, 255), stop:1 rgb(64, 66, 68) );\n"
 "}")
         self.data_button.setText("")
-        self.data_button.setIconSize(QtCore.QSize(64, 64))
+        self.data_button.setIconSize(QtCore.QSize(45, 64))
         self.data_button.setCheckable(True)
         self.data_button.setChecked(True)
         self.data_button.setAutoRepeat(False)
@@ -95,7 +98,8 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.script_button.sizePolicy().hasHeightForWidth())
         self.script_button.setSizePolicy(sizePolicy)
-        self.script_button.setMinimumSize(QtCore.QSize(64, 51))
+        self.script_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.script_button.setMaximumSize(QtCore.QSize(16777215, 40))
         self.script_button.setAutoFillBackground(False)
         self.script_button.setStyleSheet("#script_button { \n"
 "background-color: transparent; \n"
@@ -109,7 +113,7 @@ class Ui_MIEZETool(object):
 "}\n"
 "")
         self.script_button.setText("")
-        self.script_button.setIconSize(QtCore.QSize(51, 64))
+        self.script_button.setIconSize(QtCore.QSize(45, 64))
         self.script_button.setCheckable(True)
         self.script_button.setChecked(True)
         self.script_button.setAutoRepeat(False)
@@ -124,7 +128,8 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.save_button.sizePolicy().hasHeightForWidth())
         self.save_button.setSizePolicy(sizePolicy)
-        self.save_button.setMinimumSize(QtCore.QSize(64, 51))
+        self.save_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.save_button.setMaximumSize(QtCore.QSize(16777215, 40))
         self.save_button.setAutoFillBackground(False)
         self.save_button.setStyleSheet("#save_button { \n"
 "background-color: transparent; \n"
@@ -138,7 +143,7 @@ class Ui_MIEZETool(object):
 "}\n"
 "")
         self.save_button.setText("")
-        self.save_button.setIconSize(QtCore.QSize(50, 64))
+        self.save_button.setIconSize(QtCore.QSize(45, 64))
         self.save_button.setCheckable(True)
         self.save_button.setChecked(True)
         self.save_button.setAutoRepeat(False)
