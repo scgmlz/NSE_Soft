@@ -140,7 +140,6 @@ class MainWindowLayout(Ui_MIEZETool):
             if index == 1:
                 if not self.widgetClasses[1].io_core == self.handler.current_env.io:
                     self.widgetClasses[1].link(self.handler.current_env.io)
-                    self.widgetClasses[1].populateAll()
                 self.refreshChecked(1)
             elif index == 2:
                 if not self.widgetClasses[2].env == self.handler.current_env:
@@ -207,20 +206,6 @@ class MainWindowLayout(Ui_MIEZETool):
             self.stack.addWidget(element.local_widget)
 
         self.main_layout.addWidget(self.stack)
-
-    def addEnvironment(self):
-        '''
-        ##############################################
-        Add an environment to the system
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
-        '''
-        self.widgetClasses[0].addEnvironment()
 
     def refreshChecked(self, index = None):
         '''

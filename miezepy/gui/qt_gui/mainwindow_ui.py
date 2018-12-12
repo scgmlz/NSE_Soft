@@ -30,7 +30,7 @@ class Ui_MIEZETool(object):
         self.widget.setObjectName("widget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
         self.verticalLayout.setContentsMargins(5, 5, 5, 5)
-        self.verticalLayout.setSpacing(25)
+        self.verticalLayout.setSpacing(35)
         self.verticalLayout.setObjectName("verticalLayout")
         self.env_button = QtWidgets.QPushButton(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)

@@ -36,7 +36,8 @@ from .io            import IO_Manager
 from .environment   import Environment 
 
 def setEnv(handler):
-    pass
+    return None
+
 
 class Handler:
 
@@ -62,7 +63,7 @@ class Handler:
         status: active
         ##############################################
         '''
-        self.env_dict  = {}
+        self.env_array  = []
 
     def new_environment(self, title = 'No_Name', select = 'MIEZE'):
         '''
@@ -80,23 +81,23 @@ class Handler:
         '''
         title_present = True
 
+        names = [env.name for env in self.env_array]
+
         while title_present:
 
-            if title in self.env_dict.keys():
+            if title in names:
                 title = title + "_bis"
 
             else:
                 title_present = False
 
         #link to an environment
-        self.env_dict[title] = Environment(title = title, select = select)
+        self.env_array.append(Environment(title = title, select = select))
 
         #set environment
         self.set_current_env(title)
 
-        self.current_env = self.env_dict[title]
-
-        return self.env_dict[title]
+        return self.env_array[-1]
 
     def set_current_env(self, key = None):
         '''
@@ -112,19 +113,16 @@ class Handler:
         status: active
         ##############################################
         '''
+        names = [env.name for env in self.env_array]
+
         if not key == None:
-
-            if key in self.env_dict.keys():
-
+            if key in names:
                 self.current_env_key    = key
-
-                self.current_env = self.env_dict[key]
-
-                return self.env_dict[key]
+                self.current_env        = self.env_array[names.index(key)]
+                return self.current_env
 
             else:
-                print("\nERROR: The key '"+str(key)+"' you have provided is not present in the dictionary...\n")
-
+                print("\nERROR: The key '"+str(key)+"' you have provided is not present as an environment...\n")
 
     def saveSession(self, path, data_bool = True, mask_bool = False, script_bool = False):
         '''
@@ -139,17 +137,18 @@ class Handler:
         status: active
         ##############################################
         '''
-        for key in self.env_dict.keys():
-            env_dir = os.path.join(path,self.env_dict[key].name)
+        names = [env.name for env in self.env_array]
+        for key in names:
+            env_dir = os.path.join(path,self.env_array[names.index(key)].name)
             if not os.path.exists(env_dir):
                 os.makedirs(env_dir)
-            self.env_dict[key].saveToPy(os.path.join(env_dir,"env_def.py"))
+            self.env_array[names.index(key)].saveToPy(os.path.join(env_dir,"env_def.py"))
 
             if data_bool:
                 data_dir = os.path.join(env_dir,"data")
                 if not os.path.exists(data_dir):
                     os.makedirs(data_dir)
-                self.env_dict[key].io.saveToPython(
+                self.env_array[names.index(key)].io.saveToPython(
                     os.path.join(data_dir,key+"_data.py")
                 )
 
@@ -162,9 +161,9 @@ class Handler:
                 data_dir = os.path.join(env_dir,"script")
                 if not os.path.exists(data_dir):
                     os.makedirs(data_dir)
-                self.env_dict[key].process.saveScripts(
+                self.env_array[names.index(key)].process.saveScripts(
                     os.path.join(data_dir,key+"_script.py"),
-                    self.env_dict[key].process.editable_scripts
+                    self.env_array[names.index(key)].process.editable_scripts
                 )
     
     def prepSessionLoad(self, path, data_bool = True, mask_bool = False, script_bool = False):
@@ -229,6 +228,10 @@ class Handler:
         ##############################################
         '''
 
+        data_load_output    = []
+        script_load_output  = []
+        mask_load_output    = []
+
         if not add_bool:
             self.reset()
 
@@ -250,7 +253,9 @@ class Handler:
                     main_window.setProgress(
                         'Loading data '+str(i),
                         i)
-                env.io.loadFromPython(self.prep_load_list[1][i])
+                data_load_output.append([
+                    env.io.loadFromPython(self.prep_load_list[1][i]),
+                    self.prep_load_list[1][i]])
             
             # if not prep_load_list[2][i] == None:
             #     if not main_window == None:
@@ -266,3 +271,4 @@ class Handler:
                         i)
                 env.process.loadScripts(self.prep_load_list[3][i])
         
+        return [data_load_output, mask_load_output, script_load_output]

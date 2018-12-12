@@ -5,6 +5,7 @@ def loadData(env, gui = None):
     else:
         for i in range(13):
             env.io.addObject()
+
     loadData_0(env.io.import_objects[0])
     loadData_1(env.io.import_objects[1])
     loadData_2(env.io.import_objects[2])
@@ -18,6 +19,7 @@ def loadData(env, gui = None):
     loadData_10(env.io.import_objects[10])
     loadData_11(env.io.import_objects[11])
     loadData_12(env.io.import_objects[12])
+    
     if not gui == None:
         for i in range(13):
             gui.setCurrentElement(i)

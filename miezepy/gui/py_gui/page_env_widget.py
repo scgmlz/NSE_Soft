@@ -100,9 +100,9 @@ class PageEnvWidget(Ui_env_widget):
         '''
         self.initialize()
 
-        for key in self.handler.env_dict.keys():
+        for element in self.handler.env_array:
 
-            self.envs.append(EnvWidget(self.handler.env_dict[key]))
+            self.envs.append(EnvWidget(element))
             self.envs_widgets.append(QtWidgets.QListWidgetItem(self.main_widget_env))
 
 
@@ -149,13 +149,15 @@ class PageEnvWidget(Ui_env_widget):
         ##############################################
         '''
         index = self.main_widget_env.currentRow()
+        names = [env.name for env in self.handler.env_array]
 
-        for key in self.handler.env_dict.keys():
-            if self.handler.env_dict[key].name == self.envs[index].env.name:
-                key_to_delete = key
+        for element in self.handler.env_array:
+            if element.name == self.envs[index].env.name:
+                index_to_delete = names.index(element.name)
                 break
 
-        del self.handler.env_dict[key_to_delete]
+        del self.handler.env_array[index_to_delete]
+        del self.handler.current_env
 
         self.refreshList()
 
@@ -212,9 +214,9 @@ class PageEnvWidget(Ui_env_widget):
         status: active
         ##############################################
         '''
-        for key in self.handler.env_dict.keys():
-            if self.handler.env_dict[key].name == env.name:
-                self.handler.set_current_env(key)
+        for element in self.handler.env_array:
+            if element.name == env.name:
+                self.handler.set_current_env(element.name)
 
         self.parent.actionDispatcher(1)
 
@@ -232,8 +234,8 @@ class PageEnvWidget(Ui_env_widget):
         status: active
         ##############################################
         '''
-        for key in self.handler.env_dict.keys():
-            if self.handler.env_dict[key].name == env.name:
-                self.handler.set_current_env(key)
-
+        for element in self.handler.env_array:
+            if element.name == env.name:
+                self.handler.set_current_env(element.name)
+                
         self.parent.actionDispatcher(2)

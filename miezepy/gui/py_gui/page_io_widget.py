@@ -22,9 +22,7 @@
 # *****************************************************************************
 
 from PyQt5 import QtWidgets, QtGui, QtCore
-
 import os
-
 
 from ..qt_gui.main_io_widget_ui     import Ui_io_widget
 from ..py_gui.env_widget            import EnvWidget
@@ -42,15 +40,7 @@ class PageIOWidget(Ui_io_widget):
 
     def connect(self):
         '''
-        ##############################################
         connect the actions to their respective buttons
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.io_button_load_path.clicked.connect(self.getLoadPath)
         self.io_button_save_path.clicked.connect(self.getSavePath)
@@ -67,15 +57,7 @@ class PageIOWidget(Ui_io_widget):
 
     def getLoadPath(self, quick = False):
         '''
-        ##############################################
         connect the actions to their respective buttons
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         file_path = QtWidgets.QFileDialog.getExistingDirectory(
                 self.parent.window, 
@@ -89,17 +71,9 @@ class PageIOWidget(Ui_io_widget):
 
     def triggerNodeLoad(self):
         '''
-        ##############################################
         This function will be triggered as the load
         field is changed or one of the checkboxes
         is changed.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parseNodesLoad(
             self.io_input_load_path.text(),
@@ -110,17 +84,9 @@ class PageIOWidget(Ui_io_widget):
 
     def parseNodesLoad(self, root, data_bool, masks_bool, scripts_bool):
         '''
-        ##############################################
         This will tell the core manger to prepare for
         an import and then build the corresponding 
         tree.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         prep_list = self.handler.prepSessionLoad(
             root, data_bool, masks_bool, scripts_bool)
@@ -161,15 +127,6 @@ class PageIOWidget(Ui_io_widget):
 
     def getSavePath(self, quick = False):
         '''
-        ##############################################
-        
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         file_path = QtWidgets.QFileDialog.getExistingDirectory(
                 self.parent.window, 
@@ -183,17 +140,9 @@ class PageIOWidget(Ui_io_widget):
 
     def triggerNodeSave(self):
         '''
-        ##############################################
         This function will be triggered as the save
         field is changed or one of the checkboxes
         is changed.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parseNodesSave(
             self.io_input_save_path.text().split(os.path.sep)[-1],
@@ -204,15 +153,9 @@ class PageIOWidget(Ui_io_widget):
 
     def parseNodesSave(self, root, data_bool, masks_bool, scripts_bool):
         '''
-        ##############################################
-        
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        This will parse the visual nodes of the tree to 
+        see what is going to be saved and in later
+        releases select the data to be saved.
         '''
         main_handler = self.parent.handler
 
@@ -222,9 +165,10 @@ class PageIOWidget(Ui_io_widget):
         mask_nodes      = []
         script_nodes    = []
 
-        for key in main_handler.env_dict.keys():
+        names = [env.name for env in  main_handler.env_array]
+        for name in names:
             env_nodes.append(
-                [key, EnvNode(key, root_node)])
+                [name, EnvNode(name, root_node)])
 
         if data_bool:
             for element in env_nodes:
@@ -246,45 +190,21 @@ class PageIOWidget(Ui_io_widget):
 
     def link(self, handler):
         '''
-        ##############################################
         link the class that will manage the current 
         input output.
-        ———————
         Input: 
         - meta_class is the metadata class from the io
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.handler = handler 
 
     def initialize(self):
         '''
-        ##############################################
-        
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         pass
 
     def save(self):
         '''
-        ##############################################
         connect the actions to their respective buttons
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.handler.saveSession(
             self.io_input_save_path.text(),
@@ -294,25 +214,20 @@ class PageIOWidget(Ui_io_widget):
 
     def load(self):
         '''
-        ##############################################
         connect the actions to their respective buttons
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parent.setActivity(
             'Loading session',
             0,
             len(self.handler.prep_load_list[0]))
-        self.handler.sessionLoad(
+        outputs = self.handler.sessionLoad(
             self.io_check_load_add.isChecked(),
             main_window = self.parent)
-        self.parent.fadeActivity()
 
+        for output in outputs[0]:
+            self.parent.widgetClasses[1].testLoadOutput(output[0], output[1])
+
+        self.parent.fadeActivity()
         self.parent.link(self.handler)
         
 

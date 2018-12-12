@@ -58,12 +58,12 @@ class Mieze(Handler):
 
 if __name__ == '__main__':
     app = Mieze(GUI = True)
-    app.gui.active_windows['MainWindow'].target.addEnvironment()
+    app.gui.active_windows['MainWindow'].target.widgetClasses[0].addEnvironment()
     env = app.current_env
     env.io.loadFromPython(
-        "Examples/file.py")#, 
+        "Examples/file_3.py")#, 
         #app.gui.active_windows['Import'].target)
-    env.io.generate()
+    #env.io.generate()
     # app.gui.active_windows['MainWindow'].target.openLoad(env.name)
     app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
 

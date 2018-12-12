@@ -49,10 +49,22 @@ class PageDataWidget(Ui_data_import):
         self.setupUi(self.local_widget)
         self.setup()
         self.connect()
+        self.initialize()
+
+
+    def initialize(self):
+        '''
+        Reset all the inputs and all the fields
+        present in the current view.
+        '''
+
         self.elements       = []
         self.meta_elements  = []
         self.hidden_graph   = False
         self.io_core        = None
+        self.data_list_files.reset()
+        self.data_list_loaded.clear()
+        self.data_list_meta.clear()
 
     def setup(self):
         '''
@@ -105,18 +117,12 @@ class PageDataWidget(Ui_data_import):
 
     def link(self, io_core):
         '''
-        ##############################################
         This routine will link to the io manager class
         from the core. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
+        self.initialize()
         self.io_core = io_core
+        self.populateAll()
 
     def connect(self):
         '''
@@ -262,17 +268,18 @@ class PageDataWidget(Ui_data_import):
         else:
             index = self.data_list_loaded.currentRow()
 
-        self.import_object      = self.io_core.import_objects[index]
-        self.file_handler       = self.io_core.import_objects[index].file_handler
-        self.meta_handler       = self.io_core.import_objects[index].meta_handler
-        self.data_handler       = self.io_core.import_objects[index].data_handler
-        self.current_element    = self.elements[index][1]
+        if not self.io_core == None:
+            self.import_object      = self.io_core.import_objects[index]
+            self.file_handler       = self.io_core.import_objects[index].file_handler
+            self.meta_handler       = self.io_core.import_objects[index].meta_handler
+            self.data_handler       = self.io_core.import_objects[index].data_handler
+            self.current_element    = self.elements[index][1]
 
-        self.setFileList()
-        self.setMetaList()
-        self.setDimInputs()
+            self.setFileList()
+            self.setMetaList()
+            self.setDimInputs()
 
-        self.elements[index][1].widget.setFocus()
+            self.elements[index][1].widget.setFocus()
 
     def addElement(self):
         '''
@@ -369,7 +376,7 @@ class PageDataWidget(Ui_data_import):
         ##############################################
         grabs the information from the initial meta 
         container in the core and then produces the 
-        adequat list.
+        adequate list.
         ———————
         Input: -
         ———————
@@ -571,7 +578,7 @@ class PageDataWidget(Ui_data_import):
 
         self.ax.redraw()
 
-    def populate(self):
+    def populate(self, warning = True):
         '''
         ##############################################
         This routine will call the genrator for the 
@@ -590,10 +597,10 @@ class PageDataWidget(Ui_data_import):
             self.file_handler.nice_path_files)
         self.current_element.initialize()
 
-        for pointer in self.io_core.import_objects:
-            try:
-                pointer.meta_handler.values['Echo']
-            except:
+        try:
+            self.import_object.meta_handler.values['Echo']
+        except:
+            if warning:
                 dialog(
                     icon = 'error', 
                     title= 'Echo time not processed',
@@ -622,7 +629,7 @@ class PageDataWidget(Ui_data_import):
             self.parent.setProgress("Adding element "+str(i+1), i+1)
             self.addElementSilent(i)
             self.parent.setProgress("Populating element "+str(i+1), i+1)
-            self.populate()
+            self.populate(warning = False)
             
         self.parent.fadeActivity()
 
@@ -682,8 +689,36 @@ class PageDataWidget(Ui_data_import):
                 self.parent.window, 
                 'Select file',
                 filters)[0]
-        self.clear()
-        self.io_core.loadFromPython(file_path, self)
+
+        if not file_path == '':
+            self.clear()
+
+            output = self.io_core.loadFromPython(file_path, self)
+
+            self.testLoadOutput(output, file_path)
+
+    def testLoadOutput(self, output, file_path):
+        '''
+        Test the output with the user and  notify him if
+        anything went wrong
+        '''            
+        passed = all([all([subelement[0] for subelement in element]) for element in output])
+
+        if not passed:
+
+            meta_string = []
+            folder_string = []
+
+            for element in output:
+                if not element[0][0]:
+                    meta_string.append('Invalid meta file location: ' + element[0][1])
+                if not element[1][0]:
+                    folder_string.append('Invalid file folder location: ' + element[1][1])
+            dialog(
+                icon = 'warning', 
+                title= 'Could not load all files',
+                message = 'Some files and folders seem to either have moved or not exist. Please rebase them manually in the import file located at:\n'+file_path,
+                det_message = '\n\n'.join(meta_string+folder_string))
         
     def dimChanged(self):
         '''
