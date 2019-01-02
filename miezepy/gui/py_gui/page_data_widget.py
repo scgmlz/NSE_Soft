@@ -701,24 +701,27 @@ class PageDataWidget(Ui_data_import):
         '''
         Test the output with the user and  notify him if
         anything went wrong
-        '''            
-        passed = all([all([subelement[0] for subelement in element]) for element in output])
+        '''
+        try:
+            passed = all([all([subelement[0] for subelement in element]) for element in output])
 
-        if not passed:
+            if not passed:
 
-            meta_string = []
-            folder_string = []
+                meta_string = []
+                folder_string = []
 
-            for element in output:
-                if not element[0][0]:
-                    meta_string.append('Invalid meta file location: ' + element[0][1])
-                if not element[1][0]:
-                    folder_string.append('Invalid file folder location: ' + element[1][1])
-            dialog(
-                icon = 'warning', 
-                title= 'Could not load all files',
-                message = 'Some files and folders seem to either have moved or not exist. Please rebase them manually in the import file located at:\n'+file_path,
-                det_message = '\n\n'.join(meta_string+folder_string))
+                for element in output:
+                    if not element[0][0]:
+                        meta_string.append('Invalid meta file location: ' + element[0][1])
+                    if not element[1][0]:
+                        folder_string.append('Invalid file folder location: ' + element[1][1])
+                dialog(
+                    icon = 'warning', 
+                    title= 'Could not load all files',
+                    message = 'Some files and folders seem to either have moved or not exist. Please rebase them manually in the import file located at:\n'+file_path,
+                    det_message = '\n\n'.join(meta_string+folder_string))
+        except:
+            pass
         
     def dimChanged(self):
         '''

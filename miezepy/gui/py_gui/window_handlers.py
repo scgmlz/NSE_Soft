@@ -33,7 +33,6 @@ from ...gui.qt_gui import images_rcc
 
 class WindowHandler:
     '''
-    ##############################################
     Initializer of the class, It will immediately call
     the first Managing instance to initialize a first
     window level. This will always be alive as it 
@@ -42,13 +41,6 @@ class WindowHandler:
     The manager will also create root of the bat. 
     Tkinter build tge windows with dependance and
     root needs to be initialised from the start. 
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
 
     def __init__(self, link):
@@ -68,15 +60,7 @@ class WindowHandler:
 
     def newWindow(self, name):
         '''
-        ##############################################
-        
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        Create a new window
         '''
         if name in self.window_dictionary.keys():
             saved = False
@@ -107,51 +91,32 @@ class WindowHandler:
         
     def run(self):
         '''
-        ##############################################
-
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        Run the application
         '''
         sys.exit(self.app.exec_())
 
 class MainWindow(QtWidgets.QMainWindow):
     '''
-    ##############################################
     This class is the main window that will be 
     used as a window base. All other windows will
-    be childre.
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
+    be children.
     '''
     def __init__(self, window_manager, parent = None):
         super(MainWindow, self).__init__(parent)
-
         self.target = MainWindowLayout(self, window_manager)
+
+
+    def closeEvent(self, event):
+        # do stuff
+        event.accept() # let the window close
+        sys.exit()
 
 class ChildWindow(QtWidgets.QMainWindow):
     '''
-    ##############################################
-    This class will luanch and generate the child
+    This class will launch and generate the child
     windows. Note that this is simply a wrapper
     that will then call the target class defining
-    the arragement. 
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
+    the arrangement. 
     '''
     def __init__(self, parent, target, window_manager):
 

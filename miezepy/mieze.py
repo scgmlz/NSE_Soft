@@ -53,9 +53,6 @@ class Mieze(Handler):
     def run(self):
         self.gui.run()
 
-
-
-
 if __name__ == '__main__':
     app = Mieze(GUI = True)
     app.gui.active_windows['MainWindow'].target.widgetClasses[0].addEnvironment()
