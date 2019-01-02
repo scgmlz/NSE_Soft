@@ -68,17 +68,9 @@ class PageDataWidget(Ui_data_import):
 
     def setup(self):
         '''
-        ##############################################
         This is the initial setup method that will 
         build the layout and introduce the graphics
         area
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
 
         ##############################################
@@ -102,7 +94,7 @@ class PageDataWidget(Ui_data_import):
 
         ##############################################
         #add the 
-        self.mycanvas    = Multi_Canvas(
+        self.my_canvas    = Multi_Canvas(
             self.data_widget_graph,
             grid        = [[True]],
             x_ratios    = [1],
@@ -110,10 +102,10 @@ class PageDataWidget(Ui_data_import):
             background  = "w",
             highlightthickness = 0)
 
-        self.ax = self.mycanvas.get_subplot(0,0)
+        self.ax = self.my_canvas.get_subplot(0,0)
         self.ax.pointer['Sticky'] = 3
 
-        self.mycanvas.canvas_objects[0][0][0].grid_layout.setMargin(0)
+        self.my_canvas.canvas_objects[0][0][0].grid_layout.setMargin(0)
 
     def link(self, io_core):
         '''
@@ -126,16 +118,8 @@ class PageDataWidget(Ui_data_import):
 
     def connect(self):
         '''
-        ##############################################
         This routine will link to the io manager class
         from the core. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         #connect buttons
         self.data_button_meta_add.clicked.connect(self.openMetadataWindow)
@@ -146,6 +130,8 @@ class PageDataWidget(Ui_data_import):
         self.data_button_populate.clicked.connect(self.populate)
         self.data_button_files_remove.clicked.connect(self.removeFile)
         self.data_button_prev.clicked.connect(self.hide_preview)
+        self.data_button_add_object.clicked.connect(self.addElement)
+        self.data_button_remove_object.clicked.connect(self.removeElement)
 
         #connect lists
         self.data_list_files.clicked.connect(self.setPrev)
@@ -160,15 +146,7 @@ class PageDataWidget(Ui_data_import):
         
     def openMetadataWindow(self):
         '''
-        ##############################################
         This routine will launch the metadat window.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if len(self.elements) == 0:
             dialog(
@@ -183,15 +161,7 @@ class PageDataWidget(Ui_data_import):
 
     def hide_preview(self):
         '''
-        ##############################################
         This routine will launch the metadat window.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.hidden_graph = not self.hidden_graph
         self.data_widget_graph.setVisible(self.hidden_graph)
@@ -203,31 +173,15 @@ class PageDataWidget(Ui_data_import):
 
     def openVisualWindow(self):
         '''
-        ##############################################
         This routine will launch the metadat window.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parent.window_manager.newWindow('RawVisual')
         self.parent.window_manager.active_windows['RawVisual'].target.link(self.import_object)
 
     def removeMeta(self):
         '''
-        ##############################################
         This routine will remove an element of the
         selected meta.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         index = self.data_list_meta.currentRow()
         self.meta_handler.removeElement(index)
@@ -235,33 +189,17 @@ class PageDataWidget(Ui_data_import):
 
     def propagateMeta(self):
         '''
-        ##############################################
         This routine will simply propagate the
         current meta information to all other meta 
         windows.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         for element in self.io_core.import_objects:
             element.meta_handler = copy.deepcopy(self.meta_handler)
 
     def setCurrentElement(self, row = None):
         '''
-        ##############################################
         On clicking an element the system will set the
         classes linked to the current element 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if isinstance(row, int):
             index = row
@@ -283,16 +221,8 @@ class PageDataWidget(Ui_data_import):
 
     def addElement(self):
         '''
-        ##############################################
         Add an element into the list which is loaded 
-        from a custom widget
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        from a custom widget.
         '''
         self.io_core.addObject()
 
@@ -312,16 +242,8 @@ class PageDataWidget(Ui_data_import):
 
     def addElementSilent(self,i):
         '''
-        ##############################################
         Add an element into the list which is loaded 
-        from a custom widget
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        from a custom widget.
         '''
 
         self.elements.append([
@@ -340,15 +262,7 @@ class PageDataWidget(Ui_data_import):
 
     def removeElement(self):
         '''
-        ##############################################
-        Remove an element from the curren dataset
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        Remove an element from the current dataset
         '''
         row = self.data_list_loaded.currentRow()
         item = self.data_list_loaded.takeItem(self.data_list_loaded.currentRow())
@@ -357,33 +271,16 @@ class PageDataWidget(Ui_data_import):
 
     def clear(self):
         '''
-        ##############################################
-        Add an element into the list which is loaded 
-        from a custome widget
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        Clear the current element list
         '''
         self.data_list_loaded.clear()
         self.elements = []
 
     def setMetaList(self):
         '''
-        ##############################################
         grabs the information from the initial meta 
         container in the core and then produces the 
         adequate list.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.clearMeta()
 
@@ -395,16 +292,7 @@ class PageDataWidget(Ui_data_import):
             
     def addMetaElement(self):
         '''
-        ##############################################
-        Add an element into the list which is loaded 
-        from a custom widget
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+
         '''
         self.meta_elements.append([
             QtWidgets.QListWidgetItem(self.data_list_meta),
@@ -419,32 +307,14 @@ class PageDataWidget(Ui_data_import):
 
     def clearMeta(self):
         '''
-        ##############################################
-        Add an element into the list which is loaded 
-        from a custome widget
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+
         '''
         self.data_list_meta.clear()
         self.meta_elements = []
 
     def getFiles(self):
         '''
-        ##############################################
-        Add an element into the list which is loaded 
-        from a custome widget
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+
         '''
         if len(self.elements) == 0:
             dialog(
@@ -466,32 +336,16 @@ class PageDataWidget(Ui_data_import):
 
     def addFiles(self, filenames):
         '''
-        ##############################################
         Adding files to the data either through the 
         filedialog or the drag and drop.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.file_handler.addFiles(filenames)
         self.setFileList()
 
     def setFileList(self):
         '''
-        ##############################################
         This will be the loading of files to the 
-        io file handler class
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        io file handler class.
         '''
         self.file_model = QtGui.QStandardItemModel()
 
@@ -504,48 +358,24 @@ class PageDataWidget(Ui_data_import):
 
     def removeFile(self):
         '''
-        ##############################################
         This will reset the file view and the 
         associated core io routine.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.file_handler.removeFile(self.data_list_files.currentIndex().row())
         self.setFileList()
         
     def resetFiles(self):
         '''
-        ##############################################
         This will reset the file view and the 
         associated core io routine.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.file_handler.initialize()
         self.setFileList()
 
     def setPrev(self, index):
         '''
-        ##############################################
         This will generate the preview of the dataset
-        selected in the current file view
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        selected in the current file view.
         '''
         if not len(self.file_handler.total_path_files) == 0:
             self.file_handler.genPrev(index.row())
@@ -553,17 +383,8 @@ class PageDataWidget(Ui_data_import):
 
     def displayPrev(self):
         '''
-        ##############################################
         This routine will display the preview of the
-        selected dataset processed by setPrev 
-        beforehand.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        selected dataset processed by setPrev.
         '''
         try:
             self.ax.clear()
@@ -580,16 +401,8 @@ class PageDataWidget(Ui_data_import):
 
     def populate(self, warning = True):
         '''
-        ##############################################
-        This routine will call the genrator for the 
+        This routine will call the generator for the 
         currently active object.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.import_object.processObject()
         self.current_element.setMeta(
@@ -609,16 +422,8 @@ class PageDataWidget(Ui_data_import):
 
     def populateAll(self):
         '''
-        ##############################################
-        This routine will call the genrator for the 
+        This routine will call the generator for the 
         currently active object.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parent.setActivity(
             "Populating data", 
@@ -635,32 +440,16 @@ class PageDataWidget(Ui_data_import):
 
     def generateDataset(self):
         '''
-        ##############################################
         This routine will call the generator for the 
         currently active object.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.io_core.generate()
         self.parent.widgetClasses[0].refreshData()
 
     def save(self):
         '''
-        ##############################################
         This will launch the save file of the io
         class
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         filters = "mieze_save.py"
 
@@ -672,16 +461,8 @@ class PageDataWidget(Ui_data_import):
         
     def load(self):
         '''
-        ##############################################
         This will launch the save file of the io
         class
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         filters = "*.py"
 
@@ -725,16 +506,8 @@ class PageDataWidget(Ui_data_import):
         
     def dimChanged(self):
         '''
-        ##############################################
         This will launch the save file of the io
         class
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         dim = [
             int(self.data_input_foils.text()),
@@ -746,17 +519,9 @@ class PageDataWidget(Ui_data_import):
         
     def setDimInputs(self):
         '''
-        ##############################################
         This routine will simply propagate the
         current meta information to all other meta 
         windows.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.data_input_foils.setText(str(self.data_handler.dimension[0]))
         self.data_input_time_channel.setText(str(self.data_handler.dimension[1]))
