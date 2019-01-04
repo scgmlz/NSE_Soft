@@ -92,6 +92,36 @@ class Ui_MIEZETool(object):
         self.data_button.setFlat(False)
         self.data_button.setObjectName("data_button")
         self.verticalLayout.addWidget(self.data_button)
+        self.mask_button = QtWidgets.QPushButton(self.widget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.mask_button.sizePolicy().hasHeightForWidth())
+        self.mask_button.setSizePolicy(sizePolicy)
+        self.mask_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.mask_button.setMaximumSize(QtCore.QSize(16777215, 40))
+        self.mask_button.setAutoFillBackground(False)
+        self.mask_button.setStyleSheet("#mask_button { \n"
+"background-color: transparent; \n"
+"qproperty-icon: url(:/Ressources/mask.ico); \n"
+"background: none; \n"
+"border: none; \n"
+"background-repeat: none; \n"
+"} \n"
+"#mask_button:checked { \n"
+"background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.50033, fy:0.505682,stop:0 rgba(94, 0, 255, 255), stop:1 rgb(64, 66, 68) );\n"
+"}\n"
+"")
+        self.mask_button.setText("")
+        self.mask_button.setIconSize(QtCore.QSize(45, 64))
+        self.mask_button.setCheckable(True)
+        self.mask_button.setChecked(True)
+        self.mask_button.setAutoRepeat(False)
+        self.mask_button.setAutoExclusive(False)
+        self.mask_button.setAutoDefault(False)
+        self.mask_button.setFlat(False)
+        self.mask_button.setObjectName("mask_button")
+        self.verticalLayout.addWidget(self.mask_button)
         self.script_button = QtWidgets.QPushButton(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
