@@ -30,6 +30,7 @@ from functools import partial
 from ..qt_gui.mainwindow_ui         import Ui_MIEZETool 
 
 from ..py_gui.page_data_widget      import PageDataWidget
+from ..py_gui.page_mask_widget      import PageMaskWidget
 from ..py_gui.page_env_widget       import PageEnvWidget
 from ..py_gui.page_script_widget    import PageScriptWidget
 from ..py_gui.page_io_widget        import PageIOWidget
@@ -78,6 +79,7 @@ class MainWindowLayout(Ui_MIEZETool):
         #button actions
         self.env_button.clicked.connect(self.refreshChecked)
         self.data_button.clicked.connect(self.refreshChecked)
+        self.mask_button.clicked.connect(self.refreshChecked)
         self.script_button.clicked.connect(self.refreshChecked)
         self.save_button.clicked.connect(self.refreshChecked)
 
@@ -99,24 +101,24 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(self.actionDispatcher, 1, self.widgetClasses[1].load))
 
         self.actionSaveScript.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].saveScripts))
+            partial(self.actionDispatcher, 3, self.widgetClasses[3].saveScripts))
         self.actionLoadScript.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].loadScripts))
+            partial(self.actionDispatcher, 3, self.widgetClasses[3].loadScripts))
         self.actionImport.triggered.connect(
-            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,0)))
+            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].run,0)))
         self.actionPhase.triggered.connect(
-            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,1)))
+            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].run,1)))
         self.actionReduction.triggered.connect(
-            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,2)))
+            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].run,2)))
         self.actionVisual.triggered.connect(
-            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,3)))
+            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].run,3)))
         self.actionAll.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].runAll))
+            partial(self.actionDispatcher, 3, self.widgetClasses[3].runAll))
 
         self.actionLoad_Session.triggered.connect(
-            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].getLoadPath, True)))
+            partial(self.actionDispatcher, 4, partial(self.widgetClasses[4].getLoadPath, True)))
         self.actionSave_Session.triggered.connect(
-            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].getSavePath, True)))
+            partial(self.actionDispatcher, 4, partial(self.widgetClasses[4].getSavePath, True)))
 
     def actionDispatcher(self,index, method = None):
         '''
@@ -137,15 +139,23 @@ class MainWindowLayout(Ui_MIEZETool):
         if not self.stack.currentIndex() == index:
             if index == 0:
                 self.refreshChecked(0)
+
             if index == 1:
                 if not self.widgetClasses[1].io_core == self.handler.current_env.io:
                     self.widgetClasses[1].link(self.handler.current_env.io)
                 self.refreshChecked(1)
-            elif index == 2:
-                if not self.widgetClasses[2].env == self.handler.current_env:
-                    self.widgetClasses[2].link(self.handler.current_env)
+
+            if index == 2:
+                if not self.widgetClasses[2].mask_core == self.handler.current_env.mask:
+                    self.widgetClasses[2].link(self.handler.current_env.mask)
                 self.refreshChecked(2)
+
             elif index == 3:
+                if not self.widgetClasses[3].env == self.handler.current_env:
+                    self.widgetClasses[3].link(self.handler.current_env)
+                self.refreshChecked(3)
+
+            elif index == 4:
                 self.refreshChecked(3)
 
         if not method == None:
@@ -175,7 +185,7 @@ class MainWindowLayout(Ui_MIEZETool):
         self.widgetClasses[0].link(self.handler)
 
         self.setProgress('Linking script view',3)
-        self.widgetClasses[3].link(self.handler)
+        self.widgetClasses[4].link(self.handler)
 
         self.fadeActivity()
         
@@ -197,10 +207,9 @@ class MainWindowLayout(Ui_MIEZETool):
         self.widgetClasses = [
             PageEnvWidget(self.stack, self),
             PageDataWidget(self.stack, self),
+            PageMaskWidget(self.stack, self),
             PageScriptWidget(self.stack, self),
             PageIOWidget(self.stack, self)]
-
-        self.stack.addWidget(self.widgetClasses[1].local_widget)
 
         for element in self.widgetClasses:
             self.stack.addWidget(element.local_widget)
@@ -226,6 +235,7 @@ class MainWindowLayout(Ui_MIEZETool):
             pointers = [
                 self.env_button,
                 self.data_button,
+                self.mask_button,
                 self.script_button,
                 self.save_button
             ]
@@ -258,6 +268,7 @@ class MainWindowLayout(Ui_MIEZETool):
         pointers = [
             self.env_button,
             self.data_button,
+            self.mask_button,
             self.script_button,
             self.save_button
         ]
@@ -283,6 +294,7 @@ class MainWindowLayout(Ui_MIEZETool):
         pointers = [
             self.env_button,
             self.data_button,
+            self.mask_button,
             self.script_button,
             self.save_button
         ]
