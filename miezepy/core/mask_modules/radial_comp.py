@@ -28,7 +28,7 @@ import copy
 
 from .mask_shape    import MaskShape
 from .linear_comp   import LinearComposition
-from .square        import Square
+
 
 class RadialComposition(LinearComposition):
     
@@ -59,6 +59,33 @@ class RadialComposition(LinearComposition):
         self.children = []
 
         self.setChildType(self.parameters['child type'])
+
+    def setDirectly(self, parameters):
+        '''
+        The mask generator favours the direct
+        input of the values onto the mask
+        and will therefore send it to the mask
+        element to be anaged.
+        '''
+
+        test = [
+            self.parameters['position']     == parameters[1],
+            self.parameters['horizontal']   == parameters[2],
+            self.parameters['vertical']     == parameters[3],
+            self.parameters['angle_range']  == parameters[4],
+            self.parameters['radius_range'] == parameters[5],
+            self.parameters['close gap']    == parameters[6],
+            self.parameters['increment']    == parameters[7]]
+
+        if not all(test):
+            self.parameters['position']     = list(parameters[1])
+            self.parameters['horizontal']   = int(parameters[2])
+            self.parameters['vertical']     = int(parameters[3])
+            self.parameters['angle_range']  = list(parameters[4])
+            self.parameters['radius_range'] = list(parameters[5])
+            self.parameters['close gap']    = bool(parameters[6])
+            self.parameters['increment']    = bool(parameters[7])
+            self.parameters['processed']    = False
 
     def setup(self):
         '''

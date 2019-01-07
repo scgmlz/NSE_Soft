@@ -39,6 +39,8 @@ class MaskShape:
         self.parameters['index']    = 0
         self.parameters['color']    = (0,0,0)
         self.parameters['exclude']  = False
+        self.parameters['processed']= False
+        self.parameters['increment']= True
         self.parameters['methods']  = []
 
         self.parameters['angle']    = 0
@@ -51,10 +53,12 @@ class MaskShape:
         '''
         if any([not element == None for element in absolute]):
             self.parameters['position'] = list(absolute)
+            self.parameters['processed'] = False
 
-        if any([not element == None for element in relative]):
+        elif any([not element == None for element in relative]):
             self.parameters['position'][0] += relative[0]
             self.parameters['position'][1] += relative[1]
+            self.parameters['processed'] = False
         
     def rotate(self, relative = None, absolute = None):
         '''
@@ -63,9 +67,11 @@ class MaskShape:
         '''
         if not absolute == None:
             self.parameters['angle'] = absolute
+            self.parameters['processed'] = False
 
-        if not relative == None:
+        elif not relative == None:
             self.parameters['angle'] += relative
+            self.parameters['processed'] = False
                
     def processPolygon(self, edges, size_x, size_y):
         '''
@@ -73,11 +79,10 @@ class MaskShape:
         a point is situated within a polygon 
         defined by the the edges.
         '''
-        mask = np.zeros((size_x, size_y), dtype=np.int16)
+        mask    = np.zeros((size_x, size_y), dtype=np.int16)
         polygon = Polygon(edges)
         for i in range(size_x):
             for j in range(size_y):
-
                 if all([i < edge[0] for edge in edges]):
                     pass
                 elif all([i > edge[0] for edge in edges]):
@@ -95,7 +100,9 @@ class MaskShape:
 
     def processSector(self, radius_range, angle_range, size_x, size_y):
         '''
-        
+        This part will process a circular region of the 
+        current numpy array range. This part was taken
+        of the original python mieze package of TUM.
         '''
         # -> Check whether sector is in image
         y, x        = np.ogrid[:size_x,:size_y]

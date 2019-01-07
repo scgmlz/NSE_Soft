@@ -46,27 +46,45 @@ class Triangle(MaskShape):
         self.parameters['base']     = 10
         self.parameters['height']   = 10
 
+    def setDirectly(self, parameters):
+        '''
+        The mask generator favours the direct
+        input of the values onto the mask
+        and will therefore send it to the mask
+        element to be anaged.
+        '''
+        if not self.parameters['position'] == parameters[1] or not self.parameters['base'] == parameters[2] or not self.parameters['height'] == parameters[3]:
+
+            self.parameters['position'] = list(parameters[1])
+            self.parameters['base']     = float(parameters[2])
+            self.parameters['height']   = float(parameters[3])
+            self.parameters['processed']= False
+
     def generate(self, size_x, size_y):
         '''
         This will generate the mask element 
         onto a canvas of a given dimension
         '''
-        polygon_edges = []
-        polygon_edges.append([
-            self.parameters['position'][0] - self.parameters['base'] / 2.,
-            self.parameters['position'][1] - self.parameters['height'] / 3.])
-        polygon_edges.append([
-            self.parameters['position'][0] + self.parameters['base'] / 2.,
-            self.parameters['position'][1] - self.parameters['height'] / 3.])
-        polygon_edges.append([
-            self.parameters['position'][0] ,
-            self.parameters['position'][1] + self.parameters['height'] * 2 / 3.])
+        if not self.parameters['processed']:
 
-        for i, element in enumerate(polygon_edges):
-            polygon_edges[i] = self.rotatePoint(
-                self.parameters['position'],
-                polygon_edges[i] , 
-                self.parameters['angle'])
+            polygon_edges = []
+            polygon_edges.append([
+                self.parameters['position'][0] - self.parameters['base'] / 2.,
+                self.parameters['position'][1] - self.parameters['height'] / 3.])
+            polygon_edges.append([
+                self.parameters['position'][0] + self.parameters['base'] / 2.,
+                self.parameters['position'][1] - self.parameters['height'] / 3.])
+            polygon_edges.append([
+                self.parameters['position'][0] ,
+                self.parameters['position'][1] + self.parameters['height'] * 2 / 3.])
 
+            for i, element in enumerate(polygon_edges):
+                polygon_edges[i] = self.rotatePoint(
+                    self.parameters['position'],
+                    polygon_edges[i] , 
+                    self.parameters['angle'])
 
-        self.mask = self.processPolygon(polygon_edges, size_x, size_y)
+            self.mask = self.processPolygon(polygon_edges, size_x, size_y)
+            self.parameters['processed'] = True
+
+        return self.mask

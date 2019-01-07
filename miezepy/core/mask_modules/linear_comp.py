@@ -61,6 +61,31 @@ class LinearComposition(MaskShape):
 
         self.setChildType(self.parameters['child type'])
 
+    def setDirectly(self, parameters):
+        '''
+        The mask generator favours the direct
+        input of the values onto the mask
+        and will therefore send it to the mask
+        element to be anaged.
+        '''
+        test = [
+            self.parameters['position']     == parameters[1],
+            self.parameters['horizontal']   == parameters[2],
+            self.parameters['vertical']     == parameters[3],
+            self.parameters['width']        == parameters[4],
+            self.parameters['height']       == parameters[5],
+            self.parameters['close gap']    == parameters[6],
+            self.parameters['increment']    == parameters[7]]
+
+        if not all(test):
+            self.parameters['position']     = list(parameters[1])
+            self.parameters['horizontal']   = int(parameters[2])
+            self.parameters['vertical']     = int(parameters[3])
+            self.parameters['width']        = float(parameters[4])
+            self.parameters['height']       = float(parameters[5])
+            self.parameters['close gap']    = bool(parameters[6])
+            self.parameters['increment']    = bool(parameters[7])
+
     def setChildType(self, child_type):
         '''
         If a child is selected we need to maintin a 
@@ -125,17 +150,19 @@ class LinearComposition(MaskShape):
         Generate the mask element by calling the 
         setup and then patching the masks
         '''
-        self.setup()
-        self.mask = np.zeros((size_x, size_y), dtype=np.int16)
+        if not self.parameters['processed']:
+            
+            self.setup()
+            self.mask = np.zeros((size_x, size_y), dtype=np.int16)
 
-        for i, child in enumerate(self.children):
-            child.generate(size_x, size_y)
-            if self.parameters['increment']:
-                self.mask += child.mask * (i+1)
-            else:
-                self.mask += child.mask
+            for i, child in enumerate(self.children):
+                child.generate(size_x, size_y)
+                if self.parameters['increment']:
+                    self.mask += child.mask * (i+1)
+                else:
+                    self.mask += child.mask
 
-
+        return self.mask
 
 if __name__ == '__main__':
 

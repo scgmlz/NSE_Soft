@@ -44,18 +44,37 @@ class CircleArc(MaskShape):
         self.parameters['radius_range'] = (10,15)
         self.parameters['angle_range']  = (0, 350)
 
+    def setDirectly(self, parameters):
+        '''
+        The mask generator favours the direct
+        input of the values onto the mask
+        and will therefore send it to the mask
+        element to be anaged.
+        '''
+        if not self.parameters['position'] == parameters[1] or not self.parameters['radius_range'] == parameters[2] or not self.parameters['angle_range'] == parameters[3]:
+
+            self.parameters['position']     = list(parameters[1])
+            self.parameters['radius_range'] = list(parameters[2])
+            self.parameters['angle_range']  = list(parameters[3])
+            self.parameters['processed']    = False
+
     def generate(self, size_x, size_y):
         '''
         This will generate the mask element 
         onto a canvas of a given dimension
         '''
 
-        angle_range = [
-            angle + self.parameters['angle'] 
-            for angle in self.parameters['angle_range']]
+        if not self.parameters['processed']:
+            angle_range = [
+                angle + self.parameters['angle'] 
+                for angle in self.parameters['angle_range']]
 
-        self.mask = self.processSector(
-            self.parameters['radius_range'],
-            angle_range,
-            size_x,
-            size_y)
+            self.mask = self.processSector(
+                self.parameters['radius_range'],
+                angle_range,
+                size_x,
+                size_y)
+
+            self.parameters['processed'] = True
+        
+        return self.mask
