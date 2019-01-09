@@ -39,7 +39,6 @@ class PageMaskWidget(Ui_mask_editor):
     
         Ui_mask_editor.__init__(self)
         self.parent         = parent
-        self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
         self.setupUi(self.local_widget)
         self.setup()
