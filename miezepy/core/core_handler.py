@@ -52,32 +52,15 @@ class Handler:
 
     def reset(self):
         '''
-        ##############################################
         This will genrate the dictionary for the 
         loaded data and link the other core classes
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.env_array  = []
 
     def new_environment(self, title = 'No_Name', select = 'MIEZE'):
         '''
-        ##############################################
         This function will automise the environment
         creation for the user.
-        ———————
-        Input: 
-        - title or key (str)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         title_present = True
 
@@ -101,17 +84,8 @@ class Handler:
 
     def set_current_env(self, key = None):
         '''
-        ##############################################
         This function sets the current data
         with the right key
-        ———————
-        Input: 
-        - key (str)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         names = [env.name for env in self.env_array]
 
@@ -126,16 +100,7 @@ class Handler:
 
     def saveSession(self, path, data_bool = True, mask_bool = False, script_bool = False):
         '''
-        ##############################################
         Save the session to be loaded again later on
-        ———————
-        Input: 
-        - key (str)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         names = [env.name for env in self.env_array]
         for key in names:
@@ -156,6 +121,9 @@ class Handler:
                 mask_dir = os.path.join(env_dir,"mask")
                 if not os.path.exists(mask_dir):
                     os.makedirs(mask_dir)
+                self.env_array[names.index(key)].mask.saveAllMasks(
+                    os.path.join(mask_dir,key+"_mask.txt")
+                )
 
             if script_bool:
                 data_dir = os.path.join(env_dir,"script")
@@ -168,16 +136,7 @@ class Handler:
     
     def prepSessionLoad(self, path, data_bool = True, mask_bool = False, script_bool = False):
         '''
-        ##############################################
         Prepare the eventual load of a session.
-        ———————
-        Input: 
-        - key (str)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         env_file_list = [
             element for element in glob.iglob(os.path.join(
@@ -193,17 +152,15 @@ class Handler:
                     env_folder,'**','*_data.py'), recursive=True)]
             mask_list = [
                 element for element in glob.iglob(os.path.join(
-                    env_folder,'**','*_mask.py'), recursive=True)]
+                    env_folder,'**','*_mask.txt'), recursive=True)]
             script_list = [
                 element for element in glob.iglob(os.path.join(
                     env_folder,'**','*_script.py'), recursive=True)]
 
             if len(data_list) > 0 and data_bool:
                 data_folder_list[i]     = data_list[0]
-
             if len(mask_list) > 0 and mask_bool:
                 mask_folder_list[i]     = mask_list[0]
-
             if len(script_list) > 0 and script_bool:
                 script_folder_list[i]   = script_list[0]
 
@@ -217,17 +174,8 @@ class Handler:
 
     def sessionLoad(self, add_bool, main_window = None):
         '''
-        ##############################################
         Prepare the eventual load of a session.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
         data_load_output    = []
         script_load_output  = []
         mask_load_output    = []
@@ -257,12 +205,12 @@ class Handler:
                     env.io.loadFromPython(self.prep_load_list[1][i]),
                     self.prep_load_list[1][i]])
             
-            # if not prep_load_list[2][i] == None:
-            #     if not main_window == None:
-            #         main_window.setProgress(
-            #             'Setting mask '+str(i),
-            #             i)
-            #     env.io.loadFromPython(prep_load_list[1][i])
+            if not self.prep_load_list[2][i] == None:
+                if not main_window == None:
+                    main_window.setProgress(
+                        'Setting mask '+str(i),
+                        i)
+                env.mask.loadAllMasks(self.prep_load_list[2][i])
             
             if not self.prep_load_list[3][i] == None:
                 if not main_window == None:
