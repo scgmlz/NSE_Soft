@@ -72,7 +72,10 @@ class LinearComposition(MaskShape):
             self.parameters['horizontal']   == parameters[3],
             self.parameters['vertical']     == parameters[4],
             self.parameters['width']        == parameters[5],
-            self.parameters['height']       == parameters[6]]
+            self.parameters['height']       == parameters[6],
+            self.parameters['close gap']    == parameters[7][-1][0],
+            self.parameters['increment']    == parameters[7][-1][1],
+            self.parameters['exclude']      == parameters[7][-1][2]]
 
         if not all(test): 
             return True
@@ -86,7 +89,7 @@ class LinearComposition(MaskShape):
         and will therefore send it to the mask
         element to be anaged.
         '''
-
+        print(parameters)
         if self.testIfEdited(parameters) or self.template.testIfEdited(parameters[7]) or not self.template.parameters['type'] == parameters[7][0]:
             self.parameters['position']     = list(parameters[1])
             self.parameters['angle']        = float(parameters[2])
@@ -94,6 +97,9 @@ class LinearComposition(MaskShape):
             self.parameters['vertical']     = int(parameters[4])
             self.parameters['width']        = float(parameters[5])
             self.parameters['height']       = float(parameters[6])
+            self.parameters['close gap']    = bool(parameters[7][-1][0])
+            self.parameters['increment']    = bool(parameters[7][-1][1])
+            self.parameters['exclude']      = bool(parameters[7][-1][2])
             self.parameters['processed']    = False
 
             self.setChildType(parameters[7][0])
@@ -147,15 +153,15 @@ class LinearComposition(MaskShape):
 
         for edge in edges:
             element = copy.deepcopy(self.template)
-
-            if self.parameters['child type'] == 'square':
-                if self.parameters['close gap']: 
+            if self.parameters['child type'] == 'square' and self.parameters['close gap']:
                     element.parameters['width']  = (x[1] - x[0])
                     element.parameters['height'] = (y[1] - y[0])
-
             element.move(absolute = edge)
-            element.rotate(absolute = self.parameters['angle'])
-
+            if not self.parameters['child type'] == 'square' or not self.parameters['close gap']:
+                element.rotate(absolute = self.parameters['angle'])
+                element.rotate(relative = (self.template.parameters['angle']))
+            else:
+                element.rotate(absolute = self.parameters['angle'])
             self.children.append(element)
 
     def generate(self, size_x, size_y):

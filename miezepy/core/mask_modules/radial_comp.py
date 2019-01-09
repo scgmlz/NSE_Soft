@@ -71,7 +71,10 @@ class RadialComposition(LinearComposition):
             self.parameters['horizontal']   == parameters[3],
             self.parameters['vertical']     == parameters[4],
             self.parameters['angle_range']  == parameters[5],
-            self.parameters['radius_range'] == parameters[6]]
+            self.parameters['radius_range'] == parameters[6],
+            self.parameters['close gap']    == parameters[7][-1][0],
+            self.parameters['increment']    == parameters[7][-1][1],
+            self.parameters['exclude']      == parameters[7][-1][2]]
 
         if not all(test): 
             return True
@@ -93,6 +96,9 @@ class RadialComposition(LinearComposition):
             self.parameters['vertical']     = int(parameters[4])
             self.parameters['angle_range']  = list(parameters[5])
             self.parameters['radius_range'] = list(parameters[6])
+            self.parameters['close gap']    = bool(parameters[7][-1][0])
+            self.parameters['increment']    = bool(parameters[7][-1][1])
+            self.parameters['exclude']      = bool(parameters[7][-1][2])
             self.parameters['processed']    = False
 
             self.setChildType(parameters[7][0])
@@ -135,18 +141,26 @@ class RadialComposition(LinearComposition):
 
         for i, edge in enumerate(edges):
             element = copy.deepcopy(self.template)
-
-            # if self.parameters['child type'] == 'square':
-            #     if self.parameters['close gap']: 
-            #         element.parameters['width']  = (x[1] - x[0])
-            #         element.parameters['height'] = (y[1] - y[0])
-
-            element.move(absolute = edge)
-            element.rotate(relative = self.parameters['angle'])
-            element.rotate(relative = np.rad2deg(angles[i]))
-
+            if self.parameters['child type'] == 'arc' and self.parameters['close gap']:
+                element.move(absolute = self.parameters['position'])
+                element.parameters['angle_range'] = [
+                    np.rad2deg(angles[i] - np.abs(t[1]-t[0])/2),
+                    np.rad2deg(angles[i] + np.abs(t[1]-t[0])/2)]
+                element.parameters['radius_range'] = [
+                    np.linalg.norm(
+                        np.array(edge) 
+                        - np.array(self.parameters['position'])) 
+                    - np.abs(r[1]-r[0])/2,
+                    np.linalg.norm(
+                        np.array(edge) 
+                        - np.array(self.parameters['position'])) 
+                    + np.abs(r[1]-r[0])/2]
+                element.rotate(absolute = self.parameters['angle'])
+            else:
+                element.move(absolute = edge)
+                element.rotate(absolute = self.parameters['angle'])
+                element.rotate(relative = np.rad2deg(angles[i]))
             self.children.append(element)
-
 
 if __name__ == '__main__':
     
