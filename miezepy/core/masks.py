@@ -59,6 +59,7 @@ class Masks:
             'triangle',
             'linear composition',
             'radial composition']
+        self.setMask(self.defaults[0])
 
     def setMask(self, name):
         '''
@@ -117,66 +118,79 @@ class Masks:
         mask_dict = {
             'DB_5': [[
                 'arc',
-                (31,35), 
+                (31,35),
+                0,
                 (0,5), 
                 (0,360)]],
             '10x10_tile': [[
                 'square',
-                (100,100), 
+                (100,100),
+                0,
                 10,10]],
             'SkX_peak': [[
                 'arc',
-                (31,35), 
+                (31,35),
+                0, 
                 (55,100), 
                 (8,46)]],
             'SkX_peak_circ': [[
                 'arc',
-                (100,70), 
+                (100,70),
+                0, 
                 (0,20), 
                 (0,360)]],
             'SkX_peak_small': [[
                 'arc',
-                (31,35), 
+                (31,35),
+                0, 
                 (72,82), 
                 (22,32)]],
             'SkX_between_peaks': [[
                 'arc',
-                (31,35), 
+                (31,35),
+                0, 
                 (55,100), 
                 (46,70)]],
             'noDB': [[
                 'arc',
-                (31,35), 
+                (31,35),
+                0, 
                 (55,100), 
                 (0,360)]],
             'DB_sixfold': [[
                 'arc',
-                (27,33), 
+                (27,33),
+                0, 
                 (0,5), 
                 (0,360)]],
             'SkX_peak_Sixfold': [[
                 'arc',
-                (27,33), 
+                (27,33),
+                0, 
                 (47,90), 
                 (15,52)]],
             'SkX_between_peaks_Sixfold': [[
                 'arc',
                 (27,33),
+                0,
                 (47,90), 
                 (52,80)]],
             'noDB_Sixfold': [[
                 'arc',
-                (31,35), 
+                (31,35),
+                0, 
                 (42,100), 
                 (0,360)]],
             'SkX_peak_circ_Sixfold': [[
                 'arc',
-                (84,69), 
+                (84,69),
+                0, 
                 (0,20), 
                 (0,360)]],
             'SkX_peak_SkXCon': [[
                 'arc',
-                (28,34), 
+                (28,34),
+                0, 
                 (65,85), 
                 (82,100)]]
             }

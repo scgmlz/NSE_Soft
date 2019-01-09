@@ -39,31 +39,14 @@ class PageEnvWidget(Ui_env_widget):
 
     def connect(self):
         '''
-        ##############################################
         connect the actions to their respective buttons
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.main_widget_env.currentRowChanged.connect(self.setCurrentElement)
 
     def link(self, handler):
         '''
-        ##############################################
         link the class that will manage the current 
         input output.
-        ———————
-        Input: 
-        - meta_class is the metadata class from the io
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.handler = handler 
         self.initialize()
@@ -71,16 +54,8 @@ class PageEnvWidget(Ui_env_widget):
 
     def initialize(self):
         '''
-        ##############################################
         This method checks if the data has been set
         in a previous instance.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.main_widget_env.clear()
         self.envs_widgets = []
@@ -88,15 +63,7 @@ class PageEnvWidget(Ui_env_widget):
         
     def refreshList(self):
         '''
-        ##############################################
         refresh and rebuild the view
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.initialize()
 
@@ -105,9 +72,7 @@ class PageEnvWidget(Ui_env_widget):
             self.envs.append(EnvWidget(element))
             self.envs_widgets.append(QtWidgets.QListWidgetItem(self.main_widget_env))
 
-
         for env, env_widget in zip(self.envs, self.envs_widgets):
-
             env_widget.setSizeHint(env.widget.size())
             self.main_widget_env.addItem(env_widget)
             self.main_widget_env.setItemWidget(
@@ -115,6 +80,7 @@ class PageEnvWidget(Ui_env_widget):
                 env.widget)
 
             env.load_clicked.connect(partial(self.openLoad, env.env))
+            env.mask_clicked.connect(partial(self.openMask, env.env))
             env.script_clicked.connect(partial(self.openScript, env.env))
 
         if len(self.envs) > 0:
@@ -122,15 +88,7 @@ class PageEnvWidget(Ui_env_widget):
 
     def addEnvironment(self):
         '''
-        ##############################################
         Add an environment to the system
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         env = self.handler.new_environment()
 
@@ -138,15 +96,7 @@ class PageEnvWidget(Ui_env_widget):
 
     def deleteEnvironment(self):
         '''
-        ##############################################
-        Add an environment to the system
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        delete an environment of the system
         '''
         index = self.main_widget_env.currentRow()
         names = [env.name for env in self.handler.env_array]
@@ -161,19 +111,10 @@ class PageEnvWidget(Ui_env_widget):
 
         self.refreshList()
 
-
     def setCurrentElement(self, row = None):
         '''
-        ##############################################
         On clicking an element the system will set the
         classes linked to the current element 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if isinstance(row, int):
             index = row
@@ -187,32 +128,15 @@ class PageEnvWidget(Ui_env_widget):
 
     def refreshData(self):
         '''
-        ##############################################
         refresh the current data text display
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         for env in self.envs:
             env.refreshData()
 
     def openLoad(self, env):
         '''
-        ##############################################
         open the load window through the current 
         button system
-        ———————
-        Input: 
-        - env_name (str) is the name of the environment
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         for element in self.handler.env_array:
             if element.name == env.name:
@@ -220,22 +144,24 @@ class PageEnvWidget(Ui_env_widget):
 
         self.parent.actionDispatcher(1)
 
-    def openScript(self, env):
+    def openMask(self, env):
         '''
-        ##############################################
         open the load window through the current 
         button system
-        ———————
-        Input: 
-        - env_name (str) is the name of the environment
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         for element in self.handler.env_array:
             if element.name == env.name:
                 self.handler.set_current_env(element.name)
                 
         self.parent.actionDispatcher(2)
+
+    def openScript(self, env):
+        '''
+        open the load window through the current 
+        button system
+        '''
+        for element in self.handler.env_array:
+            if element.name == env.name:
+                self.handler.set_current_env(element.name)
+                
+        self.parent.actionDispatcher(3)
