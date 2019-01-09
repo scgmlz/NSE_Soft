@@ -408,3 +408,4 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
             QtWidgets.QLabel('Radial range:', parent=self.widget), 
             QtWidgets.QSpinBox(parent=self.widget),
             QtWidgets.QSpinBox(parent=self.widget)])
+            

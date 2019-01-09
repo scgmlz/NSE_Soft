@@ -255,3 +255,61 @@ class PageMaskWidget(Ui_mask_editor):
 
         self.ax.redraw()
         
+    def saveSingle(self):
+        '''
+        
+        '''
+        filters     = "mask_save.txt"
+        file_path   = QtWidgets.QFileDialog.getSaveFileName(
+                self.parent.window, 
+                'Select file',
+                filters)[0]
+
+        if not file_path == '':
+            self.mask_core.saveSingleMask(file_path)
+
+    def saveMultiple(self):
+        '''
+        
+        '''
+        filters     = "masks_save.txt"
+        file_path   = QtWidgets.QFileDialog.getSaveFileName(
+                self.parent.window, 
+                'Select file',
+                filters)[0]
+
+        if not file_path == '':
+            self.mask_core.saveAllMasks(file_path)
+
+    def loadSingle(self):
+        '''
+        
+        '''
+        filters = "*.txt"
+
+        file_path = QtWidgets.QFileDialog.getOpenFileName(
+                self.parent.window, 
+                'Select file',
+                filters)[0]
+
+        if not file_path == '':
+            self.mask_core.loadSingleMask(file_path)
+            self.updateSelector(self.mask_core.current_mask)
+            self.populateAll()
+
+    def loadMultiple(self):
+        '''
+        
+        '''
+        filters = "*.txt"
+
+        file_path = QtWidgets.QFileDialog.getOpenFileName(
+                self.parent.window, 
+                'Select file',
+                filters)[0]
+
+        if not file_path == '':
+            self.mask_core.loadAllMasks(file_path)
+            self.updateSelector(self.mask_core.current_mask)
+            self.populateAll()
+

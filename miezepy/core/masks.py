@@ -23,13 +23,11 @@
 
 #############################
 #import general components
-import matplotlib
-import logging
+import json
 import numpy as np
 
 #############################
 #import child components
-from .log import Log_Handler
 from .mask_modules.generator     import MaskGenerator
 
 class Masks:
@@ -50,7 +48,6 @@ class Masks:
         '''
         self.commands   = []
         self.mask_gen   = MaskGenerator()
-        self.log        = Log_Handler()
         self.mask_dict  = self.generateDefaults()
         self.defaults   = [key for key in self.mask_dict.keys()]
         self.mask_types = [
@@ -110,6 +107,38 @@ class Masks:
         Generate the masks of the generator
         '''
         self.mask_gen.generateMask(size_x,size_y)
+
+    def saveSingleMask(self, path):
+        '''
+        Writes a mask to json
+        '''
+        f = open(path, 'w')
+        f.write(json.dumps(self.mask_dict[self.current_mask]))
+        f.close()
+
+    def saveAllMasks(self, path):
+        '''
+        Writes a mask to json
+        '''
+        f = open(path, 'w')
+        f.write(json.dumps(self.mask_dict))
+        f.close()
+
+    def loadSingleMask(self, path):
+        '''
+        Writes a mask to json
+        '''
+        f = open(path, 'r')
+        self.mask_dict[self.current_mask] = json.load(f)
+        f.close()
+
+    def loadAllMasks(self, path):
+        '''
+        Writes a mask to json
+        '''
+        f = open(path, 'r')
+        self.mask_dict = json.load(f)
+        f.close()
 
     def generateDefaults(self):
         '''

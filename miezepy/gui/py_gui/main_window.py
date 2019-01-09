@@ -85,40 +85,107 @@ class MainWindowLayout(Ui_MIEZETool):
 
         #Menu actions
         self.actionAddEnv.triggered.connect(
-            partial(self.actionDispatcher, 0, self.widgetClasses[0].addEnvironment))
+            partial(
+                self.actionDispatcher, 0, 
+                self.widgetClasses[0].addEnvironment))
+
         self.actionRemoveEnv.triggered.connect(
-            partial(self.actionDispatcher, 0, self.widgetClasses[0].deleteEnvironment))
+            partial(
+                self.actionDispatcher, 0, 
+                self.widgetClasses[0].deleteEnvironment))
 
+        #data
         self.actionAdd_element.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].addElement))
-        self.actionRemove_element.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].removeElement))
-        self.actionGenerate.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].generateDataset))
-        self.actionSave_to_file.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].save))
-        self.actionLoad_from_file.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].load))
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].addElement))
 
+        self.actionRemove_element.triggered.connect(
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].removeElement))
+
+        self.actionGenerate.triggered.connect(
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].generateDataset))
+
+        self.actionSave_to_file.triggered.connect(
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].save))
+
+        self.actionLoad_from_file.triggered.connect(
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].load))
+
+        #masks
+        self.actionSaveMask.triggered.connect(
+            partial(
+                self.actionDispatcher, 2, 
+                self.widgetClasses[2].saveSingle))
+
+        self.actionSaveMaskAll.triggered.connect(
+            partial(
+                self.actionDispatcher, 2, 
+                self.widgetClasses[2].saveMultiple))
+
+        self.actionLoadMask.triggered.connect(
+            partial(
+                self.actionDispatcher, 2, 
+                self.widgetClasses[2].loadSingle))
+
+        self.actionLoadMaskAll.triggered.connect(
+            partial(
+                self.actionDispatcher, 2, 
+                self.widgetClasses[2].loadMultiple))
+
+        #scripts
         self.actionSaveScript.triggered.connect(
-            partial(self.actionDispatcher, 3, self.widgetClasses[3].saveScripts))
+            partial(
+                self.actionDispatcher, 3, 
+                self.widgetClasses[3].saveScripts))
+
         self.actionLoadScript.triggered.connect(
-            partial(self.actionDispatcher, 3, self.widgetClasses[3].loadScripts))
+            partial(
+                self.actionDispatcher, 3, 
+                self.widgetClasses[3].loadScripts))
+
         self.actionImport.triggered.connect(
-            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].run,0)))
+            partial(
+                self.actionDispatcher, 3, 
+                partial(self.widgetClasses[3].run,0)))
+
         self.actionPhase.triggered.connect(
-            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].run,1)))
+            partial(
+                self.actionDispatcher, 3, 
+                partial(self.widgetClasses[3].run,1)))
+
         self.actionReduction.triggered.connect(
-            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].run,2)))
+            partial(
+                self.actionDispatcher, 3, 
+                partial(self.widgetClasses[3].run,2)))
+
         self.actionVisual.triggered.connect(
-            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].run,3)))
+            partial(
+                self.actionDispatcher, 3, 
+                partial(self.widgetClasses[3].run,3)))
+
         self.actionAll.triggered.connect(
-            partial(self.actionDispatcher, 3, self.widgetClasses[3].runAll))
+            partial(
+                self.actionDispatcher, 3, 
+                self.widgetClasses[3].runAll))
 
         self.actionLoad_Session.triggered.connect(
-            partial(self.actionDispatcher, 4, partial(self.widgetClasses[4].getLoadPath, True)))
+            partial(
+                self.actionDispatcher, 4, 
+                partial(self.widgetClasses[4].getLoadPath, True)))
+
         self.actionSave_Session.triggered.connect(
-            partial(self.actionDispatcher, 4, partial(self.widgetClasses[4].getSavePath, True)))
+            partial(
+                self.actionDispatcher, 4, 
+                partial(self.widgetClasses[4].getSavePath, True)))
 
     def actionDispatcher(self,index, method = None):
         '''

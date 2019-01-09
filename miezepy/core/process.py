@@ -38,17 +38,13 @@ def get_process_handler(select, env):
     '''
 
     if select == 'MIEZE':
-
         return Process_MIEZE(env)
 
     if select == 'SANS':
-
         return Process_SANS(env)
 
     else:
-
         print('Could not find the process class you are looking for. Error...')
-        
         return None
 
 class Process_Handler:
@@ -193,7 +189,7 @@ class Process_MIEZE(Process_Handler):
         on the provided datastructure. 
         ———————
         Input: 
-        - enviroenment
+        - environment
         ———————
         Output: -
         ##############################################
@@ -218,7 +214,6 @@ class Process_MIEZE(Process_Handler):
             name = 'tcha_name', 
             value = self.env.current_data.axes.names[4])
 
-        print(self.env.current_data.axes.names)
         ############################################
         #process the echo time
         for metadata_object in self.env.current_data.metadata_objects:
@@ -238,7 +233,7 @@ class Process_MIEZE(Process_Handler):
         the deepcopy new dataset
         ———————
         Input: 
-        - enviroenment
+        - environment
         ———————
         Output: -
         ##############################################
@@ -345,7 +340,7 @@ class Process_SANS(Process_Handler):
         SANS data
         ———————
         Input: 
-        - environement
+        - environnement
         ———————
         Output: -
         ———————
