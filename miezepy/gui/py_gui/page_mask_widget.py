@@ -25,11 +25,6 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QInputDialog
 
-import sys
-import os
-import copy
-import time
-
 #private dependencies
 from ..qt_gui.main_mask_editor_ui   import Ui_mask_editor
 from ...gui.py_gui.dialog           import dialog 
@@ -235,7 +230,6 @@ class PageMaskWidget(Ui_mask_editor):
             int(self.mask_input_x.text()), 
             int(self.mask_input_y.text()))
         self.updateGraph()
-
 
     def updateGraph(self):
         '''
