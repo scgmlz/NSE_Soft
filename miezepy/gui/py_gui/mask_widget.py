@@ -382,7 +382,6 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
             QtWidgets.QSpinBox(parent=self.widget),
             QtWidgets.QLabel('', parent=self.widget)])
 
-
     def buildRadialComposition(self):
         '''
         Build the items according to their 
@@ -391,21 +390,21 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
         target = self.widgets
 
         target.append([
-            QtWidgets.QLabel('Radial multiplicity:', parent=self.widget), 
-            QtWidgets.QSpinBox(parent=self.widget),
-            QtWidgets.QLabel('', parent=self.widget)])
-
-        target.append([
             QtWidgets.QLabel('Angular multiplicity:', parent=self.widget), 
             QtWidgets.QSpinBox(parent=self.widget),
             QtWidgets.QLabel('', parent=self.widget)])
 
         target.append([
-            QtWidgets.QLabel('Radius range:', parent=self.widget), 
+            QtWidgets.QLabel('Radial multiplicity:', parent=self.widget), 
+            QtWidgets.QSpinBox(parent=self.widget),
+            QtWidgets.QLabel('', parent=self.widget)])
+
+        target.append([
+            QtWidgets.QLabel('Angular range:', parent=self.widget), 
             QtWidgets.QSpinBox(parent=self.widget),
             QtWidgets.QSpinBox(parent=self.widget)])
 
         target.append([
-            QtWidgets.QLabel('Angular range:', parent=self.widget), 
+            QtWidgets.QLabel('Radial range:', parent=self.widget), 
             QtWidgets.QSpinBox(parent=self.widget),
             QtWidgets.QSpinBox(parent=self.widget)])
