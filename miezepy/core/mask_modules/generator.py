@@ -31,7 +31,6 @@ from .square        import Square
 from .triangle      import Triangle
 from .circle_arc    import CircleArc
 
-
 class MaskGenerator:
     
     def __init__(self):
@@ -98,7 +97,6 @@ class MaskGenerator:
         grab the right class and initialise
         it depending on its type.
         '''
-
         self.mask = np.zeros((size_x, size_y))
         for element in self.element_classes:
             self.mask += element.generate(size_x, size_y)

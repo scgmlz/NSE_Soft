@@ -44,6 +44,22 @@ class CircleArc(MaskShape):
         self.parameters['radius_range'] = (10,15)
         self.parameters['angle_range']  = (0, 350)
 
+    def testIfEdited(self, parameters):
+        '''
+        test if the parameters of this in particular has been
+        edited
+        '''
+        test = [
+            self.parameters['position']     == parameters[1],
+            self.parameters['angle']        == parameters[2],
+            self.parameters['radius_range'] == parameters[3],
+            self.parameters['angle_range']  == parameters[4]]
+
+        if not all(test): 
+            return True
+        else:
+            return False
+
     def setDirectly(self, parameters):
         '''
         The mask generator favours the direct
@@ -51,12 +67,14 @@ class CircleArc(MaskShape):
         and will therefore send it to the mask
         element to be anaged.
         '''
-        if not self.parameters['position'] == parameters[1] or not self.parameters['radius_range'] == parameters[2] or not self.parameters['angle_range'] == parameters[3]:
-
+        if self.testIfEdited(parameters):
             self.parameters['position']     = list(parameters[1])
-            self.parameters['radius_range'] = list(parameters[2])
-            self.parameters['angle_range']  = list(parameters[3])
+            self.parameters['angle']        = float(parameters[2])
+            self.parameters['radius_range'] = list(parameters[3])
+            self.parameters['angle_range']  = list(parameters[4])
             self.parameters['processed']    = False
+
+        #print('I an circle after and ', self.parameters['processed'])
 
     def generate(self, size_x, size_y):
         '''

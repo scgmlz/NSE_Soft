@@ -47,7 +47,7 @@ class RadialComposition(LinearComposition):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']         = 'radial composition'
+        self.parameters['type']         = 'radial_comp'
         self.parameters['child type']   = 'square'
         self.parameters['horizontal']   = 1
         self.parameters['vertical']     = 1
@@ -60,6 +60,24 @@ class RadialComposition(LinearComposition):
 
         self.setChildType(self.parameters['child type'])
 
+    def testIfEdited(self, parameters):
+        '''
+        test if the parameters of this in particular has been
+        edited
+        '''
+        test = [
+            self.parameters['position']     == parameters[1],
+            self.parameters['angle']        == parameters[2],
+            self.parameters['horizontal']   == parameters[3],
+            self.parameters['vertical']     == parameters[4],
+            self.parameters['angle_range']  == parameters[5],
+            self.parameters['radius_range'] == parameters[6]]
+
+        if not all(test): 
+            return True
+        else:
+            return False
+
     def setDirectly(self, parameters):
         '''
         The mask generator favours the direct
@@ -68,24 +86,17 @@ class RadialComposition(LinearComposition):
         element to be anaged.
         '''
 
-        test = [
-            self.parameters['position']     == parameters[1],
-            self.parameters['horizontal']   == parameters[2],
-            self.parameters['vertical']     == parameters[3],
-            self.parameters['angle_range']  == parameters[4],
-            self.parameters['radius_range'] == parameters[5],
-            self.parameters['close gap']    == parameters[6],
-            self.parameters['increment']    == parameters[7]]
-
-        if not all(test):
+        if self.testIfEdited(parameters) or self.template.testIfEdited(parameters[7]) or not self.template.parameters['type'] == parameters[7][0]:
             self.parameters['position']     = list(parameters[1])
-            self.parameters['horizontal']   = int(parameters[2])
-            self.parameters['vertical']     = int(parameters[3])
-            self.parameters['angle_range']  = list(parameters[4])
-            self.parameters['radius_range'] = list(parameters[5])
-            self.parameters['close gap']    = bool(parameters[6])
-            self.parameters['increment']    = bool(parameters[7])
+            self.parameters['angle']        = float(parameters[2])
+            self.parameters['horizontal']   = int(parameters[3])
+            self.parameters['vertical']     = int(parameters[4])
+            self.parameters['angle_range']  = list(parameters[5])
+            self.parameters['radius_range'] = list(parameters[6])
             self.parameters['processed']    = False
+
+            self.setChildType(parameters[7][0])
+            self.template.setDirectly(parameters[7])
 
     def setup(self):
         '''

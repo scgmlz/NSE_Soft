@@ -22,8 +22,6 @@
 # *****************************************************************************
 
 import numpy as np
-from shapely.geometry import Point
-from shapely.geometry.polygon import Polygon
 from PIL import Image, ImageDraw
 
 

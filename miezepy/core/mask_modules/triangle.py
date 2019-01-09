@@ -46,6 +46,22 @@ class Triangle(MaskShape):
         self.parameters['base']     = 10
         self.parameters['height']   = 10
 
+    def testIfEdited(self, parameters):
+        '''
+        test if the parameters of this in particular has been
+        edited
+        '''
+        test = [
+            self.parameters['position']     == parameters[1],
+            self.parameters['angle']        == parameters[2],
+            self.parameters['base']         == parameters[3],
+            self.parameters['height']       == parameters[4]]
+
+        if not all(test): 
+            return True
+        else:
+            return False
+
     def setDirectly(self, parameters):
         '''
         The mask generator favours the direct
@@ -53,11 +69,11 @@ class Triangle(MaskShape):
         and will therefore send it to the mask
         element to be anaged.
         '''
-        if not self.parameters['position'] == parameters[1] or not self.parameters['base'] == parameters[2] or not self.parameters['height'] == parameters[3]:
-
+        if self.testIfEdited(parameters):
             self.parameters['position'] = list(parameters[1])
-            self.parameters['base']     = float(parameters[2])
-            self.parameters['height']   = float(parameters[3])
+            self.parameters['angle']    = float(parameters[2])
+            self.parameters['base']     = float(parameters[3])
+            self.parameters['height']   = float(parameters[4])
             self.parameters['processed']= False
 
     def generate(self, size_x, size_y):

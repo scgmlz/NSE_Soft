@@ -48,7 +48,7 @@ class LinearComposition(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']         = 'linear composition'
+        self.parameters['type']         = 'linear_comp'
         self.parameters['child type']   = 'square'
         self.parameters['horizontal']   = 1
         self.parameters['vertical']     = 1
@@ -61,6 +61,24 @@ class LinearComposition(MaskShape):
 
         self.setChildType(self.parameters['child type'])
 
+    def testIfEdited(self, parameters):
+        '''
+        test if the parameters of this in particular has been
+        edited
+        '''
+        test = [
+            self.parameters['position']     == parameters[1],
+            self.parameters['angle']        == parameters[2],
+            self.parameters['horizontal']   == parameters[3],
+            self.parameters['vertical']     == parameters[4],
+            self.parameters['width']        == parameters[5],
+            self.parameters['height']       == parameters[6]]
+
+        if not all(test): 
+            return True
+        else:
+            return False
+
     def setDirectly(self, parameters):
         '''
         The mask generator favours the direct
@@ -68,23 +86,18 @@ class LinearComposition(MaskShape):
         and will therefore send it to the mask
         element to be anaged.
         '''
-        test = [
-            self.parameters['position']     == parameters[1],
-            self.parameters['horizontal']   == parameters[2],
-            self.parameters['vertical']     == parameters[3],
-            self.parameters['width']        == parameters[4],
-            self.parameters['height']       == parameters[5],
-            self.parameters['close gap']    == parameters[6],
-            self.parameters['increment']    == parameters[7]]
 
-        if not all(test):
+        if self.testIfEdited(parameters) or self.template.testIfEdited(parameters[7]) or not self.template.parameters['type'] == parameters[7][0]:
             self.parameters['position']     = list(parameters[1])
-            self.parameters['horizontal']   = int(parameters[2])
-            self.parameters['vertical']     = int(parameters[3])
-            self.parameters['width']        = float(parameters[4])
-            self.parameters['height']       = float(parameters[5])
-            self.parameters['close gap']    = bool(parameters[6])
-            self.parameters['increment']    = bool(parameters[7])
+            self.parameters['angle']        = float(parameters[2])
+            self.parameters['horizontal']   = int(parameters[3])
+            self.parameters['vertical']     = int(parameters[4])
+            self.parameters['width']        = float(parameters[5])
+            self.parameters['height']       = float(parameters[6])
+            self.parameters['processed']    = False
+
+            self.setChildType(parameters[7][0])
+            self.template.setDirectly(parameters[7])
 
     def setChildType(self, child_type):
         '''
