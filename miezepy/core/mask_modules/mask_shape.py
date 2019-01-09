@@ -24,6 +24,7 @@
 import numpy as np
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
+from PIL import Image, ImageDraw
 
 
 class MaskShape:
@@ -79,30 +80,19 @@ class MaskShape:
         a point is situated within a polygon 
         defined by the the edges.
         '''
-        mask    = np.zeros((size_x, size_y), dtype=np.int16)
-        polygon = Polygon(edges)
-        for i in range(size_x):
-            for j in range(size_y):
-                if all([i < edge[0] for edge in edges]):
-                    pass
-                elif all([i > edge[0] for edge in edges]):
-                    pass
-                elif all([j < edge[1] for edge in edges]):
-                        pass
-                elif all([j > edge[1] for edge in edges]):
-                    pass     
 
-                else:   
-                    point = Point(i,j)
-                    if polygon.contains(point):
-                        mask[j,i] = 1
-        return mask
+        temp_image = Image.new('1', (size_x, size_y))
+        temp_draw = ImageDraw.Draw(temp_image)
+        
+        temp_draw.polygon(tuple([tuple(edge) for edge in edges]), fill = 1)
+
+        return np.array(temp_image)
 
     def processSector(self, radius_range, angle_range, size_x, size_y):
         '''
         This part will process a circular region of the 
         current numpy array range. This part was taken
-        of the original python mieze package of TUM.
+        of the original python MIEZE package of TUM.
         '''
         # -> Check whether sector is in image
         y, x        = np.ogrid[:size_x,:size_y]
