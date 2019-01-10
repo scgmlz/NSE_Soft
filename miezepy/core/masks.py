@@ -221,47 +221,72 @@ class Masks:
                 (28,34),
                 0, 
                 (65,85), 
-                (82,100)]]
+                (82,100)]],
+            'Pre_SkX_peak': [[
+                'radial_comp',
+                (31,31),
+                0,
+                15,13,
+                [57, 102], 
+                [11, 50], 
+                [
+                    'arc', 
+                    [0,0],
+                    0,
+                    [0,10],
+                    [0,10], 
+                    [True, True, False]
+                ]]],
+
+            'Pre_SkX_peak_Sixfold': [[
+                'radial_comp',
+                (28,34),
+                0,
+                15,13,
+                [45, 90], 
+                [17, 56], 
+                [
+                    'arc', 
+                    [0,0],
+                    0,
+                    [0,10],
+                    [0,10], 
+                    [True, True, False]
+                ]]],
+
+            'Pre_SkX_peak_SkXCon': [[
+                'radial_comp',
+                (28,34),
+                0,
+                10,11,
+                [65, 85], 
+                [80, 104], 
+                [
+                    'arc', 
+                    [0,0],
+                    0,
+                    [0,10],
+                    [0,10], 
+                    [True, True, False]
+                ]]],
+
+            'Pre_tile': [[
+                'linear_comp',
+                (0,0),
+                0, 
+                1,1,
+                128,128,
+                [
+                    'square', 
+                    [0,0],
+                    0,
+                    [0,10],
+                    [0,10], 
+                    [True, True, False]
+                ]]],
             }
 
         return mask_dict
-
-        # self.all_pre_masks = {
-        #     'Pre_SkX_peak': [
-        #         (self.gen_pregroup_mask_circ),
-        #         (31,31), 
-        #         57, 
-        #         102, 
-        #         (11,50), 
-        #         15, 
-        #         13],
-
-        #     'Pre_SkX_peak_Sixfold': [
-        #         (self.gen_pregroup_mask_circ),
-        #         (28,34), 
-        #         45, 
-        #         90, 
-        #         (17,56), 
-        #         15, 
-        #         13],
-
-        #     'Pre_SkX_peak_SkXCon': [
-        #         (self.gen_pregroup_mask_circ),
-        #         (28,34), 
-        #         65,
-        #         85, 
-        #         (80,104), 
-        #         10, 
-        #         11],
-
-        #     'Pre_tile': [
-        #         (self.gen_pregroup_mask_square),
-        #         (0,0), 
-        #         0,
-        #         0,
-        #         128,
-        #         128]
-        #     }
 
     # def gen_pregroup_mask_circ(self, shape, parameters):
 
