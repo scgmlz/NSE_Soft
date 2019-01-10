@@ -91,6 +91,8 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
         self.placeWidgets(child = True)
 
         self.setValues()
+        if 'comp' in self.parameters[0]:
+            self.setValues(child=True)
         self.connect()
 
         self.checkChildToggle()
@@ -209,20 +211,28 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
 
         if child:
             target = self.widgets_child
+            para   = self.parameters[7]
+            check_row = target[-1]
+            check_row[0].setChecked(self.parameters[7][-1][0])
+            check_row[1].setChecked(self.parameters[7][-1][1])
+            check_row[2].setChecked(self.parameters[7][-1][2])
+
         else:
             target = self.widgets
+            para   = self.parameters
 
         for i, widget_row in enumerate(target):
 
             if isinstance(widget_row[2], QtWidgets.QLabel):
                 if isinstance(widget_row[1], QtWidgets.QSpinBox):
-                    widget_row[1].setValue(self.parameters[i + 3])
+                    widget_row[1].setValue(para[i + 3])
             else:
                 for j,widget in enumerate(widget_row):
                     if isinstance(widget, QtWidgets.QLabel):
                         pass
                     elif isinstance(widget, QtWidgets.QSpinBox):
-                        widget.setValue(self.parameters[i + 3][j - 1])
+                        widget.setValue(para[i + 3][j - 1])
+
 
     def placeWidgets(self, child = False):
         '''
@@ -408,4 +418,3 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
             QtWidgets.QLabel('Radial range:', parent=self.widget), 
             QtWidgets.QSpinBox(parent=self.widget),
             QtWidgets.QSpinBox(parent=self.widget)])
-            
