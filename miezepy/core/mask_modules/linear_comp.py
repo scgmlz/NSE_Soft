@@ -89,7 +89,6 @@ class LinearComposition(MaskShape):
         and will therefore send it to the mask
         element to be anaged.
         '''
-        print(parameters)
         if self.testIfEdited(parameters) or self.template.testIfEdited(parameters[7]) or not self.template.parameters['type'] == parameters[7][0]:
             self.parameters['position']     = list(parameters[1])
             self.parameters['angle']        = float(parameters[2])
@@ -178,8 +177,10 @@ class LinearComposition(MaskShape):
                 child.generate(size_x, size_y)
                 if self.parameters['increment']:
                     self.mask += child.mask * (i+1)
+                    self.mask[self.mask > (i+1)] = (i+1)
                 else:
                     self.mask += child.mask
+                    self.mask[self.mask >1] = 1
 
         return self.mask
 
