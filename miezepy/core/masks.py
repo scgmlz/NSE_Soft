@@ -288,141 +288,7 @@ class Masks:
 
         return mask_dict
 
-    # def gen_pregroup_mask_circ(self, shape, parameters):
-
-    #     ############################################
-    #     #Unpack the parameters
-    #     centre          = parameters[0]
-    #     inner_radius    = parameters[1]
-    #     outer_radius    = parameters[2]
-    #     angle_range     = parameters[3] 
-    #     r_width         = parameters[4]
-    #     phi_width       = parameters[5]
-        
-    #     ############################################
-    #     #Process
-    #     mask = np.zeros(shape, dtype=np.int)
-
-    #     index = 1
-
-    #     for phi_step in range(int((angle_range[1]-angle_range[0]) / phi_width)):
-
-    #         for r_step in range(int((outer_radius-inner_radius)/r_width)):
-
-    #             #Pack the parameters
-    #             parameters = [
-    #                 centre,
-    #                 inner_radius+r_step*r_width,
-    #                 inner_radius+(r_step+1)*r_width,
-    #                 (angle_range[0]+phi_step*phi_width,
-    #                 angle_range[0]+(phi_step+1)*phi_width)
-    #             ]
-
-    #             #append the mask
-    #             mask += self.sector_mask(shape,parameters)*index
-
-    #             #move index forward
-    #             index += 1
-
-    #     return mask
-
-    # def gen_pregroup_mask_square(self, shape, parameters):
-    
-    #     ############################################
-    #     #Unpack the parameters
-    #     centre          = parameters[0]
-    #     x_dim           = parameters[1]
-    #     y_dim           = parameters[2]
-    #     n_x             = parameters[1]
-    #     n_y             = parameters[2]
-       
-        
-    #     ############################################
-    #     #Process
-    #     mask = np.zeros(shape, dtype=np.int)
-
-    #     for x in range(mask.shape[0]/n_x):
-    #         for y in range(mask.shape[1]/n_y):
-    #             pass#mask[x*n:x*n+(n), y*n:y*n+(n)] = x*shape[0]/n + y + 1
-
-    #     return mask
-
-    # def sector_mask(self, shape, parameters):
-
-    #     ############################################
-    #     #Unpack the parameters
-    #     centre          = parameters[0]
-    #     inner_radius    = parameters[1]
-    #     outer_radius    = parameters[2]
-    #     angle_range     = parameters[3]
-
-    #     ############################################
-    #     #create the mask
-    #     # -> Check whether sector is in image
-    #     y, x = np.ogrid[:shape[1],:shape[0]]
-    #     cx,cy = centre
-    #     tmin,tmax = np.deg2rad(angle_range)
-        
-    #     #ensure stop angle > start angle
-    #     if tmax<tmin:
-    #         tmax += 2*np.pi
-
-    #     #convert cartesian --> polar coordinates
-    #     r2 = (x-cx)*(x-cx) + (y-cy)*(y-cy)
-    #     theta = np.arctan2(y-cy,x-cx) - tmin
-
-    #     #wrap angles between 0 and 2*pi
-    #     theta %= (2*np.pi)
-
-    #     #circular mask
-    #     circmask    = r2 <  outer_radius*outer_radius
-    #     circmask2   = r2 >= inner_radius*inner_radius
-
-    #     # angular mask
-    #     anglemask = theta <= (tmax-tmin)
-
-    #     return circmask * circmask2 * anglemask
-
-    # def rect_mask(self, shape, parameters):
-        
-    #     ############################################
-    #     #Unpack the parameters
-    #     centre  = parameters[0] 
-    #     width   = parameters[1]
-    #     height  = parameters[2]
-        
-    #     ############################################
-    #     #create the mask
-    #     mask = np.zeros((int(shape[0]),int(shape[1])), dtype=bool)
-    
-    #     cx, cy = centre
-    #     mask[int(cy - height/2):int(cy + height/2),int(cx - width/2):int(cx + width/2)] = True
-        
-    #     return mask
-    # def __str__(self):
-    #     '''
-    #     Generate a string output for the user to 
-    #     see that the mask has initialised 
-    #     properly.
-    #     '''
-    #     output =  "\n##########################################################\n"
-    #     output +=  "################## MASK STRUCTURE ########################\n"
-    #     output += "##########################################################\n"
-    #     output += "The mask has been set as follows: \n"
-    #     output += "- Selected mask template: "+str(self.selected)+"\n"
-    #     output += "- Parameters:\n"
-
-    #     for i in range(0,len(self.parameters)):
-
-    #         output += "          "+str(self.parameters[i])+"\n"
-
-    #     output += "----------------------------------------------------------\n"
-        
-    #     output += "##########################################################\n\n"
-
-    #     return output
-
-    def run_commands(self, mask):
+    def runCommands(self, mask):
         '''
         The user can here pass on commands and then 
         execute them after the mask has been set. 
@@ -444,7 +310,7 @@ class Masks:
 
         return mask
 
-    def add_command(self, command_str = ''):
+    def addCommand(self, command_str = ''):
         '''
         The user can here pass on commands here
         that will be executed once the mask is
@@ -460,7 +326,7 @@ class Masks:
             +str(command_str)
             +"' to the mask process")
 
-    def remove_command(self, command = '', index = None):
+    def removeCommand(self, command = '', index = None):
         '''
         Remove a command from the command list. Either
         pass the command in its full or its index
@@ -471,84 +337,11 @@ class Masks:
         elif command in self.commands:
             self.commands.remove(command)
 
-    def purge_commands(self):
+    def purgeCommands(self):
         '''
         Remove all commands from the command list. 
         '''
         self.commands = []
-
-    def select_template(self, key = ''):
-        '''
-        Here we will allow to select the mask that 
-        will be kept here until a change is 
-        undertaken. 
-
-        Note that this loads the parameters locally
-        and that theses can be modified after
-        '''
-        if not key in self.all_masks.keys() and not key in self.all_pre_masks.keys():
-
-            self.log.add_log(
-                'error',
-                "The mask template '"
-                +str(key)
-                +"' could not be found")
-
-        else:
-
-            self.selected = key
-
-            if  key in self.all_masks.keys():
-
-                self.parameters = self.all_masks[key][1:]
-
-            if  key in self.all_pre_masks.keys():
-
-                self.parameters = self.all_pre_masks[key][1:]
-
-            self.log.add_log(
-                'info',
-                "Sucessfully selected the template '"
-                +str(key)
-                +"'")
-
-    # def set_parameters(self, parameters):
-    #     '''
-    #     Allows the user to inject the parameters of the
-    #     mask that he wants to use. It basically sets
-    #     self.parameters = parameters
-    #     '''   
-    #     self.parameters = list(parameters)
-
-    # def process_mask(self, target):
-    #     '''
-    #     We will use the provided selection and 
-    #     parameters to create a mask suited for the 
-    #     provided data shape.
-    #     '''
-    #     ############################################
-    #     #test the target
-    #     assert len(target.data_objects) > 0,\
-    #         "The datastructure is empty, cannot create mask ..."
-
-    #     ############################################
-    #     #This assumes that the mask has been set
-    #     if  self.selected in self.all_masks.keys():
-
-    #         mask_target = self.all_masks
-
-    #     if  self.selected in self.all_pre_masks.keys():
-
-    #         mask_target = self.all_pre_masks
-
-    #     shape = target.data_objects[0].dim
-
-    #     self.mask = mask_target[self.selected][0](shape,self.parameters)
-
-    #     #run the post masks commands
-    #     mask = self.mask
-    #     mask = self.run_commands(mask)
-    #     self.mask = mask
 
 
 if __name__ == '__main__':
