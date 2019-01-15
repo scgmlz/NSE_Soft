@@ -8,10 +8,11 @@ parallel_env = self.env
 
 
 
-parallel_env.mask.select_template(key = 'SkX_peak_Sixfold')
+parallel_env.mask.setMask('SkX_peak_Sixfold')
 print(parallel_env.mask)
 
 parallel_env.process.calculate_ref_contrast()
+
 #coorect values
 parallel_env.results.set_result( 
          name = 'Reference contrast calculation', 

@@ -58,12 +58,23 @@ class Masks:
             'radial composition']
         self.setMask(self.defaults[0])
 
+    def __str__(self):
+        '''
+        set out the dictionary of the current mask
+        ''' 
+        output = '############################\n'
+        output += 'Mask name: '+self.current_mask+'\n'
+        output +=  json.dumps(self.mask_dict[self.current_mask])+'\n'
+        output += '############################\n'
+        return output
+
     def setMask(self, name):
         '''
         Set the mask present in the dictionary
         '''
         if name in self.mask_dict.keys():
             self.current_mask = name
+            self.sendToGenerator()
         
     def addMask(self, name):
         '''
@@ -107,6 +118,7 @@ class Masks:
         Generate the masks of the generator
         '''
         self.mask_gen.generateMask(size_x,size_y)
+        self.mask = self.mask_gen.mask.astype(np.int16)
 
     def saveSingleMask(self, path):
         '''
@@ -240,11 +252,11 @@ class Masks:
 
             'Pre_SkX_peak_Sixfold': [[
                 'radial_comp',
-                (28,34),
-                0,
-                15,13,
-                [45, 90], 
-                [17, 56], 
+                (43,40),
+                -21,
+                3,3,
+                [45, 69], 
+                [39, 58], 
                 [
                     'arc', 
                     [0,0],
@@ -296,17 +308,9 @@ class Masks:
         for command in self.commands:
             try:
                 exec(command)
-                self.log.add_log(
-                    'info',
-                    "Successfully applied '"
-                    +str(command)
-                    +"' on the mask")
+
             except:
-                self.log.add_log(
-                    'error',
-                    "Failed to apply command '"
-                    +str(command)
-                    +"' on the mask")
+                pass
 
         return mask
 
@@ -319,12 +323,6 @@ class Masks:
         the command has to be formated as a string
         '''
         self.commands.append(command_str)
-
-        self.log.add_log(
-            'info',
-            "Added command '"
-            +str(command_str)
-            +"' to the mask process")
 
     def removeCommand(self, command = '', index = None):
         '''

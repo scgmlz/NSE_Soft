@@ -34,6 +34,7 @@ from ..py_gui.page_mask_widget      import PageMaskWidget
 from ..py_gui.page_env_widget       import PageEnvWidget
 from ..py_gui.page_script_widget    import PageScriptWidget
 from ..py_gui.page_io_widget        import PageIOWidget
+from ..py_gui.dialog                import dialog 
 
 class MainWindowLayout(Ui_MIEZETool):
     '''
@@ -218,9 +219,15 @@ class MainWindowLayout(Ui_MIEZETool):
                 self.refreshChecked(2)
 
             elif index == 3:
-                if not self.widgetClasses[3].env == self.handler.current_env:
-                    self.widgetClasses[3].link(self.handler.current_env)
-                self.refreshChecked(3)
+                if not self.handler.current_env.current_data.generated:
+                    dialog(
+                        icon = 'error', 
+                        title= 'Dataset not generated',
+                        message = 'The dataset belonging to these scripts has not yet been generated. Please enter the data editing system and load the data.')
+                else:
+                    if not self.widgetClasses[3].env == self.handler.current_env:
+                        self.widgetClasses[3].link(self.handler.current_env)
+                    self.refreshChecked(3)
 
             elif index == 4:
                 self.refreshChecked(3)

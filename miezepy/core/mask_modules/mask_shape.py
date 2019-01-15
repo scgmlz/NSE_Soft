@@ -84,7 +84,7 @@ class MaskShape:
         
         temp_draw.polygon(tuple([tuple(edge) for edge in edges]), fill = 1)
 
-        return np.array(temp_image)
+        return np.array(temp_image).astype(np.int16)
 
     def processSector(self, radius_range, angle_range, size_x, size_y):
         '''

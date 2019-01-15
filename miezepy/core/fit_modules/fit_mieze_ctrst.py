@@ -47,8 +47,8 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         - will return the result array 
         ##############################################
         '''
-        premask = mask.mask
-        local_results = {}
+        premask         = mask.mask
+        local_results   = {}
 
         #set up the parameter names
         para_name = self.para_dict['para_name']
@@ -83,12 +83,13 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
                 local_results[key][meas]    = {}
 
-                ############################################
                 for echo in new_target.get_axis(echo_name):
 
                     combined_data = self.combineData(
-                        key, meas, echo, shift, target, new_target, 
+                        key, meas, echo, 
+                        shift, target, new_target, 
                         premask, foil, foils_in_echo )
+
                     local_results[key][meas][echo] = self.fitSinus(
                         results, combined_data, new_target, echo)
 
@@ -180,7 +181,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                 data = np.array(data_array)
 
                 combined_data += data
-
+                
         return combined_data
 
     def calcCtrstRef(self,target, mask, results):
@@ -215,7 +216,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             +str(reference))
 
         reference = reference[0] 
-
+        
         ref_result = self.calcCtrstFit(
             [reference], 
             foils_in_echo, 

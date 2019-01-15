@@ -264,8 +264,9 @@ class Process_MIEZE(Process_Handler):
         ##############################################
         '''
         #generate the mask adapted to this dataset
-        self.env.mask.process_mask(
-            self.env.current_data)
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
         
         #extract the phase
         self.env.fit['extract_phase'](
@@ -294,8 +295,9 @@ class Process_MIEZE(Process_Handler):
         '''
 
         #generate the mask adapted to this dataset
-        self.env.mask.process_mask(
-            self.env.current_data)
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
 
         #calculate the contrast
         self.env.fit['calc_ref_contrast'](
@@ -315,8 +317,9 @@ class Process_MIEZE(Process_Handler):
         ##############################################
         '''
         #generate the mask adapted to this dataset
-        self.env.mask.process_mask(
-            self.env.current_data)
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
 
         #calculate the contrast
         self.env.fit['calc_contrast'](

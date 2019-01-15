@@ -27,6 +27,6 @@ parallel_env.current_data.metadata_class.add_metadata('Selected foils', value = 
 
 print(parallel_env.current_data)
 
-parallel_env.mask.select_template(key = 'Pre_SkX_peak_Sixfold')
-parallel_env.mask.add_command(command_str = 'mask.real[abs(mask.real) > 8] = 0')
+parallel_env.mask.setMask('Pre_SkX_peak_Sixfold')
+parallel_env.mask.addCommand(command_str = 'mask.real[abs(mask.real) > 8] = 0')
 print(parallel_env.mask)

@@ -270,15 +270,15 @@ class Generator:
         reference = self.getReference(import_objects)
         data_struct.metadata_class.add_metadata(
             'Reference', 
-            value = reference , 
-            logical_type = 'float_array', 
+            value = reference, 
+            logical_type = 'float', 
             unit = 'K')
 
         background = self.getBackground(import_objects)
         data_struct.metadata_class.add_metadata(
             'Background', 
             value = str(background) , 
-            logical_type = 'str', 
+            logical_type = 'float', 
             unit = 'K')
 
         return data_struct
@@ -305,7 +305,7 @@ class Generator:
         reference = None
         for i,import_object in enumerate(import_objects):
             if import_object.data_handler.reference:
-                reference = [import_object.data_handler.parameter, 0]
+                reference = import_object.data_handler.parameter
         return reference
 
     def getBackground(self, import_objects):
