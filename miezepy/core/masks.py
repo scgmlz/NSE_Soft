@@ -80,6 +80,15 @@ class Masks:
         '''
         Add a mask to the dictionary
         '''
+        if name in self.mask_dict.keys():
+            found_slot = False
+            idx = 0
+            while not found_slot:
+                if not name +'_'+ str(idx) in self.mask_dict.keys():
+                    found_slot = True
+                    name = name +'_'+ str(idx)
+                else:
+                    idx += 1
         self.mask_dict[name] = []
         self.setMask(name)
 

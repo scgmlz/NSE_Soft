@@ -29,7 +29,7 @@ from functools import partial
 #private dependencies
 from ..qt_gui.main_script_ui        import Ui_script_widget
 from ...gui.py_gui.python_syntax    import PythonHighlighter
-from ...gui.py_gui.page_mask_widget import PageMaskWidget
+from ...gui.py_gui.page_mask_widget import PanelPageMaskWidget
 from ...gui.py_gui.dialog           import dialog 
 
 class PageScriptWidget(Ui_script_widget):
@@ -49,7 +49,6 @@ class PageScriptWidget(Ui_script_widget):
         self.elements       = []
         self.meta_elements  = []
         
-
     def _setup(self):
         '''
         This is the initial setup method that will 
@@ -94,24 +93,10 @@ class PageScriptWidget(Ui_script_widget):
         self.syntaxHighliter_3 = PythonHighlighter(
             self.text_widgets[3].document())
 
-        self.tool = PageMaskWidget(self, self.parent)
+        self.tool = PanelPageMaskWidget(self, self.parent)
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
-
-        #inject the parameter widget
-        self.para_group = QtWidgets.QGroupBox(self.panel_tab)
-        sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Fixed, 
-            QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        self.para_group.setSizePolicy(sizePolicy)
-        self.para_group.setMinimumSize(QtCore.QSize(425, 0))
-        self.para_group.setMaximumSize(QtCore.QSize(425, 16777215))
-        self.para_group.setBaseSize(QtCore.QSize(425, 200))
-        self.para_group.setObjectName("para_group")
-        self.tool.mask_layout_control.addWidget(self.para_group)
 
     def _connect(self):
         '''
@@ -149,8 +134,7 @@ class PageScriptWidget(Ui_script_widget):
         if not env == None:
             self.env = env
 
-        self.tool.link(self.env.mask)
-        self.populatePara()
+        self.tool.link(self.env.mask, self.env)
         self._refresh()
         self._linkVisualComponents()
 
@@ -784,6 +768,7 @@ class PageScriptWidget(Ui_script_widget):
         for i,element in enumerate(text_array):
             if "mask.setMask(" in element:
                 text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_mask_fit.currentIndex()])+"')"
+                self.tool.comboBox.setCurrentIndex(self.process_box_mask_fit.currentIndex())
                 break
 
         #find strings
@@ -840,8 +825,7 @@ class PageScriptWidget(Ui_script_widget):
         if not self.env == None:
             if index < 5:
                 self._runPythonCode(self.text_widgets[index].toPlainText())
-            elif index == 5:
-                self._runPanel() 
+ 
 
     def runAll(self):
         '''
@@ -946,13 +930,6 @@ class PageScriptWidget(Ui_script_widget):
 
         return meta_array
 
-    def _runPanel(self):
-        '''
-        This function will initiate the panel from the current 
-        phase processed data.
-        '''
-        # self.tool.load_initial(self.env)
-
     def saveScripts(self):
         '''
         This method as the name indicates is in charge of
@@ -993,65 +970,6 @@ class PageScriptWidget(Ui_script_widget):
             file_path)
         self.refresh()
 
-    def populatePara(self):
-        '''
-        populate the window layout. The grid is the main
-        input of this method and all elements will be 
-        placed accordingly.
-        '''
-        self.para_vbox  = QtWidgets.QVBoxLayout()
-        self.para_grid  = QtWidgets.QGridLayout()
-        self.para_vbox.addLayout(self.para_grid)
-        self.para_vbox.addStretch(1)
-        self.para_group.setLayout(self.para_vbox)
-
-        #initialise the tab
-        self.widget_list    = []
-
-        self.widget_list.append([
-            QtWidgets.QLabel('Parameter:', parent = self.para_group),
-            0, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
-        self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.para_group),
-            0, 1, 1, 1, None])
-        self.para_drop = self.widget_list[-1][0]
-
-        self.widget_list.append([
-            QtWidgets.QLabel('Measurement:', parent = self.para_group),
-            0, 2, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
-        self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.para_group),
-            0, 3, 1, 1, None])
-        self.meas_drop = self.widget_list[-1][0]
-
-        self.widget_list.append([
-            QtWidgets.QLabel('Echo time:', parent = self.para_group),
-            1, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
-        self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.para_group),
-            1, 1, 1, 1, None])
-        self.echo_drop = self.widget_list[-1][0]
-
-        self.widget_list.append([
-            QtWidgets.QLabel('Foil:'),
-            1, 2, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
-        self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.para_group),
-            1, 3, 1, 1, None])
-        self.foil_drop = self.widget_list[-1][0]
-
-        ##############################################
-        #add the tabs
-        for element in self.widget_list:
-            self.para_grid.addWidget(
-                element[0], 
-                element[1], 
-                element[2], 
-                element[3], 
-                element[4])
-
-            if not element[5] == None:
-                element[0].setAlignment(element[5])
 
     def setActivity(self, min_val, max_val):
         '''
