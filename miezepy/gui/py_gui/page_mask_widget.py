@@ -121,7 +121,10 @@ class PageMaskWidget(Ui_mask_editor):
 
         if idx < len(keys):
             key = keys[idx]
-            self.mask_core.setMask(key)
+            try:###BUG
+                self.mask_core.setMask(key)
+            except:
+                pass
             self.populateAll()
 
         elif idx == len(keys):

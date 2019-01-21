@@ -150,24 +150,24 @@ class PageScriptWidget(Ui_script_widget):
         self.process_button_echo_fit.clicked.connect(self._plotEcho)
         self.process_button_gamma.clicked.connect(self._plotGamma)
 
-
     def link(self, env = None):
         '''
         Link the GUI to the environment that will be  read and
         taken care of.
         '''
+        self.synthesize_scripts = False
         if not env == None:
             self.env = env
         self.tool.link(self.env.mask, self.env)
         self._refresh()
         self._linkVisualComponents()
-
         self.result_handler_ui._fillAllResults(
             self.env,
             self.process_tree_error,
             self.process_tree_x,
             self.process_tree_y,
             self.process_tree_plot)
+        self.synthesize_scripts = True
 
     def _linkVisualComponents(self):
         '''
@@ -175,6 +175,7 @@ class PageScriptWidget(Ui_script_widget):
         into the selectors. This is manages through this dispatcher.
         '''
         self.synthesize_scripts     = False
+        self._reset()
 
         self._readFromScripts()
         self._linkVisualData()
@@ -196,6 +197,11 @@ class PageScriptWidget(Ui_script_widget):
         self._connectVisualPhase()
 
         self._synthesize()
+
+    def _reset(self):
+        '''
+        '''
+        pass
 
     def _readFromScripts(self):
         '''
@@ -403,7 +409,7 @@ class PageScriptWidget(Ui_script_widget):
         '''
         Link the fit parameters component
         '''
-        array = [ str(val) for val in self.env.current_data.get_axis('Parameter') ]
+        array = [ str(val) for val in self.env.current_data.get_axis('Parameter') ]+['None']
         self.process_box_back_fit.clear()
         self.process_box_back_fit.addItems(array)
 
@@ -438,13 +444,9 @@ class PageScriptWidget(Ui_script_widget):
                 pass
 
         #Background field
-        array = [ str(val) for val in self.env.current_data.get_axis('Parameter') ]
+        array = [ str(val) for val in self.env.current_data.get_axis('Parameter') ]+['None']
         if self.container['Background'] == None:
-            try:
-                self.process_box_back_fit.setCurrentIndex(
-                    array.index(self.env.current_data.metadata_class['Background']))
-            except:
-                pass
+            self.process_box_back_fit.setCurrentIndex(array.index('None'))
         else:
             try:
                 self.process_box_back_fit.setCurrentIndex(
@@ -573,10 +575,17 @@ class PageScriptWidget(Ui_script_widget):
         for element in self.grid_checkboxes[0]:
             element.stateChanged.connect(self._updateFoilCol)
 
-        for i in range(self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis_len('Echo Time')):
-            self._addEchoWidget(str(self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time')[i])[0:8])
+        try:
+            names = [
+                str(x)[0:8] for x in self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time').sort()]
+        except:
+            names = [
+                str(x)[0:8] for x in self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time')]
+
+        for name in names:
+            self._addEchoWidget(name)
         self._updateFoilEnabled(synthesize = False)
-        
+
     def _addEchoWidget(self,name, tri = False):
         '''
         Add an echo type widget to the widget view
@@ -726,7 +735,11 @@ class PageScriptWidget(Ui_script_widget):
 
         #set the background
         python_string_init += "\n#Set the background (edit in GUI)\n"
-        python_string_init += "Background = "+[ str(val) for val in self.env.current_data.get_axis('Parameter') ][self.process_box_back_fit.currentIndex()]+"\n"
+        array = [ str(val) for val in self.env.current_data.get_axis('Parameter') ]
+        if self.process_box_back_fit.currentIndex() == len(array):
+            python_string_init += "Background = None"        
+        else:
+            python_string_init += "Background = "+array[self.process_box_back_fit.currentIndex()]+"\n"
 
         #set the background
         python_string_init += "\n#Set the reference (edit in GUI)\n"
