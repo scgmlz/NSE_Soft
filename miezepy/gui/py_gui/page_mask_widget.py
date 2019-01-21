@@ -332,6 +332,19 @@ class PanelPageMaskWidget(PageMaskWidget):
         PageMaskWidget.__init__(self, stack, parent)
         self.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
+
+        self.thread = QtCore.QThread()
+
+    def link(self, mask_core, env):
+        '''
+        This routine will link to the io manager class
+        from the core. 
+        '''
+        try:
+            self.para_group.deleteLater()
+        except:
+            pass
+
         self.para_group = QtWidgets.QGroupBox(self.local_widget)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Fixed, 
@@ -344,13 +357,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.para_group.setBaseSize(QtCore.QSize(425, 200))
         self.para_group.setObjectName("para_group")
         self.mask_layout_control.addWidget(self.para_group)
-        self.thread = QtCore.QThread()
-
-    def link(self, mask_core, env):
-        '''
-        This routine will link to the io manager class
-        from the core. 
-        '''
+        
         self.initialize()
         self.env        = env
         self.data       = self.env.current_data.return_as_np()
@@ -710,15 +717,6 @@ class Worker(QtCore.QObject):
             self.fit = self.env.get_result('Fit data covariance')
         except:
             print('Fit failed')
-
-        self.env.fit.calcCtrstMain( 
-            self.env.current_data,
-            self.env.mask,
-            self.env.results,
-            select = [para],
-            foil = foil)
-
-        self.process = self.env.get_result('Contrast calculation')
 
         try:
             self.env.fit.calcCtrstMain( 

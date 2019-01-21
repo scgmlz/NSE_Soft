@@ -46,18 +46,13 @@ ax.set_xlim(0.01,3)
 ax.legend(bbox_to_anchor=(-0.1,0.9))
 ax.text(2e-2, 0, r'$B \perp n$, $B=160\,mT$', fontsize=14)
 
-y = []
-y_error = []
-for T in parallel_result['Select']:
-    y.append(parallel_result['Gamma'][T])
-    y_error.append(parallel_result['Gamma_error'][T])
-    
 ax1 = fig.add_subplot(1,2,2)
 ax1.errorbar(
     parallel_result['Select'],
-    y,
-    y_error,
+    parallel_result['Gamma'],
+    parallel_result['Gamma_error'],
     fmt='o', label='Franz\' quasielastic')
+
 
 ax1.set_ylabel(r'$\Gamma\ (\mu eV)$')
 ax1.set_xlabel(r'$T\ (K)$')

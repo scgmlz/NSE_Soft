@@ -569,6 +569,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         Output['Gamma_error']   = {}
         Output['Curve']         = {}
         Output['Parameters']    = {}
+        Output['Curve Axis']    = {}
 
         ############################################
         #process thecomputation
@@ -604,12 +605,14 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             Output['Gamma'][key]       = fit['Gamma']
             Output['Gamma_error'][key] = fit['Gamma_error']
             Output['Curve'][key]       = fit['Curve']
+            Output['Curve Axis'][key]  = fit['Curve Axis']
 
         ############################################
         #set the other informations
-        local_results['Gamma']        = Output['Gamma']         
-        local_results['Gamma_error']  = Output['Gamma_error']  
+        local_results['Gamma']        = [Output['Gamma'][T] for T in select]
+        local_results['Gamma_error']  = [Output['Gamma_error'][T] for T in select]
         local_results['Curve']        = Output['Curve']   
+        local_results['Curve Axis']   = Output['Curve Axis']   
         local_results['Parameters']   = Output['Parameters']       
         local_results['Select']       = select
         local_results['BG']           = BG

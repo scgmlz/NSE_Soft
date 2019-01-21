@@ -25,12 +25,17 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 import traceback
 from functools import partial
+import numpy as np
 
 #private dependencies
 from ..qt_gui.main_script_ui        import Ui_script_widget
-from ...gui.py_gui.python_syntax    import PythonHighlighter
-from ...gui.py_gui.page_mask_widget import PanelPageMaskWidget
-from ...gui.py_gui.dialog           import dialog 
+from ..py_gui.python_syntax         import PythonHighlighter
+from ..py_gui.page_mask_widget      import PanelPageMaskWidget
+from ..py_gui.dialog                import dialog 
+from ..py_gui.result_list_handler   import ResultHandlerUI
+
+#private plotting library
+from simpleplot.multi_canvas        import Multi_Canvas
 
 class PageScriptWidget(Ui_script_widget):
     
@@ -41,7 +46,6 @@ class PageScriptWidget(Ui_script_widget):
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
         self.env            = None
-
         self._setup()
         self._connect()
         self.fadeActivity()
@@ -97,6 +101,15 @@ class PageScriptWidget(Ui_script_widget):
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
+        self.result_handler_ui  = ResultHandlerUI()
+        self.my_canvas          = Multi_Canvas(
+            self.process_widget_plot,
+            grid        = [[True]],
+            x_ratios    = [1],
+            y_ratios    = [1],
+            background  = "w",
+            highlightthickness = 0)
+        self.ax                 = self.my_canvas.get_subplot(0,0)
 
     def _connect(self):
         '''
@@ -126,6 +139,18 @@ class PageScriptWidget(Ui_script_widget):
         self.text_widgets[2].textChanged.connect(partial(self._updateEditable, 2))
         self.text_widgets[3].textChanged.connect(partial(self._updateEditable, 3))
 
+        self.process_tree_x.itemClicked.connect(self.result_handler_ui._getPlotItems)
+        self.process_tree_y.itemClicked.connect(self.result_handler_ui._getPlotItems)
+        self.process_tree_error.itemClicked.connect(self.result_handler_ui._getPlotItems)
+        self.process_button_plot_add.clicked.connect(self.result_handler_ui.addPlotElement)
+        self.process_button_plot_remove.clicked.connect(self.result_handler_ui.removePlotElement)
+        self.process_button_plot_reset.clicked.connect(self.result_handler_ui.removeAllPlotElement)
+        self.process_button_plot_plot.clicked.connect(self._updatePlot)
+        self.process_button_plot_hide.clicked.connect(self._hidePlot)
+        self.process_button_echo_fit.clicked.connect(self._plotEcho)
+        self.process_button_gamma.clicked.connect(self._plotGamma)
+
+
     def link(self, env = None):
         '''
         Link the GUI to the environment that will be  read and
@@ -133,10 +158,16 @@ class PageScriptWidget(Ui_script_widget):
         '''
         if not env == None:
             self.env = env
-
         self.tool.link(self.env.mask, self.env)
         self._refresh()
         self._linkVisualComponents()
+
+        self.result_handler_ui._fillAllResults(
+            self.env,
+            self.process_tree_error,
+            self.process_tree_x,
+            self.process_tree_y,
+            self.process_tree_plot)
 
     def _linkVisualComponents(self):
         '''
@@ -825,7 +856,14 @@ class PageScriptWidget(Ui_script_widget):
         if not self.env == None:
             if index < 5:
                 self._runPythonCode(self.text_widgets[index].toPlainText())
- 
+
+        self.result_handler_ui._fillAllResults(
+            self.env,
+            self.process_tree_error,
+            self.process_tree_x,
+            self.process_tree_y,
+            self.process_tree_plot
+        )
 
     def runAll(self):
         '''
@@ -970,7 +1008,6 @@ class PageScriptWidget(Ui_script_widget):
             file_path)
         self.refresh()
 
-
     def setActivity(self, min_val, max_val):
         '''
 
@@ -1037,3 +1074,125 @@ class PageScriptWidget(Ui_script_widget):
         self.script_bar_running.setValue(val)
         self.script_label_action_2.setText(label)
         self.parent.window_manager.app.processEvents()
+
+    def _hidePlot(self):
+        '''
+        Hide the plot_manager to allow more space for the
+        plot view in the frame.
+        '''
+        self.process_tree_plot.setVisible(not self.process_tree_plot.isVisible())
+        if self.process_tree_plot.isVisible():
+            self.process_button_plot_hide.setText('Hide')
+        else:
+            self.process_button_plot_hide.setText('Show')
+
+    def _updatePlot(self):
+        '''
+
+        '''
+        try:
+            self.ax.clear()
+        except:
+            pass
+
+        #get the instructions
+        instructions = self.result_handler_ui._processPlot()
+
+        #set up the offsets
+        idx = 0
+        for key in instructions.keys():
+            if self.process_check_offset.isChecked() and instructions[key]['link'] == None:
+                instructions[key]['offset'] += self.process_spin_offset_total.value() + idx * self.process_spin_offset.value()
+                idx+=1
+
+        for key in instructions.keys():
+            if not instructions[key]['link'] == None:
+                instructions[key]['offset'] = instructions[instructions[key]['link']]['offset']
+
+        #plot all
+        for key in instructions.keys():
+            if len(instructions[key]['style']) == 0:
+                pass
+            elif not 'y key' in instructions[key].keys():
+                pass
+            elif not 'x key' in instructions[key].keys() and not 'e key' in instructions[key].keys():
+                self._plotSingleY(instructions[key])
+            elif 'x key' in instructions[key].keys() and not 'e key' in instructions[key].keys():
+                self._plotDoubleY(instructions[key])
+            elif 'x key' in instructions[key].keys() and 'e key' in instructions[key].keys():
+                self._plotTripleY(instructions[key])
+
+        self.ax.redraw()
+
+    def _plotSingleY(self, instruction):
+        '''
+        Plot a curve where only the y axes is defined.
+        '''
+        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
+        x = np.asarray([i for i in range(len(y))])
+
+        self.ax.add_plot(
+            'Scatter', 
+            x, 
+            y+instruction['offset'], 
+            Style       = instruction['style'], 
+            Thickness   = instruction['thickness'],
+            Color       = instruction['color'],
+            Log         = [
+                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
+
+    def _plotDoubleY(self, instruction):
+        '''
+        Plot a curve where only the y and x axes are defined.
+        '''
+        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
+        x = np.asarray(self.result_handler_ui.getDataFromKey(instruction['x key']))
+        sort_idx = x.argsort()
+
+        self.ax.add_plot(
+            'Scatter', 
+            x[sort_idx], 
+            y[sort_idx]+instruction['offset'],
+            Style       = instruction['style'], 
+            Thickness   = instruction['thickness'],
+            Color       = instruction['color'],
+            Log         = [
+                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
+
+    def _plotTripleY(self, instruction):
+        '''
+        Plot a curve where all axes are defined.
+        '''
+        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
+        x = np.asarray(self.result_handler_ui.getDataFromKey(instruction['x key']))
+        e = np.asarray(self.result_handler_ui.getDataFromKey(instruction['e key']))
+        sort_idx = x.argsort()
+
+        self.ax.add_plot(
+            'Scatter', 
+            x[sort_idx], 
+            y[sort_idx]+instruction['offset'],
+            Error       = {
+                'bottom':e[sort_idx],
+                'top':e[sort_idx]},
+            Style       = instruction['style'], 
+            Thickness   = instruction['thickness'],
+            Color       = instruction['color'],
+            Log         = [
+                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
+
+    def _plotGamma(self):
+        '''
+        Plot gamma in a way that all is done
+        automatically
+        '''
+        self.result_handler_ui.quickGammaSet()
+        self._updatePlot()
+
+    def _plotEcho(self):
+        '''
+        Plot gamma in a way that all is done
+        automatically
+        '''
+        self.result_handler_ui.quickEchoSet()
+        self._updatePlot()

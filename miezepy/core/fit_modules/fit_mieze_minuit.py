@@ -149,8 +149,8 @@ class Fit_MIEZE_Minuit(Fit_Handler):
 
         return {'Gamma': Gamma,
                 'Gamma_error': Gammaerr,
-                #'Curve': minuitfunction(Gamma)
-                'Curve':np.exp(-Gamma*1e-6*co.e*x*1e-9/co.hbar)
+                'Curve':np.exp(-Gamma*1e-6*co.e*x*1e-9/co.hbar),
+                'Curve Axis':x
             }
 
 
