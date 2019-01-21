@@ -134,7 +134,7 @@ class Handler:
                     self.env_array[names.index(key)].process.editable_scripts
                 )
     
-    def prepSessionLoad(self, path, data_bool = True, mask_bool = False, script_bool = False):
+    def prepSessionLoad(self, path, data_bool = True, mask_bool = True, script_bool = True):
         '''
         Prepare the eventual load of a session.
         '''
@@ -184,11 +184,8 @@ class Handler:
             self.reset()
 
         for i, path in enumerate(self.prep_load_list[0]):
-
             if not main_window == None:
-                main_window.setProgress(
-                    'Setting env '+str(i),
-                    i)
+                main_window.setProgress('Setting env '+str(i),i)
 
             with open(path) as f:
                 code = compile(f.read(), path, 'exec')
@@ -211,12 +208,12 @@ class Handler:
                         'Setting mask '+str(i),
                         i)
                 env.mask.loadAllMasks(self.prep_load_list[2][i])
-            
+
             if not self.prep_load_list[3][i] == None:
                 if not main_window == None:
                     main_window.setProgress(
                         'Setting script '+str(i),
                         i)
                 env.process.loadScripts(self.prep_load_list[3][i])
-        
+
         return [data_load_output, mask_load_output, script_load_output]

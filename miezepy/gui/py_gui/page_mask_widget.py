@@ -106,6 +106,7 @@ class PageMaskWidget(Ui_mask_editor):
         except:
             pass
         keys = [key for key in self.mask_core.mask_dict.keys()]
+        print(keys, default)
         self.comboBox.clear()
         self.comboBox.addItems(
             keys + ['new ...'] + ['reset defaults ...']+ ['refresh ...'])
@@ -121,11 +122,11 @@ class PageMaskWidget(Ui_mask_editor):
 
         if idx < len(keys):
             key = keys[idx]
-            try:###BUG
+            try:
                 self.mask_core.setMask(key)
+                self.populateAll()
             except:
                 pass
-            self.populateAll()
 
         elif idx == len(keys):
             text, ok = QInputDialog.getText(self.local_widget, 'New mask name', 'Enter the new mask:')
@@ -404,7 +405,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not default == None:
             self.comboBox.setCurrentIndex(keys.index(default))
         self.comboBox.currentIndexChanged.connect(self.updateSelection)
-
+        print(keys, default)
         try:
             self.stack._readFromScripts()
             self.stack._disconnectVisualFit()
