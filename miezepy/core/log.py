@@ -40,7 +40,7 @@ class Log_Handler:
         self.info           = []
         self.warning        = []
         self.error          = []
-        self.print_level    = ['error','warning']
+        self.print_level    = []
         self.children       = [] 
         self.parent         = None 
 
@@ -105,7 +105,7 @@ class Log_Handler:
     def dump_to_file(self, path, level = 0):
         '''
         This function will dump the log to file with 
-        the adequat level. Note that level 0 indicates
+        the adequate level. Note that level 0 indicates
         that everything should be writen while level
         1,2,3 refere to 'error', 'error' + 'warnings'
         'error'+'warnings'+'information'

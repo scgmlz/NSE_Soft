@@ -81,7 +81,6 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                         key, meas, echo, 
                         shift, target, new_target, 
                         premask, foil, foils_in_echo )
-                    print([key][meas][echo])
                     local_results[key][meas][echo] = self.fitSinus(
                         results, combined_data, new_target, echo)
 
@@ -116,11 +115,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         result      = results.get_last_result('Fit data covariance')
         echo_idx_1  = new_target.get_axis_idx(echo_name, echo)
         monitor     = new_target.get_metadata([echo_idx_1,0,0])[0]['Monitor']
-        print([
-            result['ampl']/monitor,
-            result['ampl_error']/monitor,
-            result['mean']/monitor,
-            result['mean_error']/monitor])
+        
         ############################################
         #process the result
         return [
