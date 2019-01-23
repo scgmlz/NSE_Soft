@@ -51,9 +51,9 @@ class PageIOWidget(Ui_io_widget):
         self.io_check_save_mask.stateChanged.connect(self.triggerNodeSave)
         self.io_check_save_scripts.stateChanged.connect(self.triggerNodeSave)
 
-        self.io_check_save_data.stateChanged.connect(self.triggerNodeLoad)
-        self.io_check_save_mask.stateChanged.connect(self.triggerNodeLoad)
-        self.io_check_save_scripts.stateChanged.connect(self.triggerNodeLoad)
+        self.io_check_load_data.stateChanged.connect(self.triggerNodeLoad)
+        self.io_check_load_mask.stateChanged.connect(self.triggerNodeLoad)
+        self.io_check_load_scripts.stateChanged.connect(self.triggerNodeLoad)
 
     def getLoadPath(self, quick = False):
         '''
