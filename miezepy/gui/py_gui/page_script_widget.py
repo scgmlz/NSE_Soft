@@ -111,6 +111,10 @@ class PageScriptWidget(Ui_script_widget):
             highlightthickness = 0)
         self.ax                 = self.my_canvas.get_subplot(0,0)
 
+        self.progress_bar_reduction.setMaximum(4)
+        self.progress_bar_reduction.setMinimum(0)
+        self.progress_bar_reduction.setValue(0)
+
     def _connect(self):
         '''
         Connect all Qt slots to their respective methods.
@@ -887,7 +891,7 @@ class PageScriptWidget(Ui_script_widget):
         '''
         if not self.env == None:
             if index < 4:
-                self._runPythonCode(self.text_widgets[index].toPlainText())
+                self._runPythonCode(index, self.text_widgets[index].toPlainText())
             if index == 0 or index == 1:
                 self.tool.link(self.env.mask, self.env)
 
@@ -906,7 +910,7 @@ class PageScriptWidget(Ui_script_widget):
         for i in range(4):
             self.run(i)
 
-    def _runPythonCode(self, code):
+    def _runPythonCode(self,index,  code):
         '''
         Parse and run python code. 
         '''
@@ -935,10 +939,13 @@ class PageScriptWidget(Ui_script_widget):
         if success:
             self.setProgress('Script ended with success', len(meta_array))
             self.fadeActivity()
+            self.progress_bar_reduction.setValue(index + 1)
+
         else:
             self.script_label_running.setText('Aborted')
             self.scrip_label_action.setText('Error: ')
             self.setProgress(str(error), i)
+            self.progress_bar_reduction.setValue(index)
 
     def _parseCode(self, code):
         '''
@@ -1121,6 +1128,8 @@ class PageScriptWidget(Ui_script_widget):
             not self.process_button_plot_remove.isVisible())
         self.process_button_plot_reset.setVisible(
             not self.process_button_plot_reset.isVisible())
+        self.groupBox.setVisible(
+            not self.groupBox.isVisible())
 
         if self.process_tree_plot.isVisible():
             self.process_button_plot_hide.setText('Hide')
