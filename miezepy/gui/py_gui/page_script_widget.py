@@ -888,6 +888,8 @@ class PageScriptWidget(Ui_script_widget):
         if not self.env == None:
             if index < 4:
                 self._runPythonCode(self.text_widgets[index].toPlainText())
+            if index == 0 or index == 1:
+                self.tool.link(self.env.mask, self.env)
 
         self.result_handler_ui._fillAllResults(
             self.env,
