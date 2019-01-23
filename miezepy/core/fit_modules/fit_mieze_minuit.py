@@ -44,57 +44,38 @@ class Fit_MIEZE_Minuit(Fit_Handler):
 
     def fit_goodness(self,chi2, N_dof):
         ''' 
-        ##############################################
         Calculates the goodness of a leastsquare fit 
         according to 'Everything you want to know 
         about Data Analysis and Fitting'.
-        ———————
         Input: 
         - chi
         - N_dof
-        ———————
         Output: 
         - Q
-        ———————
-        status: active
-        ##############################################
         '''
-        Gamma = sp.gamma(N_dof/2.)
-        func = lambda y: y**(N_dof/2. - 1.) * math.exp(-y)
-        integral,error = scipy.integrate.quad(func, chi2/2., np.inf)
-        Q = 1.0 / Gamma * integral
+        Gamma           = sp.gamma(N_dof/2.)
+        func            = lambda y: y**(N_dof/2. - 1.) * math.exp(-y)
+        integral,error  = scipy.integrate.quad(func, chi2/2., np.inf)
+        Q               = 1.0 / Gamma * integral
 
         return Q
 
     def minuit_fit_cosine(self,counts, time, freq, count_error):
         '''
-        ##############################################
         Creates the minuit fit function and runs 
         leastsquarefit.
-        ———————
-        Input: 
         - counts (array of)
         - time (echo time ?)
         - freq (float)
         - count_error (array of float)
-        ———————
-        Output: 
-        - Q
-        ———————
-        status: active
-        ##############################################
         '''
-        ##############################################
-        #pack the variables and set the starts
         self.minuit_parameters = [counts, time,count_error, freq]
 
-        phase0  = np.max(counts)-np.min(counts)
-        offset0 = 0
-        ampl0   = np.mean(counts)
+        phase0  = 0
+        offset0 = np.mean(counts)
+        ampl0   = np.abs(np.mean(counts) - np.amin(counts))
 
-        ##############################################
-        #create fit object and fit
-        fit = iminuit.Minuit(self.fit_cosine,
+        fit     = iminuit.Minuit(self.fit_cosine,
                             phase   = phase0,
                             offset  = offset0,
                             ampl    = ampl0,
@@ -104,30 +85,30 @@ class Fit_MIEZE_Minuit(Fit_Handler):
 
         return fit 
 
-    def minuit_fit_exp(self,contrast, SEtime, contrasterr):
+    def fit_cosine(self,phase,offset,ampl):
         '''
-        ##############################################
         Creates the minuit fit function and runs 
         leastsquarefit.
-        ———————
-        Input: 
-        - counts (array of)
-        - time (echo time ?)
-        - count_error (array of float)
-        ———————
-        Output: 
-        - Q
-        ———————
-        status: active
-        ##############################################
         '''
-        ##############################################
-        #pack the variables and set the starts
+        counts      = self.minuit_parameters[0]
+        time        = self.minuit_parameters[1]
+        count_error = self.minuit_parameters[2]
+        freq        = self.minuit_parameters[3]
+
+        with warnings.catch_warnings():
+            try:
+                return sum((((ampl*np.cos(freq*t+phase)+offset-c)**2)/e**2 for c,t,e in zip(counts,time,count_error)))
+            except:
+                return np.nan
+
+    def minuit_fit_exp(self,contrast, SEtime, contrasterr):
+        '''
+        Creates the minuit fit function and runs 
+        leastsquarefit.
+        '''
         self.minuit_parameters = [contrast,SEtime,contrasterr]
         Gamma0 = 10.
 
-        ##############################################
-        #create fit object and fit
         fit = iminuit.Minuit(
             self.fit_exp,
             Gamma = Gamma0,
@@ -136,8 +117,6 @@ class Fit_MIEZE_Minuit(Fit_Handler):
 
         fit.migrad()
 
-        ##############################################
-        #process output
         params  = fit.values
         chi2    = fit.fval
         cov     = fit.np_matrix()
@@ -150,79 +129,24 @@ class Fit_MIEZE_Minuit(Fit_Handler):
         return {'Gamma': Gamma,
                 'Gamma_error': Gammaerr,
                 'Curve':np.exp(-Gamma*1e-6*co.e*x*1e-9/co.hbar),
-                'Curve Axis':x
-            }
-
+                'Curve Axis':x}
 
     def fit_exp(self,Gamma):
         '''
-        ##############################################
         Gamma exponential fit minimizer function
-        ———————
-        Input: 
-        - counts (array of)
-        - time (echo time ?)
-        - count_error (array of float)
-        ———————
-        Output: 
-        - Q
-        ———————
-        status: active
-        ##############################################
         '''
-        ##############################################
-        #unpack the variables
         contrast    = self.minuit_parameters[0]
         SEtime      = self.minuit_parameters[1]
         contrasterr = self.minuit_parameters[2]
-
-        ##############################################
-        #proceed to fit
-        np.seterr(all='warn')
         with warnings.catch_warnings():
             try:
                 return sum(
-                        (( math.exp(( - Gamma * 1e-6 * t * 1e-9 )
-                        / ( 6.582 * 1e-16 ) ) - c ) ** 2 
-                        / e ** 2 
+                        (( np.exp(-Gamma*1.e-6*co.e*t*1.e-9/co.hbar)-c)**2. 
+                        /e**2.
                         for c, t, e in zip(contrast, SEtime, contrasterr)))
             except:
                 return np.nan
 
-    def fit_cosine(self,phase,offset,ampl):
-        '''
-        ##############################################
-        Creates the minuit fit function and runs 
-        leastsquarefit.
-        ———————
-        Input: 
-        - counts (array of)
-        - time (echo time ?)
-        - freq (float)
-        - count_error (array of float)
-        ———————
-        Output: 
-        - Q
-        ———————
-        status: active
-        ##############################################
-        '''
-
-        ##############################################
-        #unpack the variables
-        counts      = self.minuit_parameters[0]
-        time        = self.minuit_parameters[1]
-        count_error = self.minuit_parameters[2]
-        freq        = self.minuit_parameters[3]
-
-        ##############################################
-        #proceed to fit
-        np.seterr(all='warn')
-        with warnings.catch_warnings():
-            try:
-                return sum((((ampl*np.cos(freq*t+phase)+offset-c)**2)/e**2 for c,t,e in zip(counts,time,count_error)))
-            except:
-                return np.nan
 
     def fit_data_cov(
         self,
@@ -235,14 +159,11 @@ class Fit_MIEZE_Minuit(Fit_Handler):
         fit_des = ''):
 
         '''
-        ##############################################
         Fits sine curves into n_point echoes.
-        ———————
         Input: 
         - data is a list of data arrays (~128x128)
         - data_error is an array of errors associated
         - Qmin is the goodness of fit minimal value
-        ———————
         Output: 
         - will store the fit result into the associated
         class as a dictionary:
@@ -256,9 +177,6 @@ class Fit_MIEZE_Minuit(Fit_Handler):
             'pol_error'
             'mean_error'
             'ampl_error'
-        ———————
-        status: active
-        ##############################################
         '''
         ##############################################
         #Initialize the output dictionary with all def.
@@ -276,16 +194,11 @@ class Fit_MIEZE_Minuit(Fit_Handler):
         ##############################################
         #there is no data so no fit...
         if np.sum(data) == 0.:
-            
-            #write the dictionary entries
             local_results.add_log('warning', 'Fit failed: No counts present.')
             local_results.set_complete()
-
-            #tell fit handler what happened
             self.log.add_log(
                 'error', 
                 'Fit failed: No counts present.')
-
             return False
 
         ##############################################
@@ -295,72 +208,48 @@ class Fit_MIEZE_Minuit(Fit_Handler):
         ##############################################
         # minuit failed
         if fit == None:
-
-            #write the dictionary entries
             local_results.add_log('error', 'minuit failed')
             local_results.set_complete()
-
-            #tell fit handler what happened
             self.log.add_log(
                 'error', 
                 'Fit failed: Minuit failed to compute.')
-
             return False
 
         ##############################################
-        # covariance innacutrate
+        # covariance inaccurate
         if not fit.matrix_accurate():
-            
-            #write the dictionary entries
             local_results.add_log('error', 'cov_failed')
             local_results.set_complete()
-
-            #tell fit handler what happened
             self.log.add_log(
                 'error', 
                 'Fit failed: Covariance not valid.')
-
             return False
 
         ##############################################
         # evaluate goodness
         params  = fit.values
         chi2    = fit.fval
+        Q       = self.fit_goodness(chi2, len(data))
 
-        # Calculate the fit goodness
-        Q = self.fit_goodness(chi2, len(data))
-
-        # fit not trusted
         if not Q >= Qmin:
-
-            #write the dictionary entries
             local_results.add_log('info', 'Qmin_bigger_Q')
             local_results.set_complete()
-
-            #tell fit handler what happened
             self.log.add_log(
                 'error', 
                 'Fit not trusted: Q = {:.2f} < {:.2f} = Qmin).'.
                 format(Q, Qmin))
-
             return False
 
         ##############################################
         # Everything in order proceed
-        Cov     = np.array(fit.np_matrix()).reshape([3,3])
-        ampl    = params['ampl']
-        amplerr = np.sqrt(Cov[2][2])
-        offset  = params['offset']
-
-        offset_error   = np.sqrt(Cov[1][1])
-        phase_error    = np.sqrt(Cov[0][0])
-
-        errCov = np.sqrt(
-            Cov[2][2]/( offset ) ** 2 
-            + Cov[1][1] * ( ampl / ( ( offset ) ** 2 ) ) ** 2 )
-
-        #Error of Sine-Fits using covariance matrix
-        fit_error_Cov = np.sqrt(
+        Cov             = np.array(fit.np_matrix()).reshape([3,3])
+        ampl            = params['ampl']
+        amplerr         = np.sqrt(Cov[2][2])
+        offset          = params['offset']
+        offset_error    = np.sqrt(Cov[1][1])
+        phase_error     = np.sqrt(Cov[0][0])
+        errCov          = np.sqrt(Cov[2][2]/(offset)**2+Cov[1][1]*(ampl/((offset)**2))**2)
+        fit_error_Cov   = np.sqrt(
             Cov[0][0] * ( params['ampl'] 
                 * np.sin(freq * np.arange(len_data) + params['phase']) ) ** 2 
             + Cov[1][1] * ( params['ampl']

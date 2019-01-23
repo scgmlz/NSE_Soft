@@ -74,7 +74,7 @@ class Log_Handler:
             #print error
             if  'error' in self.print_level:
                 line = self.error[-1]
-                # print(str(line[0])+' '+line[2]+' '+line[1])
+                print(str(line[0])+' '+line[2]+' '+line[1])
 
         ##############################################
         #are we fed by a warning
@@ -87,7 +87,7 @@ class Log_Handler:
             #print error
             if  'warning' in self.print_level:
                 line = self.warning[-1]
-                # print(str(line[0])+' '+line[2]+' '+line[1])
+                print(str(line[0])+' '+line[2]+' '+line[1])
 
         ##############################################
         #are we fed by an information
@@ -100,7 +100,7 @@ class Log_Handler:
             #print error
             if  'info' in self.print_level:
                 line = self.info[-1]
-                # print(str(line[0])+' '+line[2]+' '+line[1])
+                print(str(line[0])+' '+line[2]+' '+line[1])
 
     def dump_to_file(self, path, level = 0):
         '''

@@ -97,9 +97,17 @@ class MaskGenerator:
         grab the right class and initialise
         it depending on its type.
         '''
-        self.mask = np.zeros((size_x, size_y))
+        self.mask = np.zeros((size_x, size_y)).astype(np.int16)
         for element in self.element_classes:
-            self.mask += element.generate(size_x, size_y)
+            temp_mask = np.array(element.generate(size_x, size_y))
+            temp_mask[temp_mask>0] += np.amax(self.mask) 
+            self.mask +=  temp_mask
 
-            
+        for i in range(np.amax(self.mask)):
+            if np.sum(self.mask[self.mask == i]) == 0:
+                self.mask[self.mask < i] += 1
+        
+        self.mask == np.amin(self.mask)
+
+
 

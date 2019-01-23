@@ -556,7 +556,6 @@ class PageScriptWidget(Ui_script_widget):
         checked = QtCore.Qt.Checked if check else QtCore.Qt.Unchecked
         self.selected_items[-1].setCheckState(checked)
         self.selected_items[-1].setCheckable(True)
-        
         self.selected_model.appendRow(self.selected_items[-1])
 
     def _buildEchoFoils(self):
@@ -867,7 +866,7 @@ class PageScriptWidget(Ui_script_widget):
         to undertake. 
         '''
         if not self.env == None:
-            if index < 5:
+            if index < 4:
                 self._runPythonCode(self.text_widgets[index].toPlainText())
 
         self.result_handler_ui._fillAllResults(
@@ -882,7 +881,7 @@ class PageScriptWidget(Ui_script_widget):
         '''
         Run all the scripts.
         '''
-        for i in range(5):
+        for i in range(4):
             self.run(i)
 
     def _runPythonCode(self, code):
@@ -1093,7 +1092,15 @@ class PageScriptWidget(Ui_script_widget):
         Hide the plot_manager to allow more space for the
         plot view in the frame.
         '''
-        self.process_tree_plot.setVisible(not self.process_tree_plot.isVisible())
+        self.process_tree_plot.setVisible(
+            not self.process_tree_plot.isVisible())
+        self.process_button_plot_add.setVisible(
+            not self.process_button_plot_add.isVisible())
+        self.process_button_plot_remove.setVisible(
+            not self.process_button_plot_remove.isVisible())
+        self.process_button_plot_reset.setVisible(
+            not self.process_button_plot_reset.isVisible())
+
         if self.process_tree_plot.isVisible():
             self.process_button_plot_hide.setText('Hide')
         else:

@@ -122,6 +122,8 @@ class PageMaskWidget(Ui_mask_editor):
 
         if idx < len(keys):
             key = keys[idx]
+            self.mask_core.setMask(key)
+            self.populateAll()
             try:
                 self.mask_core.setMask(key)
                 self.populateAll()
@@ -187,7 +189,6 @@ class PageMaskWidget(Ui_mask_editor):
 
         self.mask_list_loaded.reset()
         self.mask_list_loaded.clear()
-
         for element in self.mask_core.mask_dict[self.mask_core.current_mask]:
             self.mask_widgets.append(
                 QtWidgets.QListWidgetItem(self.mask_list_loaded))

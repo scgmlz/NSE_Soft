@@ -74,7 +74,6 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
         self.initialize()
         self.connect_invariant()
         
-
     def initialize(self):
         '''
         initialize the widget and set the stage
@@ -89,13 +88,17 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
         self.removeWidgets(child = True)
         self.equivalence['arc'](child = True)
         self.placeWidgets(child = True)
-
+        self.checkChildToggle()
         self.setValues()
+        if 'comp' in self.parameters[0]:
+            self.mask_combo_type_child.setCurrentIndex(
+                self.child_types.index(self.parameters[7][0]))
+            self.changeChildType(
+                self.child_types.index(self.parameters[7][0]),
+                silent = True)
         if 'comp' in self.parameters[0]:
             self.setValues(child=True)
         self.connect()
-
-        self.checkChildToggle()
 
     def connect_invariant(self):
         '''
@@ -139,16 +142,17 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
         self.connect()
         self.mask_reset.emit()
 
-    def changeChildType(self, idx):
+    def changeChildType(self, idx, silent = False):
         '''
         Change the type of the shape
         '''
         self.removeWidgets(child = True)
         self.equivalence[self.child_types[idx]](child = True)
         self.placeWidgets(child = True)
-        self.grabValues()
-        self.connect()
-        self.mask_reset.emit()
+        if not silent:
+            self.grabValues()
+            self.connect()
+            self.mask_reset.emit()
 
     def triggerGrab(self):
         '''
@@ -252,7 +256,6 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
                 elif isinstance(element, QtWidgets.QSpinBox):
                     element.setMinimum(-1000)
                     element.setMaximum( 1000)
-
                 element.setFont(QtGui.QFont(".SF NS Text", 10))
                 element.resize(50,21)
         self.checkChildToggle()
@@ -365,7 +368,7 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
                 QtWidgets.QCheckBox('Increment', parent = self.widget),
                 QtWidgets.QCheckBox('Exclude', parent = self.widget)])
 
-    def buildLinearComposition(self, child = False):
+    def buildLinearComposition(self):
         '''
         Build the items according to their 
         types.

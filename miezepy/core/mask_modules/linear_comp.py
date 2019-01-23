@@ -153,8 +153,8 @@ class LinearComposition(MaskShape):
         for edge in edges:
             element = copy.deepcopy(self.template)
             if self.parameters['child type'] == 'square' and self.parameters['close gap']:
-                    element.parameters['width']  = (x[1] - x[0])
-                    element.parameters['height'] = (y[1] - y[0])
+                    element.parameters['width']  = self.parameters['width'] / (self.parameters['horizontal'] - 1)
+                    element.parameters['height'] = self.parameters['height'] / (self.parameters['vertical'] - 1)
             element.move(absolute = edge)
             if not self.parameters['child type'] == 'square' or not self.parameters['close gap']:
                 element.rotate(absolute = self.parameters['angle'])

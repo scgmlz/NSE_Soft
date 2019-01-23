@@ -7,7 +7,7 @@ class Test_mask_system(unittest.TestCase):
     def test_init(self):
         masks = Masks()
         keys = [key for key in masks.mask_dict.keys()]
-        self.assertEqual(len(keys), 13)
+        self.assertEqual(len(keys), 17)
 
     def test_add_mask(self):
         masks = Masks()
@@ -35,7 +35,7 @@ class Test_mask_system(unittest.TestCase):
 
         masks.mask_gen.generateMask(128,128)
         self.assertEqual(masks.mask_gen.mask[35,31],1)
-        self.assertEqual(masks.mask_gen.mask[65,65],1)
+        self.assertEqual(masks.mask_gen.mask[65,65],2)
 
         masks.removeElement(0)
         masks.sendToGenerator()

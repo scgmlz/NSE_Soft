@@ -22,6 +22,8 @@
 # *****************************************************************************
 
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 
 from .fit_mieze_minuit  import Fit_MIEZE_Minuit
 
@@ -34,18 +36,12 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
     def calcCtrstFit(self, select, foils_in_echo, shift, target, mask, results, foil = None):
 
         '''
-        ##############################################
         This function will process the fit of the
         given input.
-        ———————
         Input: 
         - select (list)
         - MIEZE metadata object
         - mask object
-        ———————
-        Output: 
-        - will return the result array 
-        ##############################################
         '''
         premask         = mask.mask
         local_results   = {}
@@ -63,17 +59,14 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             for e2 in target.get_axis(meas_name)]
 
         for key, meas in loop:
-
             #grab the data slice
             new_target = target.get_slice([key, meas])
 
-            #if measurement it 0 initate the dicitoanry
+            #if measurement it 0 initiate the dictionary
             if meas == 0:
-
                 local_results[key]    = {}
 
             if not new_target == False:
-                    
                 #print out the processing step
                 print(
                     'Processing the contrast fit for: '
@@ -84,12 +77,11 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                 local_results[key][meas]    = {}
 
                 for echo in new_target.get_axis(echo_name):
-
                     combined_data = self.combineData(
                         key, meas, echo, 
                         shift, target, new_target, 
                         premask, foil, foils_in_echo )
-
+                    print([key][meas][echo])
                     local_results[key][meas][echo] = self.fitSinus(
                         results, combined_data, new_target, echo)
 
@@ -119,17 +111,16 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             combined_data, 
             np.sqrt(combined_data), 
             Qmin = 0.,
-            time_chan = new_target.get_axis_len(tcha_name)
-            )
+            time_chan = new_target.get_axis_len(tcha_name))
 
-        #process the result of the fit
-        result = results.get_last_result('Fit data covariance')
-
-        ############################################
-        #
+        result      = results.get_last_result('Fit data covariance')
         echo_idx_1  = new_target.get_axis_idx(echo_name, echo)
-        monitor = new_target.get_metadata([echo_idx_1,0,0])[0]['Monitor']
-
+        monitor     = new_target.get_metadata([echo_idx_1,0,0])[0]['Monitor']
+        print([
+            result['ampl']/monitor,
+            result['ampl_error']/monitor,
+            result['mean']/monitor,
+            result['mean_error']/monitor])
         ############################################
         #process the result
         return [
@@ -140,15 +131,6 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def combineData(self,key, meas, echo, shift, target, new_target, premask, foil, foils_in_echo):
         '''
-        ##############################################
-        
-        ———————
-        Input: 
-        - MIEZE metadata object
-        - mask object
-        ———————
-        Output: -
-        ##############################################
         '''
         #set up the parameter names
         echo_name = self.para_dict['echo_name']
@@ -161,13 +143,11 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         #check if we want only a specific foil
         if not foil == None:
             foil_elements = [foil]
-
         else:
             foil_elements = new_target.get_axis(foil_name)
 
         #reduce the foils
         for foil in foil_elements:
-
             #grab idx for the values.
             echo_idx_0  = target.get_axis_idx(echo_name, echo)
             foil_idx    = new_target.get_axis_idx(foil_name, foil)
@@ -177,9 +157,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                 data_array = []
                 for tcha_idx in range(new_target.get_axis_len(tcha_name)):
                     data_array.append((np.multiply(shift[key][meas][echo][foil_idx,tcha_idx],premask)).sum())
-
                 data = np.array(data_array)
-
                 combined_data += data
                 
         return combined_data
@@ -205,9 +183,12 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
         ############################################
         #extract the relevant parameters 
-        shift           = results.get_last_result('Shift calculation', 'Shift')
-        foils_in_echo   = self.test_parameter('foils_in_echo', target, mask, results)
-        reference       = self.test_parameter('Reference', target, mask, results)
+        shift           = results.get_last_result(
+            'Shift calculation', 'Shift')
+        foils_in_echo   = self.test_parameter(
+            'foils_in_echo', target, mask, results)
+        reference       = self.test_parameter(
+            'Reference', target, mask, results)
 
         ############################################
         #fit and calculate the contrast
@@ -215,20 +196,18 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             'Processing the reference contrast calculation for: '
             +str(reference))
 
-        reference = reference[0] 
-        
-        ref_result = self.calcCtrstFit(
+        reference   = reference[0] 
+        ref_result  = self.calcCtrstFit(
             [reference], 
             foils_in_echo, 
             shift, 
             target, 
             mask,
             results)
-
+            
         contrast_result = self.ctrstLogicRef(
             ref_result[reference][0],
             local_results)
-
         ############################################
         #Process the result
         local_results['Reference']            = reference
@@ -268,21 +247,16 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             #do a check of the value and throw an error if 0
             if target[echo][0] == 0 or target[echo][2] == 0:
                 if target[echo][0] == 0:
-
                     local_results.add_log(
                         'warning', 
                         'The amplitude from the reference fit is 0. Please investigate...')
-
                     local_results.add_log(
                         'error', 
                         'Setting the value to 1')
-
                 elif target[echo][2] == 0:
-
                     local_results.add_log(
                         'error', 
                         'The mean from the reference fit is 0. Please investigate...')
-
                     local_results.add_log(
                         'error', 
                         'Setting the value to 1')
@@ -550,12 +524,18 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
         ############################################
         #get the last contrast computaiton result
-        contrast            = results.get_last_result('Contrast calculation', 'Contrast')
-        contrast_error      = results.get_last_result('Contrast calculation', 'Contrast_error')
-        contrast_ref        = results.get_last_result('Reference contrast calculation','Contrast_ref')
-        contrast_ref_error  = results.get_last_result('Reference contrast calculation','Contrast_ref_error')
-        BG                  = results.get_last_result('Contrast calculation', 'Background')
-        axis                = results.get_last_result('Contrast calculation', 'Axis')
+        contrast            = results.get_last_result(
+            'Contrast calculation', 'Contrast')
+        contrast_error      = results.get_last_result(
+            'Contrast calculation', 'Contrast_error')
+        contrast_ref        = results.get_last_result(
+            'Reference contrast calculation','Contrast_ref')
+        contrast_ref_error  = results.get_last_result(
+            'Reference contrast calculation','Contrast_ref_error')
+        BG                  = results.get_last_result(
+            'Contrast calculation', 'Background')
+        axis                = results.get_last_result(
+            'Contrast calculation', 'Axis')
 
         select              = self.test_parameter('Select', target, mask, results)
         reference           = self.test_parameter('Reference', target, mask, results)
