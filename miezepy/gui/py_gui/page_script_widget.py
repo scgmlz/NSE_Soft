@@ -587,10 +587,10 @@ class PageScriptWidget(Ui_script_widget):
 
         try:
             names = [
-                str(x)[0:8] for x in self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time').sort()]
+                '{:0.5e}'.format(x) for x in self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time').sort()]
         except:
             names = [
-                str(x)[0:8] for x in self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time')]
+                '{:0.5e}'.format(x) for x in self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time')]
 
         for name in names:
             self._addEchoWidget(name)
