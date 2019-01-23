@@ -235,7 +235,7 @@ class MainWindowLayout(Ui_MIEZETool):
                     self.refreshChecked(3)
 
             elif index == 4:
-                self.refreshChecked(3)
+                self.refreshChecked(4)
 
         if not method == None:
             method()
