@@ -93,7 +93,6 @@ class PageEnvWidget(Ui_env_widget):
         Add an environment to the system
         '''
         env = self.handler.new_environment()
-
         self.refreshList()
 
     def deleteEnvironment(self):
@@ -110,7 +109,7 @@ class PageEnvWidget(Ui_env_widget):
                     break
 
             del self.handler.env_array[index_to_delete]
-            try:
+            try: 
                 del self.handler.current_env
             except:
                 pass

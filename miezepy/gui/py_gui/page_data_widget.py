@@ -128,6 +128,7 @@ class PageDataWidget(Ui_data_import):
         self.data_button_files_add.clicked.connect(self.getFiles)
         self.data_button_files_reset.clicked.connect(self.resetFiles)
         self.data_button_populate.clicked.connect(self.populate)
+        self.data_button_validate.clicked.connect(self.generateDataset)
         self.data_button_files_remove.clicked.connect(self.removeFile)
         self.data_button_prev.clicked.connect(self.hide_preview)
         self.data_button_add_object.clicked.connect(self.addElement)
@@ -445,6 +446,7 @@ class PageDataWidget(Ui_data_import):
         '''
         self.io_core.generate()
         self.parent.widgetClasses[0].refreshData()
+        self.parent.widgetClasses[3].link(self.parent.handler.current_env)
 
     def save(self):
         '''
