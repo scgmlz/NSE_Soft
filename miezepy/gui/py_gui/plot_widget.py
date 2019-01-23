@@ -244,5 +244,6 @@ class PlotItem(Ui_PlotWidget):
             plot_dict['link']   = self.link
 
         plot_dict['color']      = QtGui.QColor(self.color)
+        plot_dict['actif']      = self.active_check.isChecked()
 
         return plot_dict

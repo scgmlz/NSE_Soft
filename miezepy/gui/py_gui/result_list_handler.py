@@ -376,6 +376,8 @@ class ResultHandlerUI:
         '''
         plot_parameters = {}
         for element in self.plot_list:
-            plot_parameters[element.child.text(0)] = element._getPlotDict()
+            element_dict  = element._getPlotDict()
+            if element_dict['actif']:
+                plot_parameters[element.child.text(0)] = element._getPlotDict()
 
         return plot_parameters
