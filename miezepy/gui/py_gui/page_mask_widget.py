@@ -406,7 +406,6 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not default == None:
             self.comboBox.setCurrentIndex(keys.index(default))
         self.comboBox.currentIndexChanged.connect(self.updateSelection)
-        print(keys, default)
         try:
             self.stack._readFromScripts()
             self.stack._disconnectVisualFit()
@@ -414,6 +413,7 @@ class PanelPageMaskWidget(PageMaskWidget):
             self.stack._linkVisualMaskSelect()
             self.stack._setVisualFit()
             self.stack._updateFoilTri()
+            self.stack._linkVisualPhase()
             self.stack._setVisualPhase()
             self.stack._connectVisualFit()
             self.stack._connectVisualPhase()
