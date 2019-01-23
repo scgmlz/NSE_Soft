@@ -36,6 +36,8 @@ from ..py_gui.page_script_widget    import PageScriptWidget
 from ..py_gui.page_io_widget        import PageIOWidget
 from ..py_gui.dialog                import dialog 
 
+import miezepy
+
 class MainWindowLayout(Ui_MIEZETool):
     '''
     ##############################################
@@ -267,6 +269,7 @@ class MainWindowLayout(Ui_MIEZETool):
         This method checks if the data has been set
         in a previous instance.
         '''
+        self.label.setText('v. '+miezepy.__version__)
         self.stack = QtWidgets.QStackedWidget()
 
         self.widgetClasses = [
