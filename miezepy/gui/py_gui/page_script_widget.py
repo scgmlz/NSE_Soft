@@ -727,7 +727,10 @@ class PageScriptWidget(Ui_script_widget):
 
         string_array = sorted(string_array)
         for i, item in enumerate(string_array):
-            python_string_init += str(item)+ ", "
+            try:
+                python_string_init += str(float(item))+ ", "
+            except:
+                python_string_init += "'"+str(item)+ "', "
 
         python_string_init = python_string_init[:-2]
         python_string_init += "]\n"
@@ -738,11 +741,17 @@ class PageScriptWidget(Ui_script_widget):
         if self.process_box_back_fit.currentIndex() == len(array):
             python_string_init += "Background = None"        
         else:
-            python_string_init += "Background = "+array[self.process_box_back_fit.currentIndex()]+"\n"
+            try:
+                python_string_init += "Background = "+str(float(array[self.process_box_back_fit.currentIndex()]))+"\n"
+            except:
+                python_string_init += "Background = '"+str(array[self.process_box_back_fit.currentIndex()])+"'\n"
 
         #set the background
         python_string_init += "\n#Set the reference (edit in GUI)\n"
-        python_string_init += "Reference = ["+[ str(val) for val in self.env.current_data.get_axis('Parameter') ][self.process_box_refs_fit.currentIndex()]+",0]\n"
+        try:
+            python_string_init += "Reference = ["+str(float([ str(val) for val in self.env.current_data.get_axis('Parameter') ][self.process_box_refs_fit.currentIndex()]))+",0]\n"
+        except:
+            python_string_init += "Reference = ['"+str([ str(val) for val in self.env.current_data.get_axis('Parameter') ][self.process_box_refs_fit.currentIndex()])+"',0]\n"
 
         #find area to edit
         text = self.env.process.editable_scripts[1]
