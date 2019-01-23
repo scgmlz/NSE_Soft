@@ -168,6 +168,8 @@ class PageScriptWidget(Ui_script_widget):
             self.process_tree_y,
             self.process_tree_plot)
         self.synthesize_scripts = True
+        self.tabWidget.setCurrentIndex(0)
+        self.script_tabs.setCurrentIndex(0)
 
     def _linkVisualComponents(self):
         '''
