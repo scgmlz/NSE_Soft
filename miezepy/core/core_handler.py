@@ -82,21 +82,26 @@ class Handler:
 
         return self.env_array[-1]
 
-    def set_current_env(self, key = None):
+    def set_current_env(self, key = None, idx = None):
         '''
         This function sets the current data
         with the right key
         '''
-        names = [env.name for env in self.env_array]
+        if not idx == None:
+            self.current_env        = self.env_array[idx]
+            self.current_env_key    = self.current_env.name
 
-        if not key == None:
-            if key in names:
-                self.current_env_key    = key
-                self.current_env        = self.env_array[names.index(key)]
-                return self.current_env
+        else:
+            names = [env.name for env in self.env_array]
 
-            else:
-                print("\nERROR: The key '"+str(key)+"' you have provided is not present as an environment...\n")
+            if not key == None:
+                if key in names:
+                    self.current_env_key    = key
+                    self.current_env        = self.env_array[names.index(key)]
+                    return self.current_env
+
+                else:
+                    print("\nERROR: The key '"+str(key)+"' you have provided is not present as an environment...\n")
 
     def saveSession(self, path, data_bool = True, mask_bool = False, script_bool = False):
         '''

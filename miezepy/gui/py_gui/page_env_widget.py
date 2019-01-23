@@ -129,6 +129,7 @@ class PageEnvWidget(Ui_env_widget):
 
         try:
             self.main_widget_env.itemWidget(self.main_widget_env.item(index)).setFocus()
+            self.handler.set_current_env(idx = index)
         except:
             pass
 

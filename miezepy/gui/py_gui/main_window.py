@@ -78,11 +78,16 @@ class MainWindowLayout(Ui_MIEZETool):
         '''
 
         #button actions
-        self.env_button.clicked.connect(self.refreshChecked)
-        self.data_button.clicked.connect(self.refreshChecked)
-        self.mask_button.clicked.connect(self.refreshChecked)
-        self.script_button.clicked.connect(self.refreshChecked)
-        self.save_button.clicked.connect(self.refreshChecked)
+        self.env_button.clicked.connect(
+            partial(self.actionDispatcher, 0, None))
+        self.data_button.clicked.connect(
+            partial(self.actionDispatcher, 1, None))
+        self.mask_button.clicked.connect(
+            partial(self.actionDispatcher, 2, None))
+        self.script_button.clicked.connect(
+            partial(self.actionDispatcher, 3, None))
+        self.save_button.clicked.connect(
+            partial(self.actionDispatcher, 4, None))
 
         #Menu actions
         self.actionAddEnv.triggered.connect(
@@ -237,17 +242,11 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def link(self, handler):
         '''
-        ##############################################
         link the class that will manage the current 
         input output.
         ———————
         Input: 
         - meta_class is the metadata class from the io
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.setActivity(
             'Linking',0,3)
@@ -265,16 +264,8 @@ class MainWindowLayout(Ui_MIEZETool):
         
     def initialize(self):
         '''
-        ##############################################
         This method checks if the data has been set
         in a previous instance.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.stack = QtWidgets.QStackedWidget()
 
@@ -292,17 +283,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def refreshChecked(self, index = None):
         '''
-        ##############################################
         This method will determine the button that the
         user selected and perform the appropriate 
-        measures.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if index == None or isinstance(index, bool):
 
@@ -328,16 +310,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def revertAllButtons(self):
         '''
-        ##############################################
         This method will revert all button to their 
         unchecked state.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         pointers = [
             self.env_button,
@@ -354,16 +328,10 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def selectButton(self, i):
         '''
-        ##############################################
         This method will set one button to checked
         ———————
         Input: 
         - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         pointers = [
             self.env_button,
@@ -379,17 +347,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def setActivity(self, label_0, min_val, max_val):
         '''
-        ##############################################
         This method will set all activity parts active
         and then set label0
-        ———————
-        Input: 
-        - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         #make it visible in case it was hidden
         self.main_label_progress_0.show()
@@ -412,17 +371,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def hideActivity(self):
         '''
-        ##############################################
         This method will set all activity parts active
         and then set label0
-        ———————
-        Input: 
-        - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.main_label_progress_0.hide()
         self.main_label_progress_1.hide()
@@ -432,17 +382,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def fadeActivity(self):
         '''
-        ##############################################
         This method will set all activity parts active
         and then set label0
-        ———————
-        Input: 
-        - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.fade(self.main_label_progress_0)
         self.fade(self.main_label_progress_1)
@@ -452,17 +393,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def unfade(self, widget):
         '''
-        ##############################################
         This method will fade out the widget that it
         is assigned to.
-        ———————
-        Input: 
-        - widget (QtWidget)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         effect = QtWidgets.QGraphicsOpacityEffect()
         effect.setOpacity(1)
@@ -470,17 +402,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def fade(self, widget):
         '''
-        ##############################################
         This method will fade out the widget that it
         is assigned to.
-        ———————
-        Input: 
-        - widget (QtWidget)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         widget.effect = QtWidgets.QGraphicsOpacityEffect()
         widget.setGraphicsEffect(widget.effect)
@@ -493,17 +416,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def setProgress(self, label, val):
         '''
-        ##############################################
         This method will set all activity parts active
         and then set label0
-        ———————
-        Input: 
-        - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.main_bar_progress.setValue(val)
         self.main_label_progress_1.setText(label)
