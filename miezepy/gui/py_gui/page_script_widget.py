@@ -150,6 +150,15 @@ class PageScriptWidget(Ui_script_widget):
         self.process_button_echo_fit.clicked.connect(self._plotEcho)
         self.process_button_gamma.clicked.connect(self._plotGamma)
 
+        self.tabWidget.currentChanged.connect(self._mainTabChanged)
+
+    def _mainTabChanged(self, idx):
+        '''
+        '''
+        if idx == 1 and self.env:
+            keys = [key for key in self.tool.mask_core.mask_dict.keys()]
+            self.tool.comboBox.setCurrentIndex(keys.index(self.tool.mask_core.current_mask))
+
     def link(self, env = None):
         '''
         Link the GUI to the environment that will be  read and
