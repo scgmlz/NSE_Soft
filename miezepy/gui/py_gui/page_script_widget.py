@@ -906,7 +906,6 @@ class PageScriptWidget(Ui_script_widget):
 
         for i in range(len(code_array)):
             self.setProgress(meta_array[i].strip('\n'), i)
-
             try:
                 exec(code_array[i])
 

@@ -42,6 +42,8 @@ class PageEnvWidget(Ui_env_widget):
         connect the actions to their respective buttons
         '''
         self.main_widget_env.currentRowChanged.connect(self.setCurrentElement)
+        self.env_button_add.clicked.connect(self.addEnvironment)
+        self.env_button_remove.clicked.connect(self.deleteEnvironment)
 
     def link(self, handler):
         '''
@@ -99,17 +101,21 @@ class PageEnvWidget(Ui_env_widget):
         delete an environment of the system
         '''
         index = self.main_widget_env.currentRow()
-        names = [env.name for env in self.handler.env_array]
+        if not index == -1:
+            names = [env.name for env in self.handler.env_array]
 
-        for element in self.handler.env_array:
-            if element.name == self.envs[index].env.name:
-                index_to_delete = names.index(element.name)
-                break
+            for element in self.handler.env_array:
+                if element.name == self.envs[index].env.name:
+                    index_to_delete = names.index(element.name)
+                    break
 
-        del self.handler.env_array[index_to_delete]
-        del self.handler.current_env
+            del self.handler.env_array[index_to_delete]
+            try:
+                del self.handler.current_env
+            except:
+                pass
 
-        self.refreshList()
+            self.refreshList()
 
     def setCurrentElement(self, row = None):
         '''
