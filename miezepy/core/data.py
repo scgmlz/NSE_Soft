@@ -60,6 +60,7 @@ class Data_Structure:
         self.metadata_adresses  = []
         self.map                = None
         self.slices             = {}
+        self.generated          = False
 
         #logical variables
         self.add_meta_auto = True
@@ -225,6 +226,7 @@ class Data_Structure:
         self.delete_all_slices()
         self.generate_axes()
         self.create_map()
+        self.generated = True
 
     def sanity_check(self):
         '''

@@ -11,12 +11,23 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_env_widget(object):
     def setupUi(self, env_widget):
         env_widget.setObjectName("env_widget")
-        env_widget.resize(400, 300)
+        env_widget.resize(559, 317)
         env_widget.setStyleSheet("#env_widget{background-color: rgb(179, 179, 179);}")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(env_widget)
+        self.verticalLayout = QtWidgets.QVBoxLayout(env_widget)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
+        self.env_button_add = QtWidgets.QPushButton(env_widget)
+        self.env_button_add.setObjectName("env_button_add")
+        self.horizontalLayout.addWidget(self.env_button_add)
+        self.env_button_remove = QtWidgets.QPushButton(env_widget)
+        self.env_button_remove.setObjectName("env_button_remove")
+        self.horizontalLayout.addWidget(self.env_button_remove)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.verticalLayout.addLayout(self.horizontalLayout)
         self.main_widget_env = QtWidgets.QListWidget(env_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.main_widget_env.sizePolicy().hasHeightForWidth())
@@ -32,7 +43,7 @@ class Ui_env_widget(object):
 "}")
         self.main_widget_env.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.main_widget_env.setObjectName("main_widget_env")
-        self.horizontalLayout.addWidget(self.main_widget_env)
+        self.verticalLayout.addWidget(self.main_widget_env)
 
         self.retranslateUi(env_widget)
         QtCore.QMetaObject.connectSlotsByName(env_widget)
@@ -40,4 +51,6 @@ class Ui_env_widget(object):
     def retranslateUi(self, env_widget):
         _translate = QtCore.QCoreApplication.translate
         env_widget.setWindowTitle(_translate("env_widget", "Form"))
+        self.env_button_add.setText(_translate("env_widget", "+"))
+        self.env_button_remove.setText(_translate("env_widget", "-"))
 

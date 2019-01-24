@@ -63,17 +63,9 @@ class DisplayRawWindowLayout(Ui_raw_display):
 
     def setup(self):
         '''
-        ##############################################
         This is the initial setup method that will 
         build the layout and introduce the graphics
         area
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.setupUi(self.window)
 
@@ -92,32 +84,16 @@ class DisplayRawWindowLayout(Ui_raw_display):
 
     def link(self, import_object):
         '''
-        ##############################################
         This routine will link to the io manager class
         from the core. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.import_object = import_object
         self.initialize()
 
     def initialize(self):
         '''
-        ##############################################
         This routine will link to the io manager class
         from the core. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.echo_drop.addItems(
             [str(e) for e in self.import_object.meta_handler.values['Echo']])
@@ -132,16 +108,8 @@ class DisplayRawWindowLayout(Ui_raw_display):
 
     def connect(self):
         '''
-        ##############################################
         This routine will link to the io manager class
         from the core. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.foil_spin.valueChanged.connect(self.draw)
         self.time_spin.valueChanged.connect(self.draw)
@@ -149,15 +117,6 @@ class DisplayRawWindowLayout(Ui_raw_display):
 
     def draw(self, stuff = None):
         '''
-        ##############################################
-        
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         data = self.import_object.file_handler.getElement([
             self.echo_drop.currentIndex(),
