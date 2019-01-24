@@ -1,26 +1,36 @@
 '''
 #############################################
-Here are stored the methods for the reduction
-of the fata
+In this script we will effectively reduce the
+data. Essential to this is the selection of
+the mask that will be used to reduce.
+
+environment.process.calculate_ref_contrast()
+-> will evaluate the contrast of the 
+reference.
+
+environment.process.calculate_contrast()
+-> will evaluate the contrast of selected 
+measurements.
+
+It is possible to edit missfit results as 
+seen with the set_result command
 #############################################
 '''
-parallel_env = self.env
+environment = self.env
+
+environment.mask.setMask('SkX_peak_Sixfold')
+print(environment.mask)
+
+# environment.results.set_result( 
+#          name = 'Reference contrast calculation', 
+#          position = ['Contrast_ref',0.36585973199337996], 
+#          value = 0.73)
+
+# environment.results.set_result(
+#          name = 'Reference contrast calculation', 
+#          position = ['Contrast_ref_error',0.36585973199337996], 
+#          value = 0.0035)
 
 
-
-parallel_env.mask.select_template(key = 'SkX_peak_Sixfold')
-print(parallel_env.mask)
-
-parallel_env.process.calculate_ref_contrast()
-#coorect values
-parallel_env.results.set_result( 
-         name = 'Reference contrast calculation', 
-         position = ['Contrast_ref',0.36585973199337996], 
-         value = 0.73)
-
-parallel_env.results.set_result(
-         name = 'Reference contrast calculation', 
-         position = ['Contrast_ref_error',0.36585973199337996], 
-         value = 0.0035)
-
-parallel_env.process.calculate_contrast()
+environment.process.calculate_ref_contrast()
+environment.process.calculate_contrast()

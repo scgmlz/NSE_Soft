@@ -30,9 +30,13 @@ from functools import partial
 from ..qt_gui.mainwindow_ui         import Ui_MIEZETool 
 
 from ..py_gui.page_data_widget      import PageDataWidget
+from ..py_gui.page_mask_widget      import PageMaskWidget
 from ..py_gui.page_env_widget       import PageEnvWidget
 from ..py_gui.page_script_widget    import PageScriptWidget
 from ..py_gui.page_io_widget        import PageIOWidget
+from ..py_gui.dialog                import dialog 
+
+import miezepy
 
 class MainWindowLayout(Ui_MIEZETool):
     '''
@@ -76,47 +80,120 @@ class MainWindowLayout(Ui_MIEZETool):
         '''
 
         #button actions
-        self.env_button.clicked.connect(self.refreshChecked)
-        self.data_button.clicked.connect(self.refreshChecked)
-        self.script_button.clicked.connect(self.refreshChecked)
-        self.save_button.clicked.connect(self.refreshChecked)
+        self.env_button.clicked.connect(
+            partial(self.actionDispatcher, 0, None))
+        self.data_button.clicked.connect(
+            partial(self.actionDispatcher, 1, None))
+        self.mask_button.clicked.connect(
+            partial(self.actionDispatcher, 2, None))
+        self.script_button.clicked.connect(
+            partial(self.actionDispatcher, 3, None))
+        self.save_button.clicked.connect(
+            partial(self.actionDispatcher, 4, None))
 
         #Menu actions
         self.actionAddEnv.triggered.connect(
-            partial(self.actionDispatcher, 0, self.widgetClasses[0].addEnvironment))
+            partial(
+                self.actionDispatcher, 0, 
+                self.widgetClasses[0].addEnvironment))
+
         self.actionRemoveEnv.triggered.connect(
-            partial(self.actionDispatcher, 0, self.widgetClasses[0].deleteEnvironment))
+            partial(
+                self.actionDispatcher, 0, 
+                self.widgetClasses[0].deleteEnvironment))
 
+        #data
         self.actionAdd_element.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].addElement))
-        self.actionRemove_element.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].removeElement))
-        self.actionGenerate.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].generateDataset))
-        self.actionSave_to_file.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].save))
-        self.actionLoad_from_file.triggered.connect(
-            partial(self.actionDispatcher, 1, self.widgetClasses[1].load))
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].addElement))
 
+        self.actionRemove_element.triggered.connect(
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].removeElement))
+
+        self.actionGenerate.triggered.connect(
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].generateDataset))
+
+        self.actionSave_to_file.triggered.connect(
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].save))
+
+        self.actionLoad_from_file.triggered.connect(
+            partial(
+                self.actionDispatcher, 1, 
+                self.widgetClasses[1].load))
+
+        #masks
+        self.actionSaveMask.triggered.connect(
+            partial(
+                self.actionDispatcher, 2, 
+                self.widgetClasses[2].saveSingle))
+
+        self.actionSaveMaskAll.triggered.connect(
+            partial(
+                self.actionDispatcher, 2, 
+                self.widgetClasses[2].saveMultiple))
+
+        self.actionLoadMask.triggered.connect(
+            partial(
+                self.actionDispatcher, 2, 
+                self.widgetClasses[2].loadSingle))
+
+        self.actionLoadMaskAll.triggered.connect(
+            partial(
+                self.actionDispatcher, 2, 
+                self.widgetClasses[2].loadMultiple))
+
+        #scripts
         self.actionSaveScript.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].saveScripts))
+            partial(
+                self.actionDispatcher, 3, 
+                self.widgetClasses[3].saveScripts))
+
         self.actionLoadScript.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].loadScripts))
+            partial(
+                self.actionDispatcher, 3, 
+                self.widgetClasses[3].loadScripts))
+
         self.actionImport.triggered.connect(
-            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,0)))
+            partial(
+                self.actionDispatcher, 3, 
+                partial(self.widgetClasses[3].run,0)))
+
         self.actionPhase.triggered.connect(
-            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,1)))
+            partial(
+                self.actionDispatcher, 3, 
+                partial(self.widgetClasses[3].run,1)))
+
         self.actionReduction.triggered.connect(
-            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,2)))
+            partial(
+                self.actionDispatcher, 3, 
+                partial(self.widgetClasses[3].run,2)))
+
         self.actionVisual.triggered.connect(
-            partial(self.actionDispatcher, 2, partial(self.widgetClasses[2].run,3)))
+            partial(
+                self.actionDispatcher, 3, 
+                partial(self.widgetClasses[3].run,3)))
+
         self.actionAll.triggered.connect(
-            partial(self.actionDispatcher, 2, self.widgetClasses[2].runAll))
+            partial(
+                self.actionDispatcher, 3, 
+                self.widgetClasses[3].runAll))
 
         self.actionLoad_Session.triggered.connect(
-            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].getLoadPath, True)))
+            partial(
+                self.actionDispatcher, 4, 
+                partial(self.widgetClasses[4].getLoadPath, True)))
+
         self.actionSave_Session.triggered.connect(
-            partial(self.actionDispatcher, 3, partial(self.widgetClasses[3].getSavePath, True)))
+            partial(
+                self.actionDispatcher, 4, 
+                partial(self.widgetClasses[4].getSavePath, True)))
 
     def actionDispatcher(self,index, method = None):
         '''
@@ -137,33 +214,41 @@ class MainWindowLayout(Ui_MIEZETool):
         if not self.stack.currentIndex() == index:
             if index == 0:
                 self.refreshChecked(0)
+
             if index == 1:
                 if not self.widgetClasses[1].io_core == self.handler.current_env.io:
                     self.widgetClasses[1].link(self.handler.current_env.io)
                 self.refreshChecked(1)
-            elif index == 2:
-                if not self.widgetClasses[2].env == self.handler.current_env:
-                    self.widgetClasses[2].link(self.handler.current_env)
+
+            if index == 2:
+                if not self.widgetClasses[2].mask_core == self.handler.current_env.mask:
+                    self.widgetClasses[2].link(self.handler.current_env.mask)
                 self.refreshChecked(2)
+
             elif index == 3:
-                self.refreshChecked(3)
+                if not self.handler.current_env.current_data.generated:
+                    dialog(
+                        icon = 'error', 
+                        title= 'Dataset not generated',
+                        message = 'The dataset belonging to these scripts has not yet been generated. Please enter the data editing system and load the data.')
+                else:
+                    if not self.widgetClasses[3].env == self.handler.current_env:
+                        self.widgetClasses[3].link(self.handler.current_env)
+                    self.refreshChecked(3)
+
+            elif index == 4:
+                self.refreshChecked(4)
 
         if not method == None:
             method()
 
     def link(self, handler):
         '''
-        ##############################################
         link the class that will manage the current 
         input output.
         ———————
         Input: 
         - meta_class is the metadata class from the io
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.setActivity(
             'Linking',0,3)
@@ -175,32 +260,24 @@ class MainWindowLayout(Ui_MIEZETool):
         self.widgetClasses[0].link(self.handler)
 
         self.setProgress('Linking script view',3)
-        self.widgetClasses[3].link(self.handler)
+        self.widgetClasses[4].link(self.handler)
 
         self.fadeActivity()
         
     def initialize(self):
         '''
-        ##############################################
         This method checks if the data has been set
         in a previous instance.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
+        self.label.setText('v. '+miezepy.__version__)
         self.stack = QtWidgets.QStackedWidget()
 
         self.widgetClasses = [
             PageEnvWidget(self.stack, self),
             PageDataWidget(self.stack, self),
+            PageMaskWidget(self.stack, self),
             PageScriptWidget(self.stack, self),
             PageIOWidget(self.stack, self)]
-
-        self.stack.addWidget(self.widgetClasses[1].local_widget)
 
         for element in self.widgetClasses:
             self.stack.addWidget(element.local_widget)
@@ -209,23 +286,15 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def refreshChecked(self, index = None):
         '''
-        ##############################################
         This method will determine the button that the
         user selected and perform the appropriate 
-        measures.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if index == None or isinstance(index, bool):
 
             pointers = [
                 self.env_button,
                 self.data_button,
+                self.mask_button,
                 self.script_button,
                 self.save_button
             ]
@@ -244,20 +313,13 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def revertAllButtons(self):
         '''
-        ##############################################
         This method will revert all button to their 
         unchecked state.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         pointers = [
             self.env_button,
             self.data_button,
+            self.mask_button,
             self.script_button,
             self.save_button
         ]
@@ -269,20 +331,15 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def selectButton(self, i):
         '''
-        ##############################################
         This method will set one button to checked
         ———————
         Input: 
         - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         pointers = [
             self.env_button,
             self.data_button,
+            self.mask_button,
             self.script_button,
             self.save_button
         ]
@@ -293,17 +350,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def setActivity(self, label_0, min_val, max_val):
         '''
-        ##############################################
         This method will set all activity parts active
         and then set label0
-        ———————
-        Input: 
-        - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         #make it visible in case it was hidden
         self.main_label_progress_0.show()
@@ -326,17 +374,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def hideActivity(self):
         '''
-        ##############################################
         This method will set all activity parts active
         and then set label0
-        ———————
-        Input: 
-        - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.main_label_progress_0.hide()
         self.main_label_progress_1.hide()
@@ -346,17 +385,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def fadeActivity(self):
         '''
-        ##############################################
         This method will set all activity parts active
         and then set label0
-        ———————
-        Input: 
-        - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.fade(self.main_label_progress_0)
         self.fade(self.main_label_progress_1)
@@ -366,17 +396,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def unfade(self, widget):
         '''
-        ##############################################
         This method will fade out the widget that it
         is assigned to.
-        ———————
-        Input: 
-        - widget (QtWidget)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         effect = QtWidgets.QGraphicsOpacityEffect()
         effect.setOpacity(1)
@@ -384,17 +405,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def fade(self, widget):
         '''
-        ##############################################
         This method will fade out the widget that it
         is assigned to.
-        ———————
-        Input: 
-        - widget (QtWidget)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         widget.effect = QtWidgets.QGraphicsOpacityEffect()
         widget.setGraphicsEffect(widget.effect)
@@ -407,17 +419,8 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def setProgress(self, label, val):
         '''
-        ##############################################
         This method will set all activity parts active
         and then set label0
-        ———————
-        Input: 
-        - index of the button to check
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.main_bar_progress.setValue(val)
         self.main_label_progress_1.setText(label)

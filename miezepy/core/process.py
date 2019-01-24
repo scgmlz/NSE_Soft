@@ -38,17 +38,13 @@ def get_process_handler(select, env):
     '''
 
     if select == 'MIEZE':
-
         return Process_MIEZE(env)
 
     if select == 'SANS':
-
         return Process_SANS(env)
 
     else:
-
         print('Could not find the process class you are looking for. Error...')
-        
         return None
 
 class Process_Handler:
@@ -90,34 +86,19 @@ class Process_MIEZE(Process_Handler):
 
     def __init__(self, env):
         '''
-        ##############################################
         This class is a subs process class that cont-
         ains the method related to processing the 
         MIEZE data
-        ———————
-        Input: 
-        - environement
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         #initialize the superclass
         Process_Handler.__init__(self, env)
         self.env = env
-        self.initalize()
+        self.initialize()
 
-    def initalize(self):
+    def initialize(self):
         '''
-        ##############################################
         Initialize the default python scipts so that 
         the system can be set.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ##############################################
         '''
         self.default_scripts = []
         with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/import_process.py','r') as f:
@@ -133,15 +114,8 @@ class Process_MIEZE(Process_Handler):
 
     def loadScripts(self, path):
         '''
-        ##############################################
         Initialize the default python scipts so that 
         the system can be set.
-        ———————
-        Input: 
-        - path (str) file path to be loaded
-        ———————
-        Output: -
-        ##############################################
         '''
         with open(path,'r') as f:
             text = f.read()
@@ -157,16 +131,12 @@ class Process_MIEZE(Process_Handler):
 
     def saveScripts(self, path, strings):
         '''
-        ##############################################
         Initialize the default python scipts so that 
         the system can be set.
         ———————
         Input: 
         - path (str) file path to be saved
         - strings([str]) scripts 
-        ———————
-        Output: -
-        ##############################################
         '''
         string = (
             "##--IMPORT--##\n"
@@ -188,15 +158,8 @@ class Process_MIEZE(Process_Handler):
 
     def calculate_echo(self):
         '''
-        ##############################################
         In this function we will process the eco time
         on the provided datastructure. 
-        ———————
-        Input: 
-        - enviroenment
-        ———————
-        Output: -
-        ##############################################
         '''
         self.env.fit.set_parameter( 
             name = 'para_name', 
@@ -218,7 +181,6 @@ class Process_MIEZE(Process_Handler):
             name = 'tcha_name', 
             value = self.env.current_data.axes.names[4])
 
-        print(self.env.current_data.axes.names)
         ############################################
         #process the echo time
         for metadata_object in self.env.current_data.metadata_objects:
@@ -233,15 +195,8 @@ class Process_MIEZE(Process_Handler):
 
     def remove_foils(self):
         '''
-        ##############################################
         Removes the foils from the dataset and returns
         the deepcopy new dataset
-        ———————
-        Input: 
-        - enviroenment
-        ———————
-        Output: -
-        ##############################################
         '''
         #preprocess
         self.env.set_current_data(
@@ -259,18 +214,12 @@ class Process_MIEZE(Process_Handler):
 
     def calculate_shift(self):
         '''
-        ##############################################
         apply the masks and process the information
-        ———————
-        Input: 
-        - enviroenment
-        ———————
-        Output: -
-        ##############################################
         '''
         #generate the mask adapted to this dataset
-        self.env.mask.process_mask(
-            self.env.current_data)
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
         
         #extract the phase
         self.env.fit['extract_phase'](
@@ -286,21 +235,13 @@ class Process_MIEZE(Process_Handler):
 
     def calculate_ref_contrast(self):
         '''
-        ##############################################
         apply the masks and process the information
-        ———————
-        Input: 
-        - MIEZE data object
-        - Mask object
-        - the key links to the value that will be reference
-        ———————
-        Output: -
-        ##############################################
         '''
 
         #generate the mask adapted to this dataset
-        self.env.mask.process_mask(
-            self.env.current_data)
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
 
         #calculate the contrast
         self.env.fit['calc_ref_contrast'](
@@ -310,18 +251,12 @@ class Process_MIEZE(Process_Handler):
 
     def calculate_contrast(self):
         '''
-        ##############################################
         apply the masks and process the information
-        ———————
-        Input: 
-        - enviroenment
-        ———————
-        Output: -
-        ##############################################
         '''
         #generate the mask adapted to this dataset
-        self.env.mask.process_mask(
-            self.env.current_data)
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
 
         #calculate the contrast
         self.env.fit['calc_contrast'](
@@ -339,18 +274,9 @@ class Process_SANS(Process_Handler):
     
     def __init__(self, env):
         '''
-        ##############################################
         This class is a subs process class that cont-
         ains the method related to processing the 
         SANS data
-        ———————
-        Input: 
-        - environement
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         #initialize the superclass
         Process_Handler.__init__(self, env)
@@ -358,18 +284,12 @@ class Process_SANS(Process_Handler):
 
     def calculate_intensity(self):
         '''
-        ##############################################
         process the intensity vs. parameter calculation
-        ———————
-        Input: 
-        - environment
-        ———————
-        Output: -
-        ##############################################
         '''
         #generate the mask adapted to this dataset
-        self.env.mask.process_mask(
-            self.env.current_data)
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
 
         #process the intensity calculations
         self.env.fit['intensity'](

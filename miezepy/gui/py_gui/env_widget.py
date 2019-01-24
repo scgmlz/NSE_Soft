@@ -52,8 +52,6 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
 
     def __init__(self, env):
 
-        ##############################################
-        #Local pointers
         QtCore.QObject.__init__(self)
         Ui_env_widget.__init__(self)
         self.widget = QtWidgets.QWidget()
@@ -64,87 +62,46 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
 
     def initialize(self):
         '''
-        ##############################################
         initialize the widget and set the stage
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.env_input_name.setText(self.env.name)
         self.refreshData()
 
     def connect(self):
         '''
-        ##############################################
         connect
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.env_input_name.textChanged.connect(self.nameEdit)
         self.env_button_load.clicked.connect(self.loadClicked)
+        self.env_button_mask.clicked.connect(self.maskClicked)
         self.env_button_scripts.clicked.connect(self.scriptClicked)
 
     def loadClicked(self):
         '''
-        ##############################################
         connect
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.load_clicked.emit(self.env.name)
 
+    def maskClicked(self):
+        '''
+        connect
+        '''
+        self.mask_clicked.emit(self.env.name)
+
     def scriptClicked(self):
         '''
-        ##############################################
         connect
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.script_clicked.emit(self.env.name)
 
     def refreshData(self):
         '''
-        ##############################################
         connect
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.env_text_data_print.setText(self.env.data[self.env.initial_data_name].__str__())
 
     def nameEdit(self):
         '''
-        ##############################################
         connect
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.env.name = self.env_input_name.text()
