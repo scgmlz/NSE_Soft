@@ -1,11 +1,11 @@
 #  -*- coding: utf-8 -*-
 '''
 #############################################
-Here are stored the methods for the reduction
-of the data
+Here we set the overall fit parameters as well
+as proceeding through the phase corrections. 
 #############################################
 '''
-parallel_env = self.env
+environnement = self.env
 
 foils_in_echo = []
 foils_in_echo.append([1, 1, 1, 1, 1, 1])
@@ -26,11 +26,11 @@ Reference = [28.6,0]
 #set the background
 Background = 68.0
 
-parallel_env.fit.set_parameter( name = 'Select',        value = Selected     )
-parallel_env.fit.set_parameter( name = 'Reference',     value = Reference    )
-parallel_env.fit.set_parameter( name = 'Background',    value = Background   )
-parallel_env.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)
+environnement.fit.set_parameter( name = 'Select',        value = Selected     )
+environnement.fit.set_parameter( name = 'Reference',     value = Reference    )
+environnement.fit.set_parameter( name = 'Background',    value = Background   )
+environnement.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)
 
-parallel_env.process.calculate_echo()
-parallel_env.process.remove_foils()
-parallel_env.process.calculate_shift()
+environnement.process.calculate_echo()
+environnement.process.remove_foils()
+environnement.process.calculate_shift()
