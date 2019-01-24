@@ -24,19 +24,17 @@
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-def dialog(icon = None, message = None, add_message = None, det_message = None, title = None):
+def dialog(
+    parent      = None,
+    icon        = None, 
+    message     = None, 
+    add_message = None, 
+    det_message = None, 
+    title       = None):
+
     '''
-    ##############################################
-    
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
-    msg = QtWidgets.QMessageBox()
+    msg = QtWidgets.QMessageBox(parent = parent)
     if icon == 'error':
         msg.setIcon(QtWidgets.QMessageBox.Critical)
     elif icon == 'info':

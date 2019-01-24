@@ -151,6 +151,7 @@ class PageDataWidget(Ui_data_import):
         '''
         if len(self.elements) == 0:
             dialog(
+                parent = self.local_widget,
                 icon = 'error', 
                 title= 'No data element set',
                 message = 'No data element initialised. Add one first...',
@@ -319,10 +320,11 @@ class PageDataWidget(Ui_data_import):
         '''
         if len(self.elements) == 0:
             dialog(
-            icon = 'error', 
-            title= 'No data element set',
-            message = 'No data element initialised. Add one first...',
-            add_message='You can add a dataset by going to File>add element.')
+                parent = self.local_widget,
+                icon = 'error', 
+                title= 'No data element set',
+                message = 'No data element initialised. Add one first...',
+                add_message='You can add a dataset by going to File>add element.')
 
         else:
             filter      = "All (*);; TOF (*.tof);;PAD (*.pad)"
@@ -416,6 +418,7 @@ class PageDataWidget(Ui_data_import):
         except:
             if warning:
                 dialog(
+                    parent = self.local_widget,
                     icon = 'error', 
                     title= 'Echo time not processed',
                     message = 'The echo time has not been processed. This is probably due to a lack of deinitions. See details...',
@@ -499,6 +502,7 @@ class PageDataWidget(Ui_data_import):
                     if not element[1][0]:
                         folder_string.append('Invalid file folder location: ' + element[1][1])
                 dialog(
+                    parent = self.local_widget,
                     icon = 'warning', 
                     title= 'Could not load all files',
                     message = 'Some files and folders seem to either have moved or not exist. Please rebase them manually in the import file located at:\n'+file_path,

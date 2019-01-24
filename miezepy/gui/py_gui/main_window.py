@@ -228,6 +228,7 @@ class MainWindowLayout(Ui_MIEZETool):
             elif index == 3:
                 if not self.handler.current_env.current_data.generated:
                     dialog(
+                        parent = self.window,
                         icon = 'error', 
                         title= 'Dataset not generated',
                         message = 'The dataset belonging to these scripts has not yet been generated. Please enter the data editing system and load the data.')

@@ -870,6 +870,7 @@ class PageScriptWidget(Ui_script_widget):
                 self.env.process.editable_scripts[index] = self.text_widgets[index].toPlainText()
             except Exception as e:
                 dialog(
+                    parent = self.local_widget,
                     icon = 'error', 
                     title= 'Could not update script',
                     message = 'The core encountered an error',
@@ -929,6 +930,7 @@ class PageScriptWidget(Ui_script_widget):
             except Exception as e:
                 error = e
                 dialog(
+                    parent = self.local_widget,
                     icon = 'error', 
                     title= 'Script error',
                     message = 'Your script has encountered an error.',
