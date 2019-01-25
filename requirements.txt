@@ -7,4 +7,3 @@ matplotlib
 scipy
 pyqt5
 pyopengl 
-shapely
