@@ -487,21 +487,20 @@ class FileHandler:
         script = ""
         script += indent * "    " + "\n"
         script += indent * "    " + "########## The file paths ##########\n"
-
         script += (indent+0) * "    " + "common_path = '" + common_path + "'\n"
-        script += (indent+0) * "    " + "path_list = [\n"
-        for item in self.total_path_files:
-            script += (indent+1) * "    " + "'" + str(os.path.sep).join(item.split(common_path)[1].split(os.path.sep)[1:]) + "',\n"
-
-        script = script[:-2]
-        script += "]\n"
-        script += (indent+0) * "    " + "if current_object.file_handler.filesExist([\n"
-        script += (indent+1) * "    " + "os.path.join(common_path,item) for item in path_list]):\n"
-
-        script += (indent+1) * "    " + "current_object.file_handler.addFiles([\n"
-        script += (indent+2) * "    " + "os.path.join(common_path,item) for item in path_list])\n"
-        script += indent * "    " + "else:\n"
-        script += (indent+1) * "    " + "data_files_found = [False,common_path]\n"
+        
+        if len(self.total_path_files)>0:
+            script += (indent+0) * "    " + "path_list = [\n"
+            for item in self.total_path_files:
+                script += (indent+1) * "    " + "'" + str(os.path.sep).join(item.split(common_path)[1].split(os.path.sep)[1:]) + "',\n"
+            script = script[:-2]
+            script += "]\n"
+            script += (indent+0) * "    " + "if current_object.file_handler.filesExist([\n"
+            script += (indent+1) * "    " + "os.path.join(common_path,item) for item in path_list]):\n"
+            script += (indent+1) * "    " + "current_object.file_handler.addFiles([\n"
+            script += (indent+2) * "    " + "os.path.join(common_path,item) for item in path_list])\n"
+            script += indent * "    " + "else:\n"
+            script += (indent+1) * "    " + "data_files_found = [False,common_path]\n"
         return script
 
 class MetaHandler:
@@ -521,15 +520,18 @@ class MetaHandler:
         script += indent * "    " + "try:\n"
         script += (indent+1) * "    " + "path = '"+self.path+"'\n"
         script += (indent+1) * "    " + "current_object.meta_handler.buildMeta(path)\n"
-        script += (indent+1) * "    " + "selected_meta = ["
-        for element in self.selected_meta:
-            script += "\n"+ (indent+2) * "    " + "["
-            for item in element:
-                script += "'"+item +"' ,"
+        if len(self.selected_meta)> 0:
+            script += (indent+1) * "    " + "selected_meta = ["
+            for element in self.selected_meta:
+                script += "\n"+ (indent+2) * "    " + "["
+                for item in element:
+                    script += "'"+item +"' ,"
+                script = script [:-1]
+                script += "],"
             script = script [:-1]
-            script += "],"
-        script = script [:-1]
-        script += "]\n"
+            script += "]\n"
+        else:
+            script += (indent+1) * "    " + "selected_meta = []\n"
         script += (indent+1) * "    " + "current_object.meta_handler.selected_meta = selected_meta\n"
         script += indent * "    " + "except:\n"
         script += (indent+1) * "    " + "meta_files_found = [False,path]\n"
@@ -545,7 +547,7 @@ class MetaHandler:
         if not self.path == '':
             f                   = open(file_path,'rb')
             line                = f.readlines()
-            
+
             for binaryLine in line:
                 try:
                     line = binaryLine.decode('ascii').replace('\n','')
