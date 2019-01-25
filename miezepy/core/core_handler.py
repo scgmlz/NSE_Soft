@@ -139,7 +139,7 @@ class Handler:
                     self.env_array[names.index(key)].process.editable_scripts
                 )
     
-    def prepSessionLoad(self, path, data_bool = True, mask_bool = True, script_bool = True):
+    def prepSessionLoad(self, path, data_bool = True, mask_bool = True, script_bool = True, folder_list = []):
         '''
         Prepare the eventual load of a session.
         '''
@@ -173,7 +173,8 @@ class Handler:
             env_file_list,
             data_folder_list,
             mask_folder_list,
-            script_folder_list]
+            script_folder_list,
+            folder_list]
 
         return self.prep_load_list
 
@@ -204,7 +205,9 @@ class Handler:
                         'Loading data '+str(i),
                         i)
                 data_load_output.append([
-                    env.io.loadFromPython(self.prep_load_list[1][i]),
+                    env.io.loadFromPython(
+                        self.prep_load_list[1][i],
+                        extra_folder = self.prep_load_list[4]),
                     self.prep_load_list[1][i]])
             
             if not self.prep_load_list[2][i] == None:

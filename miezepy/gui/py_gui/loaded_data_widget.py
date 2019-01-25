@@ -76,7 +76,7 @@ class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
             pass
 
         self.para_input.setText(self.data_handler.parameter)
-        self.meas_input.setText(self.data_handler.meas)
+        self.meas_input.setValue(int(self.data_handler.meas))
         self.ref_radio.setChecked(self.data_handler.reference)
         self.back_radio.setChecked(self.data_handler.background)
 
@@ -163,7 +163,7 @@ class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
         ##############################################
         '''
         self.para_input.textChanged.connect(self.getValues)
-        self.meas_input.textChanged.connect(self.getValues)
+        self.meas_input.valueChanged.connect(self.getValues)
         self.ref_radio.toggled.connect(self.getValues)
         self.back_radio.toggled.connect(self.getValues)
 
@@ -180,7 +180,7 @@ class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
         ##############################################
         '''
         self.para_input.textChanged.disconnect()
-        self.meas_input.textChanged.disconnect()
+        self.meas_input.valueChanged.disconnect()
         self.ref_radio.toggled.disconnect()
         self.back_radio.toggled.disconnect()
 
@@ -198,7 +198,7 @@ class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
         '''
 
         self.data_handler.parameter = self.para_input.text()
-        self.data_handler.meas      = self.meas_input.text()
+        self.data_handler.meas      = str(self.meas_input.value())
         self.data_handler.reference = self.ref_radio.isChecked()
         self.data_handler.background= self.back_radio.isChecked()
 

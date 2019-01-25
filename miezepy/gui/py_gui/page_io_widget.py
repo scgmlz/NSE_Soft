@@ -35,6 +35,7 @@ class PageIOWidget(Ui_io_widget):
         self.parent         = parent
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
+        self.extra_folders  = []
         self.setupUi(self.local_widget)
         self.connect()
 
@@ -54,6 +55,9 @@ class PageIOWidget(Ui_io_widget):
         self.io_check_load_data.stateChanged.connect(self.triggerNodeLoad)
         self.io_check_load_mask.stateChanged.connect(self.triggerNodeLoad)
         self.io_check_load_scripts.stateChanged.connect(self.triggerNodeLoad)
+
+        self.io_button_add.clicked.connect(self.addFolderElement)
+        self.io_button_remove.clicked.connect(self.removeFolderElement)
 
     def getLoadPath(self, quick = False):
         '''
@@ -89,7 +93,8 @@ class PageIOWidget(Ui_io_widget):
         tree.
         '''
         prep_list = self.handler.prepSessionLoad(
-            root, data_bool, masks_bool, scripts_bool)
+            root, data_bool, masks_bool, 
+            scripts_bool, list(self.extra_folders))
         
         root_node       = Node("Root")
         env_nodes       = []
@@ -184,7 +189,6 @@ class PageIOWidget(Ui_io_widget):
                         script_nodes.append(
                     [element[0]+"_mask", MaskNode(element[0]+"_mask", element[1])])
 
-        
         model = FileTreeModel(root_node)
         self.io_tree_save.setModel(model)
 
@@ -196,6 +200,7 @@ class PageIOWidget(Ui_io_widget):
         - meta_class is the metadata class from the io
         '''
         self.handler = handler 
+        self.setFolderList()
 
     def initialize(self):
         '''
@@ -230,4 +235,39 @@ class PageIOWidget(Ui_io_widget):
         self.parent.fadeActivity()
         self.parent.link(self.handler)
         
+    def setFolderList(self):
+        '''
+        This will be the loading of files to the 
+        io file handler class.
+        '''
+        self.folder_model = QtGui.QStandardItemModel()
 
+        for element in self.extra_folders:
+            item = QtGui.QStandardItem(element)
+            self.folder_model.appendRow(item)
+    
+        self.io_list_folders.setModel(self.folder_model)
+
+    def addFolderElement(self):
+        '''
+        This will allow to add an extra folder element to the 
+        handler and then call the rebuild of the array
+        '''
+        path = QtWidgets.QFileDialog.getExistingDirectory(
+                self.parent.window, 
+                'Select folder')
+
+        if not path == '':
+            self.extra_folders.append(path)
+        
+        self.setFolderList()
+        self.triggerNodeLoad()
+        
+    def removeFolderElement(self):
+        '''
+        This will allow to remove an extra folder element to the 
+        handler and then call the rebuild of the array
+        '''
+        del self.extra_folders[self.io_list_folders.currentIndex().row()]
+        self.setFolderList()
+        self.triggerNodeLoad()
