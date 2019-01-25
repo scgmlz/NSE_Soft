@@ -211,6 +211,15 @@ class MainWindowLayout(Ui_MIEZETool):
         status: active
         ##############################################
         '''
+        if len(self.handler.env_array) == 0:
+            dialog(
+                parent = self.window,
+                icon = 'error', 
+                title= 'No environment present',
+                message = 'Please either add a new environnement or import a saved session to proceed.')
+            self.refreshChecked(0)
+            return None
+
         if not self.stack.currentIndex() == index:
             if index == 0:
                 self.refreshChecked(0)
