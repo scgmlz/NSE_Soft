@@ -106,7 +106,6 @@ class PageMaskWidget(Ui_mask_editor):
         except:
             pass
         keys = [key for key in self.mask_core.mask_dict.keys()]
-        print(keys, default)
         self.comboBox.clear()
         self.comboBox.addItems(
             keys + ['new ...'] + ['reset defaults ...']+ ['refresh ...'])
@@ -145,7 +144,8 @@ class PageMaskWidget(Ui_mask_editor):
             self.populateAll()
 
         elif idx == len(keys) + 2:
-            self.updateSelector()
+            self.updateSelector(default = self.mask_core.current_mask)
+
 
     def addElement(self):
         '''
