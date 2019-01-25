@@ -57,10 +57,8 @@ class PageDataWidget(Ui_data_import):
         Reset all the inputs and all the fields
         present in the current view.
         '''
-
         self.elements       = []
         self.meta_elements  = []
-        self.hidden_graph   = False
         self.io_core        = None
         self.data_list_files.reset()
         self.data_list_loaded.clear()
@@ -165,10 +163,9 @@ class PageDataWidget(Ui_data_import):
         '''
         This routine will launch the metadat window.
         '''
-        self.hidden_graph = not self.hidden_graph
-        self.data_widget_graph.setVisible(self.hidden_graph)
+        self.data_widget_graph.setVisible(not self.data_widget_graph.isVisible())
 
-        if self.hidden_graph:
+        if self.data_widget_graph.isVisible():
             self.data_button_prev.setText('Hide')
         else:
             self.data_button_prev.setText('Show')
