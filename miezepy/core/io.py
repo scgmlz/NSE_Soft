@@ -327,6 +327,9 @@ class ImportObject:
         self.file_handler   = FileHandler()
         self.data_handler   = DataHandler()
 
+        #set the default
+        self.meta_handler.defaultMeta()
+
     def processObject(self):
         '''
         This function will be called when the object
@@ -539,27 +542,25 @@ class MetaHandler:
         '''
         self.path = file_path
         self.metadata_temp  = []
-        f                   = open(file_path,'rb')
-        line                = f.readlines()
-        
-        for binaryLine in line:
-
-            try:
-                line = binaryLine.decode('ascii').replace('\n','')
-                nums = re.findall('-?\d*\.?\d+',line.split(" : ")[1])
-
-                if len(nums) == 0:
+        if not self.path == '':
+            f                   = open(file_path,'rb')
+            line                = f.readlines()
+            
+            for binaryLine in line:
+                try:
+                    line = binaryLine.decode('ascii').replace('\n','')
+                    nums = re.findall('-?\d*\.?\d+',line.split(" : ")[1])
+                    if len(nums) == 0:
+                        pass
+                    else:
+                        self.metadata_temp.append([
+                            False,
+                            line.split(" : ")[0].replace(" ", ""),
+                            line.split(" : ")[1].split(nums[len(nums) - 1])[1].replace(" ","").replace(")","")])
+                except:
                     pass
 
-                else:
-                    self.metadata_temp.append([
-                        False,
-                        line.split(" : ")[0].replace(" ", ""),
-                        line.split(" : ")[1].split(nums[len(nums) - 1])[1].replace(" ","").replace(")","")])
-            except:
-                pass
-
-        f.close()
+            f.close()
 
     def flipBool(self, name, value):
         '''
@@ -580,6 +581,17 @@ class MetaHandler:
         for element in self.metadata_temp:
             if element[0]:
                 self.selected_meta.append(element[1:3]+['None', '1', ''])
+
+    def defaultMeta(self):
+        '''
+        Allow th emetadata to be set quickly with a default...
+        '''
+        self.selected_meta = [
+            ['cbox_0a_fg_freq_value' ,'Hz' ,'Freq. first' ,'1' ,'' ],
+            ['cbox_0b_fg_freq_value' ,'Hz' ,'Freq. second' ,'1' ,'' ],
+            ['psd_distance_value' ,'m' ,'lsd' ,'1e9' ,'' ],
+            ['selector_lambda_value' ,'A' ,'Wavelength' ,'1e-10' ,'' ],
+            ['monitor1' ,'' ,'Monitor' ,'1' ,'' ]]
         
     def checkPresence(self):
         '''
@@ -691,6 +703,8 @@ class MetaHandler:
                     float(self.values['lsd'][i])
                 )
                 del val
+            if len(self.values['Echo']) == 0:
+                self.values['Echo'] = ['Not given']
 
         if self.values['Parameter'][0] == 'Not given':
             del self.values['Parameter']
