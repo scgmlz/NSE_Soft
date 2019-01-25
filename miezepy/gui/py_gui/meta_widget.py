@@ -30,18 +30,10 @@ from ...gui.qt_gui.meta_widget_ui import Ui_meta_widget
 
 class MetaWidget(Ui_meta_widget,QtCore.QObject):
     '''
-    ##############################################
     This class will manage the raw import 
     machinery. the UI is inherited through 
     Ui_main_window from the Qt designer anf then
     converted through pyuic5
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     #set up the edit signal
     edited = QtCore.pyqtSignal(list)
@@ -58,15 +50,7 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
 
     def initialize(self):
         '''
-        ##############################################
         initialize the widget and set the stage
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.equivalence = [
             'None',
@@ -85,30 +69,14 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
 
     def connect(self):
         '''
-        ##############################################
         connect
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.meta_input_fact.textChanged.connect(self.getValues)
         self.meta_drop_equivalence.currentIndexChanged.connect(self.getValues)
 
     def setParentList(self, parent_list):
         '''
-        ##############################################
         initialize the widget and set the stage
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parent_list = parent_list
 
@@ -121,15 +89,7 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
 
     def getValues(self, index = None):
         '''
-        ##############################################
         initialize the widget and set the stage
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parent_list = [
             self.parent_list[0],
