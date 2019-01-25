@@ -579,7 +579,7 @@ class MetaHandler:
 
         for element in self.metadata_temp:
             if element[0]:
-                self.selected_meta.append(element[1:3]+['None', '1'])
+                self.selected_meta.append(element[1:3]+['None', '1', ''])
         
     def checkPresence(self):
         '''
@@ -610,6 +610,7 @@ class MetaHandler:
         '''
         Edit the value or definition of an element
         '''
+        print(array)
         for i in range(len(self.selected_meta)):
             if self.selected_meta[i][0] == array[0]:
                 self.selected_meta[i] = list(array)
@@ -636,7 +637,8 @@ class MetaHandler:
         for binaryLine in line:
             try:
                 line = binaryLine.decode('ascii').replace('\n','')
-                nums = re.findall('[-+]?(\d+([.,]\d*)?)([eE][-+]?\d+)?',line.split(" : ")[1])
+                nums = re.findall(
+                    '[-+]?(\d+([.,]\d*)?)([eE][-+]?\d+)?',line.split(" : ")[1])
                 if len(nums) == 0:
                     pass
                 else:
@@ -660,29 +662,21 @@ class MetaHandler:
 
         for element in self.selected_meta:
             if element[2] == 'Parameter':
-                self.values['Parameter'] = str(np.mean([
-                    float(e)*float(element[3])  for e in self.values[element[0]]]))
+                self.processMeta('Parameter', True, element)
             elif element[2] == 'Measurement':
-                self.values['Measurement'] = str(np.mean([
-                    float(e)*float(element[3])  for e in self.values[element[0]]]))
+                self.processMeta('Measurement', True, element)
             elif element[2] == 'Echo':
-                self.values['Echo'] = [
-                    float(e)*float(element[3])  for e in self.values[element[0]]]
+                self.processMeta('Echo', False, element)
             elif element[2] == 'Wavelength':
-                    self.values['Wavelength'] = [
-                    float(e)*float(element[3]) for e in self.values[element[0]]]
+                self.processMeta('Wavelength', False, element)
             elif element[2] == 'Freq. second':
-                    self.values['Freq. second'] = [
-                    float(e)*float(element[3])  for e in self.values[element[0]]]
+                self.processMeta('Freq. second', False, element)
             elif element[2] == 'Freq. first':
-                    self.values['Freq. first'] = [
-                    float(e)*float(element[3])  for e in self.values[element[0]]]
+                self.processMeta('Freq. first', False, element)
             elif element[2] == 'lsd':
-                    self.values['lsd'] = [
-                    float(e)*float(element[3])  for e in self.values[element[0]]]
+                self.processMeta('lsd', False, element)
             elif element[2] == 'Monitor':
-                    self.values['Monitor'] = [
-                    float(e)*float(element[3])  for e in self.values[element[0]]]
+                self.processMeta('Monitor', False, element)
 
         if all([(element in self.values.keys()) for element in [
             'Freq. first','Freq. second','Wavelength','lsd']]) and self.values['Echo'][0] == 'Not given':
@@ -704,3 +698,53 @@ class MetaHandler:
             del self.values['Measurement']
         if self.values['Echo'][0] == 'Not given':
             del self.values['Echo']
+
+    def processMeta(self, ptr, mean, element):
+        '''
+        This will process the value for the given 
+        ptr value. if mean is true a summation will
+        be performed. 
+        '''
+        #check for the manual manipulation
+        temp_list = list(self.values[element[0]])
+        if len(element) < 5:
+            element += ['']
+        
+        if not element[4] == '':
+            array = self.getArray(element[4])
+            if len(array) == 1 and not array[0] == None:
+                for i in range(len(temp_list)):
+                    temp_list[i] = array[0]
+            else:
+                for i in range(len(array)):
+                    if not array[i] == None:
+                        temp_list[i] = array[i]
+
+        #perform it
+        if mean:
+            self.values[ptr] = str(np.mean([
+                float(e)*float(element[3])  
+                for e in temp_list]))
+        else:
+            self.values[ptr] = [
+                float(e)*float(element[3])  
+                for e in temp_list]
+
+    def getArray(self, string_element):
+        '''
+        This will produce an array of floats
+        of the string array provided. Note that 
+        the '_' symbol corresponds to inserting
+        None in the list.
+        '''
+        formated_string = string_element.split(',')
+        if len(formated_string) == 1:
+            try:
+                return [float(string_element)]
+            except:
+                return [None]
+        else:
+            try:
+                return [float(e) if not e == '_' else None for e in formated_string]
+            except:
+                return [None]

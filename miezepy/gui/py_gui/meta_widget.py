@@ -73,6 +73,7 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
         '''
         self.meta_input_fact.textChanged.connect(self.getValues)
         self.meta_drop_equivalence.currentIndexChanged.connect(self.getValues)
+        self.meta_input_manual.textChanged.connect(self.getValues)
 
     def setParentList(self, parent_list):
         '''
@@ -84,6 +85,10 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
         self.meta_input_fact.setText(self.parent_list[3])
         self.meta_drop_equivalence.setCurrentIndex(
             self.equivalence.index(self.parent_list[2]))
+        try:
+            self.meta_input_manual.setText(self.parent_list[4])
+        except:
+            pass
 
         self.connect()
 
@@ -95,7 +100,8 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
             self.parent_list[0],
             self.parent_list[1],
             self.equivalence[self.meta_drop_equivalence.currentIndex()],
-            self.meta_input_fact.text()
+            self.meta_input_fact.text(),
+            self.meta_input_manual.text()
         ]
 
         self.edited.emit(self.parent_list)
