@@ -598,13 +598,15 @@ class PanelPageMaskWidget(PageMaskWidget):
         Update the visual component from a thread
         '''
 
-        ##############################################
-        #fetch parameters from the worker
-        para            = self.worker.parameters[1]
-        self.reshaped   = self.worker.parameters[0]
-        self.process    = self.worker.process
-        self.counts     = self.worker.counts
-        self.fit        = self.worker.fit
+        try:
+            para            = self.worker.parameters[1]
+            self.reshaped   = self.worker.parameters[0]
+            self.process    = self.worker.process
+            self.counts     = self.worker.counts
+            self.fit        = self.worker.fit
+
+        except:
+            return None
 
         try:
             self.ax.clear()
@@ -661,9 +663,6 @@ class PanelPageMaskWidget(PageMaskWidget):
                 Style   = ['-','s','10'], 
                 Log     = [True,False])
 
-
-        ##############################################
-        #draw the plots
         self.ax.redraw()
         self.bx.redraw()
         self.cx.redraw()
@@ -706,11 +705,9 @@ class Worker(QtCore.QObject):
         self.reshaped       = self.parameters[0]
         self.mask           = self.parameters[10]
         self.env            = self.parameters[9]
-        self.fit            = None
         self.counts         = [
             np.sum(self.mask * self.reshaped[echo_idx,foil_idx,timechannel]) 
             for timechannel in range(16)]
-        self.process        = None
 
         try:
             self.env.fit.fit_data_cov(
@@ -721,7 +718,7 @@ class Worker(QtCore.QObject):
 
             self.fit = self.env.get_result('Fit data covariance')
         except:
-            print('Fit failed')
+            self.fit = None
 
         try:
             self.env.fit.calcCtrstMain( 
@@ -733,6 +730,6 @@ class Worker(QtCore.QObject):
 
             self.process = self.env.get_result('Contrast calculation')
         except:
-            print('Contrast')
+            self.process = None
 
         self.finished.emit()
