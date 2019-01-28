@@ -40,18 +40,10 @@ import miezepy
 
 class MainWindowLayout(Ui_MIEZETool):
     '''
-    ##############################################
     This is the main window element that will later
     be the item managin the rest of the system. 
     Note that at a later point we will feature
     drag and drop onto this window.
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     def __init__(self, window, window_manager):
 
@@ -68,15 +60,7 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def connect(self):
         '''
-        ##############################################
         connect the actions to their respective buttons
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
 
         #button actions
@@ -96,7 +80,6 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(
                 self.actionDispatcher, 0, 
                 self.widgetClasses[0].addEnvironment))
-
         self.actionRemoveEnv.triggered.connect(
             partial(
                 self.actionDispatcher, 0, 
@@ -107,22 +90,18 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(
                 self.actionDispatcher, 1, 
                 self.widgetClasses[1].addElement))
-
         self.actionRemove_element.triggered.connect(
             partial(
                 self.actionDispatcher, 1, 
                 self.widgetClasses[1].removeElement))
-
         self.actionGenerate.triggered.connect(
             partial(
                 self.actionDispatcher, 1, 
                 self.widgetClasses[1].generateDataset))
-
         self.actionSave_to_file.triggered.connect(
             partial(
                 self.actionDispatcher, 1, 
                 self.widgetClasses[1].save))
-
         self.actionLoad_from_file.triggered.connect(
             partial(
                 self.actionDispatcher, 1, 
@@ -133,17 +112,14 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(
                 self.actionDispatcher, 2, 
                 self.widgetClasses[2].saveSingle))
-
         self.actionSaveMaskAll.triggered.connect(
             partial(
                 self.actionDispatcher, 2, 
                 self.widgetClasses[2].saveMultiple))
-
         self.actionLoadMask.triggered.connect(
             partial(
                 self.actionDispatcher, 2, 
                 self.widgetClasses[2].loadSingle))
-
         self.actionLoadMaskAll.triggered.connect(
             partial(
                 self.actionDispatcher, 2, 
@@ -154,37 +130,32 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(
                 self.actionDispatcher, 3, 
                 self.widgetClasses[3].saveScripts))
-
         self.actionLoadScript.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 self.widgetClasses[3].loadScripts))
-
         self.actionImport.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 partial(self.widgetClasses[3].run,0)))
-
         self.actionPhase.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 partial(self.widgetClasses[3].run,1)))
-
         self.actionReduction.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 partial(self.widgetClasses[3].run,2)))
-
         self.actionVisual.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 partial(self.widgetClasses[3].run,3)))
-
         self.actionAll.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 self.widgetClasses[3].runAll))
 
+        #io
         self.actionLoad_Session.triggered.connect(
             partial(
                 self.actionDispatcher, 4, 
@@ -197,19 +168,11 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def actionDispatcher(self,index, method = None):
         '''
-        ##############################################
         This will dispatch the actions to the right 
         function but still try to check if the page is
         the right one.
-
-        ———————
         Input: 
         - meta_class is the metadata class from the io
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if len(self.handler.env_array) == 0:
             dialog(

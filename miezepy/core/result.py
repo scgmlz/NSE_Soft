@@ -31,105 +31,51 @@ from .log import Log_Handler
 
 class Result_Handler:
     '''
-    ##############################################
     The result handler will manage the the input 
     output of a mathematical process. This can be 
     a fit fir example. Each result will then be
     saved in a Result_object class. 
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
 
     def __init__(self, mode = 'List'):
         '''
-        ##############################################
         This is the initializer of the fit results 
         handler class
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.mode       = mode
-
         if self.mode == 'List':
-
             self.results  =  []
-
         elif self.mode == 'Dict':
-
             self.results  =  {}
-
         self.log        = Log_Handler()
 
     def reset(self):
         '''
-        ##############################################
         Reset the result handler class by deleting 
         all results. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.results.clear()
 
     def generate_result(self, name):
         '''
-        ##############################################
         This class will create a new result object and
         then return it onto the owner. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-        ##############################################
-        #dictionary mode
         if self.mode == 'Dict':
-
-            #add the element
             self.results[name] = Result_Object(name)
-
             return self.results[name]
-
-        ##############################################
-        #list mode
         else:
-            #add the element
             self.results.append(Result_Object(name))
-
             return self.results[-1]
 
     def get_last_result(self, name = '', key = None):
         '''
-        ##############################################
         This will go through the results in reverse 
-        and return the whole result dicitonary in full
+        and return the whole result dictionary in full
         or the value if key has been set and declared
-        ———————
         Input: 
         - target (str) the target method keyword
         - identifier (str) the method to select
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         #log it
         self.log.add_log(
@@ -142,19 +88,14 @@ class Result_Handler:
         ##############################################
         #dictionary mode
         if self.mode == 'Dict':
-
             if key == None:
-                        
                 #log it
                 self.log.add_log(
                     'info', 
                     'Successfully returning result with name: '
                     + str(name))
-
                 return self.results[name]
-
             elif not key == None and key not in self.results[name].result_dict:
-
                 #log it
                 self.log.add_log(
                     'error', 
@@ -162,35 +103,25 @@ class Result_Handler:
                     + str(name)
                     + ' and key: '
                     + str(key))
-
             else:
-
                 return self.results[name][key]
 
         ##############################################
-        #dlist mode
+        #list mode
         if name == '':
-
             return self.results[-1]
 
         else:
-
             for i in range(len(self.results) - 1, -1, -1):
-
                 if self.results[i]['name'] == name:
-
                     if key == None:
-                        
                         #log it
                         self.log.add_log(
                             'info', 
                             'Successfully returning result with name: '
                             + str(name))
-
                         return self.results[i]
-
                     elif not key == None and key not in self.results[i].result_dict:
-
                         #log it
                         self.log.add_log(
                             'error', 
@@ -198,11 +129,8 @@ class Result_Handler:
                             + str(name)
                             + ' and key: '
                             + str(key))
-
                     else:
-
                         return self.results[i][key]
-
             #log it
             self.log.add_log(
                 'error', 
@@ -213,99 +141,56 @@ class Result_Handler:
 
     def set_result(self, name = '' , position = ['None'], value = None):
         '''
-        ##############################################
         This will set a value for a given result. This
         can be used to manually inject a value. 
-        ———————
-        Input: 
-        - target (str) the target method keyword
-        - identifier (str) the method to select
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
         ##############################################
         #dictionary mode
         if self.mode == 'Dict':
-
-            #build the string
             eval_string = "self.results['" + str(name) + "']"
 
         ##############################################
         #List mode
         else:
-
-            #build the string
             eval_string = "self.results[i]"
 
         ##############################################
         #Common part
         for element in position:
-
             if isinstance(element, str):
-
                 eval_string += "['"+str(element)+"']"
-
             elif isinstance(element, int):
-    
                 eval_string += "['"+int(element)+"']"
-
             else:
-
                 eval_string += "["+str(element)+"]"
-
         eval_string += " = value"
 
         ##############################################
         #dictionary mode
         if self.mode == 'Dict':
-
             exec(eval_string)
 
         ##############################################
         #List mode
         else:
-                
             for i in range(len(self.results) - 1, -1, -1):
-
                 if self.results[i]['name'] == name:
-
                     exec(eval_string)
-
                     return 0
 
 class Result_Object:
     '''
-    ##############################################
-    A result object gets intialised at the
+    A result object gets initialised at the
     beginning of a mathematical operation and 
     then populated with information. As the process
     is completed the result is closed closed. 
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
 
     def __init__(self, name):
         '''
-        ##############################################
         Initialise a Result_object. Note that the
         caller refers to the method that called the
         creation of the present Result. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         #set the complete
         self.complete   = False
@@ -324,17 +209,9 @@ class Result_Object:
 
     def __str__(self):
         '''
-        ##############################################
-        The print class method. Will retun the current
+        The print class method. Will return the current
         class as a string to be displayed in a print
         call. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         ''' 
         output ="\n##########################################################\n"
         output += "################## RESULT STRUCTURE ######################\n"
@@ -355,39 +232,22 @@ class Result_Object:
 
     def __getitem__(self, key):
         '''
-        ##############################################
         The getitem will get the element associated to
         the key. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         ''' 
-        #for performace try first the result mode
         try:
             return self.result_dict[key]
-            
         except:
-            
-            #if result didn't worj go to the newt stage
             pointers = [
                 self.metadata_dict, 
                 self.parameter_dict, 
                 self.input_dict, 
                 self.result_dict]
 
-            #run through it
-            for dicitonary in pointers:
-
-                if key in dicitonary:
+            for dictionary in pointers:
+                if key in dictionary:
+                    return dictionary[key]
                     
-                    #return value
-                    return dicitonary[key]
-
-            #if we reach here we could not find the element
             self.log.add_log(
                 'error', 
                 'Could not find the key: '+str(key)+', returning 0')
@@ -396,63 +256,32 @@ class Result_Object:
 
     def __setitem__(self, key, value):
         '''
-        ##############################################
         The setitem method will automatically 
-        referenct to the result dictionary.  
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        reference to the result dictionary.  
         ''' 
         #call the method
         self.add_result( key, value)
         
     def set_complete(self):
         '''
-        ##############################################
         The result has been provided and the class is
         now being locked to forbid overwriting of the
         data. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         ''' 
-        #process time
         self.add_metadata('End',  datetime.datetime.now())
         self.add_metadata('Duration',  self['Start'] - self['End'])
         
-        #check if there is a name
         if not 'name' in self.metadata_dict.keys():
-
-            #log it
             self.log.add_log('error', 'Each result object needs a name... Fix please.')
 
-        #set value
         self.complete = True
 
     def add_metadata(self, name, value):
         '''
-        ##############################################
         Add a metadata to the metadata dictionary. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         ''' 
-        #set the value
         self.metadata_dict[name] = value
 
-        #log it
         self.log.add_log(
             'info', 
             "Added the entry'"
@@ -461,20 +290,10 @@ class Result_Object:
 
     def add_parameter(self, name, value):
         '''
-        ##############################################
-        Add a parameter to the parameter dictionary. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        Add a parameter to the parameter dictionary.
         ''' 
-        #set the value
         self.parameter_dict[name] = value
 
-        #log it
         self.log.add_log(
             'info', 
             "Added the entry'"
@@ -483,20 +302,10 @@ class Result_Object:
 
     def add_input(self, name, value):
         '''
-        ##############################################
         Add a parameter to the parameter dictionary. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         ''' 
-        #set the value
         self.input_dict[name] = value
 
-        #log it
         self.log.add_log(
             'info', 
             "Added the entry'"
@@ -505,20 +314,10 @@ class Result_Object:
 
     def add_result(self, name, value):
         '''
-        ##############################################
         Add a result to the result dictionary. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         ''' 
-        #set the value
         self.result_dict[name] = value
 
-        #log it
         self.log.add_log(
             'info', 
             "Added the entry'"
@@ -527,16 +326,7 @@ class Result_Object:
 
     def add_log(self, name, value):
         '''
-        ##############################################
-        Add a result to the result dictionary. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+
         ''' 
-        #log it
         self.log.add_log(name, value)
 

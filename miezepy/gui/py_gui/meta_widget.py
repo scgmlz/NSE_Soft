@@ -39,9 +39,6 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
     edited = QtCore.pyqtSignal(list)
 
     def __init__(self):
-
-        ##############################################
-        #Local pointers
         QtCore.QObject.__init__(self)
         Ui_meta_widget.__init__(self)
         self.widget = QtWidgets.QWidget()

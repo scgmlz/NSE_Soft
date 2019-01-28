@@ -40,15 +40,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
     def mieze_tau(self, metadata_object, target):
         '''
-        ##############################################
         Processes the MIEZE time
-        ———————
-        Input: MIEZE metadata object
-        ———————
-        Output: 
-        injects the Mieze time into the 
-        metadata
-        ##############################################
         '''
         ############################################
         #unpack the container
@@ -76,15 +68,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
     def mieze_tau_calc(self, wavelength, freq_0, freq_1, lsd, wavelength_error = 0 ,lsd_error = 0):
         '''
-        ##############################################
         Processes the MIEZE time
-        ———————
-        Input: MIEZE metadata object
-        ———————
-        Output: 
-        injects the Mieze time into the 
-        metadata
-        ##############################################
         '''
         delta_freq = freq_1 - freq_0
         para = ( 2. * co.m_n ** 2 ) / (co.h ** 2) 
@@ -108,15 +92,10 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
     def calc_shift(self,target, mask, results):
         '''
-        ##############################################
         Calculates the shift
-        ———————
         Input: 
         - MIEZE data object
         - mask object
-        ———————
-        Output: -
-        ##############################################
         '''
 
         ##############################################
@@ -255,15 +234,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
     def extract_phase(self, target, mask, results):
         '''
-        ##############################################
-        Processes the MIEZE time
-        ———————
-        Input: 
-        - MIEZE data object
-        ———————
-        Output: 
-        - returns the phase..
-        ##############################################
+        Calculate the phase of the mieze data 
         '''
         ##############################################
         #Initialize the output dictionary with all def.
@@ -290,8 +261,6 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         ############################################
         #initialize
         for echo in reso_target.get_axis(echo_name):
-            
-            #initialise the dictionary
             phase[echo] = np.zeros((
                 reso_target.get_axis_len(foil_name),
                 reso_target.data_objects[0].dim[0],

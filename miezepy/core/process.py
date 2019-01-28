@@ -25,24 +25,14 @@ import os
 
 def get_process_handler(select, env):
     '''
-    ##############################################
     Will return the right fit manager depending 
     on the initial input
-    ———————
     Input: target (Data_Structure)
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
-
     if select == 'MIEZE':
         return Process_MIEZE(env)
-
     if select == 'SANS':
         return Process_SANS(env)
-
     else:
         print('Could not find the process class you are looking for. Error...')
         return None
@@ -51,19 +41,12 @@ class Process_Handler:
 
     def __init__(self, env):
         '''
-        ##############################################
         This is the initializer of all the 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ##############################################
         '''
         self.env = env
 
     def extract_from_metadata(self, axis, key):
         '''
-        ##############################################
         This function will populate the axis with a 
         given metadata entry and then collapse the
         axis around it.  
@@ -72,12 +55,7 @@ class Process_Handler:
         - data_structure class (loaded already)
         - mask object
         - fit object
-        ———————
-        Output: -
-        ##############################################
         '''
-        ############################################
-        #fix the axes
         idx = self.env.current_data.axes.names.index(axis)
         self.env.current_data.axes.grab_meta(idx, key, self.env.current_data)
         self.env.current_data.axes.collapse_axis(idx, self.env.current_data)
@@ -86,8 +64,8 @@ class Process_MIEZE(Process_Handler):
 
     def __init__(self, env):
         '''
-        This class is a subs process class that cont-
-        ains the method related to processing the 
+        This class is a subs process class that 
+        contains the method related to processing the 
         MIEZE data
         '''
         #initialize the superclass
@@ -127,7 +105,6 @@ class Process_MIEZE(Process_Handler):
             text.split('##--POST--##')[1]
         ]
         self.editable_scripts = list(strings)
-
 
     def saveScripts(self, path, strings):
         '''
@@ -274,8 +251,8 @@ class Process_SANS(Process_Handler):
     
     def __init__(self, env):
         '''
-        This class is a subs process class that cont-
-        ains the method related to processing the 
+        This class is a subs process class that 
+        contains the method related to processing the 
         SANS data
         '''
         #initialize the superclass

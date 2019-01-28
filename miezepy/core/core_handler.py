@@ -42,9 +42,6 @@ def setEnv(handler):
 class Handler:
 
     def __init__(self, parent = None):
-
-        ##############################################
-        #initiate the core manager  
         self.parent = parent
         self.reset()
         self.info_string = ''
@@ -63,21 +60,14 @@ class Handler:
         creation for the user.
         '''
         title_present = True
-
         names = [env.name for env in self.env_array]
-
         while title_present:
-
             if title in names:
                 title = title + "_bis"
-
             else:
                 title_present = False
 
-        #link to an environment
         self.env_array.append(Environment(title = title, select = select))
-
-        #set environment
         self.set_current_env(title)
 
         return self.env_array[-1]

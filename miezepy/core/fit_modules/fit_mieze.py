@@ -47,25 +47,13 @@ class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
     
     def __init__(self):
         '''
-        ##############################################
         This is the initializer of the MIEZE fit class
         within. It will also initialize the superclass
         containing the generalized methods.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         ''' 
-
-        #initialize the superclass
-        
         Fit_MIEZE_Ctrst.__init__(self)
 
         self.ptr_dict = {}
-
         self.ptr_dict['mieze_tau']          = self.mieze_tau
         self.ptr_dict['extract_phase']      = self.extract_phase
         self.ptr_dict['fit_goodness']       = self.fit_goodness
@@ -74,27 +62,16 @@ class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
         self.ptr_dict['calcCtrstMain']      = self.calcCtrstMain
         self.ptr_dict['ctrstFit']           = self.ctrstFit
         self.ptr_dict['calc_ref_contrast']  = self.calcCtrstRef
-        
         self.set_defaults()
         self.set_fit_parameters()
 
     def set_defaults(self):
         '''
-        ##############################################
         This function will build the default 
-        dictionary of function dict that will linkt 
+        dictionary of function dict that will link
         the functions to the selected method
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
         self.fun_dict = {}
-
         self.fun_dict['mieze_tau']          = self.ptr_dict['mieze_tau']
         self.fun_dict['extract_phase']      = self.ptr_dict['extract_phase']
         self.fun_dict['fit_goodness']       = self.ptr_dict['fit_goodness']
@@ -104,20 +81,10 @@ class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
         self.fun_dict['fit_contrast']       = self.ptr_dict['ctrstFit']
         self.fun_dict['calc_ref_contrast']  = self.ptr_dict['calc_ref_contrast']
 
-
     def set_fit_parameters(self):
         '''
-        ##############################################
-        This function will build the default 
-        dictionary of function dict that will linkt 
-        the functions to the selected method
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        Set the default parameters in the fitting
+        routine.
         '''
         ############################################
         #pack them into the dictionary
@@ -140,73 +107,51 @@ class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
         '''
         ##############################################
         Test function on the input parameters. This is
-        called by the paramter vamlue which gives the
+        called by the parameter value which gives the
         variable to test.
-        ———————
         Input: 
         - value (str)
         - MIEZE metadata object
         - mask object
-        ———————
         Output: 
         - will return either false or the selected
-        value.  
-        ##############################################
+        value. 
         '''
         ############################################
         #perform the check on test
         if value == 'Select':
-            
             select = self.para_dict['Select']
-
-            
             if not isinstance(select, list):
-
                 print('Select needs to be a list. Error...')
-
                 return False
-
             else:
-
                 if select[0] == 'all':
-
                     select = list(target.axes.axes[0])
-
                     return select
                 else:
                     try:
-
                         [target.axes.axes[0].index(selected) for selected in select]
-
                     except:
-
                         print('The values do not match the axes. Error...')
-
                         return False
-                    
                     return select
 
         ############################################
         #perform the check on test
         elif value == 'foils_in_echo':
-
             foils_in_echo = self.para_dict['foils_in_echo']
 
-            #--FIX--
             #check the dimension of this list
             if not len(foils_in_echo) == target.axes.axes_len[2]:
-
-                print('Not enought foils_in_echo initialised. Error...')
+                print('Not enough foils_in_echo initialised. Error...')
                 print(len(foils_in_echo),' not equal to ',target.axes.axes_len[2])
                 return False
 
             elif not all([len(element) == target.axes.axes_len[3] for element in foils_in_echo ]):
-
-                print('Not enought foils_in_echo initialised. Error...')
+                print('Not enough foils_in_echo initialised. Error...')
                 return False
 
             elif foils_in_echo == []:
-
                 print('Sine foils not set by the user. Error...')
                 return False
 
@@ -227,42 +172,31 @@ class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
                 return False
 
             else:
-
                 return BG
 
-
         ############################################
-        #perform a test on the referece
+        #perform a test on the reference
         elif value == 'Reference':
-
             reference = self.para_dict['Reference']
-
-            #check the dimension of this list
-            if not reference == None and not reference[0] in target.axes.axes[0]:
             
+            if not reference == None and not reference[0] in target.axes.axes[0]:
                 print(target.axes.axes[0])
                 print('This reference does not exist. Error...')
                 return False
 
             else:
-
                 return reference
 
         ############################################
-        #perform a test on the referece
+        #perform a test on the reference
         elif len(value.split('name')) > 1 :
-
             if self.para_dict[value] in target.axes.names:
-
                 return self.para_dict[value]
-
             else:
-
                 print('The axis name does not exist in the provided data. Error...')
                 return False
 
         else:
-
             print('Value to test not found. Error...')
             return False
 

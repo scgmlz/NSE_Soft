@@ -39,30 +39,16 @@ from .fit_modules.fit_sans import Fit_SANS
     
 def get_fit_handler(select):
     '''
-    ##############################################
     Will return the right fit manager depending 
     on the initial input
-    ———————
     Input: target (Data_Structure)
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
-
     if select == 'MIEZE':
-
         return Fit_MIEZE()
-
     if select == 'SANS':
-
         return Fit_SANS()
-
     else:
-
         print('Could not find the fit class you are looking for. Error...')
-        
         return None
 
 

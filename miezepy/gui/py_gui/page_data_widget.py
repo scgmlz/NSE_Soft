@@ -51,7 +51,6 @@ class PageDataWidget(Ui_data_import):
         self.connect()
         self.initialize()
 
-
     def initialize(self):
         '''
         Reset all the inputs and all the fields
