@@ -75,6 +75,8 @@ class Masks:
         if name in self.mask_dict.keys():
             self.current_mask = name
             self.sendToGenerator()
+        else:
+            print('Mask does not exist')
         
     def addMask(self, name):
         '''
