@@ -467,6 +467,9 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.ax.pointer['Sticky'] = 3
         self.bx.pointer['Sticky'] = 3
 
+        self.cx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
+        self.dx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
+
     def populateSelectors(self):
         '''
         populate the window layout. The grid is the main

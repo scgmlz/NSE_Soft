@@ -110,7 +110,7 @@ class PageScriptWidget(Ui_script_widget):
             background  = "w",
             highlightthickness = 0)
         self.ax                 = self.my_canvas.get_subplot(0,0)
-
+        self.ax.pointer['Label_Precision'] = ('.4','.4','.4','.4')
         self.progress_bar_reduction.setMaximum(4)
         self.progress_bar_reduction.setMinimum(0)
         self.progress_bar_reduction.setValue(0)
