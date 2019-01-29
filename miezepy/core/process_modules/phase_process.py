@@ -31,6 +31,10 @@ environnement.fit.set_parameter( name = 'Reference',     value = Reference    )
 environnement.fit.set_parameter( name = 'Background',    value = Background   )
 environnement.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)
 
+environnement.mask.setMask('Pre_SkX_peak_Sixfold')
+environnement.mask.addCommand(command_str = 'mask.real[abs(mask.real) > 8] = 0')
+print(environnement.mask)
+
 environnement.process.calculate_echo()
 environnement.process.remove_foils()
 environnement.process.calculate_shift()

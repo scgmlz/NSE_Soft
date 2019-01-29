@@ -27,6 +27,3 @@ environnement.current_data.metadata_class.add_metadata('Selected foils', value =
 
 print(environnement.current_data)
 
-environnement.mask.setMask('Pre_SkX_peak_Sixfold')
-environnement.mask.addCommand(command_str = 'mask.real[abs(mask.real) > 8] = 0')
-print(environnement.mask)
