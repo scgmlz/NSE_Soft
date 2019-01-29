@@ -526,7 +526,10 @@ class FileHandler:
         if len(self.total_path_files)>0:
             script += (indent+0) * "    " + "path_list = [\n"
             for item in self.total_path_files:
-                script += (indent+1) * "    " + "'" + str(os.path.sep).join(item.split(common_path)[1].split(os.path.sep)[1:]) + "',\n"
+                if common_path == "":
+                    script += (indent+1) * "    " + "'" +item+ "',\n"
+                else:
+                    script += (indent+1) * "    " + "'" + str(os.path.sep).join(item.split(common_path)[1].split(os.path.sep)[1:]) + "',\n"
             script = script[:-2]
             script += "]\n"
             script += (indent+0) * "    " + "if current_object.file_handler.filesExist([\n"
