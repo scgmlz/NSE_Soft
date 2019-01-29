@@ -130,11 +130,22 @@ class PageMaskWidget(Ui_mask_editor):
                 pass
 
         elif idx == len(keys):
-            text, ok = QInputDialog.getText(self.local_widget, 'New mask name', 'Enter the new mask:')
-            if ok:
-                self.mask_core.addMask(text)
-                self.updateSelector(default = text)
+
+            self.inp = QtWidgets.QInputDialog(self.local_widget)
+            self.inp.setInputMode(QtWidgets.QInputDialog.TextInput)
+            self.inp.setFixedSize(400, 200)
+            self.inp.setOption(QtWidgets.QInputDialog.UsePlainTextEditForTextInput)
+            p = self.inp.palette()
+            self.inp.setPalette(p)
+            self.inp.setWindowTitle('New mask name')
+            self.inp.setLabelText('Enter the new mask:')
+            
+            if self.inp.exec_() == QtWidgets.QDialog.Accepted:
+                self.mask_core.addMask(self.inp.textValue())
+                self.updateSelector(default = self.inp.textValue())
                 self.populateAll()
+            else:
+                print('cancel')
 
         elif idx == len(keys) + 1:
             mask_dict = self.mask_core.generateDefaults()

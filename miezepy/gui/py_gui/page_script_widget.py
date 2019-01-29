@@ -237,16 +237,6 @@ class PageScriptWidget(Ui_script_widget):
             if not element == '':
                 foil_check = eval('['+element.split('[')[1].split(']')[0]+']')
 
-        #Foils to consider
-        filtered_text_array = [
-            element if "mask.setMask(" in element 
-            else '' 
-            for element in text_array]
-        phase_mask = []
-        for element in filtered_text_array:
-            if not element == '':
-                phase_mask = eval(element.split('(')[1].split(')')[0])
-
         #----------------------------------------#
         text_array = self.env.process.editable_scripts[1].split("\n")
 
@@ -285,6 +275,16 @@ class PageScriptWidget(Ui_script_widget):
         for element in filtered_text_array:
             if not element == '':
                 Background = eval(element.split('Background = ' )[1])
+
+        #masks
+        filtered_text_array = [
+            element if "mask.setMask(" in element 
+            else '' 
+            for element in text_array]
+        phase_mask = []
+        for element in filtered_text_array:
+            if not element == '':
+                phase_mask = eval(element.split('(')[1].split(')')[0])
 
         #----------------------------------------#
         text_array = self.env.process.editable_scripts[2].split("\n")
@@ -389,14 +389,14 @@ class PageScriptWidget(Ui_script_widget):
         Connect all the elements after the value has been
         set in the set routine.
         '''
-        self.process_box_masks.currentIndexChanged.connect(self._synthesizeData)
+        self.process_box_masks.currentIndexChanged.connect(self._synthesizeFit)
 
     def _disconnectVisualPhase(self):
         '''
         Disconnect all the elements after the value has been
         set in the set routine.
         '''
-        self.process_box_masks.currentIndexChanged.disconnect(self._synthesizeData)
+        self.process_box_masks.currentIndexChanged.disconnect(self._synthesizeFit)
 
     #######################################################################
     #######################################################################
@@ -782,11 +782,17 @@ class PageScriptWidget(Ui_script_widget):
                 edit_end = i
                 break
 
-        self.env.process.editable_scripts[1] = self._concatenateText([
+        for i,element in enumerate(text_array):
+            if "mask.setMask(" in element:
+                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_masks.currentIndex()])+"')"
+                break
+
+        text_array = self._concatenateText([
             text_array[0:edit_start+1],
             python_string_init.split("\n"),
             text_array[edit_end-1:]])
 
+        self.env.process.editable_scripts[1] = text_array
         self._refresh()
 
     def _synthesizeData(self):
@@ -808,11 +814,6 @@ class PageScriptWidget(Ui_script_widget):
         for i,element in enumerate(text_array):
             if "metadata_class.add_metadata('Selected foils'" in element:
                 text_array[i] = element.split(".current_data.metadata_class.add_metadata(")[0]+".current_data.metadata_class.add_metadata('Selected foils', value = '"+str(checked)+"' , logical_type = 'int_array', unit = '-')"
-                break
-
-        for i,element in enumerate(text_array):
-            if "mask.setMask(" in element:
-                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_masks.currentIndex()])+"')"
                 break
 
         #find strings
