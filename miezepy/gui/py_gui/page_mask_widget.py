@@ -30,6 +30,7 @@ import numpy as np
 from ..qt_gui.main_mask_editor_ui   import Ui_mask_editor
 from ...gui.py_gui.dialog           import dialog 
 from ...gui.py_gui.mask_widget      import MaskWidget 
+from ..qt_gui.new_mask_ui           import Ui_new_msk
 
 #private plotting library
 from simpleplot.multi_canvas import Multi_Canvas
@@ -40,7 +41,7 @@ class PageMaskWidget(Ui_mask_editor):
     
         Ui_mask_editor.__init__(self)
         self.parent         = parent
-        self.stack = stack
+        self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
         self.setupUi(self.local_widget)
         self.setup()
@@ -130,22 +131,7 @@ class PageMaskWidget(Ui_mask_editor):
                 pass
 
         elif idx == len(keys):
-
-            self.inp = QtWidgets.QInputDialog(self.local_widget)
-            self.inp.setInputMode(QtWidgets.QInputDialog.TextInput)
-            self.inp.setFixedSize(400, 200)
-            self.inp.setOption(QtWidgets.QInputDialog.UsePlainTextEditForTextInput)
-            p = self.inp.palette()
-            self.inp.setPalette(p)
-            self.inp.setWindowTitle('New mask name')
-            self.inp.setLabelText('Enter the new mask:')
-            
-            if self.inp.exec_() == QtWidgets.QDialog.Accepted:
-                self.mask_core.addMask(self.inp.textValue())
-                self.updateSelector(default = self.inp.textValue())
-                self.populateAll()
-            else:
-                print('cancel')
+            self.openNewMaskWindow()
 
         elif idx == len(keys) + 1:
             mask_dict = self.mask_core.generateDefaults()
@@ -157,6 +143,35 @@ class PageMaskWidget(Ui_mask_editor):
         elif idx == len(keys) + 2:
             self.updateSelector(default = self.mask_core.current_mask)
 
+
+    def openNewMaskWindow(self):
+        '''
+        open the new window to allow the user to 
+        pick a new mask.
+        '''
+        self.new_mask_window = NewMaskWindow(self.local_widget)
+        self.new_mask_window.cancel_button.clicked.connect(self.closeNewMaskWindow)
+        self.new_mask_window.ok_button.clicked.connect(self.addMaskItem)
+
+    def closeNewMaskWindow(self):
+        '''
+        close the window after actions have been
+        performed.
+        '''
+        self.new_mask_window.cancel_button.clicked.disconnect(self.closeNewMaskWindow)
+        self.new_mask_window.ok_button.clicked.disconnect(self.addMaskItem)
+        self.new_mask_window.close()
+
+    def addMaskItem(self):
+        '''
+        Due to a bug in windows we had to separate the 
+        addition of a new mask here. with a separate window
+        '''
+        if not self.new_mask_window.new_mask_name.text() == '':
+            self.mask_core.addMask(self.new_mask_window.new_mask_name.text())
+            self.updateSelector(default = self.new_mask_window.new_mask_name.text())
+            self.populateAll()
+            self.closeNewMaskWindow()
 
     def addElement(self):
         '''
@@ -747,3 +762,15 @@ class Worker(QtCore.QObject):
             self.process = None
 
         self.finished.emit()
+
+class NewMaskWindow(QtWidgets.QMainWindow,Ui_new_msk):
+    '''
+    In this class we install a window that will allow the 
+    user to set a new mask. 
+    '''
+    def __init__(self, parent):
+    
+        QtWidgets.QMainWindow.__init__(self, parent=parent)
+        Ui_new_msk.__init__(self)
+        self.setupUi(self)
+        self.show()
