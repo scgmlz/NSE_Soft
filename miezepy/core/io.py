@@ -191,6 +191,7 @@ class Generator:
         '''
         temp_axes = []
         for item in import_objects:
+            item.processObject()
             temp_axes.append(item.getAxes())
 
         axes = [[] for i in range(len(temp_axes[0]))]
