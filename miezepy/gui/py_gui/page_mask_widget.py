@@ -25,6 +25,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QInputDialog
 import numpy as np
+import os
 
 #private dependencies
 from ..qt_gui.main_mask_editor_ui   import Ui_mask_editor
@@ -330,7 +331,7 @@ class PageMaskWidget(Ui_mask_editor):
                 filters)[0]
 
         if not file_path == '':
-            self.mask_core.saveSingleMask(file_path)
+            self.mask_core.saveSingleMask(os.path.abspath(file_path))
 
     def saveMultiple(self):
         '''
@@ -343,7 +344,7 @@ class PageMaskWidget(Ui_mask_editor):
                 filters)[0]
 
         if not file_path == '':
-            self.mask_core.saveAllMasks(file_path)
+            self.mask_core.saveAllMasks(os.path.abspath(file_path))
 
     def loadSingle(self):
         '''
@@ -357,7 +358,7 @@ class PageMaskWidget(Ui_mask_editor):
                 filters)[0]
 
         if not file_path == '':
-            self.mask_core.loadSingleMask(file_path)
+            self.mask_core.loadSingleMask(os.path.abspath(file_path))
             self.updateSelector(self.mask_core.current_mask)
             self.populateAll()
 
@@ -373,7 +374,7 @@ class PageMaskWidget(Ui_mask_editor):
                 filters)[0]
 
         if not file_path == '':
-            self.mask_core.loadAllMasks(file_path)
+            self.mask_core.loadAllMasks(os.path.abspath(file_path))
             self.updateSelector(self.mask_core.current_mask)
             self.populateAll()
 
@@ -477,7 +478,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.mask_list_loaded.setStyleSheet(
             "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
             "QListWidget::item:selected { background-color: palette(Mid)  }")
-            
+
         self.my_canvas    = Multi_Canvas(
             self.mask_widget_visual,
             grid        = [[True,True],[True,True]],

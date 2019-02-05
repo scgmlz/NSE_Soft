@@ -67,7 +67,7 @@ class PageIOWidget(Ui_io_widget):
                 self.parent.window, 
                 'Select folder')
 
-        self.io_input_load_path.setText(file_path)
+        self.io_input_load_path.setText(os.path.abspath(file_path))
         self.triggerNodeLoad()
 
         if quick:
@@ -137,7 +137,7 @@ class PageIOWidget(Ui_io_widget):
                 self.parent.window, 
                 'Select folder')
 
-        self.io_input_save_path.setText(file_path)
+        self.io_input_save_path.setText(os.path.abspath(file_path))
         self.triggerNodeSave()
 
         if quick:
@@ -258,7 +258,7 @@ class PageIOWidget(Ui_io_widget):
                 'Select folder')
 
         if not path == '':
-            self.extra_folders.append(path)
+            self.extra_folders.append(os.path.abspath(path))
         
         self.setFolderList()
         self.triggerNodeLoad()
