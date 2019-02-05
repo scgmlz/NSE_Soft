@@ -466,13 +466,17 @@ class FileHandler:
                     path = element
                 else:
                     for folder_path in self.extra_folders:
-                        path = glob.glob(
+                        
+                        path_list = glob.glob(
                             folder_path
                             +os.path.sep
                             +'**'
                             +os.path.sep
                             +element.split(os.path.sep)[-1],
-                            recursive=True)[0]
+                            recursive=True)
+
+                        if len(path_list) == 1:
+                            path = path_list[0]
 
                 self.total_path_files.append(path)
                 self.nice_path_files.append(path.split(os.path.sep)[-1])

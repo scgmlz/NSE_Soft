@@ -246,8 +246,11 @@ class PageMaskWidget(Ui_mask_editor):
         else:
             index = self.mask_list_loaded.currentRow()
 
-        self.element[index].widget.setFocus()
-
+        try:
+            self.element[index].widget.setFocus()
+        except:
+            pass
+            
     def clear(self):
         '''
         Clear the current element list

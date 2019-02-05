@@ -12,7 +12,7 @@ class Ui_io_widget(object):
     def setupUi(self, io_widget):
         io_widget.setObjectName("io_widget")
         io_widget.resize(936, 697)
-        io_widget.setStyleSheet("#io_widget{background-color: rgb(179, 179, 179);}")
+        io_widget.setStyleSheet("")
         self.verticalLayout = QtWidgets.QVBoxLayout(io_widget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.groupBox = QtWidgets.QGroupBox(io_widget)
