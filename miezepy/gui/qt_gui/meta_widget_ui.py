@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_meta_widget(object):
     def setupUi(self, meta_widget):
         meta_widget.setObjectName("meta_widget")
-        meta_widget.resize(260, 57)
+        meta_widget.resize(260, 88)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -104,7 +104,7 @@ class Ui_meta_widget(object):
         font = QtGui.QFont()
         font.setPointSize(11)
         self.meta_label_manual.setFont(font)
-        self.meta_label_manual.setText("Manual")
+        self.meta_label_manual.setText("Edit:")
         self.meta_label_manual.setScaledContents(True)
         self.meta_label_manual.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.meta_label_manual.setWordWrap(False)

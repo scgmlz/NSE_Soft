@@ -88,7 +88,9 @@ class PageDataWidget(Ui_data_import):
         self.data_list_loaded.setStyleSheet(
             "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
             "QListWidget::item:selected { background-color: palette(Mid)  }")
-
+        self.data_list_meta.setStyleSheet(
+            "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
+            "QListWidget::item:selected { background-color: palette(Mid)  }")
         ##############################################
         #add the 
         self.my_canvas    = Multi_Canvas(

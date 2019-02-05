@@ -12,7 +12,7 @@ class Ui_data_import(object):
     def setupUi(self, data_import):
         data_import.setObjectName("data_import")
         data_import.resize(1192, 887)
-        data_import.setStyleSheet("#data_import{background-color: rgb(179, 179, 179);}")
+        data_import.setStyleSheet("")
         self.horizontalLayout = QtWidgets.QHBoxLayout(data_import)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.data_group_dialog = QtWidgets.QGroupBox(data_import)
@@ -158,6 +158,7 @@ class Ui_data_import(object):
         self.verticalLayout_2.addWidget(self.data_list_loaded)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(1, 1, 1, 1)
+        self.horizontalLayout_3.setSpacing(6)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.data_button_add_object = QtWidgets.QPushButton(self.data_group_loaded)
         self.data_button_add_object.setObjectName("data_button_add_object")
