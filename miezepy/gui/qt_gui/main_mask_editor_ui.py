@@ -12,7 +12,7 @@ class Ui_mask_editor(object):
     def setupUi(self, mask_editor):
         mask_editor.setObjectName("mask_editor")
         mask_editor.resize(1217, 882)
-        mask_editor.setStyleSheet("#mask_editor{background-color: rgb(179, 179, 179);}")
+        mask_editor.setStyleSheet("")
         self.horizontalLayout = QtWidgets.QHBoxLayout(mask_editor)
         self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout.setSpacing(2)
@@ -37,6 +37,7 @@ class Ui_mask_editor(object):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(1, 1, 1, 1)
+        self.horizontalLayout_3.setSpacing(6)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.label = QtWidgets.QLabel(self.mask_group_masks)
         self.label.setObjectName("label")

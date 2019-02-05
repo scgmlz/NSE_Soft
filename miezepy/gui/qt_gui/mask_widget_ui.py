@@ -20,13 +20,7 @@ class Ui_mask_widget(object):
         mask_widget.setMinimumSize(QtCore.QSize(400, 150))
         mask_widget.setMaximumSize(QtCore.QSize(400, 250))
         mask_widget.setBaseSize(QtCore.QSize(0, 250))
-        mask_widget.setStyleSheet("#mask_widget{\n"
-"background-color: rgb(255, 255, 255);}\n"
-"\n"
-"#mask_widget:focus{\n"
-"background-color: rgb(220, 220, 220);\n"
-"\n"
-"}\n"
+        mask_widget.setStyleSheet("\n"
 "\n"
 "")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(mask_widget)

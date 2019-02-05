@@ -151,7 +151,7 @@ class PageDataWidget(Ui_data_import):
                 parent = self.local_widget,
                 icon = 'error', 
                 title= 'No data element set',
-                message = 'No data element initialised. Add one first...',
+                message = 'No data element initialized. Add one first...',
                 add_message='You can add a dataset by going to File>add element.')
 
         else:

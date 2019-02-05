@@ -66,6 +66,10 @@ class PageMaskWidget(Ui_mask_editor):
         build the layout and introduce the graphics
         area
         '''
+        self.mask_list_loaded.setStyleSheet(
+            "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
+            "QListWidget::item:selected { background-color: palette(Mid)  }")
+
         self.my_canvas    = Multi_Canvas(
             self.mask_widget_visual,
             grid        = [[True]],
@@ -95,6 +99,7 @@ class PageMaskWidget(Ui_mask_editor):
         '''
         self.mask_button_add.clicked.connect(self.addElement)
         self.mask_button_remove.clicked.connect(self.removeElement)
+        self.mask_list_loaded.currentRowChanged.connect(self.setCurrentElement)
 
     def updateSelector(self, default = None):
         '''
@@ -230,6 +235,18 @@ class PageMaskWidget(Ui_mask_editor):
 
             element.mask_edited.connect(self.parseAndSend)
             element.mask_reset.connect(self.resetAndSend)
+
+    def setCurrentElement(self, row = None):
+        '''
+        On clicking an element the system will set the
+        classes linked to the current element 
+        '''
+        if isinstance(row, int):
+            index = row
+        else:
+            index = self.mask_list_loaded.currentRow()
+
+        self.element[index].widget.setFocus()
 
     def clear(self):
         '''
@@ -454,6 +471,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         build the layout and introduce the graphics
         area
         '''
+        self.mask_list_loaded.setStyleSheet(
+            "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
+            "QListWidget::item:selected { background-color: palette(Mid)  }")
+            
         self.my_canvas    = Multi_Canvas(
             self.mask_widget_visual,
             grid        = [[True,True],[True,True]],
