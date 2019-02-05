@@ -174,7 +174,7 @@ class MainWindowLayout(Ui_MIEZETool):
         Input: 
         - meta_class is the metadata class from the io
         '''
-        if len(self.handler.env_array) == 0:
+        if len(self.handler.env_array) == 0 and not index == 4:
             dialog(
                 parent = self.window,
                 icon = 'error', 
