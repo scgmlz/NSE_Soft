@@ -11,8 +11,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_env_widget(object):
     def setupUi(self, env_widget):
         env_widget.setObjectName("env_widget")
-        env_widget.resize(559, 317)
-        env_widget.setStyleSheet("#env_widget{background-color: rgb(179, 179, 179);}")
+        env_widget.resize(559, 373)
+        env_widget.setStyleSheet("")
         self.verticalLayout = QtWidgets.QVBoxLayout(env_widget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -32,15 +32,7 @@ class Ui_env_widget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.main_widget_env.sizePolicy().hasHeightForWidth())
         self.main_widget_env.setSizePolicy(sizePolicy)
-        self.main_widget_env.setStyleSheet("main_widget_env::item{\n"
-"border: 2px solid black ;\n"
-"background-color: rgb(217, 217, 217);\n"
-"}\n"
-"\n"
-"main_widget_env::item:selected{\n"
-"border: 2px solid black ;\n"
-"background-color: rgb(120, 120, 120);\n"
-"}")
+        self.main_widget_env.setStyleSheet("")
         self.main_widget_env.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.main_widget_env.setObjectName("main_widget_env")
         self.verticalLayout.addWidget(self.main_widget_env)
