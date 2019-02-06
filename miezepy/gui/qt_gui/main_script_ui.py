@@ -12,10 +12,20 @@ class Ui_script_widget(object):
     def setupUi(self, script_widget):
         script_widget.setObjectName("script_widget")
         script_widget.resize(1508, 905)
-        script_widget.setStyleSheet("")
+        script_widget.setStyleSheet("#script_widget{background-color: rgb(179, 179, 179);}\n"
+"QGroupBox::title{color:rgb(0, 0, 0)}\n"
+"QLabel{color:rgb(0, 0, 0)}\n"
+"QTabWidget{background-color: rgb(131, 131, 131);}\n"
+"#process_tab{background-color: rgb(131, 131, 131);}\n"
+"#panel_tab{background-color: rgb(131, 131, 131);}\n"
+"#script_tab{background-color: rgb(131, 131, 131);}")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(script_widget)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.tabWidget = QtWidgets.QTabWidget(script_widget)
+        self.tabWidget.setStyleSheet("\n"
+"")
+        self.tabWidget.setTabPosition(QtWidgets.QTabWidget.North)
+        self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setObjectName("tabWidget")
         self.process_tab = QtWidgets.QWidget()
         self.process_tab.setObjectName("process_tab")
@@ -768,7 +778,7 @@ class Ui_script_widget(object):
         self.verticalLayout_5.addWidget(self.tabWidget)
 
         self.retranslateUi(script_widget)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(0)
         self.script_tabs.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(script_widget)
 

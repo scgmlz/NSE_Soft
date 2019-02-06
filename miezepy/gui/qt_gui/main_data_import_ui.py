@@ -12,7 +12,9 @@ class Ui_data_import(object):
     def setupUi(self, data_import):
         data_import.setObjectName("data_import")
         data_import.resize(1192, 887)
-        data_import.setStyleSheet("")
+        data_import.setStyleSheet("#data_import{background-color: rgb(179, 179, 179);}\n"
+"QGroupBox::title{color:rgb(0, 0, 0)}\n"
+"QLabel{color:rgb(0, 0, 0)}")
         self.horizontalLayout = QtWidgets.QHBoxLayout(data_import)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.data_group_dialog = QtWidgets.QGroupBox(data_import)
