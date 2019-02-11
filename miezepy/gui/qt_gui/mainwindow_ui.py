@@ -75,7 +75,7 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.env_button.sizePolicy().hasHeightForWidth())
         self.env_button.setSizePolicy(sizePolicy)
-        self.env_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.env_button.setMinimumSize(QtCore.QSize(64, 60))
         self.env_button.setMaximumSize(QtCore.QSize(16777215, 30))
         self.env_button.setAutoFillBackground(False)
         self.env_button.setStyleSheet("#env_button { \n"
@@ -106,7 +106,7 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.data_button.sizePolicy().hasHeightForWidth())
         self.data_button.setSizePolicy(sizePolicy)
-        self.data_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.data_button.setMinimumSize(QtCore.QSize(64, 60))
         self.data_button.setMaximumSize(QtCore.QSize(16777215, 40))
         self.data_button.setAutoFillBackground(False)
         self.data_button.setStyleSheet("#data_button { \n"
@@ -135,7 +135,7 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mask_button.sizePolicy().hasHeightForWidth())
         self.mask_button.setSizePolicy(sizePolicy)
-        self.mask_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.mask_button.setMinimumSize(QtCore.QSize(64, 60))
         self.mask_button.setMaximumSize(QtCore.QSize(16777215, 40))
         self.mask_button.setAutoFillBackground(False)
         self.mask_button.setStyleSheet("#mask_button { \n"
@@ -165,7 +165,7 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.script_button.sizePolicy().hasHeightForWidth())
         self.script_button.setSizePolicy(sizePolicy)
-        self.script_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.script_button.setMinimumSize(QtCore.QSize(64, 60))
         self.script_button.setMaximumSize(QtCore.QSize(16777215, 40))
         self.script_button.setAutoFillBackground(False)
         self.script_button.setStyleSheet("#script_button { \n"
@@ -195,7 +195,7 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.result_button.sizePolicy().hasHeightForWidth())
         self.result_button.setSizePolicy(sizePolicy)
-        self.result_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.result_button.setMinimumSize(QtCore.QSize(64, 60))
         self.result_button.setMaximumSize(QtCore.QSize(16777215, 40))
         self.result_button.setAutoFillBackground(False)
         self.result_button.setStyleSheet("#result_button { \n"
@@ -225,7 +225,7 @@ class Ui_MIEZETool(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.save_button.sizePolicy().hasHeightForWidth())
         self.save_button.setSizePolicy(sizePolicy)
-        self.save_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.save_button.setMinimumSize(QtCore.QSize(64, 60))
         self.save_button.setMaximumSize(QtCore.QSize(16777215, 40))
         self.save_button.setAutoFillBackground(False)
         self.save_button.setStyleSheet("#save_button { \n"

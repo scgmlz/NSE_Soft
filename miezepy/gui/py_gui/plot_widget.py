@@ -25,8 +25,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 import numpy as np
 
-from ..qt_gui.plot_widget_ui import Ui_PlotWidget
-class PlotItem(Ui_PlotWidget):
+class PlotItem():
      
     def __init__(self, stdItem, result_handler):
         self._initialValues()
@@ -157,6 +156,7 @@ class PlotItem(Ui_PlotWidget):
         self.parent.scatter_size_spin.valueChanged.disconnect(self._grabInfo)
         self.parent.scatter_check.stateChanged.disconnect(self._grabInfo)
         self.parent.line_check.stateChanged.disconnect(self._grabInfo)
+        self.parent.color_button.clicked.disconnect(self._colorSelect)
         self.parent.active_check.stateChanged.disconnect(self._grabInfo)
         self.parent.offset_spin.valueChanged.disconnect(self._grabInfo)
 
@@ -185,13 +185,13 @@ class PlotItem(Ui_PlotWidget):
 
         if not self.x_val == 'None':
             self.header.append('x')
-            self.data_list.append(self.result_handler.getDataFromKey(self.x_val).tolist())
+            self.data_list.append(np.asarray(self.result_handler.getDataFromKey(self.x_val)).tolist())
         if not self.y_val == 'None':
             self.header.append('y')
-            self.data_list.append(self.result_handler.getDataFromKey(self.y_val).tolist())
+            self.data_list.append(np.asarray(self.result_handler.getDataFromKey(self.y_val)).tolist())
         if not self.e_val == 'None':
             self.header.append('error')
-            self.data_list.append(self.result_handler.getDataFromKey(self.e_val).tolist())
+            self.data_list.append(np.asarray(self.result_handler.getDataFromKey(self.e_val)).tolist())
 
         self.data_list = np.array(self.data_list).transpose().tolist()
         
@@ -218,9 +218,11 @@ class PlotItem(Ui_PlotWidget):
     def _getLink(self):
         self.link   = self.link_keys[self.parent.link_input.currentIndex()]
 
+
     def _colorSelect(self):
-        self.color = QtGui.QColorDialog.getColor()
-        self._setColorStyleSheet()
+        self.color_dialog = QtGui.QColorDialog(parent = self.parent.local_widget)
+        self.color_dialog.colorSelected.connect(self.setColorWindows)
+        self.color_dialog.show()
 
     def setColor(self, hex = None):
         if not hex == None:
@@ -229,6 +231,10 @@ class PlotItem(Ui_PlotWidget):
                 col[0],
                 col[1],
                 col[2])
+
+    def setColorWindows(self, color):
+        self.color = QtGui.QColor(color)
+        self._setColorStyleSheet()
 
     def _setColorStyleSheet(self):
         self.parent.color_button.setStyleSheet(
