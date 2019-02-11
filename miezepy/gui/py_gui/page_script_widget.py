@@ -32,7 +32,6 @@ from ..qt_gui.main_script_ui        import Ui_script_widget
 from ..py_gui.python_syntax         import PythonHighlighter
 from ..py_gui.page_mask_widget      import PanelPageMaskWidget
 from ..py_gui.dialog                import dialog 
-from ..py_gui.result_list_handler   import ResultHandlerUI
 
 #private plotting library
 from simpleplot.multi_canvas        import Multi_Canvas
@@ -101,16 +100,6 @@ class PageScriptWidget(Ui_script_widget):
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
-        self.result_handler_ui  = ResultHandlerUI(self)
-        self.my_canvas          = Multi_Canvas(
-            self.process_widget_plot,
-            grid        = [[True]],
-            x_ratios    = [1],
-            y_ratios    = [1],
-            background  = "w",
-            highlightthickness = 0)
-        self.ax                 = self.my_canvas.get_subplot(0,0)
-        self.ax.pointer['Label_Precision'] = ('.4','.4','.4','.4')
         self.progress_bar_reduction.setMaximum(4)
         self.progress_bar_reduction.setMinimum(0)
         self.progress_bar_reduction.setValue(0)
@@ -142,18 +131,7 @@ class PageScriptWidget(Ui_script_widget):
         self.text_widgets[1].textChanged.connect(partial(self._updateEditable, 1))
         self.text_widgets[2].textChanged.connect(partial(self._updateEditable, 2))
         self.text_widgets[3].textChanged.connect(partial(self._updateEditable, 3))
-
-        self.process_tree_x.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_tree_y.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_tree_error.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_button_plot_add.clicked.connect(self.result_handler_ui.addPlotElement)
-        self.process_button_plot_remove.clicked.connect(self.result_handler_ui.removePlotElement)
-        self.process_button_plot_reset.clicked.connect(self.result_handler_ui.removeAllPlotElement)
-        self.process_button_plot_plot.clicked.connect(self._updatePlot)
-        self.process_button_plot_hide.clicked.connect(self._hidePlot)
-        self.process_button_echo_fit.clicked.connect(self._plotEcho)
-        self.process_button_gamma.clicked.connect(self._plotGamma)
-
+        
         self.tabWidget.currentChanged.connect(self._mainTabChanged)
 
     def _mainTabChanged(self, idx):
@@ -174,12 +152,6 @@ class PageScriptWidget(Ui_script_widget):
         self.tool.link(self.env.mask, self.env)
         self._refresh()
         self._linkVisualComponents()
-        # self.result_handler_ui._fillAllResults(
-        #     self.env,
-        #     self.process_tree_error,
-        #     self.process_tree_x,
-        #     self.process_tree_y,
-        #     self.process_tree_plot)
         self.synthesize_scripts = True
         self.tabWidget.setCurrentIndex(0)
         self.script_tabs.setCurrentIndex(0)
