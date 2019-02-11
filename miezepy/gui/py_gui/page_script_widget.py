@@ -101,7 +101,7 @@ class PageScriptWidget(Ui_script_widget):
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
-        self.result_handler_ui  = ResultHandlerUI()
+        self.result_handler_ui  = ResultHandlerUI(self)
         self.my_canvas          = Multi_Canvas(
             self.process_widget_plot,
             grid        = [[True]],
@@ -174,12 +174,12 @@ class PageScriptWidget(Ui_script_widget):
         self.tool.link(self.env.mask, self.env)
         self._refresh()
         self._linkVisualComponents()
-        self.result_handler_ui._fillAllResults(
-            self.env,
-            self.process_tree_error,
-            self.process_tree_x,
-            self.process_tree_y,
-            self.process_tree_plot)
+        # self.result_handler_ui._fillAllResults(
+        #     self.env,
+        #     self.process_tree_error,
+        #     self.process_tree_x,
+        #     self.process_tree_y,
+        #     self.process_tree_plot)
         self.synthesize_scripts = True
         self.tabWidget.setCurrentIndex(0)
         self.script_tabs.setCurrentIndex(0)
@@ -897,13 +897,13 @@ class PageScriptWidget(Ui_script_widget):
             if index == 0 or index == 1:
                 self.tool.link(self.env.mask, self.env)
 
-        self.result_handler_ui._fillAllResults(
-            self.env,
-            self.process_tree_error,
-            self.process_tree_x,
-            self.process_tree_y,
-            self.process_tree_plot
-        )
+        # self.result_handler_ui._fillAllResults(
+        #     self.env,
+        #     self.process_tree_error,
+        #     self.process_tree_x,
+        #     self.process_tree_y,
+        #     self.process_tree_plot
+        # )
 
     def runAll(self):
         '''

@@ -12,7 +12,8 @@ class Ui_MIEZETool(object):
     def setupUi(self, MIEZETool):
         MIEZETool.setObjectName("MIEZETool")
         MIEZETool.resize(1234, 892)
-        MIEZETool.setStyleSheet("")
+        MIEZETool.setStyleSheet("#main_widget{\n"
+"background-color: rgb(64, 66, 68);}")
         self.main_widget = QtWidgets.QWidget(MIEZETool)
         self.main_widget.setStyleSheet("")
         self.main_widget.setObjectName("main_widget")
@@ -25,8 +26,7 @@ class Ui_MIEZETool(object):
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy)
         self.widget.setMinimumSize(QtCore.QSize(100, 0))
-        self.widget.setStyleSheet("#widget{\n"
-"background-color: rgb(64, 66, 68);}")
+        self.widget.setStyleSheet("")
         self.widget.setObjectName("widget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
         self.verticalLayout.setContentsMargins(5, 5, 5, 5)
@@ -152,6 +152,36 @@ class Ui_MIEZETool(object):
         self.script_button.setFlat(False)
         self.script_button.setObjectName("script_button")
         self.verticalLayout.addWidget(self.script_button)
+        self.result_button = QtWidgets.QPushButton(self.widget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.result_button.sizePolicy().hasHeightForWidth())
+        self.result_button.setSizePolicy(sizePolicy)
+        self.result_button.setMinimumSize(QtCore.QSize(64, 40))
+        self.result_button.setMaximumSize(QtCore.QSize(16777215, 40))
+        self.result_button.setAutoFillBackground(False)
+        self.result_button.setStyleSheet("#result_button { \n"
+"background-color: transparent; \n"
+"qproperty-icon: url(:/Ressources/plot_result.ico); \n"
+"background: none; \n"
+"border: none; \n"
+"background-repeat: none; \n"
+"} \n"
+"#result_button:checked { \n"
+"background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.50033, fy:0.505682,stop:0 rgba(94, 0, 255, 255), stop:1 rgb(64, 66, 68) );\n"
+"}\n"
+"")
+        self.result_button.setText("")
+        self.result_button.setIconSize(QtCore.QSize(45, 64))
+        self.result_button.setCheckable(True)
+        self.result_button.setChecked(True)
+        self.result_button.setAutoRepeat(False)
+        self.result_button.setAutoExclusive(False)
+        self.result_button.setAutoDefault(False)
+        self.result_button.setFlat(False)
+        self.result_button.setObjectName("result_button")
+        self.verticalLayout.addWidget(self.result_button)
         self.save_button = QtWidgets.QPushButton(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)

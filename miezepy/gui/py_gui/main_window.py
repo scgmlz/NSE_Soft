@@ -33,6 +33,7 @@ from ..py_gui.page_data_widget      import PageDataWidget
 from ..py_gui.page_mask_widget      import PageMaskWidget
 from ..py_gui.page_env_widget       import PageEnvWidget
 from ..py_gui.page_script_widget    import PageScriptWidget
+from ..py_gui.page_result_widget    import PageResultWidget
 from ..py_gui.page_io_widget        import PageIOWidget
 from ..py_gui.dialog                import dialog 
 
@@ -72,8 +73,10 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(self.actionDispatcher, 2, None))
         self.script_button.clicked.connect(
             partial(self.actionDispatcher, 3, None))
-        self.save_button.clicked.connect(
+        self.result_button.clicked.connect(
             partial(self.actionDispatcher, 4, None))
+        self.save_button.clicked.connect(
+            partial(self.actionDispatcher, 5, None))
 
         #Menu actions
         self.actionAddEnv.triggered.connect(
@@ -158,13 +161,13 @@ class MainWindowLayout(Ui_MIEZETool):
         #io
         self.actionLoad_Session.triggered.connect(
             partial(
-                self.actionDispatcher, 4, 
-                partial(self.widgetClasses[4].getLoadPath, True)))
+                self.actionDispatcher, 5, 
+                partial(self.widgetClasses[5].getLoadPath, True)))
 
         self.actionSave_Session.triggered.connect(
             partial(
-                self.actionDispatcher, 4, 
-                partial(self.widgetClasses[4].getSavePath, True)))
+                self.actionDispatcher, 5, 
+                partial(self.widgetClasses[5].getSavePath, True)))
 
     def actionDispatcher(self,index, method = None):
         '''
@@ -174,7 +177,7 @@ class MainWindowLayout(Ui_MIEZETool):
         Input: 
         - meta_class is the metadata class from the io
         '''
-        if len(self.handler.env_array) == 0 and not index == 4:
+        if len(self.handler.env_array) == 0 and not index == 4 and not index == 5:
             dialog(
                 parent = self.window,
                 icon = 'error', 
@@ -208,9 +211,11 @@ class MainWindowLayout(Ui_MIEZETool):
                     if not self.widgetClasses[3].env == self.handler.current_env:
                         self.widgetClasses[3].link(self.handler.current_env)
                     self.refreshChecked(3)
-
             elif index == 4:
                 self.refreshChecked(4)
+
+            elif index == 5:
+                self.refreshChecked(5)
 
         if not method == None:
             method()
@@ -232,8 +237,11 @@ class MainWindowLayout(Ui_MIEZETool):
         self.setProgress('Linking script view',1)
         self.widgetClasses[0].link(self.handler)
 
-        self.setProgress('Linking script view',3)
+        self.setProgress('Linking result view',2)
         self.widgetClasses[4].link(self.handler)
+
+        self.setProgress('Linking script view',3)
+        self.widgetClasses[5].link(self.handler)
 
         self.fadeActivity()
         
@@ -250,6 +258,7 @@ class MainWindowLayout(Ui_MIEZETool):
             PageDataWidget(self.stack, self),
             PageMaskWidget(self.stack, self),
             PageScriptWidget(self.stack, self),
+            PageResultWidget(self.stack, self),
             PageIOWidget(self.stack, self)]
 
         for element in self.widgetClasses:
@@ -269,6 +278,7 @@ class MainWindowLayout(Ui_MIEZETool):
                 self.data_button,
                 self.mask_button,
                 self.script_button,
+                self.result_button,
                 self.save_button
             ]
             
@@ -294,6 +304,7 @@ class MainWindowLayout(Ui_MIEZETool):
             self.data_button,
             self.mask_button,
             self.script_button,
+            self.result_button,
             self.save_button
         ]
 
@@ -314,8 +325,10 @@ class MainWindowLayout(Ui_MIEZETool):
             self.data_button,
             self.mask_button,
             self.script_button,
+            self.result_button,
             self.save_button
         ]
+
 
         pointers[i].setChecked(True)
         self.checked = [element.isChecked() for element in pointers]
