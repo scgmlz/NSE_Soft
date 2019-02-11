@@ -559,7 +559,7 @@ class Ui_result_widget(object):
         self.verticalLayout_5.addLayout(self.horizontalLayout_3)
 
         self.retranslateUi(result_widget)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(result_widget)
 

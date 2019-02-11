@@ -333,7 +333,7 @@ class ResultHandlerUI:
                 self.plot_list[index].scatter_size   = 10
                 self.plot_list[index].line           = False
                 self.plot_list[index].line_thickness = 2
-                self.plot_list[index].setColor(color_list[index%9])
+                self.plot_list[index].setColor(color_list[int(index/2)%9])
 
                 index += 1
 
@@ -348,7 +348,7 @@ class ResultHandlerUI:
                 self.plot_list[index].scatter_size   = 5
                 self.plot_list[index].line           = True
                 self.plot_list[index].line_thickness = 2
-                self.plot_list[index].setColor(color_list[index%9])
+                self.plot_list[index].setColor(color_list[int(index/2)%9])
 
                 index += 1
 
@@ -439,7 +439,7 @@ class ResultHandlerUI:
                 plot_element.y_keys = [key for key in self.data_sets_y.keys()]
                 plot_element.e_keys = [key for key in self.data_sets_e.keys()]
             self._repopulateLinks()
-            
+
             if len(self.process_list_plot.selectedIndexes()) > 0:
                 self._grabPlotItem(self.process_list_plot.selectedIndexes()[0].row())
 

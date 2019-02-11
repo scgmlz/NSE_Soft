@@ -175,9 +175,9 @@ class PageResultWidget(Ui_result_widget):
             not self.data_group.isVisible())
 
         if self.data_group.isVisible():
-            self.process_button_plot_hide_plot_items.setText('Hide Items')
+            self.process_button_plot_hide_data.setText('Hide Items')
         else:
-            self.process_button_plot_hide_plot_items.setText('Show Items')
+            self.process_button_plot_hide_data.setText('Show Items')
 
     def _hidePlotItems(self):
         '''
@@ -188,9 +188,9 @@ class PageResultWidget(Ui_result_widget):
             not self.plot_items_group.isVisible())
 
         if self.plot_items_group.isVisible():
-            self.process_button_plot_hide_data.setText('Hide Data')
+            self.process_button_plot_hide_plot_items.setText('Hide Data')
         else:
-            self.process_button_plot_hide_data.setText('Show Data')
+            self.process_button_plot_hide_plot_items.setText('Show Data')
 
     def _updatePlot(self):
         '''

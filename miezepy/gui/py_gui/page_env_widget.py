@@ -24,13 +24,13 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from functools import partial
 
-from ..qt_gui.main_env_widget_ui    import Ui_env_widget
+from ..qt_gui.main_env_widget_ui    import Ui_main_env_widget
 from ..py_gui.env_widget            import EnvWidget
 
-class PageEnvWidget(Ui_env_widget):
+class PageEnvWidget(Ui_main_env_widget):
     
     def __init__(self, stack, parent):
-        Ui_env_widget.__init__(self)
+        Ui_main_env_widget.__init__(self)
         self.parent         = parent
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
