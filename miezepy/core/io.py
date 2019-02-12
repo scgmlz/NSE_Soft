@@ -440,12 +440,12 @@ class FileHandler:
                 files_present.append(True)
             elif not os.path.isfile(path):
                 for folder_path in self.extra_folders:
-                    found_names = glob.glob(
-                        folder_path
+                    found_names = glob.glob(os.path.realpath(
+                        os.path.abspath(folder_path)
                         +os.path.sep
                         +'**'
                         +os.path.sep
-                        +path.split(os.path.sep)[-1],
+                        +os.path.abspath(path).split(os.path.sep)[-1]),
                         recursive=True)
                     if len(found_names) > 0:
                         files_present.append(True)
@@ -468,12 +468,12 @@ class FileHandler:
                 else:
                     for folder_path in self.extra_folders:
                         
-                        path_list = glob.glob(
-                            folder_path
+                        path_list = glob.glob(os.path.realpath(
+                            os.path.abspath(folder_path)
                             +os.path.sep
                             +'**'
                             +os.path.sep
-                            +element.split(os.path.sep)[-1],
+                            +os.path.abspath(element).split(os.path.sep)[-1]),
                             recursive=True)
 
                         if len(path_list) == 1:
