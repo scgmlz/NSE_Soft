@@ -18,7 +18,11 @@ class Ui_script_widget(object):
 "QTabWidget{background-color: rgb(131, 131, 131);}\n"
 "#process_tab{background-color: rgb(131, 131, 131);}\n"
 "#panel_tab{background-color: rgb(131, 131, 131);}\n"
-"#script_tab{background-color: rgb(131, 131, 131);}")
+"#script_tab{background-color: rgb(131, 131, 131);}\n"
+"#script_tab_import{background-color: rgb(131, 131, 131);}\n"
+"#script_tab_phase{background-color: rgb(131, 131, 131);}\n"
+"#script_tab_reduction{background-color: rgb(131, 131, 131);}\n"
+"#tab{background-color: rgb(131, 131, 131);}")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(script_widget)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.tabWidget = QtWidgets.QTabWidget(script_widget)
@@ -566,8 +570,8 @@ class Ui_script_widget(object):
         self.verticalLayout_5.addWidget(self.tabWidget)
 
         self.retranslateUi(script_widget)
-        self.tabWidget.setCurrentIndex(0)
-        self.script_tabs.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
+        self.script_tabs.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(script_widget)
 
     def retranslateUi(self, script_widget):
@@ -580,7 +584,7 @@ class Ui_script_widget(object):
         self.groupBox.setTitle(_translate("script_widget", "Phase settings"))
         self.process_radio_mask.setText(_translate("script_widget", "Use mas&k method"))
         self.label_6.setText(_translate("script_widget", "Select a mask:"))
-        self.process_radio_exposure.setText(_translate("script_widget", "Use h&igh exposure"))
+        self.process_radio_exposure.setText(_translate("script_widget", "&Use high exposure"))
         self.label_5.setText(_translate("script_widget", "Select the measurement:"))
         self.groupBox_3.setTitle(_translate("script_widget", "Redution settings"))
         self.label_2.setText(_translate("script_widget", "Reference measurement: "))

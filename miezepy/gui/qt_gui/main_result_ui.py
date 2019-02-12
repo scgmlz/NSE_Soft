@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_result_widget(object):
     def setupUi(self, result_widget):
         result_widget.setObjectName("result_widget")
-        result_widget.resize(1157, 1091)
+        result_widget.resize(1231, 1091)
         result_widget.setStyleSheet("#result_widget{background-color: rgb(179, 179, 179);}\n"
 "QGroupBox::title{color:rgb(0, 0, 0)}\n"
 "QLabel{color:rgb(0, 0, 0)}\n"
@@ -33,6 +33,7 @@ class Ui_result_widget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
         self.tabWidget.setSizePolicy(sizePolicy)
+        self.tabWidget.setAutoFillBackground(True)
         self.tabWidget.setObjectName("tabWidget")
         self.result_tab = QtWidgets.QWidget()
         self.result_tab.setObjectName("result_tab")
@@ -347,6 +348,7 @@ class Ui_result_widget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget_2.sizePolicy().hasHeightForWidth())
         self.tabWidget_2.setSizePolicy(sizePolicy)
+        self.tabWidget_2.setAutoFillBackground(True)
         self.tabWidget_2.setTabPosition(QtWidgets.QTabWidget.South)
         self.tabWidget_2.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget_2.setElideMode(QtCore.Qt.ElideRight)
