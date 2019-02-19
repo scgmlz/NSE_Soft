@@ -53,20 +53,76 @@ class Mieze(Handler):
     def run(self):
         self.gui.run()
 
+
+import sys
+from PyQt5.QtGui import QIcon
+ 
+from PyQt5.QtCore import (QDate, QDateTime, QRegExp, QSortFilterProxyModel, Qt,
+QTime)
+from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
+QGroupBox, QHBoxLayout, QLabel, QLineEdit, QTreeView, QVBoxLayout,
+QWidget)
+
+class App(QWidget):
+ 
+    def __init__(self):
+        super().__init__()
+        self.title = 'PyQt5 Treeview Example - pythonspot.com'
+        self.width = 640
+        self.height = 800
+    
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        
+        self.dataGroupBox = QGroupBox("Inbox")
+        self.dataView_1 = QTreeView()
+        self.dataView_2 = QTreeView()
+        # self.dataView.setRootIsDecorated(False)
+        # self.dataView.setAlternatingRowColors(True)
+        
+        dataLayout = QHBoxLayout()
+        dataLayout.addWidget(self.dataView_1)
+        dataLayout.addWidget(self.dataView_2)
+        self.dataGroupBox.setLayout(dataLayout)
+        
+        mainLayout = QVBoxLayout()
+        mainLayout.addWidget(self.dataGroupBox)
+        self.setLayout(mainLayout)
+        
+        self.show()
+
 if __name__ == '__main__':
     app = Mieze(GUI = True)
     app.gui.active_windows['MainWindow'].target.widgetClasses[0].addEnvironment()
     env = app.current_env
     env.io.loadFromPython(
         "Examples/file_3.py")
-    # app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
-    # app.gui.active_windows['MainWindow'].target.actionDispatcher(3)
-    # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(0)
-    # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(1)
-    # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(2)
-    # app.gui.active_windows['MainWindow'].target.widgetClasses[3]._plotEcho()
+    app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
+    app.gui.active_windows['MainWindow'].target.actionDispatcher(3)
+    app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(0)
+    app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(1)
+    app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(2)
 
     app.run()
+    # env_handler =  Handler()
+    # env_handler.new_environment()
+    # env_handler.current_env.mask.addElement([
+    #             'arc',
+    #             (31,35),
+    #             0,
+    #             (0,5), 
+    #             (0,360)])
+
+    # from .gui.py_gui.mask_visual_handler import MaskVisualHandler
+    # mask_visual = MaskVisualHandler()
+    # mask_visual.link(env_handler.current_env.mask)
+    # app = QApplication(sys.argv)
+    # test = App()
+    # test.initUI()
     
-        
+    # mask_visual.connectView('hey', test.dataView_1)
+    # mask_visual.connectView('hey_2', test.dataView_2)
+    # test.dataView_1.resizeColumnToContents(0)
+    # sys.exit(app.exec_())
 

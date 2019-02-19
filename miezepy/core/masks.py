@@ -51,7 +51,7 @@ class Masks:
         self.mask_dict  = self.generateDefaults()
         self.defaults   = [key for key in self.mask_dict.keys()]
         self.mask_types = [
-            'square',
+            'rectangle',
             'arc',
             'triangle',
             'linear composition',
@@ -154,7 +154,8 @@ class Masks:
         f = open(path, 'r')
         self.mask_dict[self.current_mask] = json.load(f)
         f.close()
-
+        self.checkMasks()
+        
     def loadAllMasks(self, path):
         '''
         Writes a mask to json
@@ -162,6 +163,26 @@ class Masks:
         f = open(path, 'r')
         self.mask_dict = json.load(f)
         f.close()
+        self.checkMasks()
+
+    def checkMasks(self):
+        '''
+        The nomenclature has changed slightly and
+        a small fix is implemented here
+        '''
+        for key in self.mask_dict.keys():
+            for element in self.mask_dict[key]:
+                if element[0] == 'radial_comp':
+                    element[0] = 'radial composition'
+                    if element[7][0] == 'square':
+                        element[7][0] = 'rectangle'    
+                elif element[0] == 'linear_comp':
+                    element[0] = 'linear composition'
+                    if element[7][0] == 'square':
+                        element[7][0] = 'rectangle'  
+                elif element[0] == 'square':
+                    element[0] = 'rectangle'
+
 
     def generateDefaults(self):
         '''
@@ -175,7 +196,7 @@ class Masks:
                 (0,5), 
                 (0,360)]],
             '10x10_tile': [[
-                'square',
+                'rectangle',
                 (100,100),
                 0,
                 10,10]],
@@ -246,7 +267,7 @@ class Masks:
                 (65,85), 
                 (82,100)]],
             'Pre_SkX_peak': [[
-                'radial_comp',
+                'radial composition',
                 (31,31),
                 0,
                 15,13,
@@ -262,7 +283,7 @@ class Masks:
                 ]]],
 
             'Pre_SkX_peak_Sixfold': [[
-                'radial_comp',
+                'radial composition',
                 (43,40),
                 -21,
                 3,3,
@@ -278,7 +299,7 @@ class Masks:
                 ]]],
 
             'Pre_SkX_peak_SkXCon': [[
-                'radial_comp',
+                'radial composition',
                 (28,34),
                 0,
                 10,11,
@@ -294,13 +315,13 @@ class Masks:
                 ]]],
 
             'Pre_tile': [[
-                'linear_comp',
+                'linear composition',
                 (0,0),
                 0, 
                 5,5,
                 128,128,
                 [
-                    'square', 
+                    'rectangle', 
                     [0,0],
                     0,
                     10,10,

@@ -45,7 +45,7 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
         self.parameters = parameters
         self.types = [
             'arc',
-            'square',
+            'rectangle',
             'triangle',
             'linear_comp',
             'radial_comp']
@@ -57,7 +57,7 @@ class MaskWidget(Ui_mask_widget,QtCore.QObject):
 
         self.equivalence = {
             'arc': self.buildArc,
-            'square': self.buildSquare,
+            'rectangle': self.buildSquare,
             'triangle': self.buildTriangle,
             'linear_comp': self.buildLinearComposition,
             'radial_comp': self.buildRadialComposition }

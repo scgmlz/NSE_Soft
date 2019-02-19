@@ -35,7 +35,8 @@ from ..py_gui.page_env_widget       import PageEnvWidget
 from ..py_gui.page_script_widget    import PageScriptWidget
 from ..py_gui.page_result_widget    import PageResultWidget
 from ..py_gui.page_io_widget        import PageIOWidget
-from ..py_gui.dialog                import dialog 
+from ..py_gui.dialog                import dialog
+from ..py_gui.mask_visual_handler   import MaskVisualHandler
 
 import miezepy
 
@@ -52,6 +53,7 @@ class MainWindowLayout(Ui_MIEZETool):
         Ui_MIEZETool.__init__(self)
         self.window = window
         self.window_manager = window_manager
+        self.mask_model     = MaskVisualHandler()
         self.setupUi(window)
         self.initialize()
         self.connect()
@@ -256,8 +258,8 @@ class MainWindowLayout(Ui_MIEZETool):
         self.widgetClasses = [
             PageEnvWidget(self.stack, self),
             PageDataWidget(self.stack, self),
-            PageMaskWidget(self.stack, self),
-            PageScriptWidget(self.stack, self),
+            PageMaskWidget(self.stack, self, self.mask_model),
+            PageScriptWidget(self.stack, self, self.mask_model),
             PageResultWidget(self.stack, self),
             PageIOWidget(self.stack, self)]
 

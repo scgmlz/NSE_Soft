@@ -24,7 +24,7 @@
 import numpy as np
 from .mask_shape import MaskShape
 
-class Square(MaskShape):
+class Rectangle(MaskShape):
 
     def __init__(self):
         '''
@@ -40,7 +40,7 @@ class Square(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']     = 'square'
+        self.parameters['type']     = 'rectangle'
         self.parameters['width']    = 10
         self.parameters['height']   = 10
 

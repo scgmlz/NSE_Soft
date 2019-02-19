@@ -27,7 +27,7 @@ import numpy as np
 
 from .linear_comp   import LinearComposition
 from .radial_comp   import RadialComposition
-from .square        import Square
+from .rectangle     import Rectangle
 from .triangle      import Triangle
 from .circle_arc    import CircleArc
 
@@ -42,7 +42,7 @@ class MaskGenerator:
         '''
         self.resetElementClasses()
         self.dummies = [
-            Square(),
+            Rectangle(),
             Triangle(),
             CircleArc(),
             LinearComposition(),
@@ -63,7 +63,6 @@ class MaskGenerator:
         class system.
         '''
         self.current_dialogue = mask_dialogue
-
         if recreate:
             self.resetElementClasses()
             for element in self.current_dialogue:

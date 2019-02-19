@@ -38,13 +38,14 @@ from simpleplot.multi_canvas        import Multi_Canvas
 
 class PageScriptWidget(Ui_script_widget):
     
-    def __init__(self, stack, parent):
+    def __init__(self, stack, parent, mask_model):
         
         Ui_script_widget.__init__(self)
         self.parent         = parent
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
         self.env            = None
+        self.mask_model     = mask_model
         self._setup()
         self._connect()
         self.fadeActivity()
@@ -96,7 +97,7 @@ class PageScriptWidget(Ui_script_widget):
         self.syntaxHighliter_3 = PythonHighlighter(
             self.text_widgets[3].document())
 
-        self.tool = PanelPageMaskWidget(self, self.parent)
+        self.tool = PanelPageMaskWidget(self, self.parent, self.mask_model)
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
@@ -417,6 +418,19 @@ class PageScriptWidget(Ui_script_widget):
         self._setVisualFitSelected()
         self._setVisualFitFoilsInEcho()
 
+    def _setReductionDrop(self):   
+        '''
+        Allow to set the reduction drop from the outside on the 
+        event of a change.
+        '''
+        self.process_box_mask_fit.blockSignals(True)
+        self.process_box_mask_fit.clear()
+        self.process_box_mask_fit.addItems([ key for key in self.env.mask.mask_dict.keys() ])
+        self.process_box_mask_fit.setCurrentIndex(
+            [ key for key in self.env.mask.mask_dict.keys() ].index(self.env.mask.current_mask))
+        self._synthesizeReduction()
+        self.process_box_mask_fit.blockSignals(False)
+
     def _setVisualFitDrops(self):   
         '''
         Set the widget values depending on the input of the 
@@ -495,6 +509,7 @@ class PageScriptWidget(Ui_script_widget):
         self.process_box_back_fit.currentIndexChanged.connect(self._synthesizeFit)
         self.process_box_refs_fit.currentIndexChanged.connect(self._synthesizeFit)
         self.process_box_mask_fit.currentIndexChanged.connect(self._synthesizeReduction)
+        self.mask_model.drop_updated.connect(self._setReductionDrop)
 
         #link the boxes
         for check_row in self.grid_checkboxes:
@@ -510,6 +525,7 @@ class PageScriptWidget(Ui_script_widget):
         self.process_box_back_fit.currentIndexChanged.disconnect(self._synthesizeFit)
         self.process_box_refs_fit.currentIndexChanged.disconnect(self._synthesizeFit)
         self.process_box_mask_fit.currentIndexChanged.disconnect(self._synthesizeReduction)
+        self.mask_model.drop_updated.disconnect(self._setReductionDrop)
         
         #link the boxes
         for check_row in self.grid_checkboxes:
