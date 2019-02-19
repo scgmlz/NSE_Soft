@@ -26,6 +26,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import traceback
 from functools import partial
 import numpy as np
+import os
 
 #private dependencies
 from ..qt_gui.main_script_ui        import Ui_script_widget
@@ -105,6 +106,10 @@ class PageScriptWidget(Ui_script_widget):
         self.progress_bar_reduction.setMinimum(0)
         self.progress_bar_reduction.setValue(0)
 
+        with open(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-3] + ['ressources', 'default_post_path.txt']),'r') as f:
+            self.path = f.readline()
+            self.script_line_def_save.setText(self.path)
+
     def _connect(self):
         '''
         Connect all Qt slots to their respective methods.
@@ -134,6 +139,23 @@ class PageScriptWidget(Ui_script_widget):
         self.text_widgets[3].textChanged.connect(partial(self._updateEditable, 3))
         
         self.tabWidget.currentChanged.connect(self._mainTabChanged)
+        self.script_save_def_save.clicked.connect(self._setNewDefaultSavePath)
+
+    def _setNewDefaultSavePath(self):
+        '''
+        When the button is clicked a new file
+        dialogue will be open to set the new 
+        file.
+        '''
+        dir_path = QtWidgets.QFileDialog.getExistingDirectory(
+            self.parent.window, 
+            'Select folder')
+
+        with open(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-3] + ['ressources', 'default_post_path.txt']),'w') as f:
+            f.writelines([dir_path])
+            self.path = dir_path
+            self.script_line_def_save.setText(dir_path)
+        
 
     def _mainTabChanged(self, idx):
         '''
