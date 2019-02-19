@@ -880,18 +880,11 @@ class PageScriptWidget(Ui_script_widget):
         to undertake. 
         '''
         if not self.env == None:
+            mask_to_reset = self.env.mask.current_mask
             if index < 4:
                 self._runPythonCode(index, self.text_widgets[index].toPlainText())
-            if index == 0 or index == 1:
-                self.tool.link(self.env.mask, self.env)
-
-        # self.result_handler_ui._fillAllResults(
-        #     self.env,
-        #     self.process_tree_error,
-        #     self.process_tree_x,
-        #     self.process_tree_y,
-        #     self.process_tree_plot
-        # )
+            self.env.mask.setMask(mask_to_reset)
+            self.mask_model.setModel()
 
     def runAll(self):
         '''
