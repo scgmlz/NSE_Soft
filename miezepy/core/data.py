@@ -33,31 +33,26 @@ from .log import Log_Handler
 
 class Data_Structure:
     '''
-    ##############################################
     This class we be the main building block of 
     the loaded data. It is written to survive any
-    dimensiionality ... 
-    ##############################################
+    dimensionality ... 
     '''
     def __init__(self):
-
         '''
-        ##############################################
-        This is the class contructor. Here we will 
+        This is the class constructor. Here we will 
         initialise the main datastructure elements. 
 
-        set add_meta_auto to ture to allow the data
+        set add_meta_auto to true to allow the data
         class to link automatically the data_object
         to the last created metadat instance. 
-        ##############################################
         '''
         #start local variables
         self.id                 = 0
         self.meta_id            = 0
         self.data_objects       = []
-        self.data_adresses      = []
+        self.data_addresses      = []
         self.metadata_objects   = []
-        self.metadata_adresses  = []
+        self.metadata_addresses  = []
         self.map                = None
         self.slices             = {}
         self.generated          = False
@@ -74,17 +69,9 @@ class Data_Structure:
 
     def __str__(self):
         '''
-        ##############################################
         Generate a string output for the user to 
         see that the dataclass has initialised 
         properly.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         output ="\n##########################################################\n"
         output += "################## DATA STRUCTURE ########################\n"
@@ -117,25 +104,17 @@ class Data_Structure:
 
     def __setitem__(self, index, value):
         '''
-        ##############################################
         This is the classmethod __setitem__. It allows
         to set an element of the class through the 
         use of data_structure[index] = value.
-        ———————
         Input: 
         - index (int array) position if the element
         - value (data_object)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.add_data_object(value, index)
 
     def __getitem__(self, index):
         '''
-        ##############################################
         This is the classmethod __getitem__. It allows
         to retrieve an element of the data_structure
         at a position index. In the present case
@@ -146,63 +125,34 @@ class Data_Structure:
         - index = integer array with slices inside 
                     returns a new datastructure with the
                     corresponding elements. 
-        ———————
         Input: 
         - index (int/slice array) position if the elements
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-        
-        ##############################################
         #process input
         if isinstance(index,int):
-            
             id_array = self.axes.get_id_for_index([index])
-
         else:
-
             id_array = self.axes.get_id_for_index(index)
-
-        ##############################################
-        #process output
+            
         if len(id_array) == 0:
-                    
             return False
-
         elif len(id_array) == 1: 
-
             return self.data_objects[self.get_pos_from_id(id_array[0])].data
-
         else:
-
             return self.process_reduction(index, id_array)
 
     def get_metadata(self, index):
         '''
-        ##############################################
         This function is to grab the exact element
         in the data objects. it is not error proof
         and assumes that the user knows what he is
-        si doing....
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        si doing...
         '''
         data_object = self.data_objects[
-            self.data_adresses.index(
+            self.data_addresses.index(
                 self.map.__getitem__(tuple(index)))]
-
         metadata_array = [
-
-            self.metadata_objects[self.metadata_adresses.index(data_object.meta_address[i])]
-
+            self.metadata_objects[self.metadata_addresses.index(data_object.meta_address[i])]
             for i in range(len(data_object.meta_address))
         ]
 
@@ -210,17 +160,9 @@ class Data_Structure:
 
     def validate(self):
         '''
-        ##############################################
         If all data objects have been loaded the 
         structure can be validated to perform all the 
         side operations
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.sanity_check()
         self.delete_all_slices()
@@ -230,21 +172,13 @@ class Data_Structure:
 
     def sanity_check(self):
         '''
-        ##############################################
         While the suer can indeed incorporate any type
-        of data with any type of dimensionalty there
+        of data with any type of dimensionally there
         still needs to be a coherence amongst them.
 
         In this function we will run through the 
         objects and check that they are all represented
         in the same dimensionality.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         dimensionality = len(self.data_objects[0].index)
 
@@ -258,156 +192,90 @@ class Data_Structure:
     
     def add_data_object(self, data, index):
         '''
-        ##############################################
         here we instruct the Data_structure to add a
         data element. Note that this results in the
         creation of an element located at in the 
         data_objects array. 
 
-        the data adress allows to auickly access the 
+        the data address allows to quickly access the 
         object through its id
-        ———————
         Input: 
         - data (data)
         - index (int array)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.data_objects.append(Data_Object(self.id, data, index))
+        self.data_addresses.append(self.id)
 
-        self.data_adresses.append(self.id)
-
-        ##############################################
-        #reference metadata
         if self.add_meta_auto and not len(self.metadata_objects) < 1 :
-            
             self.data_objects[-1].meta_address.append(self.metadata_objects[-1].meta_id)
-
             self.metadata_objects[-1].links.append(self.id)
-
         self.id += 1
 
     def add_metadata_object(self,dictionary):
         '''
-        ##############################################
         Here we have a routine which will add an
-        elemnt to the metadata and then process 
+        element to the metadata and then process 
         indices
-        ———————
         Input: 
         - dictionary (dict)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.metadata_objects.append(Metadata(self.meta_id, dictionary))
-
-        self.metadata_adresses.append(self.meta_id)
-
+        self.metadata_addresses.append(self.meta_id)
         self.meta_id += 1
 
     def inject_data_object(self, data_object):
         '''
-        ##############################################
         if the element is already formated as data_
         object we can immediately reference it
-        ———————
         Input: 
         - data_object (data_object)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.data_objects.append(copy.deepcopy(data_object))
-
         self.data_objects[-1].id = self.id 
-
-        self.data_adresses.append(self.id)
-
+        self.data_addresses.append(self.id)
         self.id += 1
 
     def inject_metadata_object(self, metadata_object):
         '''
-        ##############################################
         if the element is already formated as metadata_
         object we can immediately reference it
-        ———————
         Input: 
         - meatdata (Metadata)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.metadata_objects.append(copy.deepcopy(metadata_object))
-
         self.metadata_objects[-1].meta_id = self.meta_id
-
-        self.metadata_adresses.append(self.meta_id)
-
+        self.metadata_addresses.append(self.meta_id)
         self.meta_id += 1
 
     def get_metadata_object(self, address):
         '''
-        ##############################################
         Returns the proper metadata object for a given
         address
-        ———————
         Input: 
         - address (int)
-        ———————
         Output: 
         - metadata object (Metadata)
-        ##############################################
         '''
-        return self.metadata_objects[self.metadata_adresses.index(address)]
+        return self.metadata_objects[self.metadata_addresses.index(address)]
 
     def create_map(self):
         '''
-        ##############################################
-        This will create an axes clas that will
+        This will create an axes class that will
         generate the axes according to the loaded data.
-
         A pointer to the array listing the data is 
         given.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.map = np.zeros(self.axes.axes_len, dtype = 'uint64')
-
         for data_object in self.data_objects:
-
             self.map.__setitem__(tuple(data_object.index),data_object.id)
 
     def return_as_np(self):
         '''
-        ##############################################
         return numpy array of the entire data...
-        note that this is done to allow perfomance
+        note that this is done to allow performance
         improvements and does therefore not follow
         the practicality of the dataclass
-
         the ordering will follow the map scheme
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         #evaluate total dimensionality
         dimensionality = self.axes.axes_len + list(self.data_objects[0].dim)
@@ -416,13 +284,9 @@ class Data_Structure:
         numpy_out = np.zeros(
             tuple(dimensionality), 
             dtype = str(np.asarray(self.data_objects[0].data.dtype)))
-
         extra_index = [slice(0,None,1) for i in list(self.data_objects[0].dim)]
-
         for data_object in self.data_objects:
-
             index = list(data_object.index) + extra_index
-
             numpy_out.__setitem__(
                 tuple(index),
                 data_object.data.__getitem__(tuple(extra_index)) )
@@ -431,67 +295,41 @@ class Data_Structure:
 
     def generate_axes(self):
         '''
-        ##############################################
-        This will create an axes clas that will
+        This will create an axes class that will
         generate the axes according to the loaded data.
-
-
         A pointer to the array listing the data is 
-        given.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if self.sanity_check():
-
             self.axes = Axes(self)
-
         else:
-
             print("Data sanity check failed")
 
     def get_pos_from_id(self,idx):
         '''
-        ##############################################
-        In this method we will locate the positon of
+        In this method we will locate the position of
         the element through the Id array
-        ##############################################
         '''
-
-        return self.data_adresses.index(idx)
+        return self.data_addresses.index(idx)
 
     def get_pos_from_meta_id(self,id):
         '''
-        ##############################################
-        In this method we will locate the positon of
+        In this method we will locate the position of
         the element through the Id array
-        ———————
         Input: 
         - id (int)
-        ———————
         Output: 
         - metadata (Metadata)
-        ———————
-        status: active
-        ##############################################
         '''
-
-        return self.metadata_adresses.index(id)
+        return self.metadata_addresses.index(id)
 
     def add_slice(self,array, data_structure):
         '''
-        ##############################################
         This method will allow the user to generate 
         slices in advance to speed up the process. 
         This will allow that a repeated operation is
         not going to tax the ressources to much.
-
         Some major operation on the dataset will 
-        obvioulsy reset the slices. 
+        obviously reset the slices. 
         ———————
         Input: 
         - 
@@ -500,97 +338,62 @@ class Data_Structure:
         - datastructure
         ———————
         status: active
-        ##############################################
         '''
-
         self.slices[repr(array)] = data_structure
 
     def delete_all_slices(self):
         '''
-        ##############################################
         This method will allow the user to generate 
         slices in advance to speed up the process. 
         This will allow that a repeated operation is
         not going to tax the ressources to much.
-
         Some major operation on the dataset will 
-        obvioulsy reset the slices. 
-        ———————
-        Input: 
-        - 
-        ———————
+        obviously reset the slices. 
         Output: 
         - datastructure
-        ———————
-        status: active
-        ##############################################
         '''
         pointer = [key for key in self.slices.keys()]
         for key in pointer:
-
             del self.slices[key]
 
     def get_slice(self,array):
         '''
-        ##############################################
         Similar to __getitem__ but with actual values
-        ———————
         Input: 
-        - *args are values determining an index positio
+        - *args are values determining an index position
           '-' will be replaced by a slice type 
           interpretation. so will missing elements
-        ———————
         Output: 
         - datastructure
-        ———————
-        status: active
-        ##############################################
         '''
-
         #first check if it is already in the slice dictionary
         if repr(array) in self.slices.keys():
-
             return self.slices[repr(array)]
 
         #or create it 
         index = []
-
         for i in range(self.axes.dim): 
-            
             try:
-
                 index.append(self.axes.get_position(array[i],i))
-
             except:
-
                 index.append('-')
-
         id_array = self.axes.get_id_for_index(index)
-
         if len(id_array) == 0:
-
             return False
-
         else:
-
             self.add_slice(array, self.process_reduction(index, id_array))
-
             return self.slices[repr(array)]
 
     def process_reduction(self,index, id_array):
         '''
-        ##############################################
-        We will initialise the sturcture and
+        We will initialise the structure and
         construct it with the right parameters
         ———————
         Input: 
-        - array of integers pointng to locations
+        - array of integers pointing to locations
         ———————
         Output: 
         - datastructure with the reduced data
-        ———————
-        status: active
-        ##############################################
         '''
 
         #send it also out to the log
@@ -601,42 +404,29 @@ class Data_Structure:
         ##############################################
         #create the new structure
         new_data = Data_Structure()
-
-        #send it also out to the log
         self.log.add_log(
             'info', 
-            'Sucessfully created the new structure')
-
-        #fill the appropriate elements
-        for idx in id_array:
-
-            new_data.inject_data_object(self.data_objects[self.get_pos_from_id(idx)])
+            'Successfully created the new structure')
             
-        #send it also out to the log
+        for idx in id_array:
+            new_data.inject_data_object(self.data_objects[self.get_pos_from_id(idx)])
         self.log.add_log(
             'info', 
-            'Sucessfully injected the data_objects')
+            'Successfully injected the data_objects')
 
-        #creat the reduction boolean mask
+        #create the reduction boolean mask
         mask = [isinstance(element, int) for element in index]
 
         #apply the mask
         for data_object in new_data.data_objects:
-
             new_index = []
-
             for i in range(len(index)):
-
                 if not mask[i]:
-
                     new_index.append(int(data_object.index[i]))
-
             data_object.index = list(new_index)
-
-        #send it also out to the log
         self.log.add_log(
             'info', 
-            'Sucessfully processed the necessary axis reductions')
+            'Successfully processed the necessary axis reductions')
 
         #validate the structure
         new_data.validate()
@@ -645,119 +435,81 @@ class Data_Structure:
         ##############################################
         #transfer the axis information
         new_idx = 0
-
         for i in range(len(index)):
-
             if not mask[i]:
                 new_data.axes.names[new_idx] = copy.deepcopy(self.axes.names[i])
                 new_data.axes.units[new_idx] = copy.deepcopy(self.axes.units[i])
                 new_data.axes.axes[new_idx]  = copy.deepcopy(self.axes.axes[i])
-
                 #perform minor surgery
                 for i in range(len(new_data.axes.idx[new_idx]) , len(self.axes.idx[i])):
-            
                     new_data.axes.idx[new_idx].append([])
-
                 new_idx +=1
-
-        #send it also out to the log
         self.log.add_log(
             'info', 
-            'Sucessfully fixed axis informations')
+            'Successfully fixed axis informations')
 
         ##############################################
         ##############################################
         #transfer the metadata 
         metadata_idx = []
-
         for data_object in new_data.data_objects:
-
             for element in data_object.meta_address:
-
                 metadata_idx.append(element)
 
-        #copy the right elemets
+        #copy the right elements
         metadata_idx_sorted = list(set(metadata_idx))
-        
         for idx in metadata_idx_sorted:
-
             new_data.inject_metadata_object(
                 self.metadata_objects[self.get_pos_from_meta_id(idx)])
 
         #rebuild the right id links in the data_objects
         for data_object in new_data.data_objects:
-
             for i in range(len(data_object.meta_address)):
-
-                data_object.meta_address[i] = new_data.metadata_adresses[
+                data_object.meta_address[i] = new_data.metadata_addresses[
                     metadata_idx_sorted.index(
-                        data_object.meta_address[i]
-                        )
-                    ]
+                        data_object.meta_address[i])]
 
         #erase and rebuild links
         for metadata_object in new_data.metadata_objects:
-
             metadata_object.links = []
-
         for data_object in new_data.data_objects:
-
             for element in data_object.meta_address:
-                
                 new_data.metadata_objects[
                     new_data.get_pos_from_meta_id(element)].links.append(
                         int(data_object.id))
         
-        
         #the local metadata
         new_data.metadata_class = copy.deepcopy(self.metadata_class)
         new_data.metadata = new_data.metadata_class.metadata
-
         #send it also out to the log
         self.log.add_log(
             'info', 
-            'Sucessfully fixed metadata informations')
+            'Successfully fixed metadata informations')
 
         ##############################################
         ##############################################
         #transfer the axis information
         new_data.clean()
-
-        #send it also out to the log
-        self.log.add_log(
-            'info', 
-            'Cleaning up')
-        
         #send it also out to the log
         self.log.add_log(
             'info', 
             'returning new structure')
-
         return new_data
 
     def remove_from_axis(self, idx, array):
         '''
-        ##############################################
         This function will perform the deletion of 
         objects. more specifically an axis is given
         and then the axis points to delete are 
         marked in the array by 0
-        ———————
         Input:
         - idx is the axis idx (int)
         - array is the array of elements to delete
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-        new_data = copy.deepcopy(self)
-
-        remove_array = new_data.axes.prepare_remove(idx, array)
+        new_data        = copy.deepcopy(self)
+        remove_array    = new_data.axes.prepare_remove(idx, array)
 
         for element in remove_array:
-
             new_data.remove_data(element)
             new_data.unlink_metadata(element)
             new_data.axes.remove_from_axes(element)
@@ -767,110 +519,60 @@ class Data_Structure:
         new_data.clean_data(equivalence)
 
         new_data.create_map()
-
-        #send it also out to the log
         self.log.add_log(
             'info', 
-            'Sucessfully removed points from axis')
-
-        #send it also out to the log
+            'Successfully removed points from axis')
         self.log.add_log(
             'info', 
             'Returning result')
-
         return new_data
     
-
     def remove_data(self, idx):
         '''
-        ##############################################
         remove a single element from the data
         structure through the use of its unique ID
-
-        ———————
         Input:
         - data_object unique identifier (int)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-        index = self.data_adresses.index(idx)
+        index = self.data_addresses.index(idx)
 
         del(self.data_objects[index])
-        del(self.data_adresses[index])
+        del(self.data_addresses[index])
 
     def unlink_metadata(self, idx):
         '''
-        ##############################################
         Remove the links in the metadata objects. 
         metadata objects which are orphaned will later
         be cleaned
-
-        ———————
         Input:
         - data_object unique identifier (int)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         for metadata_object in self.metadata_objects:
-
             if idx in metadata_object.links:
-
                 index = metadata_object.links.index(idx)
-
                 del(metadata_object.links[index])
-
         
     def clean_metadata(self):
         '''
-        ##############################################
         This function will go through the metadata and
         mark which ones to delete the 
-
-        ———————
-        Input:
-        - data_object unique identifier (int)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         orphaned = []
 
         for metadata_object in self.metadata_objects:
-
             if len(metadata_object.links) == 0:
-
                 orphaned.append(metadata_object.meta_id)
 
         for idx in orphaned:
-            
-            if idx in self.metadata_adresses:
-                index = self.metadata_adresses.index(idx)
-
+            if idx in self.metadata_addresses:
+                index = self.metadata_addresses.index(idx)
                 del(self.metadata_objects[index])
-                del(self.metadata_adresses[index])
+                del(self.metadata_addresses[index])
 
     def clean_data(self, equivalence):
         '''
-        ##############################################
         This function will repair the indices in the 
         data_objects to match the restructured indices
-
-        ———————
-        Input:
-        - data_object unique identifier (int)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         for data_object in self.data_objects:
 
@@ -880,37 +582,23 @@ class Data_Structure:
 
     def sum_in_order(self, increment = 2, sum_metadata = True):
         '''
-        ##############################################
         This function will run through the data and 
         sum data objects with an increment. Note that
-        the metatadata can be summed by setting
+        the metadata can be summed by setting
         sum_metadata = True.
 
         Note that this logic assumes that the elements
         to be summed are folowing each other. This has
         to be done before the validation.
-        ———————
-        Input:
-        - increments to be added (int)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-        ##############################################
         #current length of the objects array
         current_data_length = len(self.data_objects)
 
         #create the new data_objects
         for idx_0 in range(0,current_data_length, increment):
-
             summed_object = self.data_objects[idx_0]
-
             for idx_1 in range(1, increment):
-
                 summed_object += self.data_objects[idx_0 + idx_1]
-
             self.inject_data_object(summed_object)
 
         #send it also out to the log
@@ -921,33 +609,24 @@ class Data_Structure:
 
         #current length of the objects array
         if sum_metadata:
-
             for element in self.data_objects[current_data_length:]:
-
                 new_meta = self.sum_metadata(element)
-                
                 new_meta.links = [element.id]
-      
                 self.inject_metadata_object(new_meta)
-
                 element.meta_address = [self.metadata_objects[-1].meta_id]
-
-                #send it also out to the log
                 self.log.add_log(
                     'info', 
-                    'Sucessfully summed the metadata with increment '
+                    'Successfully summed the metadata with increment '
                     +str(increment))
 
         self.validate()
 
-        ##############################################
         #proceed to cleanup
         purge_list = [
             element.id 
             for element in self.data_objects[:current_data_length]]
 
         for element in purge_list:
-
             self.remove_data(element)
             self.unlink_metadata(element)
             self.axes.remove_from_axes(element)
@@ -956,23 +635,12 @@ class Data_Structure:
 
         self.log.add_log(
             'info', 
-            'Sucessfully cleaned up after summation')
+            'Successfully cleaned up after summation')
 
     def clean(self):
         '''
-        ##############################################
         Will process the cleaning mechanisms.
-
-        ———————
-        Input:
-        - data_object
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
         self.clean_metadata()
         equivalence = self.axes.clean_axes()
         self.clean_data(equivalence)
@@ -980,32 +648,20 @@ class Data_Structure:
 
     def sum_metadata(self,data_object):
         '''
-        ##############################################
         This function will sum the metadata over their
         keywords. It is assumed that all the keys are
         identical at this point. Further
         implementations could include a more selective
         approach only summing the keys present in both
         and combine the rest...
-
-        ———————
-        Input:
-        - data_object
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         links = data_object.meta_address
-
         summed_object = self.metadata_objects[
-            self.metadata_adresses.index(links[0])]
+            self.metadata_addresses.index(links[0])]
 
         for idx_1 in range(1, len(links)):
-
             summed_object += self.metadata_objects[
-            self.metadata_adresses.index(links[idx_1])]
+            self.metadata_addresses.index(links[idx_1])]
 
         summed_object = summed_object / len(links)
 
@@ -1013,256 +669,85 @@ class Data_Structure:
 
     def get_axis(self,axis_name):
         '''
-        ##############################################
         returns the axis len of an axis with the name
         being axis name. This avoids to hardcode the
         index of the axis and allows more flexibility
-        ———————
-        Input:
-        - data_object
-        ———————
-        Output: 
-        - axis array (list)
-        ———————
-        status: active
-        ##############################################
         '''
         if axis_name in self.axes.names:
-
-            #log it
-            self.log.add_log(
-                'info', 
-                "Providing the axis with name '"
-                +str(axis_name)
-                +"' to the user")
-
             return self.axes.axes[self.axes.names.index(axis_name)]
-
         else:
-
-            #log it
-            self.log.add_log(
-                'error', "Axis with name '"
-                +str(axis_name)
-                +"' does not exist")
-
             return None
 
     def get_axis_len(self,axis_name):
         '''
-        ##############################################
         returns the axis len of an axis with the name
         being axis name. This avoids to hardcode the
         index of the axis and allows more flexibility
-        ———————
-        Input:
-        - data_object
-        ———————
-        Output: 
-        - axis length (int)
-        ———————
-        status: active
-        ##############################################
         '''
         if axis_name in self.axes.names:
-    
-            #log it
-            self.log.add_log(
-                'info', 
-                "Providing the axis length with name '"
-                +str(axis_name)
-                +"' to the user")
-
             return self.axes.axes_len[self.axes.names.index(axis_name)]
-
         else:
-
-            #log it
-            self.log.add_log(
-                'error', 
-                "Axis with name '"
-                +str(axis_name)
-                +"' does not exist")
-
             return None
 
     def get_axis_unit(self,axis_name):
         '''
-        ##############################################
         returns the axis len of an axis with the name
         being axis name. This avoids to hardcode the
         index of the axis and allows more flexibility
-        ———————
-        Input:
-        - data_object
-        ———————
-        Output: 
-        - axis name (str)
-        ———————
-        status: active
-        ##############################################
         '''
         if axis_name in self.axes.names:
-    
-            #log it
-            self.log.add_log(
-                'info', 
-                "Providing the unit of the axis with name '"
-                +str(axis_name)
-                +"' to the user")
-
             return self.axes.units[self.axes.names.index(axis_name)]
-
         else:
-
-            #log it
-            self.log.add_log(
-                'error', 
-                "Axis with name '"
-                +str(axis_name)
-                +"' does not exist")
-
             return None
 
 
     def get_axis_idx(self,axis_name, value):
         '''
-        ##############################################
         returns the axis len of an axis with the name
         being axis name. This avoids to hardcode the
         index of the axis and allows more flexibility
-        ———————
-        Input:
-        - data_object
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if axis_name in self.axes.names:
-
             if value in self.axes.axes[self.axes.names.index(axis_name)]:
-        
-                #log it
-                self.log.add_log(
-                    'info', 
-                    "Providing the index of '"
-                    +str(value)
-                    +"' on the axis with name '"
-                    +str(axis_name)
-                    +"' to the user")
-
                 return self.axes.axes[self.axes.names.index(axis_name)].index(value)
-
             else:
-
-                #log it
-                self.log.add_log(
-                    'error',
-                    "The value '"
-                    +str(axis_name)
-                    +"' does not exist on the axis with name '"
-                    +str(axis_name)
-                    +"'")
-
                 return None
-
         else:
-
-            #log it
-            self.log.add_log(
-                'error', 
-                "Axis with name '"
-                +str(axis_name)
-                +"' does not exist")
-
             return None
 
     def get_axis_val(self,axis_name, idx):
         '''
-        ##############################################
         returns the axis len of an axis with the name
         being axis name. This avoids to hardcode the
         index of the axis and allows more flexibility
-        ———————
-        Input:
-        - data_object
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
         if axis_name in self.axes.names:
-    
             if len(self.axes.axes[self.axes.names.index(axis_name)]) > idx:
-        
-                #log it
-                self.log.add_log(
-                    'info', 
-                    "Providing the value at idx '"
-                    +str(idx)
-                    +"' on the axis with name '"
-                    +str(axis_name)
-                    +"' to the user")
-
                 return self.axes.axes[self.axes.names.index(axis_name)][idx]
-
             else:
-
-                #log it
-                self.log.add_log(
-                    'error',
-                    "The index '"
-                    +str(idx)
-                    +"' greater than the length if the axis with name '"
-                    +str(axis_name)
-                    +"'")
-
                 return None
-
         else:
-
-            #log it
-            self.log.add_log(
-                'error', 
-                "Axis with name '"
-                +str(axis_name)
-                +"' does not exist")
-
             return None
 
 class Data_Object:
     '''
-    ##############################################
     The data_object class is to be used withe the
     data_structure class and is the lower block. 
     Each data_object will have a position given
-    by the index. This poisiton can then be
+    by the index. This position can then be
     evaluated on the axes object of the 
     datastructure. Furthermore the the meta_address
     array links to the metadata_objects that 
     describe this data_object. 
 
     The data stored in the object can be either a
-    ,umpy array or list. 
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
+    numpy array or list. 
     '''
     def __init__(self, id, data, index):
 
         '''
-        ##############################################
-        Here we initate the data object and can there-
+        Here we initiate the data object and can there-
         fore set thevariables as local.
-        ##############################################
         '''
         self.id             = int(id)
         self.data           = data
@@ -1275,18 +760,9 @@ class Data_Object:
 
     def __str__(self):
         '''
-        ##############################################
         Generate a string output for the user to 
         see that the dataclass has initialised 
         properly.
-
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         output =  "\n##########################################################\n"
 
@@ -1301,130 +777,55 @@ class Data_Object:
 
         return output
 
-    def __setitem__(self, index, value):
-        '''
-        ##############################################
-        This method will try to grab the requested
-        data from the data object depending on its
-        type
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: inactive
-        ##############################################
-        '''
-        pass
-
-    def __getitem__(self, index):
-        '''
-        ##############################################
-        
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: inactive
-        ##############################################
-        '''
-        pass
-
     def __iadd__(self, data_object):
         '''
-        ##############################################
         This function is destined to return the sum 
         of self and object...
-        ———————
-        Input: 
-        - other data_object
-        ———————
-        Output: -
-        ———————
-        status: inactive
-        ##############################################
         '''
         self.data += data_object.data
         self.meta_address += data_object.meta_address
-        
         return self
 
     def get_type(self):
 
         '''
-        ##############################################
         This will check the type of the loaded data
         structure and save easier as "np" or "py"
 
         This is important as the lists and numpy
         arrays are called with a different syntax.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ##############################################
         '''
         if isinstance(self.data,type(np.zeros(0))):
-
             self.type = "np"
-
             self.dim  = self.data.shape
-
         elif isinstance(self.data,type([0])):
-
             self.type = "py"
-
             self.dim = 0
 
     def get_dim(self):
-
         '''
-        ##############################################
         In this routine we want to evaluate the 
         dimension of the underlying object.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
         #for numpy array
         if self.type == "np":
-
             self.dim  = self.data.shape
 
         #for python nested lists
         elif self.type == "py":
-
             self.dim = []
-
             end_not_reached = True
-            
             current_object = self.data
-
             while end_not_reached:
-
                 try:
-                    
                     self.dim.append(len(current_object))
-
                     self.current_object =  current_object[0]
-
                 except:
-                    
                     end_not_reached = False
-
                     break
 
-
 class Metadata:
-
     '''
-    ##############################################
     This class is the one that will store and 
     display metadat. It will be based on dictionary
     layout.
@@ -1438,14 +839,10 @@ class Metadata:
         value str(),
         unit str()
     ]
-
-    ##############################################
     '''
 
     def __init__(self, meta_id, dictionary = {}):
 
-        ############################################
-        #intialise the metadata object
         self.metadata   = dict(dictionary)
         self.links      = []
         self.meta_id    = int(meta_id)
@@ -1453,17 +850,9 @@ class Metadata:
 
     def __str__(self):
         '''
-        ##############################################
         Generate a string output for the user to 
         see that the dataclass has initialised 
         properly.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         output =  "\n##########################################################\n"
         output += "The selected metadata has the current information: \n"
@@ -1477,69 +866,36 @@ class Metadata:
 
     def __getitem__(self, key):
         '''
-        ##############################################
         This will return the value of the selected
         metadata key in the proper format
-        ———————
         Input: 
         - key of the metadata
-        ———————
         Output: 
         - the metadata information formated 
-        ———————
-        status: active
-        ##############################################
         '''
-
         if self.metadata[key][1] == 'float':
-            
             return float(self.metadata[key][2])
-
         elif self.metadata[key][1] == 'bool':
-            
             return bool(self.metadata[key][2])
-
         elif self.metadata[key][1] == 'int':
-            
             return int(float(self.metadata[key][2]))
-
         elif self.metadata[key][1] == 'float_array':
-            
             return [float(element) for element in self.metadata[key][2].split('[')[1].split(']')[0].split(',')]
-
         elif self.metadata[key][1] == 'int_array':
-            
             return [int(element) for element in self.metadata[key][2].split('[')[1].split(']')[0].split(',')]
-
         else:
-            
             return self.metadata[key][2]
-
 
     def __iadd__(self, metadata_object):
         '''
-        ##############################################
         This method will add all keys present in the 
         current metadata to the current. This method
-        only runs over floats or ints.
-        ———————
-        Input: 
-        - key of the metadata
-        ———————
-        Output: 
-        - the metadata information formated 
-        ———————
-        status: active
-        ##############################################
+        only runs over floats or integers.
         ''' 
         for key in self.metadata.keys():
-
             if self.metadata[key][1] == 'float' :
-
                 self.metadata[key][2] = str(float(metadata_object.metadata[key][2]) + float(self.metadata[key][2]))
-
             elif self.metadata[key][1]  == 'int':
-
                 self.metadata[key][2] = str(int(float(metadata_object.metadata[key][2])) + int(float(self.metadata[key][2])))
 
         return self
@@ -1547,47 +903,24 @@ class Metadata:
 
     def __truediv__(self, value):
         '''
-        ##############################################
         This method will divide by a value all keys that
         are either float or int. 
-        ———————
-        Input: 
-        - key of the metadata
-        ———————
-        Output: 
-        - the metadata information formated 
-        ———————
-        status: active
-        ##############################################
         ''' 
         for key in self.metadata.keys():
-
             if self.metadata[key][1] == 'float' :
-
                 self.metadata[key][2] = str(float(self.metadata[key][2])/ value) 
-
             elif  self.metadata[key][1]  == 'int':
-
                 self.metadata[key][2] = str(int(float(self.metadata[key][2])) / value) 
-
         return self
         
-
     def add_metadata(self, name, logical_type = 'float', value = '0', unit = '-'):
         '''
-        ##############################################
         add an element to the dictionary
-        ———————
         Input: 
         - name (str)
         - logycal_type (str)
         - value (str)
         - unit (str)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         name            = str(name)
         logical_type    = str(logical_type)
@@ -1596,37 +929,8 @@ class Metadata:
 
         self.metadata[name] = [name, logical_type, value, unit]
 
-    def change_value(self, name, value):
-        '''
-        ##############################################
-        change the value of an element
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: inactive
-        ##############################################
-        '''
-        pass
-
-    def remove_metadata(self,name):
-        '''
-        ##############################################
-        delete an element
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: inactive
-        ##############################################
-        '''
-        pass
-
 class Axes:
     '''
-    ##############################################
     This class will manage all the axes operations
     and is therefore called axes. The main vars of
     the class are the:
@@ -1634,290 +938,162 @@ class Axes:
     - axis unit
     - axis values
     - and who populates the axis through ids
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     def __init__(self, data_structure):
 
-        ############################################
-        #process dimensionalilty
+        #process dimensionality
         self.dim = len(data_structure.data_objects[0].index)
 
-        ############################################
         #set the local variable
         self.names       = [None for i in range(self.dim)]
         self.units       = [None for i in range(self.dim)]
         self.types       = [None for i in range(self.dim)]
-
         self.axes        = [[] for i in range(self.dim)]
         self.idx         = [[] for i in range(self.dim)]
 
-        ############################################
         #generate axes
         self.generate(data_structure)
 
     def __str__(self):
 
         '''
-        ##############################################
         Here we will mainly run through the objects 
         and try to first built the axes with the 
         appropriate length and then fill the ids
-        ##############################################
         '''
         return ""
 
     def generate(self,data_structure):
         '''
-        ##############################################
         Here we will mainly run through the objects 
         and try to first built the axes with the 
         appropriate length and then fill the ids
-        ##############################################
         '''
-        ##############################################
         #find out the length of the indexes
         max_idx = [0 for i in range(self.dim)]
-
         for i in range(self.dim):
-
             for element in data_structure.data_objects:
-
                 if element.index[i] > max_idx[i]:
-
                     max_idx[i] = int(element.index[i])
-
         for i in range(len(max_idx)):
-
             max_idx[i] += 1
-        ##############################################
+            
         #set the length of the indexes
         self.axes_values = [
-            [
-                None for j in range(max_idx[i])
-            ] 
+            [None for j in range(max_idx[i])] 
             for i in range(self.dim)]
-
         self.idx    = [
-            [
-                [] for j in range(max_idx[i])
-            ] 
+            [[] for j in range(max_idx[i])] 
             for i in range(self.dim)]
 
-        ##############################################
         #fill idx with pointers
         for element in data_structure.data_objects:
-
             for i in range(self.dim):
-
                 self.idx[i][element.index[i]].append(element.id)
-
         self.evaluate_length()
 
     def evaluate_length(self):
         '''
-        ##############################################
         This function will simply evaluate the length
         of the axes.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ##############################################
         '''
         self.axes_len    = [len(self.idx[i]) for i in range(self.dim)]
-        
         for i in range(self.dim):
-
             if len(self.axes[i]) == 0:
-
                 self.axes[i] = [j for j in range(len(self.idx[i]))]
 
     def set_name(self,idx, name = ""):
         '''
-        ##############################################
         set the name of an axis ...
-        ———————
-        Input: 
-        - name (str)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.names[idx] = name
 
     def set_unit(self,idx, unit = ""):
         '''
-        ##############################################
         set the unit of an axis ...
-        ———————
-        Input: 
-        - unit (str)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.units[idx] = unit
 
     def set_axis(self,idx, axis = []):
         '''
-        ##############################################
-        set the velues of an axis ...
-        ———————
-        Input: 
-        - name (list of elements)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
+        set the values of an axis ...
         '''
         self.axes[idx] = axis
-
-    def process_type(self):
-        '''
-        ##############################################
-        This function will try to convert the types of
-        the values in the array. 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: inactive
-        ##############################################
-        '''
-        pass
 
 
     def get_position(self, val, idx):
         '''
-        ##############################################
         This function will try to convert the types of
         the values in the array. 
-        ———————
         Input: 
         - val the values
         - idx the axis index
-        ———————
         Output: 
         - position of the indices
-        ———————
-        status: active
-        ##############################################
         '''
-
         return self.axes[idx].index(val)
 
     def collapse_axis(self, idx, data_structure):
         '''
-        ##############################################
         In this method we will look at an axis and the
         associated values and reduce it. This can be 
         usefull if multiple indices exist with the
         same value...
-        ———————
         Input: 
         - idx index of the axis to evaluate
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
-        ############################################
         #create and process new axis
         new_axis = list(sorted(set(self.axes[idx])))
-
         new_idx  = [[] for i in range(len(new_axis))]
-
         transfer = [
             new_axis.index(self.axes[idx][i]) 
             for i in range(len(self.axes[idx]))
             ]
-
-        ############################################
+            
         #fix the objects and their axes
         for i, data_object in enumerate(data_structure.data_objects):
-
             data_object.index[idx] = transfer[i]
-
             new_idx[data_object.index[idx]].append(data_object.id)
 
-        ############################################
         #now inject the new axes into the current  definition
         self.axes[idx] = list(new_axis)
         self.idx[idx] = list(new_idx)   
 
-        ############################################
         #reevaluate info
         self.evaluate_length()
 
     def grab_meta(self, idx, key, data_structure):
         '''
-        ##############################################
         In this function we would like to grab the 
         values of an axis defined in the metadata of
         the data_objects. Note that the routine will
         cycle through the metadata links and over-
         write itself if multiple definitions are present
-        ———————
         Input: 
         - key of the metadata
         - idx of the axis to be assigned
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         values = []
         ids    = []
-
         for data_object in data_structure.data_objects:
-
             value = '-'
-
             for address in data_object.meta_address:
                 try:
-
                     value = data_structure.get_metadata_object(address)[key]
-
                 except:
                     pass
-
             values.append(value)
             ids.append(data_object.index[idx])
-
         self.axes[idx] = list(values)
 
     def get_id_for_index(self, index):
-
         '''
-        ##############################################
         This method will grab the ID of a single 
         element.
-
         it returns a list of the ids that represent
         the search result
-        ———————
         Input: 
         - index (int array)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         ids     = []
         purge   = []
@@ -1925,23 +1101,15 @@ class Axes:
         ##############################################
         #fill the arrays
         for idx, element in enumerate(index):
-
             if isinstance(element,type(slice(0))) or element == '-':
-
                 idx_array = self.idx[idx][:]
-
                 array = []
-
+                
                 for element_array in idx_array:
-
                     for pointer in element_array:
-                    
                         array.append(int(pointer))
-
                 ids.append(array)
-
             else:
-
                 ids.append(list(self.idx[idx][index[idx]]))
 
         ##############################################
@@ -1950,143 +1118,80 @@ class Axes:
         location = lengths.index(min(lengths))
 
         for element in ids[location]:
-
             for array in ids:
-
                 if not element in array:
-
                     purge.append(element)
-
                     break
         
         for element in list(set(purge)):
-
             if element in ids[location]:
-
                 ids[location].remove(element)
 
         return ids[location]
 
     def get_value(self, axis, idx):
-
         '''
-        ##############################################
         here we want to output the actual values 
         given from an index
-
         the argument '-' cab be given to skip a certain
         index
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: inactive
-        ##############################################
         '''
         return self.axes[axis][idx]
     
     def prepare_remove(self,idx, array):
         '''
-        ##############################################
         This prepares the removal of some elements 
         along an axis. it will return the ids of the 
         elements that are concerned
-        ———————
         Input:
         - idx is the axis idx (int)
         - array is the array of elements to delete
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         remove_array = []
-
         for i in range(len(array)):
-
             if array[i] == 0:
-
                 remove_array += self.idx[idx][i] 
-
         return remove_array
 
     def remove_from_axes(self,idx):
         '''
-        ##############################################
-        This function aims at rmoving an ID from the 
+        This function aims at removing an ID from the 
         axes as it should not longer exist.
-        ———————
         Input:
         - idx is the axis idx (int)
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
         for axis in self.idx:
-
             for row in axis:
-
                 if idx in row:
-
                     row.remove(idx)
 
     def clean_axes(self):
         '''
-        ##############################################
         This will effectively clean the axes and 
         return the equivalence for the indexes
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-
-        ##############################################
         #perform a copy to allow building equivalence
         self.idx_copy    = [
-            [
-                j for j in range(len(self.idx[i]))
-            ] 
+            [j for j in range(len(self.idx[i]))] 
             for i in range(self.dim)]
 
-
-        ##############################################
-        #grab the ophaned indices
+        #grab the orphaned indices
         all_orphaned = []
-
         for i in range(self.dim):
-
             orphaned = []
-
             for j in range(len(self.idx[i])):
-
                 if len(self.idx[i][j]) == 0:
-
                     orphaned.append(self.axes[i][j])
-            
             all_orphaned.append(list(set(orphaned)))
 
-        ##############################################
         #now delete them
         for i in range(self.dim):
-
             for orphaned in all_orphaned[i]:
-
                 index = self.axes[i].index(orphaned)
-
                 del(self.axes[i][index])
                 del(self.idx[i][index])
                 del(self.idx_copy[i][index])
 
-        ##############################################
         #return equivalences
         self.evaluate_length()
 

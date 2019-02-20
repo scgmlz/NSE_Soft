@@ -40,15 +40,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
     def mieze_tau(self, metadata_object, target):
         '''
-        ##############################################
         Processes the MIEZE time
-        ———————
-        Input: MIEZE metadata object
-        ———————
-        Output: 
-        injects the Mieze time into the 
-        metadata
-        ##############################################
         '''
         ############################################
         #unpack the container
@@ -74,17 +66,20 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         metadata_object.add_metadata('tau', value = tau)
         metadata_object.add_metadata('tau_error', value = tau_error)
 
+        return [
+            tau, 
+            {
+                'tau_error': tau_error, 
+                'wavelength': wavelength, 
+                'wavelength_error': wavelength_error,
+                'freq_0': freq_0, 
+                'freq_1': freq_1, 
+                'lsd' :lsd,
+                'lsd_error': lsd_error}]
+
     def mieze_tau_calc(self, wavelength, freq_0, freq_1, lsd, wavelength_error = 0 ,lsd_error = 0):
         '''
-        ##############################################
         Processes the MIEZE time
-        ———————
-        Input: MIEZE metadata object
-        ———————
-        Output: 
-        injects the Mieze time into the 
-        metadata
-        ##############################################
         '''
         delta_freq = freq_1 - freq_0
         para = ( 2. * co.m_n ** 2 ) / (co.h ** 2) 
@@ -106,17 +101,100 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
         return tau, tau_error
 
-    def calc_shift(self,target, mask, results):
+    def fake_calc_shift(self,target, mask, results):
         '''
-        ##############################################
         Calculates the shift
-        ———————
         Input: 
         - MIEZE data object
         - mask object
-        ———————
-        Output: -
+        '''
+
         ##############################################
+        #Initialize the output dictionary with all def.
+        local_results = results.generate_result( name = 'Shift calculation')
+
+        ############################################
+        #cycle over and fit
+        #set up the parameter names
+        para_name = self.para_dict['para_name']
+        echo_name = self.para_dict['echo_name']
+        meas_name = self.para_dict['meas_name']
+        foil_name = self.para_dict['foil_name']
+        tcha_name = self.para_dict['tcha_name']
+
+        ############################################
+        #loop over elements
+        print(target)
+        print(para_name)
+        print(target.get_axis(para_name))
+        loop = [
+            (e1, e2) 
+            for e1 in target.get_axis(para_name) 
+            for e2 in target.get_axis(meas_name)]
+
+        #current values comparators
+        temp    = {}
+        c_key   = None
+        c_meas  = None
+
+        #loop
+        for key, meas in loop:
+            #grab the data slice
+            new_target = target.get_slice([key, meas])
+
+            #check if we switched the key
+            if not c_key == key:
+                #initialise the dictionary
+                temp[key] = {}
+                #set the current keys
+                c_key   = key
+                c_meas  = None
+
+            #check if we switched the measurement
+            if not c_meas == meas and not new_target == False:
+                #initialise the dictionary
+                temp[key][meas] = {}
+                #set the current keys
+                c_meas  = meas
+
+            #check if the data is right
+            if not new_target == False:
+                #prepare
+                data        = new_target.return_as_np()
+                time_int    = new_target.get_axis_len(tcha_name)
+                time_float  = float(time_int)
+
+                #print the processing step
+                print(
+                    'Processing fake shift for '
+                    +str(key)
+                    +' '
+                    +str(target.get_axis_unit(para_name)))
+
+                for echo in new_target.get_axis(echo_name):
+                    echo_idx = new_target.get_axis_idx(echo_name, echo)
+                    shifted_element = data[echo_idx, :, :,:,:]
+                    temp[key][meas][echo] = copy.deepcopy(shifted_element)
+
+        ##############################################
+        #finalize result and send it out
+        local_results['Shift']        = temp
+
+        #write the dictionary entries
+        local_results.add_log('info', 'Computation of the shift was a success')
+        local_results.set_complete()
+        
+        #tell fit handler what happened
+        self.log.add_log(
+            'info', 
+            'Computation of the shift was a success')
+
+    def calc_shift(self,target, mask, results):
+        '''
+        Calculates the shift
+        Input: 
+        - MIEZE data object
+        - mask object
         '''
 
         ##############################################
@@ -156,26 +234,21 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
             #check if we switched the key
             if not c_key == key:
-
                 #initialise the dictionary
                 temp[key] = {}
-
                 #set the current keys
                 c_key   = key
                 c_meas  = None
 
             #check if we switched the measurement
             if not c_meas == meas and not new_target == False:
-                
                 #initialise the dictionary
                 temp[key][meas] = {}
-
                 #set the current keys
                 c_meas  = meas
 
             #check if the data is right
             if not new_target == False:
-
                 #prepare
                 data        = new_target.return_as_np()
                 time_int    = new_target.get_axis_len(tcha_name)
@@ -189,7 +262,6 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
                     +str(target.get_axis_unit(para_name)))
 
                 for echo in new_target.get_axis(echo_name):
-
                     #grab the idx for the echo
                     echo_idx = new_target.get_axis_idx(echo_name, echo)
 
@@ -198,44 +270,36 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
                         (m1, m2)
                         for m1 in range(1,premask.max()+1)
                         for m2 in range(new_target.get_axis_len(foil_name))] 
-                    
+
                     #initialise variables
                     shifted_element = np.zeros((
                         new_target.get_axis_len(foil_name),
                         new_target.get_axis_len(tcha_name), 
                         new_target.data_objects[0].dim[0], 
-                        new_target.data_objects[0].dim[1]))
-                        
-                    current_mask = None
+                        new_target.data_objects[0].dim[1]))    
 
+                    current_mask = None
                     #cycle over the elements
                     for mask_num, foil in loop_2:
-
                         if not mask_num == current_mask:
-
                             #select only one mask
-                            mask = premask == mask_num
-                            mask_sum = np.sum(mask)
-                            current_mask = int(mask_num)
+                            proc_mask       = premask == mask_num
+                            mask_sum        = np.sum(proc_mask)
+                            current_mask    = int(mask_num)
 
                         #select only one mask
                         index = np.arange(
-
                             int(round((
-                                2*np.pi-np.sum(phase[echo][foil]*mask)/mask_sum)
+                                2*np.pi-np.sum(phase[echo][foil]*proc_mask)/mask_sum)
                                 /(2*np.pi/time_float)+np.pi/2.)),
-
                             int(round((
-                                2*np.pi-np.sum(phase[echo][foil]*mask)/mask_sum)
+                                2*np.pi-np.sum(phase[echo][foil]*proc_mask)/mask_sum)
                                 /(2*np.pi/time_float)+np.pi/2.)+time_float)
-                            
                             ,1)
-
                         index = np.asarray(
                             [index[i]%time_int 
                             for i in range(time_int)])
-                        
-                        shifted_element[foil,:, :, :] += data[echo_idx, foil, index,:,:]*mask
+                        shifted_element[foil,:, :, :] += data[echo_idx, foil, index,:,:]*proc_mask
 
                     temp[key][meas][echo] = copy.deepcopy(shifted_element)
 
@@ -247,7 +311,6 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         local_results.add_log('info', 'Computation of the shift was a success')
         local_results.set_complete()
         
-
         #tell fit handler what happened
         self.log.add_log(
             'info', 
@@ -255,31 +318,19 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
     def extract_phase(self, target, mask, results):
         '''
-        ##############################################
-        Processes the MIEZE time
-        ———————
-        Input: 
-        - MIEZE data object
-        ———————
-        Output: 
-        - returns the phase..
-        ##############################################
+        Calculate the phase of the mieze data 
         '''
-        ##############################################
         #Initialize the output dictionary with all def.
         local_results = results.generate_result( name = 'Phase calculation')
 
-        ############################################
         #extract the relevant parameters
         selected_ref    = self.para_dict['Reference']
         reso_target     = target.get_slice(selected_ref)
         premask         = mask.mask
 
-        ############################################
         #initialise variables
         phase = {}
 
-        ############################################
         #set up the parameter names
         para_name = self.para_dict['para_name']
         echo_name = self.para_dict['echo_name']
@@ -287,18 +338,14 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         foil_name = self.para_dict['foil_name']
         tcha_name = self.para_dict['tcha_name']
 
-        ############################################
         #initialize
         for echo in reso_target.get_axis(echo_name):
-            
-            #initialise the dictionary
             phase[echo] = np.zeros((
                 reso_target.get_axis_len(foil_name),
                 reso_target.data_objects[0].dim[0],
                 reso_target.data_objects[0].dim[1]
                 ))
 
-        ############################################
         #loop over elements
         loop = [
             (e1, e2, e3)
@@ -309,7 +356,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
         for mask_num, echo, foil in loop:
             #select only one mask
-            mask = premask == mask_num
+            proc_mask = premask == mask_num
             
             #grab the idx for the echo
             echo_idx = reso_target.get_axis_idx(echo_name, echo)
@@ -317,7 +364,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
             #prepare the data
             counts = [
-                (np.multiply(reso_target[echo_idx, foil_idx, timechannel],mask)).sum()
+                (np.multiply(reso_target[echo_idx, foil_idx, timechannel],proc_mask)).sum()
                 for timechannel in range(reso_target.get_axis_len(tcha_name))
                 ]
             
@@ -362,21 +409,21 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
                 if not success and results.get_last_result('Fit data covariance').log.return_last_log('error') == 'cov_failed':
 
                     print ('covariance failed AGAIN (15 instead of 16 points were fitted) in echo %d on foil %d' %(echo, foil))
-                    phase[echo][foil_idx, :, :] +=  -1*mask
+                    phase[echo][foil_idx, :, :] +=  -1*proc_mask
 
                 else:
 
                     phase[echo][foil_idx, :, :] += ((
                         results.get_last_result('Fit data covariance')['phase'] 
                         + (np.pi if results.get_last_result('Fit data covariance')['ampl'] < 0 else 0
-                        )) % (2. * np.pi))*mask
+                        )) % (2. * np.pi))*proc_mask
 
             else:
 
                 phase[echo][foil_idx, :, :] += ((
                     results.get_last_result('Fit data covariance')['phase'] 
                     + (np.pi if results.get_last_result('Fit data covariance')['ampl'] < 0 else 0
-                    ))% (2. * np.pi))*mask
+                    ))% (2. * np.pi))*proc_mask
 
         ############################################
         #send out the result to the handler

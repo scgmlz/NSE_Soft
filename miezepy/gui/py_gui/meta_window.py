@@ -31,18 +31,10 @@ from ..qt_gui.metadata_window_ui import Ui_select_meta
 
 class MetadataWindowLayout(Ui_select_meta):
     '''
-    ##############################################
     This is the main window element that will later
     be the item managin the rest of the system. 
     Note that at a later point we will feature
     drag and drop onto this window.
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     def __init__(self, window, window_manager):
 
@@ -55,15 +47,7 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def connect(self):
         '''
-        ##############################################
         connect the actions to their respective buttons
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.meta_button_select.clicked.connect(self.grabFile) 
         self.meta_input_select.textChanged.connect(self.scanFile)
@@ -74,33 +58,16 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def link(self, meta_class):
         '''
-        ##############################################
-        link the class that will mnage the current 
+        link the class that will manage the current 
         input output.
-        ———————
-        Input: 
-        - meta_class is the metadata class from the io
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.meta_class = meta_class 
         self.initialize()
 
     def initialize(self):
         '''
-        ##############################################
         This method checks if the data has been set
         in a previous instance.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if not self.meta_class.path == '':
             self.meta_input_select.setText(self.meta_class.path)
@@ -110,16 +77,8 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def grabFile(self):
         '''
-        ##############################################
         Open a folder and set the path and then scan 
         it automatically on path change.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         file = QtWidgets.QFileDialog.getOpenFileName(
                 self.window, 
@@ -129,16 +88,8 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def scanFile(self):
         '''
-        ##############################################
-        check if thgis is a file and then send the path
+        check if this is a file and then send the path
         to the respective manager.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         if os.path.isfile(self.meta_input_select.text()):
             self.meta_class.buildMeta(
@@ -148,16 +99,8 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def setList(self):
         '''
-        ##############################################
         This will generate the list view for the
         respective list.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         filter_value = self.meta_input_filter.text()
 
@@ -165,9 +108,7 @@ class MetadataWindowLayout(Ui_select_meta):
         self.index = []
 
         for element in self.meta_class.metadata_temp:
-
             if filter_value in element[1] or filter_value == '':
-
                 item = QtGui.QStandardItem(element[1]+" ("+element[2]+")")
                 item.setFlags(
                     QtCore.Qt.ItemIsUserCheckable 
@@ -184,18 +125,11 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def onChecked(self, index):
         '''
-        ##############################################
         When an item is checked the boolena value has
         to be modified in the correct element
-        ———————
         Input: 
         - index is the line in which this change
         happened
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         item = self.model.item(index.row())
         if item.checkState() == QtCore.Qt.Checked:
@@ -207,16 +141,8 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def accept(self):
         '''
-        ##############################################
         When an item is checked the boolena value has
         to be modified in the correct element
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.meta_class.setMeta()
         self.window.parent.setWindowState(
@@ -228,16 +154,8 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def cancel(self):
         '''
-        ##############################################
         When an item is checked the boolena value has
         to be modified in the correct element
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.window.parent.setWindowState(
             self.window.parent.windowState() & ~QtCore.Qt.WindowMinimized 
@@ -247,16 +165,8 @@ class MetadataWindowLayout(Ui_select_meta):
 
     def reset(self):
         '''
-        ##############################################
         When an item is checked the boolena value has
         to be modified in the correct element
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.meta_class.reset()
         self.scanFile()

@@ -47,8 +47,8 @@ class RadialComposition(LinearComposition):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']         = 'radial_comp'
-        self.parameters['child type']   = 'square'
+        self.parameters['type']         = 'radial composition'
+        self.parameters['child type']   = 'arc'
         self.parameters['horizontal']   = 1
         self.parameters['vertical']     = 1
         self.parameters['angle_range']  = [0, 360]
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     comp.template.parameters['radius_range']    = (10, 13)
     comp.generate(250,250)
     buff = np.array(comp.mask)
-    comp.setChildType('square')
+    comp.setChildType('rectangle')
     comp.generate(250,250)
     buff_2 = np.array(comp.mask)
     comp.parameters['angle']  = 0

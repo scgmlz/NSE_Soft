@@ -51,16 +51,13 @@ class PageDataWidget(Ui_data_import):
         self.connect()
         self.initialize()
 
-
     def initialize(self):
         '''
         Reset all the inputs and all the fields
         present in the current view.
         '''
-
         self.elements       = []
         self.meta_elements  = []
-        self.hidden_graph   = False
         self.io_core        = None
         self.data_list_files.reset()
         self.data_list_loaded.clear()
@@ -91,7 +88,9 @@ class PageDataWidget(Ui_data_import):
         self.data_list_loaded.setStyleSheet(
             "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
             "QListWidget::item:selected { background-color: palette(Mid)  }")
-
+        self.data_list_meta.setStyleSheet(
+            "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
+            "QListWidget::item:selected { background-color: palette(Mid)  }")
         ##############################################
         #add the 
         self.my_canvas    = Multi_Canvas(
@@ -151,9 +150,10 @@ class PageDataWidget(Ui_data_import):
         '''
         if len(self.elements) == 0:
             dialog(
+                parent = self.local_widget,
                 icon = 'error', 
                 title= 'No data element set',
-                message = 'No data element initialised. Add one first...',
+                message = 'No data element initialized. Add one first...',
                 add_message='You can add a dataset by going to File>add element.')
 
         else:
@@ -164,10 +164,9 @@ class PageDataWidget(Ui_data_import):
         '''
         This routine will launch the metadat window.
         '''
-        self.hidden_graph = not self.hidden_graph
-        self.data_widget_graph.setVisible(self.hidden_graph)
+        self.data_widget_graph.setVisible(not self.data_widget_graph.isVisible())
 
-        if self.hidden_graph:
+        if self.data_widget_graph.isVisible():
             self.data_button_prev.setText('Hide')
         else:
             self.data_button_prev.setText('Show')
@@ -319,10 +318,11 @@ class PageDataWidget(Ui_data_import):
         '''
         if len(self.elements) == 0:
             dialog(
-            icon = 'error', 
-            title= 'No data element set',
-            message = 'No data element initialised. Add one first...',
-            add_message='You can add a dataset by going to File>add element.')
+                parent = self.local_widget,
+                icon = 'error', 
+                title= 'No data element set',
+                message = 'No data element initialised. Add one first...',
+                add_message='You can add a dataset by going to File>add element.')
 
         else:
             filter      = "All (*);; TOF (*.tof);;PAD (*.pad)"
@@ -416,6 +416,7 @@ class PageDataWidget(Ui_data_import):
         except:
             if warning:
                 dialog(
+                    parent = self.local_widget,
                     icon = 'error', 
                     title= 'Echo time not processed',
                     message = 'The echo time has not been processed. This is probably due to a lack of deinitions. See details...',
@@ -499,6 +500,7 @@ class PageDataWidget(Ui_data_import):
                     if not element[1][0]:
                         folder_string.append('Invalid file folder location: ' + element[1][1])
                 dialog(
+                    parent = self.local_widget,
                     icon = 'warning', 
                     title= 'Could not load all files',
                     message = 'Some files and folders seem to either have moved or not exist. Please rebase them manually in the import file located at:\n'+file_path,

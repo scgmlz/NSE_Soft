@@ -28,7 +28,7 @@ import copy
 
 from .mask_shape    import MaskShape
 from .triangle      import Triangle
-from .square        import Square
+from .rectangle     import Rectangle
 from .circle_arc    import CircleArc
 
 class LinearComposition(MaskShape):
@@ -48,8 +48,8 @@ class LinearComposition(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']         = 'linear_comp'
-        self.parameters['child type']   = 'square'
+        self.parameters['type']         = 'linear composition'
+        self.parameters['child type']   = 'rectangle'
         self.parameters['horizontal']   = 1
         self.parameters['vertical']     = 1
         self.parameters['width']        = 50
@@ -111,9 +111,9 @@ class LinearComposition(MaskShape):
         a template into here to manage the parameters
         for all.
         '''
-        if child_type == 'square':
-            self.template = Square()
-            self.parameters['child type']   = 'square'
+        if child_type == 'rectangle':
+            self.template = Rectangle()
+            self.parameters['child type']   = 'rectangle'
         elif child_type == 'triangle':
             self.template = Triangle()
             self.parameters['child type']   = 'triangle'
@@ -152,11 +152,11 @@ class LinearComposition(MaskShape):
 
         for edge in edges:
             element = copy.deepcopy(self.template)
-            if self.parameters['child type'] == 'square' and self.parameters['close gap']:
+            if self.parameters['child type'] == 'rectangle' and self.parameters['close gap']:
                     element.parameters['width']  = self.parameters['width'] / (self.parameters['horizontal'] - 1)
                     element.parameters['height'] = self.parameters['height'] / (self.parameters['vertical'] - 1)
             element.move(absolute = edge)
-            if not self.parameters['child type'] == 'square' or not self.parameters['close gap']:
+            if not self.parameters['child type'] == 'rectangle' or not self.parameters['close gap']:
                 element.rotate(absolute = self.parameters['angle'])
                 element.rotate(relative = (self.template.parameters['angle']))
             else:

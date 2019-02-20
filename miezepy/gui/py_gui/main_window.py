@@ -33,25 +33,19 @@ from ..py_gui.page_data_widget      import PageDataWidget
 from ..py_gui.page_mask_widget      import PageMaskWidget
 from ..py_gui.page_env_widget       import PageEnvWidget
 from ..py_gui.page_script_widget    import PageScriptWidget
+from ..py_gui.page_result_widget    import PageResultWidget
 from ..py_gui.page_io_widget        import PageIOWidget
-from ..py_gui.dialog                import dialog 
+from ..py_gui.dialog                import dialog
+from ..py_gui.mask_visual_handler   import MaskVisualHandler
 
 import miezepy
 
 class MainWindowLayout(Ui_MIEZETool):
     '''
-    ##############################################
     This is the main window element that will later
     be the item managin the rest of the system. 
     Note that at a later point we will feature
     drag and drop onto this window.
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     def __init__(self, window, window_manager):
 
@@ -59,6 +53,7 @@ class MainWindowLayout(Ui_MIEZETool):
         Ui_MIEZETool.__init__(self)
         self.window = window
         self.window_manager = window_manager
+        self.mask_model     = MaskVisualHandler()
         self.setupUi(window)
         self.initialize()
         self.connect()
@@ -68,15 +63,7 @@ class MainWindowLayout(Ui_MIEZETool):
 
     def connect(self):
         '''
-        ##############################################
         connect the actions to their respective buttons
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
 
         #button actions
@@ -88,15 +75,16 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(self.actionDispatcher, 2, None))
         self.script_button.clicked.connect(
             partial(self.actionDispatcher, 3, None))
-        self.save_button.clicked.connect(
+        self.result_button.clicked.connect(
             partial(self.actionDispatcher, 4, None))
+        self.save_button.clicked.connect(
+            partial(self.actionDispatcher, 5, None))
 
         #Menu actions
         self.actionAddEnv.triggered.connect(
             partial(
                 self.actionDispatcher, 0, 
                 self.widgetClasses[0].addEnvironment))
-
         self.actionRemoveEnv.triggered.connect(
             partial(
                 self.actionDispatcher, 0, 
@@ -107,22 +95,18 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(
                 self.actionDispatcher, 1, 
                 self.widgetClasses[1].addElement))
-
         self.actionRemove_element.triggered.connect(
             partial(
                 self.actionDispatcher, 1, 
                 self.widgetClasses[1].removeElement))
-
         self.actionGenerate.triggered.connect(
             partial(
                 self.actionDispatcher, 1, 
                 self.widgetClasses[1].generateDataset))
-
         self.actionSave_to_file.triggered.connect(
             partial(
                 self.actionDispatcher, 1, 
                 self.widgetClasses[1].save))
-
         self.actionLoad_from_file.triggered.connect(
             partial(
                 self.actionDispatcher, 1, 
@@ -133,17 +117,14 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(
                 self.actionDispatcher, 2, 
                 self.widgetClasses[2].saveSingle))
-
         self.actionSaveMaskAll.triggered.connect(
             partial(
                 self.actionDispatcher, 2, 
                 self.widgetClasses[2].saveMultiple))
-
         self.actionLoadMask.triggered.connect(
             partial(
                 self.actionDispatcher, 2, 
                 self.widgetClasses[2].loadSingle))
-
         self.actionLoadMaskAll.triggered.connect(
             partial(
                 self.actionDispatcher, 2, 
@@ -154,63 +135,59 @@ class MainWindowLayout(Ui_MIEZETool):
             partial(
                 self.actionDispatcher, 3, 
                 self.widgetClasses[3].saveScripts))
-
         self.actionLoadScript.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 self.widgetClasses[3].loadScripts))
-
         self.actionImport.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 partial(self.widgetClasses[3].run,0)))
-
         self.actionPhase.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 partial(self.widgetClasses[3].run,1)))
-
         self.actionReduction.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 partial(self.widgetClasses[3].run,2)))
-
         self.actionVisual.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 partial(self.widgetClasses[3].run,3)))
-
         self.actionAll.triggered.connect(
             partial(
                 self.actionDispatcher, 3, 
                 self.widgetClasses[3].runAll))
 
+        #io
         self.actionLoad_Session.triggered.connect(
             partial(
-                self.actionDispatcher, 4, 
-                partial(self.widgetClasses[4].getLoadPath, True)))
+                self.actionDispatcher, 5, 
+                partial(self.widgetClasses[5].getLoadPath, True)))
 
         self.actionSave_Session.triggered.connect(
             partial(
-                self.actionDispatcher, 4, 
-                partial(self.widgetClasses[4].getSavePath, True)))
+                self.actionDispatcher, 5, 
+                partial(self.widgetClasses[5].getSavePath, True)))
 
     def actionDispatcher(self,index, method = None):
         '''
-        ##############################################
         This will dispatch the actions to the right 
         function but still try to check if the page is
         the right one.
-
-        ———————
         Input: 
         - meta_class is the metadata class from the io
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
+        if len(self.handler.env_array) == 0 and not index == 4 and not index == 5:
+            dialog(
+                parent = self.window,
+                icon = 'error', 
+                title= 'No environment present',
+                message = 'Please either add a new environnement or import a saved session to proceed.')
+            self.refreshChecked(0)
+            return None
+
         if not self.stack.currentIndex() == index:
             if index == 0:
                 self.refreshChecked(0)
@@ -228,6 +205,7 @@ class MainWindowLayout(Ui_MIEZETool):
             elif index == 3:
                 if not self.handler.current_env.current_data.generated:
                     dialog(
+                        parent = self.window,
                         icon = 'error', 
                         title= 'Dataset not generated',
                         message = 'The dataset belonging to these scripts has not yet been generated. Please enter the data editing system and load the data.')
@@ -235,9 +213,11 @@ class MainWindowLayout(Ui_MIEZETool):
                     if not self.widgetClasses[3].env == self.handler.current_env:
                         self.widgetClasses[3].link(self.handler.current_env)
                     self.refreshChecked(3)
-
             elif index == 4:
                 self.refreshChecked(4)
+
+            elif index == 5:
+                self.refreshChecked(5)
 
         if not method == None:
             method()
@@ -259,8 +239,11 @@ class MainWindowLayout(Ui_MIEZETool):
         self.setProgress('Linking script view',1)
         self.widgetClasses[0].link(self.handler)
 
-        self.setProgress('Linking script view',3)
+        self.setProgress('Linking result view',2)
         self.widgetClasses[4].link(self.handler)
+
+        self.setProgress('Linking script view',3)
+        self.widgetClasses[5].link(self.handler)
 
         self.fadeActivity()
         
@@ -275,8 +258,9 @@ class MainWindowLayout(Ui_MIEZETool):
         self.widgetClasses = [
             PageEnvWidget(self.stack, self),
             PageDataWidget(self.stack, self),
-            PageMaskWidget(self.stack, self),
-            PageScriptWidget(self.stack, self),
+            PageMaskWidget(self.stack, self, self.mask_model),
+            PageScriptWidget(self.stack, self, self.mask_model),
+            PageResultWidget(self.stack, self),
             PageIOWidget(self.stack, self)]
 
         for element in self.widgetClasses:
@@ -296,6 +280,7 @@ class MainWindowLayout(Ui_MIEZETool):
                 self.data_button,
                 self.mask_button,
                 self.script_button,
+                self.result_button,
                 self.save_button
             ]
             
@@ -321,6 +306,7 @@ class MainWindowLayout(Ui_MIEZETool):
             self.data_button,
             self.mask_button,
             self.script_button,
+            self.result_button,
             self.save_button
         ]
 
@@ -341,8 +327,10 @@ class MainWindowLayout(Ui_MIEZETool):
             self.data_button,
             self.mask_button,
             self.script_button,
+            self.result_button,
             self.save_button
         ]
+
 
         pointers[i].setChecked(True)
         self.checked = [element.isChecked() for element in pointers]

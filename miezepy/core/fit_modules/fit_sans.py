@@ -36,19 +36,10 @@ class Fit_SANS(Fit_Handler):
 
     def __init__(self):
         '''
-        ##############################################
         This is the initializer of the SANS fit class
         within. It will also initialize the superclass
         containing the generalized methods.
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-        #initialize the superclass
         Fit_Handler.__init__(self)
 
         self.ptr_dict = {}
@@ -58,17 +49,9 @@ class Fit_SANS(Fit_Handler):
 
     def set_defaults(self):
         '''
-        ##############################################
         This function will build the default 
-        dictionary of function dict that will linkt 
+        dictionary of function dict that will link
         the functions to the selected method
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
 
         self.fun_dict = {}
@@ -76,35 +59,14 @@ class Fit_SANS(Fit_Handler):
 
     def set_fit_parameters(self):
         '''
-        ##############################################
-        This function will build the default 
-        dictionary of function dict that will linkt 
-        the functions to the selected method
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
-        ############################################
-        #pack them into the dictionary
         self.para_dict = {}
         self.para_dict['BG substraction']   = None
 
     def intensity_vs_parameter(self, target, mask, results):
         '''
-        ##############################################
         This method aims atprocessing the SANS
         intensity against the a given parameter
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         ##############################################
         #Initialize the output dictionary with all def.

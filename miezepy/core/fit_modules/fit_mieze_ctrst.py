@@ -30,11 +30,9 @@ from .fit_mieze_minuit  import Fit_MIEZE_Minuit
 class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit): 
 
     def __init__(self):
-        
         Fit_MIEZE_Minuit.__init__(self)
 
     def calcCtrstFit(self, select, foils_in_echo, shift, target, mask, results, foil = None):
-
         '''
         This function will process the fit of the
         given input.
@@ -88,23 +86,14 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def fitSinus(self, results, combined_data, new_target, echo):
         '''
-        ##############################################
-        
-        ———————
-        Input: 
-        - MIEZE metadata object
-        - mask object
-        ———————
-        Output: -
-        ##############################################
+        This function will fit the phase sinus to the 
+        provided data.
         '''
-
         tcha_name = self.para_dict['tcha_name']
         echo_name = self.para_dict['echo_name']
 
         ############################################
         #fit the data
-        
         self.fit_data_cov(
             results,
             combined_data, 
@@ -126,6 +115,8 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def combineData(self,key, meas, echo, shift, target, new_target, premask, foil, foils_in_echo):
         '''
+        This function will combine the data of a given 
+        foil and echo time of the time channels.
         '''
         #set up the parameter names
         echo_name = self.para_dict['echo_name']
@@ -159,17 +150,12 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def calcCtrstRef(self,target, mask, results):
         '''
-        ##############################################
         uses self.shifted to combine foils and 
         calculates contrast for chosen foils for 
         certain echos
-        ———————
         Input: 
         - MIEZE metadata object
         - mask object
-        ———————
-        Output: -
-        ##############################################
         '''
         ##############################################
         #Initialize the output dictionary with all def.
@@ -203,6 +189,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         contrast_result = self.ctrstLogicRef(
             ref_result[reference][0],
             local_results)
+
         ############################################
         #Process the result
         local_results['Reference']            = reference
@@ -219,19 +206,14 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def ctrstLogicRef(self, target, local_results):
         '''
-        ##############################################
         This function was built to ease readability
         and to provide the contrast calculation
         routine.
-        ———————
         Input: 
         - target (fit results) from calcCtrstFit
-        ———————
-        Output: -
-        ##############################################
         '''
         ############################################
-        #initilise the contrast result
+        #initialise the contrast result
         contrast_ref        = {}
         contrast_ref_error  = {}
 
@@ -273,15 +255,11 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def calcCtrstMain(self,target, mask, results, select = False, foil = None):
         '''
-        ##############################################
         This is the main contrast calculation routine.
         ———————
         Input: 
         - MIEZE metadata object
         - mask object
-        ———————
-        Output: -
-        ##############################################
         '''
         ##############################################
         #Initialize the output dictionary with all def.
@@ -312,11 +290,9 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         ############################################
         #process Background
         if not BG == None:
-
             print(
                 'Processing the Background contrast calculation for: '
                 +str(BG))
-
             BG_result = self.calcCtrstFit(
                 [BG],foils_in_echo, shift, 
                 target, mask,results)
@@ -326,15 +302,13 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         axis, positions = self.multiAxis(select, target)
 
         ############################################
-        #initilise the contrast result
+        #initialise the contrast result
         contrast            = {}
         contrast_error      = {}
 
         for key in axis.keys():
-            
             if 'BG_result' in locals():
                 BG_target = BG_result[BG][0]
-
             else: 
                 BG_target = None
 
@@ -345,7 +319,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                 BG_target, 
                 local_results)
 
-            #if measurement it 0 initate the dicitoanry
+            #if measurement it 0 initiate the dictionary
             contrast[key]       = result[0]
             contrast_error[key] = result[1]
 
@@ -361,7 +335,6 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         local_results['Contrast_error']       = contrast_error
         local_results['Background']           = BG
         local_results['Foil']                 = foil      
-
     
         #write the dictionary entries
         local_results.add_log('info', 'Computation of the contrast was was a success')
@@ -374,19 +347,15 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def ctrstLogicMain(self, positions, contrast_results, BG_result, local_results):
         '''
-        ##############################################
         This function was built to ease readability
         and to provide the contrast calculation
         routine.
         ———————
         Input: 
         - target (fit results) from calcCtrstFit
-        ———————
-        Output: -
-        ##############################################
         '''
         ############################################
-        #initilise the contrast result
+        #initialise the contrast result
         contrast        = []
         contrast_error  = []
 
@@ -409,17 +378,12 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def multiAxis(self,select, target):
         '''
-        ##############################################
         In this routine we try to construct the axis
         of points. This is important when you bind
         together different measurements. 
-        ———————
         Input: 
         - MIEZE metadata object
         - mask object
-        ———————
-        Output: -
-        ##############################################
         '''
         #grab meta
         echo_name = self.para_dict['echo_name']
@@ -456,16 +420,11 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def ctrstEq(self,target, BG_target):
         '''
-        ##############################################
         Contrast equation separating the case of 
         background or not in a smart way
-        ———————
         Input: 
         - MIEZE metadata object
         - mask object
-        ———————
-        Output: -
-        ##############################################
         '''
         if target[2]-BG_target[2] == 0:
             return 0
@@ -474,16 +433,11 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def ctrstErrEq(self,target, BG_target):
         '''
-        ##############################################
         Contrast error equation separating the case of 
         background or not in a smart way
-        ———————
         Input: 
         - MIEZE metadata object
         - mask object
-        ———————
-        Output: -
-        ##############################################
         '''
         if target[2]-BG_target[2] == 0:
             return 0
@@ -499,19 +453,13 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
     def ctrstFit(self,target, mask, results):
         '''
-        ##############################################
         In this function we will process the fit of 
         the data to allow fitting later on
-
         The package will be in dictionaries for each
         axis value1
-        ———————
         Input: 
         - MIEZE metadata object
         - mask object
-        ———————
-        Output: -
-        ##############################################
         '''
         ##############################################
         #Initialize the output dictionary with all def.
@@ -538,7 +486,7 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         x_unit              = target.axes.units[0]
 
         ############################################
-        #initialize the ouptup
+        #initialize the output
         Output                  = {}
         Output['Gamma']         = {}
         Output['Gamma_error']   = {}

@@ -24,18 +24,29 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from functools import partial
 
-from ..qt_gui.main_env_widget_ui    import Ui_env_widget
+from ..qt_gui.main_env_widget_ui    import Ui_main_env_widget
 from ..py_gui.env_widget            import EnvWidget
 
-class PageEnvWidget(Ui_env_widget):
+class PageEnvWidget(Ui_main_env_widget):
     
     def __init__(self, stack, parent):
-        Ui_env_widget.__init__(self)
+        Ui_main_env_widget.__init__(self)
         self.parent         = parent
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
-        self.setupUi(self.local_widget)
+        self.setup()
         self.connect()
+
+    def setup(self):
+        '''
+        This is the initial setup method that will 
+        build the layout and introduce the graphics
+        area
+        '''
+        self.setupUi(self.local_widget)
+        self.main_widget_env.setStyleSheet(
+            "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
+            "QListWidget::item:selected { background-color: palette(Mid)  }")
 
     def connect(self):
         '''
@@ -126,12 +137,10 @@ class PageEnvWidget(Ui_env_widget):
         else:
             index = self.main_widget_env.currentRow()
 
-        try:
-            self.main_widget_env.itemWidget(self.main_widget_env.item(index)).setFocus()
-            self.handler.set_current_env(idx = index)
-            self.parent.window.setWindowTitle('MIEZEPY ('+str(self.handler.current_env.name)+')')
-        except:
-            pass
+        # self.main_widget_env.itemWidget(self.main_widget_env.item(index)).setFocus()
+        self.handler.set_current_env(idx = index)
+        self.parent.window.setWindowTitle('MIEZEPY ('+str(self.handler.current_env.name)+')')
+        self.envs[index].widget.setFocus()
 
     def refreshData(self):
         '''

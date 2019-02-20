@@ -30,18 +30,10 @@ from ...gui.qt_gui.env_widget_ui import Ui_env_widget
 
 class EnvWidget(Ui_env_widget,QtCore.QObject):
     '''
-    ##############################################
     This class will manage the raw import 
     machinery. the UI is inherited through 
     Ui_main_window from the Qt designer anf then
     converted through pyuic5
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     #set up the edit signal
     edited          = QtCore.pyqtSignal(list)

@@ -25,23 +25,25 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QInputDialog
 import numpy as np
+import os
 
 #private dependencies
 from ..qt_gui.main_mask_editor_ui   import Ui_mask_editor
 from ...gui.py_gui.dialog           import dialog 
-from ...gui.py_gui.mask_widget      import MaskWidget 
+from ..qt_gui.new_mask_ui           import Ui_new_msk
 
 #private plotting library
 from simpleplot.multi_canvas import Multi_Canvas
 
 class PageMaskWidget(Ui_mask_editor):
     
-    def __init__(self, stack, parent):
+    def __init__(self, stack, parent, mask_model):
     
         Ui_mask_editor.__init__(self)
         self.parent         = parent
-        self.stack = stack
+        self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
+        self.mask_model     = mask_model
         self.setupUi(self.local_widget)
         self.setup()
         self.connect()
@@ -52,12 +54,7 @@ class PageMaskWidget(Ui_mask_editor):
         Reset all the inputs and all the fields
         present in the current view.
         '''
-        self.mask_elements  = []
-        self.mask_widgets   = []
         self.mask_core      = None
-
-        self.mask_list_loaded.reset()
-        self.mask_list_loaded.clear()
 
     def setup(self):
         '''
@@ -65,6 +62,9 @@ class PageMaskWidget(Ui_mask_editor):
         build the layout and introduce the graphics
         area
         '''
+        self.mask_model.connectView('main', self.mask_list_loaded)
+        self.mask_model.connectDrop('main', self.comboBox)
+
         self.my_canvas    = Multi_Canvas(
             self.mask_widget_visual,
             grid        = [[True]],
@@ -82,10 +82,10 @@ class PageMaskWidget(Ui_mask_editor):
         This routine will link to the io manager class
         from the core. 
         '''
-        self.initialize()
         self.mask_core = mask_core
+        self.mask_model.link(self.mask_core)
         self.updateSelector()
-        self.populateAll()
+        self.mask_model.setDropText()
 
     def connect(self):
         '''
@@ -94,6 +94,7 @@ class PageMaskWidget(Ui_mask_editor):
         '''
         self.mask_button_add.clicked.connect(self.addElement)
         self.mask_button_remove.clicked.connect(self.removeElement)
+        self.mask_model.mask_updated.connect(self.parseAndSend)
 
     def updateSelector(self, default = None):
         '''
@@ -106,10 +107,7 @@ class PageMaskWidget(Ui_mask_editor):
         except:
             pass
         keys = [key for key in self.mask_core.mask_dict.keys()]
-        print(keys, default)
-        self.comboBox.clear()
-        self.comboBox.addItems(
-            keys + ['new ...'] + ['reset defaults ...']+ ['refresh ...'])
+        self.mask_model.setDropItems(keys + ['new ...'] + ['reset defaults ...']+ ['refresh ...'])
         if not default == None:
             self.comboBox.setCurrentIndex(keys.index(default))
         self.comboBox.currentIndexChanged.connect(self.updateSelection)
@@ -120,32 +118,49 @@ class PageMaskWidget(Ui_mask_editor):
         '''
         keys = [key for key in self.mask_core.mask_dict.keys()]
 
-        if idx < len(keys):
-            key = keys[idx]
-            self.mask_core.setMask(key)
-            self.populateAll()
-            try:
-                self.mask_core.setMask(key)
-                self.populateAll()
-            except:
-                pass
-
-        elif idx == len(keys):
-            text, ok = QInputDialog.getText(self.local_widget, 'New mask name', 'Enter the new mask:')
-            if ok:
-                self.mask_core.addMask(text)
-                self.updateSelector(default = text)
-                self.populateAll()
+        if idx == len(keys):
+            self.openNewMaskWindow()
 
         elif idx == len(keys) + 1:
             mask_dict = self.mask_core.generateDefaults()
             for key in mask_dict.keys():
                 self.mask_core.mask_dict[key] = mask_dict[key]
             self.updateSelector(default = self.mask_core.current_mask)
-            self.populateAll()
+            self.mask_model.setModel()
+            self.parseAndSend()
 
         elif idx == len(keys) + 2:
-            self.updateSelector()
+            self.updateSelector(default = self.mask_core.current_mask)
+
+    def openNewMaskWindow(self):
+        '''
+        open the new window to allow the user to 
+        pick a new mask.
+        '''
+        self.new_mask_window = NewMaskWindow(self.local_widget)
+        self.new_mask_window.cancel_button.clicked.connect(self.closeNewMaskWindow)
+        self.new_mask_window.ok_button.clicked.connect(self.addMaskItem)
+
+    def closeNewMaskWindow(self):
+        '''
+        close the window after actions have been
+        performed.
+        '''
+        self.new_mask_window.cancel_button.clicked.disconnect(self.closeNewMaskWindow)
+        self.new_mask_window.ok_button.clicked.disconnect(self.addMaskItem)
+        self.new_mask_window.close()
+
+    def addMaskItem(self):
+        '''
+        Due to a bug in windows we had to separate the 
+        addition of a new mask here. with a separate window
+        '''
+        if not self.new_mask_window.new_mask_name.text() == '':
+            self.mask_core.addMask(self.new_mask_window.new_mask_name.text())
+            self.updateSelector(default = self.new_mask_window.new_mask_name.text())
+            self.mask_model.setModel()
+            self.parseAndSend()
+            self.closeNewMaskWindow()
 
     def addElement(self):
         '''
@@ -157,8 +172,9 @@ class PageMaskWidget(Ui_mask_editor):
         sample_dict = self.mask_core.generateDefaults()
         if self.mask_core.current_mask in sample_dict.keys():
             self.mask_core.addMask(self.mask_core.current_mask + '_mod')
+            self.mask_core.mask_dict[self.mask_core.current_mask] = list(
+                sample_dict[self.mask_core.current_mask.split('_mod')[0]])
             self.updateSelector(default = self.mask_core.current_mask)
-            self.populateAll()
 
         self.mask_core.addElement([
             'arc',
@@ -166,111 +182,50 @@ class PageMaskWidget(Ui_mask_editor):
             50, 
             (0,5), 
             (0,360)])
-        self.refreshList()
-        self.resetAndSend()
+
+        self.mask_model.setModel()
+        self.parseAndSend()
 
     def removeElement(self):
         '''
         Add an element into the list which is loaded 
         from a custom widget.
         '''
-        idx = self.mask_list_loaded.currentRow()
-        del self.mask_core.mask_dict[self.mask_core.current_mask][idx]
+        element_indexes = self.mask_list_loaded.selectedIndexes()[0]
+        item = self.mask_model.model.itemFromIndex(element_indexes)
+        if not item.parent() == None:
+            item = item.parent()
 
-        self.refreshList()
-        self.resetAndSend()
-
-    def refreshList(self):
-        '''
-        refresh and rebuild the view
-        '''
-        self.mask_elements  = []
-        self.mask_widgets   = []
-
-        self.mask_list_loaded.reset()
-        self.mask_list_loaded.clear()
-        for element in self.mask_core.mask_dict[self.mask_core.current_mask]:
-            self.mask_widgets.append(
-                QtWidgets.QListWidgetItem(self.mask_list_loaded))
-            self.mask_elements.append(MaskWidget(
-                element,
-                self.mask_widgets[-1]))
-
-        for element, widget in zip(self.mask_elements, self.mask_widgets):
-            self.mask_list_loaded.addItem(widget)
-            self.mask_list_loaded.setItemWidget(
-                widget,
-                element.widget)
-
-            element.mask_edited.connect(self.parseAndSend)
-            element.mask_reset.connect(self.resetAndSend)
-
-    def clear(self):
-        '''
-        Clear the current element list
-        '''
-        self.mask_list_loaded.clear()
-        self.elements = []
-
-    def populateAll(self):
-        '''
-        '''
-        self.clear()
-        self.mask_core.sendToGenerator()
-        self.mask_core.generateMask(
-            int(self.mask_input_x.text()), 
-            int(self.mask_input_y.text()))
-        self.updateGraph()
-        self.refreshList()
+        self.mask_model.clearItemChildren(item)
+        self.mask_model.model.removeRow(item.index().row())
+        self.mask_model.generateMask()
+        self.parseAndSend()
 
     def parseAndSend(self):
         '''
         This routine will simply grab the parameters of each of the 
         mask widgets and parse it to the linked mask class
         '''
-        parsed_array = []
-
-        for element in self.mask_elements:
-            parsed_array.append(element.parameters)
-
-        self.mask_core.mask_dict[self.mask_core.current_mask] = parsed_array
-        self.mask_core.sendToGenerator(recreate = False)
-        self.mask_core.generateMask(
-            int(self.mask_input_x.text()), 
-            int(self.mask_input_y.text()))
-        self.updateGraph()
-
-    def resetAndSend(self):
-        '''
-        This routine will simply grab the parameters of each of the 
-        mask widgets and parse it to the linked mask class
-        '''
-        self.mask_core.mask_dict[self.mask_core.current_mask] = []
-        for element in self.mask_elements:
-            self.mask_core.addElement(element.parameters)
-            print(element.parameters)
-        self.mask_core.sendToGenerator(recreate = True)
-        self.mask_core.generateMask(
-            int(self.mask_input_x.text()), 
-            int(self.mask_input_y.text()))
-        self.updateGraph()
+        if not self.mask_core == None:
+            self.mask_core.sendToGenerator(recreate = True)
+            self.mask_core.generateMask(
+                int(self.mask_input_x.text()), 
+                int(self.mask_input_y.text()))
+            self.updateGraph()
 
     def updateGraph(self):
         '''
         '''
         data = self.mask_core.mask_gen.mask
-
         try:
             self.ax.clear()
         except:
             pass
-
         self.ax.add_plot(
             'Bin', 
             [ i for i in range(data.shape[0])], 
             [ i for i in range(data.shape[1])], 
             data, Name = 'bin' )
-
         self.ax.redraw()
         
     def saveSingle(self):
@@ -284,7 +239,7 @@ class PageMaskWidget(Ui_mask_editor):
                 filters)[0]
 
         if not file_path == '':
-            self.mask_core.saveSingleMask(file_path)
+            self.mask_core.saveSingleMask(os.path.abspath(file_path))
 
     def saveMultiple(self):
         '''
@@ -297,7 +252,7 @@ class PageMaskWidget(Ui_mask_editor):
                 filters)[0]
 
         if not file_path == '':
-            self.mask_core.saveAllMasks(file_path)
+            self.mask_core.saveAllMasks(os.path.abspath(file_path))
 
     def loadSingle(self):
         '''
@@ -311,7 +266,7 @@ class PageMaskWidget(Ui_mask_editor):
                 filters)[0]
 
         if not file_path == '':
-            self.mask_core.loadSingleMask(file_path)
+            self.mask_core.loadSingleMask(os.path.abspath(file_path))
             self.updateSelector(self.mask_core.current_mask)
             self.populateAll()
 
@@ -327,17 +282,16 @@ class PageMaskWidget(Ui_mask_editor):
                 filters)[0]
 
         if not file_path == '':
-            self.mask_core.loadAllMasks(file_path)
+            self.mask_core.loadAllMasks(os.path.abspath(file_path))
             self.updateSelector(self.mask_core.current_mask)
             self.populateAll()
 
 class PanelPageMaskWidget(PageMaskWidget):
 
-    def __init__(self, stack, parent):
-        PageMaskWidget.__init__(self, stack, parent)
+    def __init__(self, stack, parent, mask_model):
+        PageMaskWidget.__init__(self, stack, parent, mask_model)
         self.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
-
         self.thread = QtCore.QThread()
 
     def link(self, mask_core, env):
@@ -367,10 +321,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.env        = env
         self.data       = self.env.current_data.return_as_np()
         self.mask_core  = mask_core
+        self.mask_model.link(self.mask_core)
         self.populateSelectors()
         self.updateSelector()
         self.connectSelectors()
-        self.populateAll()
 
     def connect(self):
         '''
@@ -379,6 +333,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         '''
         self.mask_button_add.clicked.connect(self.addElement)
         self.mask_button_remove.clicked.connect(self.removeElement)
+        self.mask_model.mask_updated.connect(self.parseAndSend)
 
     def connectSelectors(self):
         '''
@@ -389,45 +344,15 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list[5][0].currentIndexChanged.connect(self.buildThread)
         self.widget_list[7][0].currentIndexChanged.connect(self.buildThread)
 
-    def updateSelector(self, default = None):
-        '''
-        The selector in the top of the window allows to 
-        switch between lists and therefore needs to 
-        be updated with the content
-        '''
-        try:
-            self.comboBox.currentIndexChanged.disconnect(self.updateSelection)
-        except:
-            pass
-        keys = [key for key in self.mask_core.mask_dict.keys()]
-        self.comboBox.clear()
-        self.comboBox.addItems(
-            keys + ['new ...'] + ['reset defaults ...']+ ['refresh ...'])
-        if not default == None:
-            self.comboBox.setCurrentIndex(keys.index(default))
-        self.comboBox.currentIndexChanged.connect(self.updateSelection)
-        try:
-            self.stack._readFromScripts()
-            self.stack._disconnectVisualFit()
-            self.stack._disconnectVisualPhase()
-            self.stack._linkVisualMaskSelect()
-            self.stack._setVisualFit()
-            self.stack._updateFoilTri()
-            self.stack._linkVisualPhase()
-            self.stack._setVisualPhase()
-            self.stack._connectVisualFit()
-            self.stack._connectVisualPhase()
-            if not default == None: 
-                self.stack.process_box_mask_fit.setCurrentIndex(keys.index(default))
-        except:
-            pass
-
     def setup(self):
         '''
         This is the initial setup method that will 
         build the layout and introduce the graphics
         area
         '''
+        self.mask_model.connectView('panel', self.mask_list_loaded)
+        self.mask_model.connectDrop('panel', self.comboBox)
+
         self.my_canvas    = Multi_Canvas(
             self.mask_widget_visual,
             grid        = [[True,True],[True,True]],
@@ -455,6 +380,9 @@ class PanelPageMaskWidget(PageMaskWidget):
 
         self.ax.pointer['Sticky'] = 3
         self.bx.pointer['Sticky'] = 3
+
+        self.cx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
+        self.dx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
 
     def populateSelectors(self):
         '''
@@ -524,6 +452,18 @@ class PanelPageMaskWidget(PageMaskWidget):
             if not element[5] == None:
                 element[0].setAlignment(element[5])
 
+    def parseAndSend(self):
+        '''
+        This routine will simply grab the parameters of each of the 
+        mask widgets and parse it to the linked mask class
+        '''
+        if not self.mask_core == None:
+            self.mask_core.sendToGenerator(recreate = True)
+            self.mask_core.generateMask(
+                int(self.mask_input_x.text()), 
+                int(self.mask_input_y.text()))
+            self.buildThread()
+
     def updateGraph(self):
         '''
         '''
@@ -551,6 +491,15 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not finished interupted to allow the UI to
         run smoothly
         '''
+        try:
+            self.env.get_result('Shift calculation')
+        except:
+            self.env.process.calculate_echo()
+            self.env.process.remove_foils()
+            self.env.fit.fake_calc_shift(
+                self.env.current_data, 
+                self.env.mask, 
+                self.env.results)
 
         ##############################################
         #grab the parameters from the UI
@@ -598,13 +547,15 @@ class PanelPageMaskWidget(PageMaskWidget):
         Update the visual component from a thread
         '''
 
-        ##############################################
-        #fetch parameters from the worker
-        para            = self.worker.parameters[1]
-        self.reshaped   = self.worker.parameters[0]
-        self.process    = self.worker.process
-        self.counts     = self.worker.counts
-        self.fit        = self.worker.fit
+        try:
+            para            = self.worker.parameters[1]
+            self.reshaped   = self.worker.parameters[0]
+            self.process    = self.worker.process
+            self.counts     = self.worker.counts
+            self.fit        = self.worker.fit
+
+        except:
+            return None
 
         try:
             self.ax.clear()
@@ -661,9 +612,6 @@ class PanelPageMaskWidget(PageMaskWidget):
                 Style   = ['-','s','10'], 
                 Log     = [True,False])
 
-
-        ##############################################
-        #draw the plots
         self.ax.redraw()
         self.bx.redraw()
         self.cx.redraw()
@@ -706,11 +654,9 @@ class Worker(QtCore.QObject):
         self.reshaped       = self.parameters[0]
         self.mask           = self.parameters[10]
         self.env            = self.parameters[9]
-        self.fit            = None
         self.counts         = [
             np.sum(self.mask * self.reshaped[echo_idx,foil_idx,timechannel]) 
             for timechannel in range(16)]
-        self.process        = None
 
         try:
             self.env.fit.fit_data_cov(
@@ -721,8 +667,15 @@ class Worker(QtCore.QObject):
 
             self.fit = self.env.get_result('Fit data covariance')
         except:
-            print('Fit failed')
+            self.fit = None
+        self.env.fit.calcCtrstMain( 
+                self.env.current_data,
+                self.env.mask,
+                self.env.results,
+                select = [para],
+                foil = foil)
 
+        self.process = self.env.get_result('Contrast calculation')
         try:
             self.env.fit.calcCtrstMain( 
                     self.env.current_data,
@@ -733,6 +686,18 @@ class Worker(QtCore.QObject):
 
             self.process = self.env.get_result('Contrast calculation')
         except:
-            print('Contrast')
+            self.process = None
 
         self.finished.emit()
+
+class NewMaskWindow(QtWidgets.QMainWindow,Ui_new_msk):
+    '''
+    In this class we install a window that will allow the 
+    user to set a new mask. 
+    '''
+    def __init__(self, parent):
+    
+        QtWidgets.QMainWindow.__init__(self, parent=parent)
+        Ui_new_msk.__init__(self)
+        self.setupUi(self)
+        self.show()
