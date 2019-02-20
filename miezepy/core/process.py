@@ -111,7 +111,7 @@ class Process_MIEZE(Process_Handler):
                 text.split('##--IMPORT--##')[1],
                 text.split('##--PHASE--##')[1].split(
                     'value = foils_in_echo)')[0]+'value = foils_in_echo)',
-                text.split('##--PHASE--##')[1].split(
+                'environnement = self.env\n'+text.split('##--PHASE--##')[1].split(
                     'value = foils_in_echo)')[1],
                 text.split('##--REDUCTION--##')[1],
                 text.split('##--POST--##')[1] ]

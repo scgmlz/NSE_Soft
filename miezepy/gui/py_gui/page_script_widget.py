@@ -246,10 +246,10 @@ class PageScriptWidget(Ui_script_widget):
         Connect all Qt slots to their respective methods.
         '''
         self.button_widgets[0].clicked.connect(partial(self.run,0))
+        self.button_widgets[2].clicked.connect(partial(self.run,0))
         self.button_widgets[2].clicked.connect(partial(self.run,1))
-        self.button_widgets[2].clicked.connect(partial(self.run,2))
-        self.button_widgets[3].clicked.connect(partial(self.run,3))
-        self.button_widgets[4].clicked.connect(partial(self.run,4))
+        self.button_widgets[3].clicked.connect(partial(self.run,2))
+        self.button_widgets[4].clicked.connect(partial(self.run,3))
 
         self.button_widgets[5].clicked.connect(partial(self.run,0))
         self.button_widgets[6].clicked.connect(partial(self.run,1))
@@ -1063,8 +1063,10 @@ class PageScriptWidget(Ui_script_widget):
         if not self.env == None:
             mask_to_reset = self.env.mask.current_mask
             if index < 5:
-                self._runPythonCode(index, self.text_widgets[index].toPlainText())
                 if index == 0:
+                    self._runPythonCode(index, self.text_widgets[index].toPlainText())
+                    self._runPythonCode(index, self.text_widgets[index+1].toPlainText())
+                else:
                     self._runPythonCode(index, self.text_widgets[index+1].toPlainText())
             self.env.mask.setMask(mask_to_reset)
             self.mask_model.setModel()
