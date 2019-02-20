@@ -491,6 +491,15 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not finished interupted to allow the UI to
         run smoothly
         '''
+        try:
+            self.env.get_result('Shift calculation')
+        except:
+            self.env.process.calculate_echo()
+            self.env.process.remove_foils()
+            self.env.fit.fake_calc_shift(
+                self.env.current_data, 
+                self.env.mask, 
+                self.env.results)
 
         ##############################################
         #grab the parameters from the UI
@@ -659,7 +668,14 @@ class Worker(QtCore.QObject):
             self.fit = self.env.get_result('Fit data covariance')
         except:
             self.fit = None
+        self.env.fit.calcCtrstMain( 
+                self.env.current_data,
+                self.env.mask,
+                self.env.results,
+                select = [para],
+                foil = foil)
 
+        self.process = self.env.get_result('Contrast calculation')
         try:
             self.env.fit.calcCtrstMain( 
                     self.env.current_data,

@@ -97,8 +97,8 @@ class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
     
         ############################################
         #set deafult pointers
-        self.para_dict['para_name'] = 'Temperature'
-        self.para_dict['echo_name'] = 'Echo'
+        self.para_dict['para_name'] = 'Parameter'
+        self.para_dict['echo_name'] = 'Echo Time'
         self.para_dict['meas_name'] = 'Measurement'
         self.para_dict['foil_name'] = 'Foil'
         self.para_dict['tcha_name'] = 'Time Channel'

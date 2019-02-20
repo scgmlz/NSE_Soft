@@ -64,14 +64,15 @@ class PageScriptWidget(Ui_script_widget):
 
         self.text_widgets = [
             self.script_text_import,
+            self.script_text_set_fit,
             self.script_text_phase,
             self.script_text_reduction,
             self.script_text_post]
 
         self.button_widgets = [
             self.script_button_import_run,
+            self.script_button_set_fit_run,
             self.script_button_phase_run,
-            None,
             self.script_button_reduction_run,
             self.script_button_post_run,
 
@@ -97,6 +98,8 @@ class PageScriptWidget(Ui_script_widget):
             self.text_widgets[2].document())
         self.syntaxHighliter_3 = PythonHighlighter(
             self.text_widgets[3].document())
+        self.syntaxHighliter_4 = PythonHighlighter(
+            self.text_widgets[4].document())
 
         self.tool = PanelPageMaskWidget(self, self.parent, self.mask_model)
         self.tool.local_widget.setStyleSheet(
@@ -115,9 +118,10 @@ class PageScriptWidget(Ui_script_widget):
         Connect all Qt slots to their respective methods.
         '''
         self.button_widgets[0].clicked.connect(partial(self.run,0))
-        self.button_widgets[1].clicked.connect(partial(self.run,1))
-        self.button_widgets[3].clicked.connect(partial(self.run,2))
-        self.button_widgets[4].clicked.connect(partial(self.run,3))
+        self.button_widgets[2].clicked.connect(partial(self.run,1))
+        self.button_widgets[2].clicked.connect(partial(self.run,2))
+        self.button_widgets[3].clicked.connect(partial(self.run,3))
+        self.button_widgets[4].clicked.connect(partial(self.run,4))
 
         self.button_widgets[5].clicked.connect(partial(self.run,0))
         self.button_widgets[6].clicked.connect(partial(self.run,1))
@@ -137,6 +141,7 @@ class PageScriptWidget(Ui_script_widget):
         self.text_widgets[1].textChanged.connect(partial(self._updateEditable, 1))
         self.text_widgets[2].textChanged.connect(partial(self._updateEditable, 2))
         self.text_widgets[3].textChanged.connect(partial(self._updateEditable, 3))
+        self.text_widgets[4].textChanged.connect(partial(self._updateEditable, 4))
         
         self.tabWidget.currentChanged.connect(self._mainTabChanged)
         self.script_save_def_save.clicked.connect(self._setNewDefaultSavePath)
@@ -172,12 +177,16 @@ class PageScriptWidget(Ui_script_widget):
         self.synthesize_scripts = False
         if not env == None:
             self.env = env
-        self.tool.link(self.env.mask, self.env)
+        
         self._refresh()
         self._linkVisualComponents()
         self.synthesize_scripts = True
         self.tabWidget.setCurrentIndex(0)
         self.script_tabs.setCurrentIndex(0)
+
+        self.tool.link(self.env.mask, self.env)
+        self.run(0)
+        
 
     def _linkVisualComponents(self):
         '''
@@ -271,6 +280,9 @@ class PageScriptWidget(Ui_script_widget):
             if not element == '':
                 Background = eval(element.split('Background = ' )[1])
 
+        #----------------------------------------#
+        text_array = self.env.process.editable_scripts[2].split("\n")
+
         #masks
         filtered_text_array = [
             element if "mask.setMask(" in element 
@@ -282,7 +294,7 @@ class PageScriptWidget(Ui_script_widget):
                 phase_mask = eval(element.split('(')[1].split(')')[0])
 
         #----------------------------------------#
-        text_array = self.env.process.editable_scripts[2].split("\n")
+        text_array = self.env.process.editable_scripts[3].split("\n")
 
         #Foils to consider
         filtered_text_array = [
@@ -714,9 +726,35 @@ class PageScriptWidget(Ui_script_widget):
         '''
         run synthesis scripts
         '''
-        self._synthesizeFit()
         self._synthesizeData()
+        self._synthesizeFit()
+        self._synthesizePhase()
         self._synthesizeReduction()
+
+    def _synthesizeData(self):
+        '''
+        prepare the python script part that will
+        manage the data parameter part
+        '''
+        if not self.synthesize_scripts:
+            return None
+
+        #find area to edit
+        text = self.env.process.editable_scripts[0]
+        text_array = text.split("\n")
+
+        #Foils to consider
+        checked = []
+        for i, checkbox in enumerate(self.foil_check):
+            checked.append(int(checkbox.isChecked()))
+        for i,element in enumerate(text_array):
+            if "metadata_class.add_metadata('Selected foils'" in element:
+                text_array[i] = element.split(".current_data.metadata_class.add_metadata(")[0]+".current_data.metadata_class.add_metadata('Selected foils', value = '"+str(checked)+"' , logical_type = 'int_array', unit = '-')"
+                break
+
+        #find strings
+        self.env.process.editable_scripts[0] = self._concatenateText([text_array])
+        self._refresh()
 
     def _synthesizeFit(self):
         '''
@@ -792,11 +830,6 @@ class PageScriptWidget(Ui_script_widget):
                 edit_end = i
                 break
 
-        for i,element in enumerate(text_array):
-            if "mask.setMask(" in element:
-                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_masks.currentIndex()])+"')"
-                break
-
         text_array = self._concatenateText([
             text_array[0:edit_start+1],
             python_string_init.split("\n"),
@@ -805,32 +838,7 @@ class PageScriptWidget(Ui_script_widget):
         self.env.process.editable_scripts[1] = text_array
         self._refresh()
 
-    def _synthesizeData(self):
-        '''
-        prepare the python script part that will
-        manage the data parameter part
-        '''
-        if not self.synthesize_scripts:
-            return None
-
-        #find area to edit
-        text = self.env.process.editable_scripts[0]
-        text_array = text.split("\n")
-
-        #Foils to consider
-        checked = []
-        for i, checkbox in enumerate(self.foil_check):
-            checked.append(int(checkbox.isChecked()))
-        for i,element in enumerate(text_array):
-            if "metadata_class.add_metadata('Selected foils'" in element:
-                text_array[i] = element.split(".current_data.metadata_class.add_metadata(")[0]+".current_data.metadata_class.add_metadata('Selected foils', value = '"+str(checked)+"' , logical_type = 'int_array', unit = '-')"
-                break
-
-        #find strings
-        self.env.process.editable_scripts[0] = self._concatenateText([text_array])
-        self._refresh()
-
-    def _synthesizeReduction(self):
+    def _synthesizePhase(self):
         '''
         prepare the python script part that will
         manage the data parameter part
@@ -845,12 +853,34 @@ class PageScriptWidget(Ui_script_widget):
         #the mask
         for i,element in enumerate(text_array):
             if "mask.setMask(" in element:
+                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_masks.currentIndex()])+"')"
+                break
+
+        #find strings
+        self.env.process.editable_scripts[2] = self._concatenateText([text_array])
+        self._refresh()
+
+    def _synthesizeReduction(self):
+        '''
+        prepare the python script part that will
+        manage the data parameter part
+        '''
+        if not self.synthesize_scripts:
+            return None
+
+        #find area to edit
+        text = self.env.process.editable_scripts[3]
+        text_array = text.split("\n")
+
+        #the mask
+        for i,element in enumerate(text_array):
+            if "mask.setMask(" in element:
                 text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_mask_fit.currentIndex()])+"')"
                 self.tool.comboBox.setCurrentIndex(self.process_box_mask_fit.currentIndex())
                 break
 
         #find strings
-        self.env.process.editable_scripts[2] = self._concatenateText([text_array])
+        self.env.process.editable_scripts[3] = self._concatenateText([text_array])
         self._refresh()
 
     def _concatenateText(self, element_arrays):
@@ -874,6 +904,7 @@ class PageScriptWidget(Ui_script_widget):
         self.text_widgets[1].setText(self.env.process.editable_scripts[1])
         self.text_widgets[2].setText(self.env.process.editable_scripts[2])
         self.text_widgets[3].setText(self.env.process.editable_scripts[3])
+        self.text_widgets[4].setText(self.env.process.editable_scripts[4])
 
     def _updateEditable(self, index):
         if not self.env == None:
@@ -903,8 +934,10 @@ class PageScriptWidget(Ui_script_widget):
         '''
         if not self.env == None:
             mask_to_reset = self.env.mask.current_mask
-            if index < 4:
+            if index < 5:
                 self._runPythonCode(index, self.text_widgets[index].toPlainText())
+                if index == 0:
+                    self._runPythonCode(index, self.text_widgets[index+1].toPlainText())
             self.env.mask.setMask(mask_to_reset)
             self.mask_model.setModel()
 

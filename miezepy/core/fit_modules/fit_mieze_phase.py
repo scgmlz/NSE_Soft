@@ -90,6 +90,94 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
 
         return tau, tau_error
 
+    def fake_calc_shift(self,target, mask, results):
+        '''
+        Calculates the shift
+        Input: 
+        - MIEZE data object
+        - mask object
+        '''
+
+        ##############################################
+        #Initialize the output dictionary with all def.
+        local_results = results.generate_result( name = 'Shift calculation')
+
+        ############################################
+        #cycle over and fit
+        #set up the parameter names
+        para_name = self.para_dict['para_name']
+        echo_name = self.para_dict['echo_name']
+        meas_name = self.para_dict['meas_name']
+        foil_name = self.para_dict['foil_name']
+        tcha_name = self.para_dict['tcha_name']
+
+        ############################################
+        #loop over elements
+        print(target)
+        print(para_name)
+        print(target.get_axis(para_name))
+        loop = [
+            (e1, e2) 
+            for e1 in target.get_axis(para_name) 
+            for e2 in target.get_axis(meas_name)]
+
+        #current values comparators
+        temp    = {}
+        c_key   = None
+        c_meas  = None
+
+        #loop
+        for key, meas in loop:
+            #grab the data slice
+            new_target = target.get_slice([key, meas])
+
+            #check if we switched the key
+            if not c_key == key:
+                #initialise the dictionary
+                temp[key] = {}
+                #set the current keys
+                c_key   = key
+                c_meas  = None
+
+            #check if we switched the measurement
+            if not c_meas == meas and not new_target == False:
+                #initialise the dictionary
+                temp[key][meas] = {}
+                #set the current keys
+                c_meas  = meas
+
+            #check if the data is right
+            if not new_target == False:
+                #prepare
+                data        = new_target.return_as_np()
+                time_int    = new_target.get_axis_len(tcha_name)
+                time_float  = float(time_int)
+
+                #print the processing step
+                print(
+                    'Processing fake shift for '
+                    +str(key)
+                    +' '
+                    +str(target.get_axis_unit(para_name)))
+
+                for echo in new_target.get_axis(echo_name):
+                    echo_idx = new_target.get_axis_idx(echo_name, echo)
+                    shifted_element = data[echo_idx, :, :,:,:]
+                    temp[key][meas][echo] = copy.deepcopy(shifted_element)
+
+        ##############################################
+        #finalize result and send it out
+        local_results['Shift']        = temp
+
+        #write the dictionary entries
+        local_results.add_log('info', 'Computation of the shift was a success')
+        local_results.set_complete()
+        
+        #tell fit handler what happened
+        self.log.add_log(
+            'info', 
+            'Computation of the shift was a success')
+
     def calc_shift(self,target, mask, results):
         '''
         Calculates the shift

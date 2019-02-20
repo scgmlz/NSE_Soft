@@ -81,6 +81,8 @@ class Process_MIEZE(Process_Handler):
         self.default_scripts = []
         with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/import_process.py','r') as f:
             self.default_scripts.append(f.read())
+        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/set_fit_process.py','r') as f:
+            self.default_scripts.append(f.read())
         with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/phase_process.py','r') as f:
             self.default_scripts.append(f.read())
         with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/reduction_process.py','r') as f:
@@ -98,12 +100,29 @@ class Process_MIEZE(Process_Handler):
         with open(path,'r') as f:
             text = f.read()
 
-        strings = [
-            text.split('##--IMPORT--##')[1],
-            text.split('##--PHASE--##')[1],
-            text.split('##--REDUCTION--##')[1],
-            text.split('##--POST--##')[1]
-        ]
+        check = text.split('##--FIT-PARA--##')
+        if len(check) > 1:
+            file_type = 'new'
+        else:
+            file_type = 'old'
+
+        if file_type == 'old':
+            strings = [
+                text.split('##--IMPORT--##')[1],
+                text.split('##--PHASE--##')[1].split(
+                    'value = foils_in_echo)')[0]+'value = foils_in_echo)',
+                text.split('##--PHASE--##')[1].split(
+                    'value = foils_in_echo)')[1],
+                text.split('##--REDUCTION--##')[1],
+                text.split('##--POST--##')[1] ]
+        elif file_type == 'new':
+            strings = [
+                text.split('##--IMPORT--##')[1],
+                text.split('##--FIT-PARA--##')[1],
+                text.split('##--PHASE--##')[1],
+                text.split('##--REDUCTION--##')[1],
+                text.split('##--POST--##')[1]]
+
         self.editable_scripts = list(strings)
 
     def saveScripts(self, path, strings):
@@ -119,14 +138,17 @@ class Process_MIEZE(Process_Handler):
             "##--IMPORT--##\n"
             + strings[0]
             + "\n##--IMPORT--##\n"
-            + "##--PHASE--##\n"
+            "##--FIT-PARA--##\n"
             + strings[1]
+            + "\n##--FIT-PARA--##\n"
+            + "##--PHASE--##\n"
+            + strings[2]
             + "\n##--PHASE--##\n"
             + "##--REDUCTION--##\n"
-            + strings[2]
+            + strings[3]
             + "\n##--REDUCTION--##\n"
             + "##--POST--##\n"
-            + strings[3]
+            + strings[4]
             + "\n##--POST--##\n")
 
         f = open(path, 'w')
