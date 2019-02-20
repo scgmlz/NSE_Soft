@@ -305,14 +305,12 @@ class PageScriptWidget(Ui_script_widget):
         self.synthesize_scripts = False
         if not env == None:
             self.env = env
-        
+        self.tool.link(self.env.mask, self.env)
         self._refresh()
         self._linkVisualComponents()
         self.synthesize_scripts = True
         self.tabWidget.setCurrentIndex(0)
         self.script_tabs.setCurrentIndex(0)
-
-        self.tool.link(self.env.mask, self.env)
         self.run(0)
         
 
@@ -603,6 +601,8 @@ class PageScriptWidget(Ui_script_widget):
             try:
                 self.process_box_mask_fit.setCurrentIndex(
                     [ key for key in self.env.mask.mask_dict.keys() ].index(self.container['reduction_mask']))
+                self.env.mask.setMask(self.process_box_mask_fit.currentText())
+                self.mask_model.setModel()
             except:
                 pass
 
