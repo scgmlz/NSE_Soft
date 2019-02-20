@@ -106,7 +106,7 @@ class Log_Handler:
         '''
         This function will dump the log to file with 
         the adequate level. Note that level 0 indicates
-        that everything should be writen while level
+        that everything should be written while level
         1,2,3 refere to 'error', 'error' + 'warnings'
         'error'+'warnings'+'information'
         '''
@@ -118,8 +118,8 @@ class Log_Handler:
     def dump_to_console(self,level = 0):
         '''
         This function will dump the log to file with 
-        the adequat level. Note that level 0 inidicates
-        that everything should be writen while level
+        the adequate level. Note that level 0 indicates
+        that everything should be written while level
         1,2,3 refere to 'error', 'error' + 'warnings'
         'error'+'warnings'+'information'
         '''
@@ -129,16 +129,12 @@ class Log_Handler:
 
     def return_single_array(self, level = 0):
         '''
-        This function will dump the log to an array with 
-        the adequat level. Note that level 0 inidicates
-        that everything should be writen while level
-        1,2,3 refere to 'error', 'error' + 'warnings'
-        'error'+'warnings'+'information'
+
         '''
         #initialize
         log_array = []
 
-        #create the list of lsits
+        #create the list of lists
         if level == 0:
             log_lists = [self.info, self.warning, self.error]
         elif level == 1:

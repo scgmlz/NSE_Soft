@@ -104,7 +104,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, window_manager, parent = None):
         super(MainWindow, self).__init__(parent)
         self.target = MainWindowLayout(self, window_manager)
-
+        self.setWindowIcon(QtGui.QIcon(':/Ressources/miezepy_logo.svg'))
 
     def closeEvent(self, event):
         # do stuff
@@ -122,6 +122,7 @@ class ChildWindow(QtWidgets.QMainWindow):
 
         #set the inheritance 
         super(ChildWindow, self).__init__(parent = parent)
+        self.setWindowIcon(QtGui.QIcon(':/Ressources/miezepy_logo.svg'))
 
         #set the gui
         self.parent = parent

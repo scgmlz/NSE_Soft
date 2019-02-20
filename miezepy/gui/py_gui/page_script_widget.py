@@ -26,26 +26,28 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import traceback
 from functools import partial
 import numpy as np
+import os
 
 #private dependencies
-from ..qt_gui.main_script_ui        import Ui_script_widget
-from ..py_gui.python_syntax         import PythonHighlighter
-from ..py_gui.page_mask_widget      import PanelPageMaskWidget
-from ..py_gui.dialog                import dialog 
-from ..py_gui.result_list_handler   import ResultHandlerUI
+from ..qt_gui.main_script_ui    import Ui_script_widget
+from .python_syntax             import PythonHighlighter
+from .page_mask_widget          import PanelPageMaskWidget
+from .dialog                    import dialog 
+from .code_editor               import CodeEditor
 
 #private plotting library
-from simpleplot.multi_canvas        import Multi_Canvas
+from simpleplot.multi_canvas    import Multi_Canvas
 
 class PageScriptWidget(Ui_script_widget):
     
-    def __init__(self, stack, parent):
+    def __init__(self, stack, parent, mask_model):
         
         Ui_script_widget.__init__(self)
         self.parent         = parent
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
         self.env            = None
+        self.mask_model     = mask_model
         self._setup()
         self._connect()
         self.fadeActivity()
@@ -60,17 +62,19 @@ class PageScriptWidget(Ui_script_widget):
         area.
         '''
         self.setupUi(self.local_widget)
+        self._setEditors()
 
         self.text_widgets = [
             self.script_text_import,
+            self.script_text_set_fit,
             self.script_text_phase,
             self.script_text_reduction,
             self.script_text_post]
 
         self.button_widgets = [
             self.script_button_import_run,
+            self.script_button_set_fit_run,
             self.script_button_phase_run,
-            None,
             self.script_button_reduction_run,
             self.script_button_post_run,
 
@@ -88,39 +92,162 @@ class PageScriptWidget(Ui_script_widget):
             self.script_button_phase_gui,
             self.script_button_reduction_gui]
 
-        self.syntaxHighliter_0 = PythonHighlighter(
-            self.text_widgets[0].document())
-        self.syntaxHighliter_1 = PythonHighlighter(
-            self.text_widgets[1].document())
-        self.syntaxHighliter_2 = PythonHighlighter(
-            self.text_widgets[2].document())
-        self.syntaxHighliter_3 = PythonHighlighter(
-            self.text_widgets[3].document())
-
-        self.tool = PanelPageMaskWidget(self, self.parent)
+        self.tool = PanelPageMaskWidget(self, self.parent, self.mask_model)
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
-        self.result_handler_ui  = ResultHandlerUI()
-        self.my_canvas          = Multi_Canvas(
-            self.process_widget_plot,
-            grid        = [[True]],
-            x_ratios    = [1],
-            y_ratios    = [1],
-            background  = "w",
-            highlightthickness = 0)
-        self.ax                 = self.my_canvas.get_subplot(0,0)
-
         self.progress_bar_reduction.setMaximum(4)
         self.progress_bar_reduction.setMinimum(0)
         self.progress_bar_reduction.setValue(0)
+
+        with open(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-3] + ['ressources', 'default_post_path.txt']),'r') as f:
+            self.path = f.readline()
+            self.script_line_def_save.setText(self.path)
+
+    def _setEditors(self):
+        '''
+        locally create the editors to allow custom ones. These parts
+        have been engineered through the pyqt framework and then 
+        exported through the pyuic5 routine. Note that here we are
+        simply selecting parts of it and changing the intput text editor
+        '''
+
+        self.script_tabs = QtWidgets.QTabWidget(self.script_tab)
+        self.script_tabs.setStyleSheet("")
+        self.script_tabs.setTabShape(QtWidgets.QTabWidget.Rounded)
+        self.script_tabs.setObjectName("script_tabs")
+        self.verticalLayout_8.addWidget(self.script_tabs)
+
+        # for script_text_import
+        self.script_tab_import = QtWidgets.QWidget()
+        self.script_tab_import.setObjectName("script_tab_import")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.script_tab_import)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.script_text_import = CodeEditor(self.script_tab_import)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.script_text_import.sizePolicy().hasHeightForWidth())
+        self.script_text_import.setSizePolicy(sizePolicy)
+        self.script_text_import.setObjectName("script_text_import")
+        self.verticalLayout_2.addWidget(self.script_text_import)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        spacerItem6 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem6)
+        self.script_button_import_gui = QtWidgets.QPushButton('GUI', self.script_tab_import)
+        self.script_button_import_gui.setObjectName("script_button_import_gui")
+        self.horizontalLayout_2.addWidget(self.script_button_import_gui)
+        self.script_button_import_run = QtWidgets.QPushButton('Run', self.script_tab_import)
+        self.script_button_import_run.setDefault(True)
+        self.script_button_import_run.setObjectName("script_button_import_run")
+        self.horizontalLayout_2.addWidget(self.script_button_import_run)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+        self.script_tabs.addTab(self.script_tab_import, "Import")
+
+        # for script_text_set_fit
+        self.script_tab_set_fit = QtWidgets.QWidget()
+        self.script_tab_set_fit.setObjectName("script_tab_set_fit")
+        self.verticalLayout_20 = QtWidgets.QVBoxLayout(self.script_tab_set_fit)
+        self.verticalLayout_20.setObjectName("verticalLayout_20")
+        self.script_text_set_fit = CodeEditor(self.script_tab_set_fit)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.script_text_set_fit.sizePolicy().hasHeightForWidth())
+        self.script_text_set_fit.setSizePolicy(sizePolicy)
+        self.script_text_set_fit.setObjectName("script_text_set_fit")
+        self.verticalLayout_20.addWidget(self.script_text_set_fit)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem7)
+        self.script_button_set_fit_gui = QtWidgets.QPushButton('GUI', self.script_tab_set_fit)
+        self.script_button_set_fit_gui.setObjectName("script_button_set_fit_gui")
+        self.horizontalLayout_3.addWidget(self.script_button_set_fit_gui)
+        self.script_button_set_fit_run = QtWidgets.QPushButton('Run', self.script_tab_set_fit)
+        self.script_button_set_fit_run.setDefault(True)
+        self.script_button_set_fit_run.setObjectName("script_button_set_fit_run")
+        self.horizontalLayout_3.addWidget(self.script_button_set_fit_run)
+        self.verticalLayout_20.addLayout(self.horizontalLayout_3)
+        self.script_tabs.addTab(self.script_tab_set_fit, "Fit parameters")
+
+        # for script_text_phase
+        self.script_tab_phase = QtWidgets.QWidget()
+        self.script_tab_phase.setObjectName("script_tab_phase")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.script_tab_phase)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.script_text_phase = CodeEditor(self.script_tab_phase)
+        self.script_text_phase.setObjectName("script_text_phase")
+        self.verticalLayout_3.addWidget(self.script_text_phase)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        spacerItem8 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem8)
+        self.script_button_phase_gui = QtWidgets.QPushButton('GUI', self.script_tab_phase)
+        self.script_button_phase_gui.setObjectName("script_button_phase_gui")
+        self.horizontalLayout_5.addWidget(self.script_button_phase_gui)
+        self.script_button_phase_run = QtWidgets.QPushButton('Run',self.script_tab_phase)
+        self.script_button_phase_run.setDefault(True)
+        self.script_button_phase_run.setObjectName("script_button_phase_run")
+        self.horizontalLayout_5.addWidget(self.script_button_phase_run)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_5)
+        self.script_tabs.addTab(self.script_tab_phase, "Phase correction")
+
+        # for script_text_reduction
+        self.script_tab_reduction = QtWidgets.QWidget()
+        self.script_tab_reduction.setObjectName("script_tab_reduction")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.script_tab_reduction)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.script_text_reduction = CodeEditor(self.script_tab_reduction)
+        self.script_text_reduction.setObjectName("script_text_reduction")
+        self.verticalLayout_4.addWidget(self.script_text_reduction)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        spacerItem9 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_6.addItem(spacerItem9)
+        self.script_button_reduction_gui = QtWidgets.QPushButton('GUI', self.script_tab_reduction)
+        self.script_button_reduction_gui.setObjectName("script_button_reduction_gui")
+        self.horizontalLayout_6.addWidget(self.script_button_reduction_gui)
+        self.script_button_reduction_run = QtWidgets.QPushButton('Run', self.script_tab_reduction)
+        self.script_button_reduction_run.setDefault(True)
+        self.script_button_reduction_run.setObjectName("script_button_reduction_run")
+        self.horizontalLayout_6.addWidget(self.script_button_reduction_run)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_6)
+        self.script_tabs.addTab(self.script_tab_reduction, "Reduction")
+
+        # for script_text_post
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.tab)
+        self.verticalLayout_8.setObjectName("verticalLayout_8")
+        self.script_text_post = CodeEditor(self.tab)
+        self.script_text_post.setObjectName("script_text_post")
+        self.verticalLayout_8.addWidget(self.script_text_post)
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        self.script_line_def_save = QtWidgets.QLineEdit(self.tab)
+        self.script_line_def_save.setObjectName("script_line_def_save")
+        self.horizontalLayout_7.addWidget(self.script_line_def_save)
+        self.script_save_def_save = QtWidgets.QPushButton('...',self.tab)
+        self.script_save_def_save.setObjectName("script_save_def_save")
+        self.horizontalLayout_7.addWidget(self.script_save_def_save)
+        spacerItem10 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_7.addItem(spacerItem10)
+        self.script_button_post_run = QtWidgets.QPushButton('Run',self.tab)
+        self.script_button_post_run.setDefault(True)
+        self.script_button_post_run.setObjectName("script_button_post_run")
+        self.horizontalLayout_7.addWidget(self.script_button_post_run)
+        self.verticalLayout_8.addLayout(self.horizontalLayout_7)
+        self.script_tabs.addTab(self.tab, "Post-reduction")
 
     def _connect(self):
         '''
         Connect all Qt slots to their respective methods.
         '''
         self.button_widgets[0].clicked.connect(partial(self.run,0))
-        self.button_widgets[1].clicked.connect(partial(self.run,1))
+        self.button_widgets[2].clicked.connect(partial(self.run,0))
+        self.button_widgets[2].clicked.connect(partial(self.run,1))
         self.button_widgets[3].clicked.connect(partial(self.run,2))
         self.button_widgets[4].clicked.connect(partial(self.run,3))
 
@@ -142,19 +269,26 @@ class PageScriptWidget(Ui_script_widget):
         self.text_widgets[1].textChanged.connect(partial(self._updateEditable, 1))
         self.text_widgets[2].textChanged.connect(partial(self._updateEditable, 2))
         self.text_widgets[3].textChanged.connect(partial(self._updateEditable, 3))
-
-        self.process_tree_x.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_tree_y.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_tree_error.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_button_plot_add.clicked.connect(self.result_handler_ui.addPlotElement)
-        self.process_button_plot_remove.clicked.connect(self.result_handler_ui.removePlotElement)
-        self.process_button_plot_reset.clicked.connect(self.result_handler_ui.removeAllPlotElement)
-        self.process_button_plot_plot.clicked.connect(self._updatePlot)
-        self.process_button_plot_hide.clicked.connect(self._hidePlot)
-        self.process_button_echo_fit.clicked.connect(self._plotEcho)
-        self.process_button_gamma.clicked.connect(self._plotGamma)
-
+        self.text_widgets[4].textChanged.connect(partial(self._updateEditable, 4))
+        
         self.tabWidget.currentChanged.connect(self._mainTabChanged)
+        self.script_save_def_save.clicked.connect(self._setNewDefaultSavePath)
+
+    def _setNewDefaultSavePath(self):
+        '''
+        When the button is clicked a new file
+        dialogue will be open to set the new 
+        file.
+        '''
+        dir_path = QtWidgets.QFileDialog.getExistingDirectory(
+            self.parent.window, 
+            'Select folder')
+
+        with open(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-3] + ['ressources', 'default_post_path.txt']),'w') as f:
+            f.writelines([dir_path])
+            self.path = dir_path
+            self.script_line_def_save.setText(dir_path)
+        
 
     def _mainTabChanged(self, idx):
         '''
@@ -174,15 +308,11 @@ class PageScriptWidget(Ui_script_widget):
         self.tool.link(self.env.mask, self.env)
         self._refresh()
         self._linkVisualComponents()
-        self.result_handler_ui._fillAllResults(
-            self.env,
-            self.process_tree_error,
-            self.process_tree_x,
-            self.process_tree_y,
-            self.process_tree_plot)
         self.synthesize_scripts = True
         self.tabWidget.setCurrentIndex(0)
         self.script_tabs.setCurrentIndex(0)
+        self.run(0)
+        
 
     def _linkVisualComponents(self):
         '''
@@ -237,16 +367,6 @@ class PageScriptWidget(Ui_script_widget):
             if not element == '':
                 foil_check = eval('['+element.split('[')[1].split(']')[0]+']')
 
-        #Foils to consider
-        filtered_text_array = [
-            element if "mask.setMask(" in element 
-            else '' 
-            for element in text_array]
-        phase_mask = []
-        for element in filtered_text_array:
-            if not element == '':
-                phase_mask = eval(element.split('(')[1].split(')')[0])
-
         #----------------------------------------#
         text_array = self.env.process.editable_scripts[1].split("\n")
 
@@ -288,6 +408,19 @@ class PageScriptWidget(Ui_script_widget):
 
         #----------------------------------------#
         text_array = self.env.process.editable_scripts[2].split("\n")
+
+        #masks
+        filtered_text_array = [
+            element if "mask.setMask(" in element 
+            else '' 
+            for element in text_array]
+        phase_mask = []
+        for element in filtered_text_array:
+            if not element == '':
+                phase_mask = eval(element.split('(')[1].split(')')[0])
+
+        #----------------------------------------#
+        text_array = self.env.process.editable_scripts[3].split("\n")
 
         #Foils to consider
         filtered_text_array = [
@@ -389,14 +522,14 @@ class PageScriptWidget(Ui_script_widget):
         Connect all the elements after the value has been
         set in the set routine.
         '''
-        self.process_box_masks.currentIndexChanged.connect(self._synthesizeData)
+        self.process_box_masks.currentIndexChanged.connect(self._synthesizeFit)
 
     def _disconnectVisualPhase(self):
         '''
         Disconnect all the elements after the value has been
         set in the set routine.
         '''
-        self.process_box_masks.currentIndexChanged.disconnect(self._synthesizeData)
+        self.process_box_masks.currentIndexChanged.disconnect(self._synthesizeFit)
 
     #######################################################################
     #######################################################################
@@ -445,6 +578,19 @@ class PageScriptWidget(Ui_script_widget):
         self._setVisualFitSelected()
         self._setVisualFitFoilsInEcho()
 
+    def _setReductionDrop(self):   
+        '''
+        Allow to set the reduction drop from the outside on the 
+        event of a change.
+        '''
+        self.process_box_mask_fit.blockSignals(True)
+        self.process_box_mask_fit.clear()
+        self.process_box_mask_fit.addItems([ key for key in self.env.mask.mask_dict.keys() ])
+        self.process_box_mask_fit.setCurrentIndex(
+            [ key for key in self.env.mask.mask_dict.keys() ].index(self.env.mask.current_mask))
+        self._synthesizeReduction()
+        self.process_box_mask_fit.blockSignals(False)
+
     def _setVisualFitDrops(self):   
         '''
         Set the widget values depending on the input of the 
@@ -455,6 +601,8 @@ class PageScriptWidget(Ui_script_widget):
             try:
                 self.process_box_mask_fit.setCurrentIndex(
                     [ key for key in self.env.mask.mask_dict.keys() ].index(self.container['reduction_mask']))
+                self.env.mask.setMask(self.process_box_mask_fit.currentText())
+                self.mask_model.setModel()
             except:
                 pass
 
@@ -523,6 +671,7 @@ class PageScriptWidget(Ui_script_widget):
         self.process_box_back_fit.currentIndexChanged.connect(self._synthesizeFit)
         self.process_box_refs_fit.currentIndexChanged.connect(self._synthesizeFit)
         self.process_box_mask_fit.currentIndexChanged.connect(self._synthesizeReduction)
+        self.mask_model.drop_updated.connect(self._setReductionDrop)
 
         #link the boxes
         for check_row in self.grid_checkboxes:
@@ -538,6 +687,7 @@ class PageScriptWidget(Ui_script_widget):
         self.process_box_back_fit.currentIndexChanged.disconnect(self._synthesizeFit)
         self.process_box_refs_fit.currentIndexChanged.disconnect(self._synthesizeFit)
         self.process_box_mask_fit.currentIndexChanged.disconnect(self._synthesizeReduction)
+        self.mask_model.drop_updated.disconnect(self._setReductionDrop)
         
         #link the boxes
         for check_row in self.grid_checkboxes:
@@ -704,9 +854,35 @@ class PageScriptWidget(Ui_script_widget):
         '''
         run synthesis scripts
         '''
-        self._synthesizeFit()
         self._synthesizeData()
+        self._synthesizeFit()
+        self._synthesizePhase()
         self._synthesizeReduction()
+
+    def _synthesizeData(self):
+        '''
+        prepare the python script part that will
+        manage the data parameter part
+        '''
+        if not self.synthesize_scripts:
+            return None
+
+        #find area to edit
+        text = self.env.process.editable_scripts[0]
+        text_array = text.split("\n")
+
+        #Foils to consider
+        checked = []
+        for i, checkbox in enumerate(self.foil_check):
+            checked.append(int(checkbox.isChecked()))
+        for i,element in enumerate(text_array):
+            if "metadata_class.add_metadata('Selected foils'" in element:
+                text_array[i] = element.split(".current_data.metadata_class.add_metadata(")[0]+".current_data.metadata_class.add_metadata('Selected foils', value = '"+str(checked)+"' , logical_type = 'int_array', unit = '-')"
+                break
+
+        #find strings
+        self.env.process.editable_scripts[0] = self._concatenateText([text_array])
+        self._refresh()
 
     def _synthesizeFit(self):
         '''
@@ -782,44 +958,15 @@ class PageScriptWidget(Ui_script_widget):
                 edit_end = i
                 break
 
-        self.env.process.editable_scripts[1] = self._concatenateText([
+        text_array = self._concatenateText([
             text_array[0:edit_start+1],
             python_string_init.split("\n"),
             text_array[edit_end-1:]])
 
+        self.env.process.editable_scripts[1] = text_array
         self._refresh()
 
-    def _synthesizeData(self):
-        '''
-        prepare the python script part that will
-        manage the data parameter part
-        '''
-        if not self.synthesize_scripts:
-            return None
-
-        #find area to edit
-        text = self.env.process.editable_scripts[0]
-        text_array = text.split("\n")
-
-        #Foils to consider
-        checked = []
-        for i, checkbox in enumerate(self.foil_check):
-            checked.append(int(checkbox.isChecked()))
-        for i,element in enumerate(text_array):
-            if "metadata_class.add_metadata('Selected foils'" in element:
-                text_array[i] = element.split(".current_data.metadata_class.add_metadata(")[0]+".current_data.metadata_class.add_metadata('Selected foils', value = '"+str(checked)+"' , logical_type = 'int_array', unit = '-')"
-                break
-
-        for i,element in enumerate(text_array):
-            if "mask.setMask(" in element:
-                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_masks.currentIndex()])+"')"
-                break
-
-        #find strings
-        self.env.process.editable_scripts[0] = self._concatenateText([text_array])
-        self._refresh()
-
-    def _synthesizeReduction(self):
+    def _synthesizePhase(self):
         '''
         prepare the python script part that will
         manage the data parameter part
@@ -834,12 +981,34 @@ class PageScriptWidget(Ui_script_widget):
         #the mask
         for i,element in enumerate(text_array):
             if "mask.setMask(" in element:
+                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_masks.currentIndex()])+"')"
+                break
+
+        #find strings
+        self.env.process.editable_scripts[2] = self._concatenateText([text_array])
+        self._refresh()
+
+    def _synthesizeReduction(self):
+        '''
+        prepare the python script part that will
+        manage the data parameter part
+        '''
+        if not self.synthesize_scripts:
+            return None
+
+        #find area to edit
+        text = self.env.process.editable_scripts[3]
+        text_array = text.split("\n")
+
+        #the mask
+        for i,element in enumerate(text_array):
+            if "mask.setMask(" in element:
                 text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_mask_fit.currentIndex()])+"')"
                 self.tool.comboBox.setCurrentIndex(self.process_box_mask_fit.currentIndex())
                 break
 
         #find strings
-        self.env.process.editable_scripts[2] = self._concatenateText([text_array])
+        self.env.process.editable_scripts[3] = self._concatenateText([text_array])
         self._refresh()
 
     def _concatenateText(self, element_arrays):
@@ -859,10 +1028,11 @@ class PageScriptWidget(Ui_script_widget):
         with the source present in the core env.process 
         class. 
         '''        
-        self.text_widgets[0].setText(self.env.process.editable_scripts[0])
-        self.text_widgets[1].setText(self.env.process.editable_scripts[1])
-        self.text_widgets[2].setText(self.env.process.editable_scripts[2])
-        self.text_widgets[3].setText(self.env.process.editable_scripts[3])
+        self.text_widgets[0].setPlainText(self.env.process.editable_scripts[0])
+        self.text_widgets[1].setPlainText(self.env.process.editable_scripts[1])
+        self.text_widgets[2].setPlainText(self.env.process.editable_scripts[2])
+        self.text_widgets[3].setPlainText(self.env.process.editable_scripts[3])
+        self.text_widgets[4].setPlainText(self.env.process.editable_scripts[4])
 
     def _updateEditable(self, index):
         if not self.env == None:
@@ -870,6 +1040,7 @@ class PageScriptWidget(Ui_script_widget):
                 self.env.process.editable_scripts[index] = self.text_widgets[index].toPlainText()
             except Exception as e:
                 dialog(
+                    parent = self.local_widget,
                     icon = 'error', 
                     title= 'Could not update script',
                     message = 'The core encountered an error',
@@ -890,18 +1061,15 @@ class PageScriptWidget(Ui_script_widget):
         to undertake. 
         '''
         if not self.env == None:
-            if index < 4:
-                self._runPythonCode(index, self.text_widgets[index].toPlainText())
-            if index == 0 or index == 1:
-                self.tool.link(self.env.mask, self.env)
-
-        self.result_handler_ui._fillAllResults(
-            self.env,
-            self.process_tree_error,
-            self.process_tree_x,
-            self.process_tree_y,
-            self.process_tree_plot
-        )
+            mask_to_reset = self.env.mask.current_mask
+            if index < 5:
+                if index == 0:
+                    self._runPythonCode(index, self.text_widgets[index].toPlainText())
+                    self._runPythonCode(index, self.text_widgets[index+1].toPlainText())
+                else:
+                    self._runPythonCode(index, self.text_widgets[index+1].toPlainText())
+            self.env.mask.setMask(mask_to_reset)
+            self.mask_model.setModel()
 
     def runAll(self):
         '''
@@ -929,6 +1097,7 @@ class PageScriptWidget(Ui_script_widget):
             except Exception as e:
                 error = e
                 dialog(
+                    parent = self.local_widget,
                     icon = 'error', 
                     title= 'Script error',
                     message = 'Your script has encountered an error.',
@@ -1114,135 +1283,3 @@ class PageScriptWidget(Ui_script_widget):
         self.script_bar_running.setValue(val)
         self.script_label_action_2.setText(label)
         self.parent.window_manager.app.processEvents()
-
-    def _hidePlot(self):
-        '''
-        Hide the plot_manager to allow more space for the
-        plot view in the frame.
-        '''
-        self.process_tree_plot.setVisible(
-            not self.process_tree_plot.isVisible())
-        self.process_button_plot_add.setVisible(
-            not self.process_button_plot_add.isVisible())
-        self.process_button_plot_remove.setVisible(
-            not self.process_button_plot_remove.isVisible())
-        self.process_button_plot_reset.setVisible(
-            not self.process_button_plot_reset.isVisible())
-        self.groupBox.setVisible(
-            not self.groupBox.isVisible())
-
-        if self.process_tree_plot.isVisible():
-            self.process_button_plot_hide.setText('Hide')
-        else:
-            self.process_button_plot_hide.setText('Show')
-
-    def _updatePlot(self):
-        '''
-
-        '''
-        try:
-            self.ax.clear()
-        except:
-            pass
-
-        #get the instructions
-        instructions = self.result_handler_ui._processPlot()
-
-        #set up the offsets
-        idx = 0
-        for key in instructions.keys():
-            if self.process_check_offset.isChecked() and instructions[key]['link'] == None:
-                instructions[key]['offset'] += self.process_spin_offset_total.value() + idx * self.process_spin_offset.value()
-                idx+=1
-
-        for key in instructions.keys():
-            if not instructions[key]['link'] == None:
-                instructions[key]['offset'] = instructions[instructions[key]['link']]['offset']
-
-        #plot all
-        for key in instructions.keys():
-            if len(instructions[key]['style']) == 0:
-                pass
-            elif not 'y key' in instructions[key].keys():
-                pass
-            elif not 'x key' in instructions[key].keys() and not 'e key' in instructions[key].keys():
-                self._plotSingleY(instructions[key])
-            elif 'x key' in instructions[key].keys() and not 'e key' in instructions[key].keys():
-                self._plotDoubleY(instructions[key])
-            elif 'x key' in instructions[key].keys() and 'e key' in instructions[key].keys():
-                self._plotTripleY(instructions[key])
-
-        self.ax.redraw()
-
-    def _plotSingleY(self, instruction):
-        '''
-        Plot a curve where only the y axes is defined.
-        '''
-        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
-        x = np.asarray([i for i in range(len(y))])
-
-        self.ax.add_plot(
-            'Scatter', 
-            x, 
-            y+instruction['offset'], 
-            Style       = instruction['style'], 
-            Thickness   = instruction['thickness'],
-            Color       = instruction['color'],
-            Log         = [
-                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
-
-    def _plotDoubleY(self, instruction):
-        '''
-        Plot a curve where only the y and x axes are defined.
-        '''
-        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
-        x = np.asarray(self.result_handler_ui.getDataFromKey(instruction['x key']))
-        sort_idx = x.argsort()
-
-        self.ax.add_plot(
-            'Scatter', 
-            x[sort_idx], 
-            y[sort_idx]+instruction['offset'],
-            Style       = instruction['style'], 
-            Thickness   = instruction['thickness'],
-            Color       = instruction['color'],
-            Log         = [
-                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
-
-    def _plotTripleY(self, instruction):
-        '''
-        Plot a curve where all axes are defined.
-        '''
-        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
-        x = np.asarray(self.result_handler_ui.getDataFromKey(instruction['x key']))
-        e = np.asarray(self.result_handler_ui.getDataFromKey(instruction['e key']))
-        sort_idx = x.argsort()
-
-        self.ax.add_plot(
-            'Scatter', 
-            x[sort_idx], 
-            y[sort_idx]+instruction['offset'],
-            Error       = {
-                'bottom':e[sort_idx],
-                'top':e[sort_idx]},
-            Style       = instruction['style'], 
-            Thickness   = instruction['thickness'],
-            Color       = instruction['color'],
-            Log         = [
-                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
-
-    def _plotGamma(self):
-        '''
-        Plot gamma in a way that all is done
-        automatically
-        '''
-        self.result_handler_ui.quickGammaSet()
-        self._updatePlot()
-
-    def _plotEcho(self):
-        '''
-        Plot gamma in a way that all is done
-        automatically
-        '''
-        self.result_handler_ui.quickEchoSet()
-        self._updatePlot()

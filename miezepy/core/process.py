@@ -25,24 +25,14 @@ import os
 
 def get_process_handler(select, env):
     '''
-    ##############################################
     Will return the right fit manager depending 
     on the initial input
-    ———————
     Input: target (Data_Structure)
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
-
     if select == 'MIEZE':
         return Process_MIEZE(env)
-
     if select == 'SANS':
         return Process_SANS(env)
-
     else:
         print('Could not find the process class you are looking for. Error...')
         return None
@@ -51,19 +41,12 @@ class Process_Handler:
 
     def __init__(self, env):
         '''
-        ##############################################
         This is the initializer of all the 
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ##############################################
         '''
         self.env = env
 
     def extract_from_metadata(self, axis, key):
         '''
-        ##############################################
         This function will populate the axis with a 
         given metadata entry and then collapse the
         axis around it.  
@@ -72,12 +55,7 @@ class Process_Handler:
         - data_structure class (loaded already)
         - mask object
         - fit object
-        ———————
-        Output: -
-        ##############################################
         '''
-        ############################################
-        #fix the axes
         idx = self.env.current_data.axes.names.index(axis)
         self.env.current_data.axes.grab_meta(idx, key, self.env.current_data)
         self.env.current_data.axes.collapse_axis(idx, self.env.current_data)
@@ -86,8 +64,8 @@ class Process_MIEZE(Process_Handler):
 
     def __init__(self, env):
         '''
-        This class is a subs process class that cont-
-        ains the method related to processing the 
+        This class is a subs process class that 
+        contains the method related to processing the 
         MIEZE data
         '''
         #initialize the superclass
@@ -102,6 +80,8 @@ class Process_MIEZE(Process_Handler):
         '''
         self.default_scripts = []
         with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/import_process.py','r') as f:
+            self.default_scripts.append(f.read())
+        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/set_fit_process.py','r') as f:
             self.default_scripts.append(f.read())
         with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/phase_process.py','r') as f:
             self.default_scripts.append(f.read())
@@ -120,14 +100,30 @@ class Process_MIEZE(Process_Handler):
         with open(path,'r') as f:
             text = f.read()
 
-        strings = [
-            text.split('##--IMPORT--##')[1],
-            text.split('##--PHASE--##')[1],
-            text.split('##--REDUCTION--##')[1],
-            text.split('##--POST--##')[1]
-        ]
-        self.editable_scripts = list(strings)
+        check = text.split('##--FIT-PARA--##')
+        if len(check) > 1:
+            file_type = 'new'
+        else:
+            file_type = 'old'
 
+        if file_type == 'old':
+            strings = [
+                text.split('##--IMPORT--##')[1],
+                text.split('##--PHASE--##')[1].split(
+                    'value = foils_in_echo)')[0]+'value = foils_in_echo)',
+                'environnement = self.env\n'+text.split('##--PHASE--##')[1].split(
+                    'value = foils_in_echo)')[1],
+                text.split('##--REDUCTION--##')[1],
+                text.split('##--POST--##')[1] ]
+        elif file_type == 'new':
+            strings = [
+                text.split('##--IMPORT--##')[1],
+                text.split('##--FIT-PARA--##')[1],
+                text.split('##--PHASE--##')[1],
+                text.split('##--REDUCTION--##')[1],
+                text.split('##--POST--##')[1]]
+
+        self.editable_scripts = list(strings)
 
     def saveScripts(self, path, strings):
         '''
@@ -142,14 +138,17 @@ class Process_MIEZE(Process_Handler):
             "##--IMPORT--##\n"
             + strings[0]
             + "\n##--IMPORT--##\n"
-            + "##--PHASE--##\n"
+            "##--FIT-PARA--##\n"
             + strings[1]
+            + "\n##--FIT-PARA--##\n"
+            + "##--PHASE--##\n"
+            + strings[2]
             + "\n##--PHASE--##\n"
             + "##--REDUCTION--##\n"
-            + strings[2]
+            + strings[3]
             + "\n##--REDUCTION--##\n"
             + "##--POST--##\n"
-            + strings[3]
+            + strings[4]
             + "\n##--POST--##\n")
 
         f = open(path, 'w')
@@ -183,12 +182,20 @@ class Process_MIEZE(Process_Handler):
 
         ############################################
         #process the echo time
+        local_results = self.env.results.generate_result( name = 'Echo Sources')
+        echo_dict = {}
+
         for metadata_object in self.env.current_data.metadata_objects:
 
-            self.env.fit['mieze_tau'](
+            result = self.env.fit['mieze_tau'](
                 metadata_object, 
                 self.env.current_data)
+            echo_dict[result[0]] = result[1]
 
+        local_results['Echo Dict'] = echo_dict
+        local_results.add_log('info', 'Computation of the shift was a success')
+        local_results.set_complete()
+        
         self.extract_from_metadata(
             self.env.current_data.axes.names[2], 
             'tau')
@@ -274,8 +281,8 @@ class Process_SANS(Process_Handler):
     
     def __init__(self, env):
         '''
-        This class is a subs process class that cont-
-        ains the method related to processing the 
+        This class is a subs process class that 
+        contains the method related to processing the 
         SANS data
         '''
         #initialize the superclass

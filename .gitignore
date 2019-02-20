@@ -8,9 +8,13 @@ __pycache__/
 
 # C extensions
 *.so
+*.txt
+*.pdf
 
 # Distribution / packaging
 .Python
+Examples/
+.directory
 build/
 develop-eggs/
 dist/

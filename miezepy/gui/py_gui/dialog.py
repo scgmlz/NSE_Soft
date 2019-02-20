@@ -24,41 +24,39 @@
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-def dialog(icon = None, message = None, add_message = None, det_message = None, title = None):
+def dialog(
+    parent      = None,
+    icon        = None, 
+    message     = None, 
+    add_message = None, 
+    det_message = None, 
+    title       = None):
+
     '''
-    ##############################################
-    
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
-    msg = QtWidgets.QMessageBox()
+    parent.msg = QtWidgets.QMessageBox(parent = parent)
     if icon == 'error':
-        msg.setIcon(QtWidgets.QMessageBox.Critical)
+        parent.msg.setIcon(QtWidgets.QMessageBox.Critical)
     elif icon == 'info':
-        msg.setIcon(QtWidgets.QMessageBox.Information)
+        parent.msg.setIcon(QtWidgets.QMessageBox.Information)
     elif icon == 'warning':
-        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        parent.msg.setIcon(QtWidgets.QMessageBox.Warning)
     else:
         icon = 'warning'
-        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        parent.msg.setIcon(QtWidgets.QMessageBox.Warning)
     
     if not message == None:
-        msg.setText(message)
+        parent.msg.setText(message)
     if not add_message == None:
-        msg.setInformativeText(add_message)
+        parent.msg.setInformativeText(add_message)
     if not det_message == None:
-        msg.setDetailedText(det_message)
+        parent.msg.setDetailedText(det_message)
     if not title == None:
-        msg.setText(title)
+        parent.msg.setText(title)
     else:
-        msg.setWindowTitle(icon)
+        parent.msg.setWindowTitle(icon)
     if not message == None:
-        msg.setText(message)
+        parent.msg.setText(message)
     
-    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-    msg.exec_()
+    parent.msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+    parent.msg.exec_()

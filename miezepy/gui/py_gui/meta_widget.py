@@ -30,26 +30,15 @@ from ...gui.qt_gui.meta_widget_ui import Ui_meta_widget
 
 class MetaWidget(Ui_meta_widget,QtCore.QObject):
     '''
-    ##############################################
     This class will manage the raw import 
     machinery. the UI is inherited through 
     Ui_main_window from the Qt designer anf then
     converted through pyuic5
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     #set up the edit signal
     edited = QtCore.pyqtSignal(list)
 
     def __init__(self):
-
-        ##############################################
-        #Local pointers
         QtCore.QObject.__init__(self)
         Ui_meta_widget.__init__(self)
         self.widget = QtWidgets.QWidget()
@@ -58,15 +47,7 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
 
     def initialize(self):
         '''
-        ##############################################
         initialize the widget and set the stage
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.equivalence = [
             'None',
@@ -85,30 +66,15 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
 
     def connect(self):
         '''
-        ##############################################
         connect
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.meta_input_fact.textChanged.connect(self.getValues)
         self.meta_drop_equivalence.currentIndexChanged.connect(self.getValues)
+        self.meta_input_manual.textChanged.connect(self.getValues)
 
     def setParentList(self, parent_list):
         '''
-        ##############################################
         initialize the widget and set the stage
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parent_list = parent_list
 
@@ -116,26 +82,23 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
         self.meta_input_fact.setText(self.parent_list[3])
         self.meta_drop_equivalence.setCurrentIndex(
             self.equivalence.index(self.parent_list[2]))
+        try:
+            self.meta_input_manual.setText(self.parent_list[4])
+        except:
+            pass
 
         self.connect()
 
     def getValues(self, index = None):
         '''
-        ##############################################
         initialize the widget and set the stage
-        ———————
-        Input: -
-        ———————
-        Output: -
-        ———————
-        status: active
-        ##############################################
         '''
         self.parent_list = [
             self.parent_list[0],
             self.parent_list[1],
             self.equivalence[self.meta_drop_equivalence.currentIndex()],
-            self.meta_input_fact.text()
+            self.meta_input_fact.text(),
+            self.meta_input_manual.text()
         ]
 
         self.edited.emit(self.parent_list)

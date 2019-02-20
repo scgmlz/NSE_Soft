@@ -31,17 +31,9 @@ from functools import partial
 class DropListView(QtWidgets.QListView): 
     drop_success = QtCore.pyqtSignal(list)
     '''
-    ##############################################
     Thi method is a custom modification of the 
     QListView widget that supports drag and 
     drop.
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''        
     def __init__(self, parent, drop_type):
         super(DropListView, self).__init__(parent)
@@ -68,16 +60,8 @@ class DropListView(QtWidgets.QListView):
 
 def tofFileDrop(generator_class, event):
     '''
-    ##############################################
     This is the drop method and will support the
     drop of the files into the list. 
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     if event.mimeData().hasUrls():
         if tofFileCheck(event):
@@ -86,15 +70,7 @@ def tofFileDrop(generator_class, event):
 
 def tofFileCheck(event):
     '''
-    ##############################################
     check if the file are tof
-    ———————
-    Input: -
-    ———————
-    Output: -
-    ———————
-    status: active
-    ##############################################
     '''
     urls        = [url for url in event.mimeData().urls()]
     bool_tof    = [False for e in urls]

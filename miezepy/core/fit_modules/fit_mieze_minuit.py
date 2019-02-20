@@ -101,12 +101,12 @@ class Fit_MIEZE_Minuit(Fit_Handler):
             except:
                 return np.nan
 
-    def minuit_fit_exp(self,contrast, SEtime, contrasterr):
+    def minuit_fit_exp(self,contrast, SpinEchoTIme, contrasterr):
         '''
         Creates the minuit fit function and runs 
         leastsquarefit.
         '''
-        self.minuit_parameters = [contrast,SEtime,contrasterr]
+        self.minuit_parameters = [contrast,SpinEchoTIme,contrasterr]
         Gamma0 = 10.
 
         fit = iminuit.Minuit(
@@ -136,14 +136,14 @@ class Fit_MIEZE_Minuit(Fit_Handler):
         Gamma exponential fit minimizer function
         '''
         contrast    = self.minuit_parameters[0]
-        SEtime      = self.minuit_parameters[1]
+        SpinEchoTIme      = self.minuit_parameters[1]
         contrasterr = self.minuit_parameters[2]
         with warnings.catch_warnings():
             try:
                 return sum(
                         (( np.exp(-Gamma*1.e-6*co.e*t*1.e-9/co.hbar)-c)**2. 
                         /e**2.
-                        for c, t, e in zip(contrast, SEtime, contrasterr)))
+                        for c, t, e in zip(contrast, SpinEchoTIme, contrasterr)))
             except:
                 return np.nan
 
