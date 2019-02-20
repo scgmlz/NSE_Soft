@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from miezepy.core.mask_modules.square       import Square
+from miezepy.core.mask_modules.rectangle    import Rectangle
 from miezepy.core.mask_modules.triangle     import Triangle
 from miezepy.core.mask_modules.circle_arc   import CircleArc
 from miezepy.core.mask_modules.radial_comp  import RadialComposition
@@ -9,7 +9,7 @@ from miezepy.core.mask_modules.linear_comp  import LinearComposition
 class Test_square(unittest.TestCase):
 
     def test_square_init(self):
-        square  = Square()
+        square  = Rectangle()
         para    = square.parameters
 
         self.assertEqual(para['position'], [0,0])
@@ -18,7 +18,7 @@ class Test_square(unittest.TestCase):
         self.assertEqual(para['height'], 10)
 
     def test_square_move_absolute(self):
-        square  = Square()
+        square  = Rectangle()
         para    = square.parameters
 
         self.assertEqual(para['position'], [0,0])
@@ -26,7 +26,7 @@ class Test_square(unittest.TestCase):
         self.assertEqual(para['position'], [10,10])
         
     def test_square_move_relative(self):
-        square  = Square()
+        square  = Rectangle()
         para    = square.parameters
 
         self.assertEqual(para['position'], [0,0])
@@ -34,7 +34,7 @@ class Test_square(unittest.TestCase):
         self.assertEqual(para['position'], [20,20])
 
     def test_square_rotate_absolute(self):
-        square  = Square()
+        square  = Rectangle()
         para    = square.parameters
 
         self.assertEqual(para['angle'], 0)
@@ -45,7 +45,7 @@ class Test_square(unittest.TestCase):
         self.assertEqual(square.mask[8,8],0)
 
     def test_square_rotate_relative(self):
-        square  = Square()
+        square  = Rectangle()
         para    = square.parameters
 
         self.assertEqual(para['angle'], 0)
@@ -56,7 +56,7 @@ class Test_square(unittest.TestCase):
         self.assertEqual(square.mask[8,8],0)
 
     def test_square_generate(self):
-        square  = Square()
+        square  = Rectangle()
         square.generate(128,128)
 
         #test the mask value
