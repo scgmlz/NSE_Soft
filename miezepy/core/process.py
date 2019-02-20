@@ -182,12 +182,20 @@ class Process_MIEZE(Process_Handler):
 
         ############################################
         #process the echo time
+        local_results = self.env.results.generate_result( name = 'Echo Sources')
+        echo_dict = {}
+
         for metadata_object in self.env.current_data.metadata_objects:
 
-            self.env.fit['mieze_tau'](
+            result = self.env.fit['mieze_tau'](
                 metadata_object, 
                 self.env.current_data)
+            echo_dict[result[0]] = result[1]
 
+        local_results['Echo Dict'] = echo_dict
+        local_results.add_log('info', 'Computation of the shift was a success')
+        local_results.set_complete()
+        
         self.extract_from_metadata(
             self.env.current_data.axes.names[2], 
             'tau')

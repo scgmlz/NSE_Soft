@@ -66,6 +66,17 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         metadata_object.add_metadata('tau', value = tau)
         metadata_object.add_metadata('tau_error', value = tau_error)
 
+        return [
+            tau, 
+            {
+                'tau_error': tau_error, 
+                'wavelength': wavelength, 
+                'wavelength_error': wavelength_error,
+                'freq_0': freq_0, 
+                'freq_1': freq_1, 
+                'lsd' :lsd,
+                'lsd_error': lsd_error}]
+
     def mieze_tau_calc(self, wavelength, freq_0, freq_1, lsd, wavelength_error = 0 ,lsd_error = 0):
         '''
         Processes the MIEZE time
