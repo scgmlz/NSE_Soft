@@ -25,9 +25,7 @@
 #import main components
 from .core.core_handler             import Handler
 from .gui.py_gui.window_handlers    import WindowHandler
-
 import os
-import sys
 
 
 class Mieze(Handler):
@@ -41,13 +39,14 @@ class Mieze(Handler):
         '''
         initialise app components
         '''
+        self.success = False
         self.checkRessources()
-
         #initiate the core manager  
         Handler.__init__(self)
         #initiate the GUI manager if need be
         if GUI == True:
             self.gui = WindowHandler(self)
+        self.success = True
 
     def checkRessources(self):
         '''
@@ -76,7 +75,7 @@ class Mieze(Handler):
         '''
         Execute the application upon initialization
         '''
-        self.gui.run(test = test)
+        self.gui.run()
 
 if __name__ == '__main__':
     app = Mieze(GUI = True)

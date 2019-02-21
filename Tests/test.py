@@ -6,3 +6,7 @@ class Test_launch(unittest.TestCase):
 
     def test_launch_version(self):
         self.assertEqual(miezepy.__version__,'0.1.1')
+
+    def test_launch_blank_gui(self):
+        app = Mieze(GUI = True)
+        self.assertTrue(app.success)
