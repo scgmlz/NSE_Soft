@@ -4,11 +4,15 @@ matrix:
       - os: linux
         language: python
         python: 3.6
+        env: 
       - os: osx
         language: generic
         env: PYTHON=3.6
 cache: pip
 before_install: |
+  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    sh -e /etc/init.d/xvfb start
+  fi |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew update
     # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
