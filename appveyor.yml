@@ -66,6 +66,7 @@ install:
 
   # Upgrade to the latest version of pip to avoid it displaying warnings
   # about it being out of date.
+  - ps::"DIR"
   - "python -m pip install --upgrade pip"
 
   # Install the build dependencies of the project. If some dependencies contain
