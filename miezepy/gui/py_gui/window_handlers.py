@@ -89,11 +89,14 @@ class WindowHandler:
 
             self.active_windows[name].show()
         
-    def run(self):
+    def run(self, test = False):
         '''
         Run the application
         '''
-        sys.exit(self.app.exec_())
+        if not test:
+            sys.exit(self.app.exec_())
+        else:
+            sys.exit()
 
 class MainWindow(QtWidgets.QMainWindow):
     '''

@@ -25,7 +25,9 @@
 #import main components
 from .core.core_handler             import Handler
 from .gui.py_gui.window_handlers    import WindowHandler
+
 import os
+import sys
 
 
 class Mieze(Handler):
@@ -74,7 +76,7 @@ class Mieze(Handler):
         '''
         Execute the application upon initialization
         '''
-        self.gui.run()
+        self.gui.run(test = test)
 
 if __name__ == '__main__':
     app = Mieze(GUI = True)
