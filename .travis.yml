@@ -5,7 +5,9 @@ addons:
       - sourceline: "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe"
     packages:
       - xvfb
-      
+      - libx11-xcb1
+      - libxcb-xinerama
+
 matrix:
     include:
       - os: linux
@@ -18,7 +20,7 @@ matrix:
 cache: pip
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update && brew install openssl readline && brew outdated pyenv || brew upgrade pyenv && brew install pyenv-virtualenv && pyenv install $PYTHON && export PYENV_VERSION=$PYTHON && export PATH="/Users/travis/.pyenv/shims:${PATH}" && pyenv-virtualenv venv && source venv/bin/activate && python --version;
-  elif [ "$TRAVIS_OS_NAME" == "linux" ]; then export DISPLAY=:99.0 && sh -e /etc/init.d/xvfb start ;
+  elif [ "$TRAVIS_OS_NAME" == "linux" ]; then aptitude install libqt5gui5 && export DISPLAY=:99.0 && sh -e /etc/init.d/xvfb start ;
   fi
 
 install:
