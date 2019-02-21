@@ -66,8 +66,9 @@ install:
 
   # Upgrade to the latest version of pip to avoid it displaying warnings
   # about it being out of date.
-  - ps: "ls $env:APPVEYOR_BUILD_FOLDER"
+  # - ps: "ls $env:APPVEYOR_BUILD_FOLDER"
   - ps: cd $env:APPVEYOR_BUILD_FOLDER
+  - ps: ls
   - "python -m pip install --upgrade pip"
 
   # Install the build dependencies of the project. If some dependencies contain
