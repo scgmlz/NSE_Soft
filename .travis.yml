@@ -10,9 +10,6 @@ matrix:
         env: PYTHON=3.6
 cache: pip
 before_install:
-  - "sh -e /etc/init.d/xvfb start"
-
-
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew update
     # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
