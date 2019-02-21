@@ -10,7 +10,7 @@ matrix:
 cache: pip
 before_install:
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-    apt-get install libx11-xcb1
+    sudo apt-get install libx11-xcb1
     sh -e /etc/init.d/xvfb start
   fi
 
@@ -46,4 +46,3 @@ script: python -m unittest -v
 
 notifications:
   email: false
-  
