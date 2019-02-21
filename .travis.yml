@@ -4,12 +4,10 @@ matrix:
       - os: linux
         language: python
         python: 3.6
-        env:
-          - DISPLAY=:99.0
+        env: DISPLAY=:99.0
       - os: osx
         language: generic
-        env: 
-          - PYTHON=3.6
+        env: PYTHON=3.6
 cache: pip
 before_install:
   - sh -e /etc/init.d/xvfb start
