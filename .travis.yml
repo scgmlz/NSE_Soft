@@ -9,6 +9,10 @@ matrix:
         env: PYTHON=3.6
 cache: pip
 before_install: |
+  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    apt-get install libx11-xcb1
+  fi
+
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew update
     # Per the `pyenv homebrew recommendations <https://github.com/yyuu/pyenv/wiki#suggested-build-environment>`_.
