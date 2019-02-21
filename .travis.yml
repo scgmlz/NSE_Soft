@@ -11,7 +11,7 @@ cache: pip
 before_install:
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo apt-get install libx11-xcb1
-    sh -e /etc/init.d/xvfb start
+    "sh -e /etc/init.d/xvfb start"
   fi
 
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
