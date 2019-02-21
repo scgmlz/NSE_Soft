@@ -1,13 +1,5 @@
 sudo: required
-addons:
-  apt:
-    sources:
-      - sourceline: "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe"
-    packages:
-      - xvfb
-      - libx11-xcb1
-      - libxcb-xinerama0
-
+dist: trusty
 matrix:
     include:
       - os: linux
@@ -20,7 +12,7 @@ matrix:
 cache: pip
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update && brew install openssl readline && brew outdated pyenv || brew upgrade pyenv && brew install pyenv-virtualenv && pyenv install $PYTHON && export PYENV_VERSION=$PYTHON && export PATH="/Users/travis/.pyenv/shims:${PATH}" && pyenv-virtualenv venv && source venv/bin/activate && python --version;
-  elif [ "$TRAVIS_OS_NAME" == "linux" ]; then aptitude install libqt5gui5 && export DISPLAY=:99.0 && sh -e /etc/init.d/xvfb start ;
+  elif [ "$TRAVIS_OS_NAME" == "linux" ]; then apt-get -y install qt53svg qt53base qt53tools qt53declarative libsndfile1-dev librtlsdr-dev librtlsdr0 libfftw3-dev portaudio19-dev libfaad-dev zlib1g-dev rtl-sdr libusb-1.0-0-dev mesa-common-dev libgl1-mesa-dev libqt4-opengl-dev libsamplerate-dev && export DISPLAY=:99.0 && sh -e /etc/init.d/xvfb start ;
   fi
 
 install:
