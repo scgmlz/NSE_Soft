@@ -4,7 +4,12 @@ matrix:
       - os: linux
         language: python
         python: 3.6
-        env: 
+        addons:
+          apt:
+          sources:
+            - sourceline: "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe"
+          packages:
+            - xvfb
       - os: osx
         language: generic
         env: PYTHON=3.6
