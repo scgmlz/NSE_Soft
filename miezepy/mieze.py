@@ -25,9 +25,7 @@
 #import main components
 from .core.core_handler             import Handler
 from .gui.py_gui.window_handlers    import WindowHandler
-
 import os
-import sys
 
 
 class Mieze(Handler):
@@ -41,13 +39,14 @@ class Mieze(Handler):
         '''
         initialise app components
         '''
+        self.success = False
         self.checkRessources()
-
         #initiate the core manager  
         Handler.__init__(self)
         #initiate the GUI manager if need be
         if GUI == True:
             self.gui = WindowHandler(self)
+        self.success = True
 
     def checkRessources(self):
         '''
@@ -76,18 +75,20 @@ class Mieze(Handler):
         '''
         Execute the application upon initialization
         '''
-        self.gui.run(test = test)
+        self.gui.run()
 
 if __name__ == '__main__':
-    app = Mieze(GUI = True)
-    app.gui.active_windows['MainWindow'].target.widgetClasses[0].addEnvironment()
-    env = app.current_env
-    env.io.loadFromPython(
-        "Examples/file_3.py")
-    app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
-    app.gui.active_windows['MainWindow'].target.actionDispatcher(3)
-    app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(0)
-    app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(1)
-    app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(2)
+    from sys import platform
+    print(platform)
+    # app = Mieze(GUI = True)
+    # app.gui.active_windows['MainWindow'].target.widgetClasses[0].addEnvironment()
+    # env = app.current_env
+    # env.io.loadFromPython(
+    #     "Examples/file_3.py")
+    # app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
+    # app.gui.active_windows['MainWindow'].target.actionDispatcher(3)
+    # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(0)
+    # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(1)
+    # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(2)
 
-    app.run()
+    # app.run()

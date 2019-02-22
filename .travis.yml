@@ -4,9 +4,15 @@ matrix:
       - os: linux
         language: python
         python: 3.6
+      - os: linux
+        language: python
+        python: 3.7
       - os: osx
         language: generic
         env: PYTHON=3.6
+      - os: osx
+        language: generic
+        env: PYTHON=3.7
 cache: pip
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
