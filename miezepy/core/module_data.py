@@ -29,9 +29,9 @@ import copy
 
 #############################
 #import child components
-from .log import Log_Handler
+from .module_log import Log_Handler
 
-class Data_Structure:
+class DataStructure:
     '''
     This class we be the main building block of 
     the loaded data. It is written to survive any

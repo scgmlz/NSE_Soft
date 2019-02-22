@@ -100,7 +100,7 @@ class PageScriptWidget(Ui_script_widget):
         self.progress_bar_reduction.setMinimum(0)
         self.progress_bar_reduction.setValue(0)
 
-        with open(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-3] + ['ressources', 'default_post_path.txt']),'r') as f:
+        with open(os.path.realpath(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-3] + ['ressources', 'default_post_path.txt'])),'r') as f:
             self.path = f.readline()
             self.script_line_def_save.setText(self.path)
 

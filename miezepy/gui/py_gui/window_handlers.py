@@ -93,7 +93,7 @@ class WindowHandler:
         '''
         Run the application
         '''
-        self.app.exec_()
+        sys.exit(self.app.exec_())
 
 class MainWindow(QtWidgets.QMainWindow):
     '''
@@ -109,6 +109,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         # do stuff
         event.accept() # let the window close
+        sys.exit()
 
 class ChildWindow(QtWidgets.QMainWindow):
     '''

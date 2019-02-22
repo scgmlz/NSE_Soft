@@ -23,12 +23,12 @@
 
 #############################
 #import main components
-from .core.core_handler             import Handler
+from .core.core_handler             import CoreHandler
 from .gui.py_gui.window_handlers    import WindowHandler
 import os
 
 
-class Mieze(Handler):
+class Mieze(CoreHandler):
     '''
     Here lies the main NSE tool manager class. It can be
     accessed in the python terminal through: 
@@ -42,7 +42,7 @@ class Mieze(Handler):
         self.success = False
         self.checkRessources()
         #initiate the core manager  
-        Handler.__init__(self)
+        CoreHandler.__init__(self)
         #initiate the GUI manager if need be
         if GUI == True:
             self.gui = WindowHandler(self)

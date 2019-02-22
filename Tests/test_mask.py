@@ -1,16 +1,16 @@
 import unittest
 import miezepy
-from miezepy.core.masks import Masks
+from miezepy.core.module_mask import MaskStructure
 
 class Test_mask_system(unittest.TestCase):
     
     def test_init(self):
-        masks = Masks()
+        masks = MaskStructure()
         keys = [key for key in masks.mask_dict.keys()]
         self.assertEqual(len(keys), 17)
 
     def test_add_mask(self):
-        masks = Masks()
+        masks = MaskStructure()
         masks.addMask('circular at 50 50')
         self.assertIn('circular at 50 50', masks.mask_dict.keys())
         self.assertEqual(masks.current_mask, 'circular at 50 50')

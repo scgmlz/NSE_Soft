@@ -23,7 +23,7 @@
 
 #############################
 #import general components
-from ..log import Log_Handler
+from ..module_log import Log_Handler
 
 class Fit_Handler():
     

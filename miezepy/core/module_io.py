@@ -31,12 +31,12 @@ import numpy as np
 
 from .io_modules.import_mieze_tof import Import_MIEZE_TOF
 from .io_modules.import_sans_pad import Import_SANS_PAD
-from .data import Data_Structure
+from .module_data import DataStructure
 
 def loadData(env,gui):
     return ''
 
-class IO_Manager:
+class IOStructure:
 
     def __init__(self, env):
 

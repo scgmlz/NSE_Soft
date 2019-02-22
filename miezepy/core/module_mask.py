@@ -30,7 +30,7 @@ import numpy as np
 #import child components
 from .mask_modules.generator     import MaskGenerator
 
-class Masks:
+class MaskStructure:
 
     def __init__(self):
         '''

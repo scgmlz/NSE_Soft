@@ -27,9 +27,9 @@ import time
 import datetime
 import pprint
 
-from .log import Log_Handler
+from .module_log import Log_Handler
 
-class Result_Handler:
+class ResultStructure:
     '''
     The result handler will manage the the input 
     output of a mathematical process. This can be 

@@ -23,15 +23,15 @@
 
 import os
 
-def get_process_handler(select, env):
+def getProcessStructure(env):
     '''
     Will return the right fit manager depending 
     on the initial input
     Input: target (Data_Structure)
     '''
-    if select == 'MIEZE':
+    if env.select == 'MIEZE':
         return Process_MIEZE(env)
-    if select == 'SANS':
+    if env.select == 'SANS':
         return Process_SANS(env)
     else:
         print('Could not find the process class you are looking for. Error...')
