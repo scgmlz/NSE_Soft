@@ -48,7 +48,7 @@ class Fit_MIEZE_Phase(Fit_MIEZE_Minuit):
         freq_0      = metadata_object['Freq. first']
         freq_1      = metadata_object['Freq. second']
         lsd         = metadata_object['lsd']
-        wavelength_error    = target.metadata_class['Wavelength error'] 
+        wavelength_error    = target.metadata_class['Wavelength error']
         lsd_error           = target.metadata_class['Distance error']
 
         ############################################

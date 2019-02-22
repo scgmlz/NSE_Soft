@@ -523,7 +523,9 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                 'x' : x,
                 'x_unit' : x_unit,
                 'y' : y,
-                'y_error' : y_error}
+                'y_raw': np.abs(data),
+                'y_error' : y_error,
+                'y_raw_error' : data_error}
 
             Output['Gamma'][key]       = fit['Gamma']
             Output['Gamma_error'][key] = fit['Gamma_error']

@@ -67,7 +67,7 @@ class Handler:
             else:
                 title_present = False
 
-        self.env_array.append(Environment(title = title, select = select))
+        self.env_array.append(Environment(self, title = title, select = select))
         self.set_current_env(title)
 
         return self.env_array[-1]
@@ -92,6 +92,15 @@ class Handler:
 
                 else:
                     print("\nERROR: The key '"+str(key)+"' you have provided is not present as an environment...\n")
+
+    def getEnv(self,key = None):
+        names = [env.name for env in self.env_array]
+        if not key == None:
+            if key in names:
+                return self.env_array[names.index(key)]
+            else:
+                print('This env does not exist')
+
 
     def saveSession(self, path, data_bool = True, mask_bool = False, script_bool = False):
         '''

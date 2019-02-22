@@ -43,11 +43,12 @@ class Environment:
     - title (str) name of the env
     - select (str) 'MIEZE', 'SANS'
     '''
-    def __init__(self, title = 'No_Name', select = 'MIEZE'):
+    def __init__(self, env_handler, title = 'No_Name', select = 'MIEZE'):
         #set up
-        self.name   = title
-        self.select = select
-        self.data   = {}
+        self.env_handler    = env_handler
+        self.name           = title
+        self.select         = select
+        self.data           = {}
         #initialize
         self.new_data(title = 'vertical MIEZE')
         self.new_fit(select)

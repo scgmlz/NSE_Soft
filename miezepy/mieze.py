@@ -80,7 +80,7 @@ class Mieze(Handler):
 if __name__ == '__main__':
     from sys import platform
     print(platform)
-    # app = Mieze(GUI = True)
+    app = Mieze(GUI = True)
     # app.gui.active_windows['MainWindow'].target.widgetClasses[0].addEnvironment()
     # env = app.current_env
     # env.io.loadFromPython(
@@ -91,4 +91,4 @@ if __name__ == '__main__':
     # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(1)
     # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(2)
 
-    # app.run()
+    app.run()
