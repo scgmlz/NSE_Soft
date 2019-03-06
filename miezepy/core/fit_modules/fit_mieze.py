@@ -23,27 +23,15 @@
 
 #############################
 #import general components
-import iminuit
 import numpy as np
-import scipy
 import warnings
 import copy
-import math
 
-from scipy import special as sp
-from scipy import integrate as integrate
-from scipy import special as sp
-from scipy import constants as co
-from scipy import optimize as op
-from scipy import stats as st
+from .fit_general  import Fit_Handler
+from .fit_mieze_phase  import PhaseProcessing
 
 
-from .fit_mieze_ctrst   import Fit_MIEZE_Ctrst 
-from .fit_mieze_phase   import Fit_MIEZE_Phase
-
-
-
-class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
+class Fit_MIEZE(Fit_Handler,PhaseProcessing):
     
     def __init__(self):
         '''
@@ -51,35 +39,9 @@ class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
         within. It will also initialize the superclass
         containing the generalized methods.
         ''' 
-        Fit_MIEZE_Ctrst.__init__(self)
-
-        self.ptr_dict = {}
-        self.ptr_dict['mieze_tau']          = self.mieze_tau
-        self.ptr_dict['extract_phase']      = self.extract_phase
-        self.ptr_dict['fit_goodness']       = self.fit_goodness
-        self.ptr_dict['minuit_cos']         = self.minuit_fit_cosine
-        self.ptr_dict['calc_shift']         = self.calc_shift
-        self.ptr_dict['calcCtrstMain']      = self.calcCtrstMain
-        self.ptr_dict['ctrstFit']           = self.ctrstFit
-        self.ptr_dict['calc_ref_contrast']  = self.calcCtrstRef
-        self.set_defaults()
+        Fit_Handler.__init__(self)
+        PhaseProcessing.__init__(self)
         self.set_fit_parameters()
-
-    def set_defaults(self):
-        '''
-        This function will build the default 
-        dictionary of function dict that will link
-        the functions to the selected method
-        '''
-        self.fun_dict = {}
-        self.fun_dict['mieze_tau']          = self.ptr_dict['mieze_tau']
-        self.fun_dict['extract_phase']      = self.ptr_dict['extract_phase']
-        self.fun_dict['fit_goodness']       = self.ptr_dict['fit_goodness']
-        self.fun_dict['minuit_cos']         = self.ptr_dict['minuit_cos']
-        self.fun_dict['calc_shift']         = self.ptr_dict['calc_shift']
-        self.fun_dict['calc_contrast']      = self.ptr_dict['calcCtrstMain']
-        self.fun_dict['fit_contrast']       = self.ptr_dict['ctrstFit']
-        self.fun_dict['calc_ref_contrast']  = self.ptr_dict['calc_ref_contrast']
 
     def set_fit_parameters(self):
         '''
@@ -143,12 +105,12 @@ class Fit_MIEZE(Fit_MIEZE_Ctrst, Fit_MIEZE_Phase):
 
             #check the dimension of this list
             if not len(foils_in_echo) == target.axes.axes_len[2]:
-                print('Not enough foils_in_echo initialised. Error...')
+                print('Not enough foils_in_echo initialized. Error...')
                 print(len(foils_in_echo),' not equal to ',target.axes.axes_len[2])
                 return False
 
             elif not all([len(element) == target.axes.axes_len[3] for element in foils_in_echo ]):
-                print('Not enough foils_in_echo initialised. Error...')
+                print('Not enough foils_in_echo initialized. Error...')
                 return False
 
             elif foils_in_echo == []:

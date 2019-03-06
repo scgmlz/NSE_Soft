@@ -27,7 +27,7 @@ import time
 import datetime
 import pprint
 
-from .module_log import Log_Handler
+from .module_log import LogHandler
 
 class ResultStructure:
     '''
@@ -47,7 +47,7 @@ class ResultStructure:
             self.results  =  []
         elif self.mode == 'Dict':
             self.results  =  {}
-        self.log        = Log_Handler()
+        self.log        = LogHandler()
 
     def reset(self):
         '''
@@ -56,19 +56,19 @@ class ResultStructure:
         '''
         self.results.clear()
 
-    def generate_result(self, name):
+    def generateResult(self, name):
         '''
         This class will create a new result object and
         then return it onto the owner. 
         '''
         if self.mode == 'Dict':
-            self.results[name] = Result_Object(name)
+            self.results[name] = ResultObject(name)
             return self.results[name]
         else:
-            self.results.append(Result_Object(name))
+            self.results.append(ResultObject(name))
             return self.results[-1]
 
-    def get_last_result(self, name = '', key = None):
+    def getLastResult(self, name = '', key = None):
         '''
         This will go through the results in reverse 
         and return the whole result dictionary in full
@@ -78,7 +78,7 @@ class ResultStructure:
         - identifier (str) the method to select
         '''
         #log it
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'The user is asking for result name: '
             + str(name)
@@ -90,14 +90,14 @@ class ResultStructure:
         if self.mode == 'Dict':
             if key == None:
                 #log it
-                self.log.add_log(
+                self.log.addLog(
                     'info', 
                     'Successfully returning result with name: '
                     + str(name))
                 return self.results[name]
             elif not key == None and key not in self.results[name].result_dict:
                 #log it
-                self.log.add_log(
+                self.log.addLog(
                     'error', 
                     'Could not find the result with name: '
                     + str(name)
@@ -116,14 +116,14 @@ class ResultStructure:
                 if self.results[i]['name'] == name:
                     if key == None:
                         #log it
-                        self.log.add_log(
+                        self.log.addLog(
                             'info', 
                             'Successfully returning result with name: '
                             + str(name))
                         return self.results[i]
                     elif not key == None and key not in self.results[i].result_dict:
                         #log it
-                        self.log.add_log(
+                        self.log.addLog(
                             'error', 
                             'Could not find the result with name: '
                             + str(name)
@@ -132,14 +132,14 @@ class ResultStructure:
                     else:
                         return self.results[i][key]
             #log it
-            self.log.add_log(
+            self.log.addLog(
                 'error', 
                 'Could not find result with name: '
                 + str(name))
 
             return None
 
-    def set_result(self, name = '' , position = ['None'], value = None):
+    def setResult(self, name = '' , position = ['None'], value = None):
         '''
         This will set a value for a given result. This
         can be used to manually inject a value. 
@@ -178,7 +178,7 @@ class ResultStructure:
                     exec(eval_string)
                     return 0
 
-class Result_Object:
+class ResultObject:
     '''
     A result object gets initialised at the
     beginning of a mathematical operation and 
@@ -194,7 +194,7 @@ class Result_Object:
         '''
         #set the complete
         self.complete   = False
-        self.log        = Log_Handler()
+        self.log        = LogHandler()
 
         #initialise the dictionaries
         self.metadata_dict   = {}
@@ -203,9 +203,9 @@ class Result_Object:
         self.parameter_dict  = {}
 
         #set first metadata
-        self.add_metadata('Date',   str(time.ctime()))
-        self.add_metadata('Start',  datetime.datetime.now())
-        self.add_metadata('name',   name)
+        self.addMetadata('Date',   str(time.ctime()))
+        self.addMetadata('Start',  datetime.datetime.now())
+        self.addMetadata('name',   name)
 
     def __str__(self):
         '''
@@ -248,7 +248,7 @@ class Result_Object:
                 if key in dictionary:
                     return dictionary[key]
                     
-            self.log.add_log(
+            self.log.addLog(
                 'error', 
                 'Could not find the key: '+str(key)+', returning 0')
 
@@ -260,73 +260,73 @@ class Result_Object:
         reference to the result dictionary.  
         ''' 
         #call the method
-        self.add_result( key, value)
+        self.addResult( key, value)
         
-    def set_complete(self):
+    def setComplete(self):
         '''
         The result has been provided and the class is
         now being locked to forbid overwriting of the
         data. 
         ''' 
-        self.add_metadata('End',  datetime.datetime.now())
-        self.add_metadata('Duration',  self['Start'] - self['End'])
+        self.addMetadata('End',  datetime.datetime.now())
+        self.addMetadata('Duration',  self['Start'] - self['End'])
         
         if not 'name' in self.metadata_dict.keys():
-            self.log.add_log('error', 'Each result object needs a name... Fix please.')
+            self.log.addLog('error', 'Each result object needs a name... Fix please.')
 
         self.complete = True
 
-    def add_metadata(self, name, value):
+    def addMetadata(self, name, value):
         '''
         Add a metadata to the metadata dictionary. 
         ''' 
         self.metadata_dict[name] = value
 
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             "Added the entry'"
             + name
             + "' to the metadata")
 
-    def add_parameter(self, name, value):
+    def addParameter(self, name, value):
         '''
         Add a parameter to the parameter dictionary.
         ''' 
         self.parameter_dict[name] = value
 
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             "Added the entry'"
             + name
             + "' to the parameters")
 
-    def add_input(self, name, value):
+    def addInput(self, name, value):
         '''
         Add a parameter to the parameter dictionary. 
         ''' 
         self.input_dict[name] = value
 
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             "Added the entry'"
             + name
             + "' to the inputs")
 
-    def add_result(self, name, value):
+    def addResult(self, name, value):
         '''
         Add a result to the result dictionary. 
         ''' 
         self.result_dict[name] = value
 
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             "Added the entry'"
             + name
             + "' to the results")
 
-    def add_log(self, name, value):
+    def addLog(self, name, value):
         '''
 
         ''' 
-        self.log.add_log(name, value)
+        self.log.addLog(name, value)
 

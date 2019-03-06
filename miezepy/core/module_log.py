@@ -26,7 +26,7 @@
 import copy
 import datetime
 
-class Log_Handler:
+class LogHandler:
 
     def __init__(self):
         '''
@@ -44,7 +44,7 @@ class Log_Handler:
         self.children       = [] 
         self.parent         = None 
 
-    def return_last_log(self, selected):
+    def returnLastLog(self, selected):
         '''
         Will return the last log entry for the 
         selected type.
@@ -58,7 +58,7 @@ class Log_Handler:
         elif selected == 'info':
             return copy.deepcopy(self.info[-1]) if len(self.info) > 0 else None
 
-    def add_log(self, selected, message):
+    def addLog(self, selected, message):
         '''
         Add an event to the log.
         '''

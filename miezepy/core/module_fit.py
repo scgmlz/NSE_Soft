@@ -35,7 +35,7 @@ import timeit
 #############################
 #import child components
 from .fit_modules.fit_mieze import Fit_MIEZE
-from .fit_modules.fit_sans import Fit_SANS
+from .fit_modules.fit_sans  import Fit_SANS
     
 def getFitStructure(select):
     '''
@@ -50,6 +50,3 @@ def getFitStructure(select):
     else:
         print('Could not find the fit class you are looking for. Error...')
         return None
-
-
-

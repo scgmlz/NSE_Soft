@@ -45,6 +45,12 @@ class WindowHandler:
 
     def __init__(self, link):
         self.app = QtWidgets.QApplication(sys.argv)
+
+    def initialize(self):
+        '''
+        This routine performs the initialization in case that the 
+        gui is loaded.
+        '''
         self.window_dictionary = {}
         self.window_dictionary['MainWindow']    = [MainWindowLayout, None]
         self.window_dictionary['MetaWindow']    = [MetadataWindowLayout, 'MainWindow']

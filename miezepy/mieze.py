@@ -41,11 +41,14 @@ class Mieze(CoreHandler):
         '''
         self.success = False
         self.checkRessources()
+        
         #initiate the core manager  
         CoreHandler.__init__(self)
+        self.gui = WindowHandler(self)
+
         #initiate the GUI manager if need be
         if GUI == True:
-            self.gui = WindowHandler(self)
+            self.gui.initialize()
         self.success = True
 
     def checkRessources(self):
