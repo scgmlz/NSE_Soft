@@ -17,20 +17,18 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Schober <alexander.schober@mac.com>
+#   Alexander Schober <alex.schober@mac.com>
 #
 # *****************************************************************************
 
 import numpy as np
 import warnings
-warnings.filterwarnings("ignore")
 
-from .fit_mieze_minuit  import Fit_MIEZE_Minuit
+from .library_fit import contrastEquation
+from .library_fit import contrastErrorEquation
+from .library_fit import fitDataSinus
 
-class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit): 
-
-    def __init__(self):
-        Fit_MIEZE_Minuit.__init__(self)
+class ContrastProcessing: 
 
     def calcCtrstFit(self, select, foils_in_echo, shift, target, mask, results, foil = None):
         '''
@@ -92,24 +90,19 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
         tcha_name = self.para_dict['tcha_name']
         echo_name = self.para_dict['echo_name']
 
-        ############################################
         #fit the data
-        self.fit_data_cov(
-            results,
-            combined_data, 
-            np.sqrt(combined_data), 
-            Qmin = 0.,
-            time_chan = new_target.get_axis_len(tcha_name))
+        fitDataSinus(
+            results,combined_data, np.sqrt(combined_data), 
+            Qmin = 0.,time_chan = new_target.get_axis_len(tcha_name))
 
         result      = results.get_last_result('Fit data covariance')
         echo_idx_1  = new_target.get_axis_idx(echo_name, echo)
         monitor     = new_target.get_metadata([echo_idx_1,0,0])[0]['Monitor']
         
-        ############################################
         #process the result
         return [
-            result['ampl']/monitor,
-            result['ampl_error']/monitor,
+            result['amplitude']/monitor,
+            result['amplitude_error']/monitor,
             result['mean']/monitor,
             result['mean_error']/monitor]
 
@@ -243,11 +236,11 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
 
             ############################################
             #set output
-            contrast_ref[echo] = self.ctrstEq(
+            contrast_ref[echo] = contrastEquation(
                 target[echo],    
                 [0,0,0,0])
 
-            contrast_ref_error[echo] = self.ctrstErrEq(
+            contrast_ref_error[echo] = contrastErrorEquation(
                 target[echo], 
                 [0,0,0,0])
 
@@ -368,8 +361,8 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
             else:
                 BG_target = [0,0,0,0]
 
-            ctrst       = self.ctrstEq(target, BG_target)
-            ctrst_err   = self.ctrstErrEq(target, BG_target)
+            ctrst       = contrastEquation(target, BG_target)
+            ctrst_err   = contrastErrorEquation(target, BG_target)
 
             contrast.append(float(ctrst))
             contrast_error.append(float(ctrst_err))
@@ -417,39 +410,6 @@ class Fit_MIEZE_Ctrst(Fit_MIEZE_Minuit):
                     positions[key].append((meas, new_target.get_axis_val(echo_name, i)))
 
         return axis, positions
-
-    def ctrstEq(self,target, BG_target):
-        '''
-        Contrast equation separating the case of 
-        background or not in a smart way
-        Input: 
-        - MIEZE metadata object
-        - mask object
-        '''
-        if target[2]-BG_target[2] == 0:
-            return 0
-        else:
-            return ((abs(target[0])-abs(BG_target[0]))/(target[2]-BG_target[2]))
-
-    def ctrstErrEq(self,target, BG_target):
-        '''
-        Contrast error equation separating the case of 
-        background or not in a smart way
-        Input: 
-        - MIEZE metadata object
-        - mask object
-        '''
-        if target[2]-BG_target[2] == 0:
-            return 0
-        else:
-            return np.sqrt(
-            (target[1] / (target[2] - BG_target[2])) ** 2
-            + (BG_target[1] / (target[2]-BG_target[2])) ** 2
-            + ( (abs(target[0]) - abs(BG_target[0]))
-                /(target[2]-BG_target[2]) ** 2 * target[3]) ** 2
-            + ( (abs(target[0])-abs(BG_target[0])) 
-                /(target[2]-BG_target[2]) ** 2 * BG_target[3]) ** 2)
-
 
     def ctrstFit(self,target, mask, results):
         '''

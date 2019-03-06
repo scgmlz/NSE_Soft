@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 import os
+from .fit_modules.library_fit import miezeTauProcessing
 
 def getProcessStructure(env):
     '''
@@ -79,15 +80,25 @@ class Process_MIEZE(Process_Handler):
         the system can be set.
         '''
         self.default_scripts = []
-        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/import_process.py','r') as f:
+        with open(
+            os.path.dirname(os.path.realpath(__file__))
+            + '/process_modules/import_process.py','r') as f:
             self.default_scripts.append(f.read())
-        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/set_fit_process.py','r') as f:
+        with open(
+            os.path.dirname(os.path.realpath(__file__))
+            + '/process_modules/set_fit_process.py','r') as f:
             self.default_scripts.append(f.read())
-        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/phase_process.py','r') as f:
+        with open(
+            os.path.dirname(os.path.realpath(__file__))
+            + '/process_modules/phase_process.py','r') as f:
             self.default_scripts.append(f.read())
-        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/reduction_process.py','r') as f:
+        with open(
+            os.path.dirname(os.path.realpath(__file__))
+            + '/process_modules/reduction_process.py','r') as f:
             self.default_scripts.append(f.read())
-        with open(os.path.dirname(os.path.realpath(__file__))+ '/process_modules/post_process.py','r') as f:
+        with open(os.path.dirname(
+            os.path.realpath(__file__))
+            + '/process_modules/post_process.py','r') as f:
             self.default_scripts.append(f.read())
 
         self.editable_scripts = list(self.default_scripts)
@@ -155,7 +166,7 @@ class Process_MIEZE(Process_Handler):
         f.write(string)
         f.close()
 
-    def calculate_echo(self):
+    def calculateEcho(self):
         '''
         In this function we will process the eco time
         on the provided datastructure. 
@@ -182,42 +193,24 @@ class Process_MIEZE(Process_Handler):
 
         ############################################
         #process the echo time
-        local_results = self.env.results.generate_result( name = 'Echo Sources')
+        local_results = self.env.results.generateResult( name = 'Echo Sources')
         echo_dict = {}
 
         for metadata_object in self.env.current_data.metadata_objects:
-
-            result = self.env.fit['mieze_tau'](
-                metadata_object, 
-                self.env.current_data)
+            result = miezeTauProcessing(metadata_object, self.env.current_data)
             echo_dict[result[0]] = result[1]
 
         local_results['Echo Dict'] = echo_dict
-        local_results.add_log('info', 'Computation of the shift was a success')
-        local_results.set_complete()
-        
-        self.extract_from_metadata(
-            self.env.current_data.axes.names[2], 
-            'tau')
+        local_results.addLog('info', 'Computation of the shift was a success')
+        local_results.setComplete()
+        self.extract_from_metadata(self.env.current_data.axes.names[2],'tau')
 
-    def remove_foils(self):
+    def prepareBuffer(self):
         '''
-        Removes the foils from the dataset and returns
-        the deepcopy new dataset
+        This method will be completely rewritten and
+        is now called prepareBuffer (previously remove_foils)
         '''
-        #preprocess
-        self.env.set_current_data(
-            key = self.env.current_data_key.split('_reduced')[0])
-
-        new_data_key = self.env.current_data_key.split('_reduced')[0] + '_reduced'
-
-        #remove the asked foils
-        selected_foils  = self.env.current_data.metadata_class['Selected foils']
-        new_target      = self.env.current_data.remove_from_axis(3,selected_foils)
-
-        #set the new data
-        self.env.data[new_data_key] = new_target
-        self.env.set_current_data(new_data_key)
+        self.env.current_data.bufferAsNumpy()
 
     def calculate_shift(self):
         '''

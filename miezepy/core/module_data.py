@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Schober <alexander.schober@mac.com>
+#   Alexander Schober <alex.schober@mac.com>
 #
 # *****************************************************************************
 
@@ -29,7 +29,7 @@ import copy
 
 #############################
 #import child components
-from .module_log import Log_Handler
+from .module_log import LogHandler
 
 class DataStructure:
     '''
@@ -50,12 +50,13 @@ class DataStructure:
         self.id                 = 0
         self.meta_id            = 0
         self.data_objects       = []
-        self.data_addresses      = []
+        self.data_addresses     = []
         self.metadata_objects   = []
-        self.metadata_addresses  = []
+        self.metadata_addresses = []
         self.map                = None
         self.slices             = {}
         self.generated          = False
+        self.axes               = None
 
         #logical variables
         self.add_meta_auto = True
@@ -65,12 +66,12 @@ class DataStructure:
         self.metadata = self.metadata_class.metadata
 
         #set up the log
-        self.log = Log_Handler()
+        self.log = LogHandler()
 
     def __str__(self):
         '''
         Generate a string output for the user to 
-        see that the dataclass has initialised 
+        see that the dataclass has initialized 
         properly.
         '''
         output ="\n##########################################################\n"
@@ -111,7 +112,7 @@ class DataStructure:
         - index (int array) position if the element
         - value (data_object)
         '''
-        self.add_data_object(value, index)
+        self.addDataObject(value, index)
 
     def __getitem__(self, index):
         '''
@@ -164,13 +165,13 @@ class DataStructure:
         structure can be validated to perform all the 
         side operations
         '''
-        self.sanity_check()
+        self.sanityCheck()
         self.delete_all_slices()
         self.generate_axes()
-        self.create_map()
+        self.createMap()
         self.generated = True
 
-    def sanity_check(self):
+    def sanityCheck(self):
         '''
         While the suer can indeed incorporate any type
         of data with any type of dimensionally there
@@ -190,7 +191,7 @@ class DataStructure:
         
         return True
     
-    def add_data_object(self, data, index):
+    def addDataObject(self, data, index):
         '''
         here we instruct the Data_structure to add a
         data element. Note that this results in the
@@ -211,7 +212,7 @@ class DataStructure:
             self.metadata_objects[-1].links.append(self.id)
         self.id += 1
 
-    def add_metadata_object(self,dictionary):
+    def addMetadataObject(self,dictionary):
         '''
         Here we have a routine which will add an
         element to the metadata and then process 
@@ -258,18 +259,18 @@ class DataStructure:
         '''
         return self.metadata_objects[self.metadata_addresses.index(address)]
 
-    def create_map(self):
+    def createMap(self):
         '''
         This will create an axes class that will
         generate the axes according to the loaded data.
         A pointer to the array listing the data is 
         given.
         '''
-        self.map = np.zeros(self.axes.axes_len, dtype = 'uint64')
+        self.map = np.zeros(self.axes.axes_len, dtype = 'int64') -1
         for data_object in self.data_objects:
             self.map.__setitem__(tuple(data_object.index),data_object.id)
 
-    def return_as_np(self):
+    def returnAsNumpy(self):
         '''
         return numpy array of the entire data...
         note that this is done to allow performance
@@ -293,13 +294,23 @@ class DataStructure:
 
         return numpy_out
 
+    def bufferAsNumpy(self):
+        '''
+        return numpy array of the entire data...
+        note that this is done to allow performance
+        improvements and does therefore not follow
+        the practicality of the dataclass
+        the ordering will follow the map scheme
+        '''
+        self.bufferedData = self.returnAsNumpy()
+
     def generate_axes(self):
         '''
         This will create an axes class that will
         generate the axes according to the loaded data.
         A pointer to the array listing the data is 
         '''
-        if self.sanity_check():
+        if self.sanityCheck():
             self.axes = Axes(self)
         else:
             print("Data sanity check failed")
@@ -913,7 +924,7 @@ class Metadata:
                 self.metadata[key][2] = str(int(float(self.metadata[key][2])) / value) 
         return self
         
-    def add_metadata(self, name, logical_type = 'float', value = '0', unit = '-'):
+    def addMetadata(self, name, logical_type = 'float', value = '0', unit = '-'):
         '''
         add an element to the dictionary
         Input: 
