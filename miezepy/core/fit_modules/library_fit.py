@@ -156,6 +156,57 @@ def fitDataSinus(results, data, data_error, Q_min = 0, time_chan = 16):
 
     return True
 
+def phaseExposure(idx, data_input, index_map, loop, foil_axis, cha_axis, result_dict) :
+    '''
+    This function will manage the run over the echo 
+    times for the set echo time. Note that the 
+    result_dict is a shared dictionary instance by 
+    the python process manager.
+
+    Parameters
+    ----------
+    data_input : np.ndarray
+        This is the actual data
+
+    index_map : np.ndarray
+        This indexes to be shifted
+        
+    loop : int arrays
+        This is the loop to be performed over the 
+        mask and the foils. It is processed before
+        to avoid to much arguments
+
+    foil_axis : int array
+        The axis fo the foils
+
+    cha_axis : int array
+        The axis fo the time channels
+
+    result_dict : shared dict
+        This is the variable used to save the result
+
+    '''
+    # perform the shift:
+    temp_reorganized = np.zeros(data_input.shape)
+
+    for foil, cha in loop:
+        #set indexes
+        foil_idx    = foil_axis.index(foil)
+        cha_idx    = cha_axis.index(cha)
+
+        #select only those pixels and timechannels, where the shifting index matches the timechannel.
+        temp = np.where(
+            index_map[foil_idx] == cha_idx, 
+            data_input[foil_idx,:,:,:], 0) 
+
+        # shift these pixels by the required amount of timechannels
+        temp_2 = np.roll(temp[:,:, :],-cha_idx, 0) 
+
+        # fill the "shifted" array with the correctly shifted timechannels and pixels
+        temp_reorganized[foil_idx] += temp_2 
+
+    result_dict[idx] = temp_reorganized
+
 def phaseMaskFunction(result_dimension,echo, loop, foil_axis,reference_meas, chan_num, premask, result_dict):
     '''
     This function will manage the run over the echo 
@@ -461,3 +512,63 @@ def contrastErrorEquation(target, BG_target):
             /(target[2]-BG_target[2]) ** 2 * target[3]) ** 2
         + ( (abs(target[0])-abs(BG_target[0])) 
             /(target[2]-BG_target[2]) ** 2 * BG_target[3]) ** 2)
+
+def loopLibrary(fit, target, name):
+    '''
+    This routine allows to ease the code within the
+    critical functions by returning the requested loop
+
+    Parameters
+    ----------
+    fit : fit instance 
+        The fit instance that is asking for the loop
+
+    target : datastructure
+        This is the contrast result for the normal value
+
+    name : string
+        The name of the loop requested
+
+    Returns
+    ----------
+    loop : array of values
+    '''
+
+    para_name   = fit.para_dict['para_name']
+    meas_name   = fit.para_dict['meas_name']
+    echo_name   = fit.para_dict['echo_name']
+    foil_name   = fit.para_dict['foil_name']
+    tcha_name   = fit.para_dict['tcha_name']
+
+    para_axis   = target.get_axis(para_name) 
+    meas_axis   = target.get_axis(meas_name) 
+    echo_axis   = target.get_axis(echo_name) 
+    foil_axis   = target.get_axis(foil_name) 
+    cha_axis    = target.get_axis(tcha_name)
+
+    if name == 'loop_main':
+        loop = [
+            (e1, e2, e3) 
+            for e1 in para_axis
+            for e2 in meas_axis
+            for e3 in echo_axis]
+
+    elif name == 'loop_para':
+        loop  = [
+            (e0,e1) 
+            for e0 in echo_axis 
+            for e1 in foil_axis]
+
+    elif name == 'loop_pixel':
+        loop  = [
+            (x,y) 
+            for x in range(128) 
+            for y in range(128)]
+
+    elif name == 'loop_final':
+        loop  = [
+            (e1,e2)
+            for e1 in foil_axis
+            for e2 in cha_axis]
+
+    return loop

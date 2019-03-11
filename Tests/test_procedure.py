@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 import time
+import os
 
 from miezepy.core.module_data import DataStructure
 from miezepy.core.module_environment import Environment
@@ -20,26 +21,26 @@ def createDataset():
         for l in range(0,16)]
 
     meta_dict = {}
-    meta_dict['Wavelength']     = ['Wavelength','float', 6e-9, ""]
-    meta_dict['Freq. first']    = ['Freq. first','float', 3, ""]
-    meta_dict['Freq. second']   = ['Freq. second','float', 6, ""]
-    meta_dict['lsd']            = ['lsd','float', 1e10, ""]
+    meta_dict['Wavelength']     = ['Wavelength','float', 6e-10, ""]
+    meta_dict['Freq. first']    = ['Freq. first','float', 30, ""]
+    meta_dict['Freq. second']   = ['Freq. second','float', 60, ""]
+    meta_dict['lsd']            = ['lsd','float', 1200e9, ""]
 
     for i,j,k,l in loop:
         if k == 0 and l == 0:
-            meta_dict['Freq. second']   = ['Freq. second','float', 6 + j/10*2 , ""]
+            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j/10) , ""]
             data.addMetadataObject(meta_dict)
         data[i,0,j,k,l] = generateMap([i,0,j,k,l])
 
     for j,k,l in loop_2:
         if k == 0 and l == 0:
-            meta_dict['Freq. second']   = ['Freq. second','float', 6 + j/10*2 , ""]
+            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j/10) , ""]
             data.addMetadataObject(meta_dict)
         data[0,1,j,k,l] = generateMap([0,1,j,k,l])
 
     for j,k,l in loop_2:
         if k == 0 and l == 0:
-            meta_dict['Freq. second']   = ['Freq. second','float', 6 + j/10*2 , ""]
+            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j/10), ""]
             data.addMetadataObject(meta_dict)
         data[1,1,j,k,l] = generateMap([1,1,j,k,l])
 
@@ -110,7 +111,7 @@ class Test_data_module(unittest.TestCase):
 
 class Test_Phase_correction(unittest.TestCase):
 
-    def test_phase_correction(self):
+    def test_phase_correction_mask(self):
         self.env  = Environment(None, 'test_phase')
         self.env.data[0] = createDataset()
         self.env.data[0].validate()
@@ -149,12 +150,12 @@ class Test_Phase_correction(unittest.TestCase):
         environnement.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)
 
         #override mask
-        self.env.mask.mask = np.fromfunction(lambda i,j: (i+j*32),(32,32),dtype=int)
-        self.env.mask.mask = np.kron(self.env.mask.mask, np.ones((4,4),dtype=int))
+        self.env.mask.mask = np.fromfunction(lambda i,j: (i+j*16),(16,16),dtype=int)
+        self.env.mask.mask = np.kron(self.env.mask.mask, np.ones((8,8),dtype=int))
 
         #process the echos
         self.env.process.calculateEcho()
-        self.assertEqual(self.env.current_data.metadata_objects[0]['tau'], 0.08281041638223735)
+        self.assertEqual(self.env.current_data.metadata_objects[0]['tau'], 0.09937249965868485)
 
         #proceed with the buffering
         self.env.process.prepareBuffer()
@@ -170,18 +171,101 @@ class Test_Phase_correction(unittest.TestCase):
         #check the result
         result = self.env.results.getLastResult('Phase calculation')['Phase']
         keys = [key for key in result.keys()]
-        self.assertEqual(int(self.env.results.getLastResult('Phase calculation')['Phase'][keys[0]].sum()),204582)
+        self.assertEqual(int(result[keys[0]].sum()),211764)
 
         #correct the phase
         self.env.fit.correctPhase(
             self.env.current_data,
             self.env.mask,
             self.env.results)
-        print(self.env.results.getLastResult('Corrected Phase'))
+        result = self.env.results.getLastResult('Corrected Phase')['Shift']
+        keys = [key for key in result.keys()]
+        self.assertEqual(int(result[0][0][self.env.current_data.get_axis('Echo Time')[0]].sum()),156672000)
 
+    def test_phase_correction_exposure(self):
+        self.env  = Environment(None, 'test_phase')
+        self.env.data[0] = createDataset()
+        self.env.data[0].validate()
+        self.env.data[0].axes.set_name(0, 'Parameter')
+        self.env.data[0].axes.set_name(1, 'Measurement')
+        self.env.data[0].axes.set_name(2, 'Echo Time')
+        self.env.data[0].axes.set_name(3, 'Foil')
+        self.env.data[0].axes.set_name(4, 'Time Channel')
+        self.env.setCurrentData()
+
+        environnement = self.env
+        foils_in_echo = []
+        foils_in_echo.append([1, 1, 1, 1, 1, 1])
+        foils_in_echo.append([1, 1, 1, 1, 1, 1])
+        foils_in_echo.append([1, 1, 1, 1, 1, 1])
+        foils_in_echo.append([1, 1, 1, 1, 1, 1])
+        foils_in_echo.append([1, 1, 0, 1, 1, 1])
+        foils_in_echo.append([1, 1, 0, 1, 1, 1])
+        foils_in_echo.append([0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 1, 0])
+
+        #set the values to be processed as data
+        Selected = [0,1,2,3,4,5,6,7,8,9]
+
+        #set the reference value
+        Reference = [0,0]
+
+        #set the background
+        Background = 0
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        print(os.path.join(dir_path, 'foilheight_final0.txt'))
+        foil_0 = np.loadtxt(os.path.join(dir_path, 'foilheight_final0.txt'))
+        foil_1 = np.loadtxt(os.path.join(dir_path, 'foilheight_final1.txt'))
+        foil_2 = np.loadtxt(os.path.join(dir_path, 'foilheight_final2.txt'))
+        foil_5 = np.loadtxt(os.path.join(dir_path, 'foilheight_final3.txt'))
+        foil_6 = np.loadtxt(os.path.join(dir_path, 'foilheight_final4.txt'))
+        foil_7 = np.loadtxt(os.path.join(dir_path, 'foilheight_final5.txt'))
+        surface_profile = [
+            foil_0,
+            foil_1,
+            foil_2,
+            np.zeros(foil_0.shape),
+            np.zeros(foil_0.shape),
+            foil_5,
+            foil_6,
+            foil_7
+        ]
+        surface_profile = np.array(surface_profile)
+
+        environnement.fit.set_parameter( name = 'Select',           value = Selected     )
+        environnement.fit.set_parameter( name = 'Reference',        value = Reference    )
+        environnement.fit.set_parameter( name = 'Background',       value = Background   )
+        environnement.fit.set_parameter( name = 'foils_in_echo',    value = foils_in_echo)
+        environnement.fit.set_parameter( name = 'surface_profile',  value = surface_profile )
+
+        #override mask
+        self.env.mask.mask = np.fromfunction(lambda i,j: (i+j*16),(16,16),dtype=int)
+        self.env.mask.mask = np.kron(self.env.mask.mask, np.ones((8,8),dtype=int))
+
+        #process the echos
+        self.env.process.calculateEcho()
+        self.assertEqual(self.env.current_data.metadata_objects[0]['tau'], 0.09937249965868485)
+
+        #proceed with the buffering
+        self.env.process.prepareBuffer()
+        self.assertEqual(self.env.current_data.bufferedData.shape, (10,2,10,6,16, 128, 128))
+        self.assertEqual(self.env.current_data.bufferedData.__getitem__((0,0)).shape,(10,6,16,128,128))
+
+        #do the phase calculation
+        self.env.fit.correctPhaseExposure(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        result = self.env.results.getLastResult('Corrected Phase')['Shift']
+        keys = [key for key in result.keys()]
+        self.assertEqual(int(result[0][0][self.env.current_data.get_axis('Echo Time')[0]].sum()),157286400)
 
 if __name__ == '__main__':
     ground_0 = Test_Phase_correction()
-    ground_0.test_phase_correction()
+    ground_0.test_phase_correction_mask()
 
 

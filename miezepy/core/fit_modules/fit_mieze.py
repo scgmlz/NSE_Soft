@@ -56,6 +56,7 @@ class Fit_MIEZE(Fit_Handler,PhaseProcessing):
         self.para_dict['Background']    = []
         self.para_dict['Reference']     = None
         self.para_dict['Select']        = []
+        self.para_dict['foil_correct']  = []
     
         ############################################
         #set deafult pointers
@@ -67,7 +68,6 @@ class Fit_MIEZE(Fit_Handler,PhaseProcessing):
 
     def test_parameter(self, value, target, mask, results):
         '''
-        ##############################################
         Test function on the input parameters. This is
         called by the parameter value which gives the
         variable to test.
