@@ -99,7 +99,7 @@ class DataStructure:
         output += "##########################################################\n\n"
 
         #send it also out to the log
-        self.log.add_log('info', output)
+        self.log.addLog('info', output)
 
         return output
 
@@ -408,20 +408,20 @@ class DataStructure:
         '''
 
         #send it also out to the log
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Trying to process a reduction of the datastructure')
 
         ##############################################
         #create the new structure
         new_data = Data_Structure()
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Successfully created the new structure')
             
         for idx in id_array:
             new_data.inject_data_object(self.data_objects[self.get_pos_from_id(idx)])
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Successfully injected the data_objects')
 
@@ -435,7 +435,7 @@ class DataStructure:
                 if not mask[i]:
                     new_index.append(int(data_object.index[i]))
             data_object.index = list(new_index)
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Successfully processed the necessary axis reductions')
 
@@ -455,7 +455,7 @@ class DataStructure:
                 for i in range(len(new_data.axes.idx[new_idx]) , len(self.axes.idx[i])):
                     new_data.axes.idx[new_idx].append([])
                 new_idx +=1
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Successfully fixed axis informations')
 
@@ -493,7 +493,7 @@ class DataStructure:
         new_data.metadata_class = copy.deepcopy(self.metadata_class)
         new_data.metadata = new_data.metadata_class.metadata
         #send it also out to the log
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Successfully fixed metadata informations')
 
@@ -502,7 +502,7 @@ class DataStructure:
         #transfer the axis information
         new_data.clean()
         #send it also out to the log
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'returning new structure')
         return new_data
@@ -530,10 +530,10 @@ class DataStructure:
         new_data.clean_data(equivalence)
 
         new_data.create_map()
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Successfully removed points from axis')
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Returning result')
         return new_data
@@ -613,7 +613,7 @@ class DataStructure:
             self.inject_data_object(summed_object)
 
         #send it also out to the log
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Sucessfully summed the data with increment '
             +str(increment))
@@ -625,7 +625,7 @@ class DataStructure:
                 new_meta.links = [element.id]
                 self.inject_metadata_object(new_meta)
                 element.meta_address = [self.metadata_objects[-1].meta_id]
-                self.log.add_log(
+                self.log.addLog(
                     'info', 
                     'Successfully summed the metadata with increment '
                     +str(increment))
@@ -644,7 +644,7 @@ class DataStructure:
 
         self.clean()
 
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Successfully cleaned up after summation')
 

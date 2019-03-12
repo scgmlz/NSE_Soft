@@ -27,11 +27,12 @@ import numpy as np
 import warnings
 import copy
 
-from .fit_general  import Fit_Handler
-from .fit_mieze_phase  import PhaseProcessing
+from .fit_general           import Fit_Handler
+from .fit_mieze_phase       import PhaseProcessing
+from .fit_mieze_contrast    import ContrastProcessing
 
 
-class Fit_MIEZE(Fit_Handler,PhaseProcessing):
+class Fit_MIEZE(Fit_Handler,PhaseProcessing, ContrastProcessing):
     
     def __init__(self):
         '''
@@ -41,6 +42,7 @@ class Fit_MIEZE(Fit_Handler,PhaseProcessing):
         ''' 
         Fit_Handler.__init__(self)
         PhaseProcessing.__init__(self)
+        ContrastProcessing.__init__(self)
         self.set_fit_parameters()
 
     def set_fit_parameters(self):

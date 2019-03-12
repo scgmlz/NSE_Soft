@@ -25,22 +25,23 @@ def createDataset():
     meta_dict['Freq. first']    = ['Freq. first','float', 30, ""]
     meta_dict['Freq. second']   = ['Freq. second','float', 60, ""]
     meta_dict['lsd']            = ['lsd','float', 1200e9, ""]
+    meta_dict['Monitor']        = ['Monitor','float', 100, ""]
 
     for i,j,k,l in loop:
         if k == 0 and l == 0:
-            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j/10) , ""]
+            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j) , ""]
             data.addMetadataObject(meta_dict)
         data[i,0,j,k,l] = generateMap([i,0,j,k,l])
 
     for j,k,l in loop_2:
         if k == 0 and l == 0:
-            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j/10) , ""]
+            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j) , ""]
             data.addMetadataObject(meta_dict)
         data[0,1,j,k,l] = generateMap([0,1,j,k,l])
 
     for j,k,l in loop_2:
         if k == 0 and l == 0:
-            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j/10), ""]
+            meta_dict['Freq. second']   = ['Freq. second','float', (60 + j), ""]
             data.addMetadataObject(meta_dict)
         data[1,1,j,k,l] = generateMap([1,1,j,k,l])
 
@@ -216,7 +217,6 @@ class Test_Phase_correction(unittest.TestCase):
         Background = 0
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        print(os.path.join(dir_path, 'foilheight_final0.txt'))
         foil_0 = np.loadtxt(os.path.join(dir_path, 'foilheight_final0.txt'))
         foil_1 = np.loadtxt(os.path.join(dir_path, 'foilheight_final1.txt'))
         foil_2 = np.loadtxt(os.path.join(dir_path, 'foilheight_final2.txt'))
@@ -264,8 +264,296 @@ class Test_Phase_correction(unittest.TestCase):
         keys = [key for key in result.keys()]
         self.assertEqual(int(result[0][0][self.env.current_data.get_axis('Echo Time')[0]].sum()),157286400)
 
+        self.env.mask.mask = np.zeros((128,128))
+        self.env.mask.mask[32:92, 32:92] = 1
+        
+        self.env.fit.calcContrastRef(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        result = self.env.results.getLastResult('Reference contrast calculation')
+        print(result)
+
+        self.env.fit.calcContrastMain(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results,
+            select = self.env.current_data.get_axis('Parameter'))
+
+        self.env.fit.contrastFit(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        self.result = self.env.results.getLastResult('Contrast fit')['Parameters']
+
+
+    def test_phase_correction_mask_data(self):
+        self.env  = Environment(None, 'test_phase')
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.env.io.load_MIEZE_TOF(os.path.join(dir_path, 'ressources','LoadTest.txt' ))
+        self.env.data[0].axes.set_name(0, 'Parameter')
+        self.env.data[0].axes.set_name(1, 'Measurement')
+        self.env.data[0].axes.set_name(2, 'Echo Time')
+        self.env.data[0].axes.set_name(3, 'Foil')
+        self.env.data[0].axes.set_name(4, 'Time Channel')
+        self.env.setCurrentData()
+
+        self.env.mask.mask_dict["HTO_1"]= [[
+            "linear composition", 
+            [64, 64], 
+            0, 
+            16, 16, 
+            128, 128, 
+            [
+                "rectangle", 
+                [0, 0], 
+                0, 
+                0, 0, 
+                [True, True, False]]]]
+                
+        self.env.mask.mask_dict["HTO_2"] = [[
+            "rectangle", 
+            [64, 64], 
+            0, 
+            128, 128]]
+
+        environnement = self.env
+        foils_in_echo = []
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 0, 1])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 0, 1])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 0, 1])
+
+        #set the values to be processed as data
+        Selected = ['reso', '5K', '50K']
+
+        #set the reference value
+        Reference = ['reso',0]
+
+        #set the background
+        Background = None
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        foil_0 = np.loadtxt(os.path.join(dir_path, 'foilheight_final0.txt'))
+        foil_1 = np.loadtxt(os.path.join(dir_path, 'foilheight_final1.txt'))
+        foil_2 = np.loadtxt(os.path.join(dir_path, 'foilheight_final2.txt'))
+        foil_5 = np.loadtxt(os.path.join(dir_path, 'foilheight_final3.txt'))
+        foil_6 = np.loadtxt(os.path.join(dir_path, 'foilheight_final4.txt'))
+        foil_7 = np.loadtxt(os.path.join(dir_path, 'foilheight_final5.txt'))
+        surface_profile = [
+            foil_0,
+            foil_1,
+            foil_2,
+            np.zeros(foil_0.shape),
+            np.zeros(foil_0.shape),
+            foil_5,
+            foil_6,
+            foil_7
+        ]
+
+        surface_profile = np.array(surface_profile)
+
+        environnement.fit.set_parameter( name = 'Select',           value = Selected     )
+        environnement.fit.set_parameter( name = 'Reference',        value = Reference    )
+        environnement.fit.set_parameter( name = 'Background',       value = Background   )
+        environnement.fit.set_parameter( name = 'foils_in_echo',    value = foils_in_echo)
+        environnement.fit.set_parameter( name = 'surface_profile',  value = surface_profile )
+
+        #override mask
+        self.env.mask.setMask("HTO_1")
+        self.env.mask.generateMask(128,128)
+
+        from matplotlib import pyplot as plt
+        plt.imshow(self.env.mask.mask)
+        plt.show()
+
+        #process the echos
+        for meta_object in self.env.current_data.metadata_objects:
+            meta_object.addMetadata('Wavelength', value = 8.e-10 , logical_type = 'float', unit = 'A')
+            
+        self.env.process.calculateEcho()
+        
+        #proceed with the buffering
+        self.env.process.prepareBuffer()
+
+        self.assertEqual(
+            self.env.current_data.bufferedData.shape, 
+            (3,1,3,8,16, 128, 128))
+
+        self.assertEqual(
+            self.env.current_data.bufferedData.__getitem__((0,0)).shape,
+            (3,8,16,128,128))
+
+        #do the phase calculation
+        self.env.fit.extractPhaseMask(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        result = self.env.results.getLastResult('Phase calculation')
+        print(result['Phase'])
+        plt.imshow(result['Phase'][0.10470185581206733][7])
+        
+        #correct the phase
+        self.env.fit.correctPhase(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+
+
+        # result = self.env.results.getLastResult('Corrected Phase')['Shift']
+        # plt.imshow(result['reso'][0][0.10470185581206733][6].sum(0))
+
+        plt.show()
+        # self.assertEqual(int(result['50K'][0][self.env.current_data.get_axis('Echo Time')[0]].sum()),4522)
+
+        self.env.mask.setMask("HTO_2")
+        self.env.mask.generateMask(128,128)
+        
+        self.env.fit.calcContrastRef(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        result = self.env.results.getLastResult('Reference contrast calculation')
+        print(result)
+
+        self.env.fit.calcContrastMain(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results,
+            select = self.env.current_data.get_axis('Parameter'))
+
+        self.env.fit.contrastFit(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        self.result = self.env.results.getLastResult('Contrast fit')['Parameters']
+        print(result)
+
+    def test_phase_correction_exposure_data(self):
+        self.env  = Environment(None, 'test_phase')
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.env.io.load_MIEZE_TOF(os.path.join(dir_path, 'ressources','LoadTest.txt' ))
+
+        self.env.data[0].axes.set_name(0, 'Parameter')
+        self.env.data[0].axes.set_name(1, 'Measurement')
+        self.env.data[0].axes.set_name(2, 'Echo Time')
+        self.env.data[0].axes.set_name(3, 'Foil')
+        self.env.data[0].axes.set_name(4, 'Time Channel')
+        self.env.setCurrentData()
+
+        environnement = self.env
+        foils_in_echo = []
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+
+        #set the values to be processed as data
+        Selected = ['reso', '5K', '50K']
+
+        #set the reference value
+        Reference = ['reso',0]
+
+        #set the background
+        Background = None
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        foil_0 = np.loadtxt(os.path.join(dir_path, 'foilheight_final0.txt'))
+        foil_1 = np.loadtxt(os.path.join(dir_path, 'foilheight_final1.txt'))
+        foil_2 = np.loadtxt(os.path.join(dir_path, 'foilheight_final2.txt'))
+        foil_5 = np.loadtxt(os.path.join(dir_path, 'foilheight_final3.txt'))
+        foil_6 = np.loadtxt(os.path.join(dir_path, 'foilheight_final4.txt'))
+        foil_7 = np.loadtxt(os.path.join(dir_path, 'foilheight_final5.txt'))
+        surface_profile = [
+            foil_0,
+            foil_1,
+            foil_2,
+            np.zeros(foil_0.shape),
+            np.zeros(foil_0.shape),
+            foil_5,
+            foil_6,
+            foil_7
+        ]
+
+        surface_profile = np.array(surface_profile)
+
+        environnement.fit.set_parameter( name = 'Select',           value = Selected     )
+        environnement.fit.set_parameter( name = 'Reference',        value = Reference    )
+        environnement.fit.set_parameter( name = 'Background',       value = Background   )
+        environnement.fit.set_parameter( name = 'foils_in_echo',    value = foils_in_echo)
+        environnement.fit.set_parameter( name = 'surface_profile',  value = surface_profile )
+
+        #override mask
+        self.env.mask.mask = np.fromfunction(lambda i,j: (i+j*2),(2,2),dtype=int)
+        self.env.mask.mask = np.kron(self.env.mask.mask, np.ones((64,64),dtype=int))
+
+        #process the echos
+        for meta_object in self.env.current_data.metadata_objects:
+            print(meta_object['Wavelength'])
+            meta_object.addMetadata('Wavelength', value = 8.e-9 , logical_type = 'float', unit = 'A')
+        self.env.process.calculateEcho()
+
+        #proceed with the buffering
+        self.env.process.prepareBuffer()
+
+        self.assertEqual(
+            self.env.current_data.bufferedData.shape, 
+            (3,1,3,8,16, 128, 128))
+
+        self.assertEqual(
+            self.env.current_data.bufferedData.__getitem__((0,0)).shape,
+            (3,8,16,128,128))
+
+        #do the phase calculation
+        self.env.fit.correctPhaseExposure(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        result = self.env.results.getLastResult('Corrected Phase')['Shift']
+        self.assertEqual(int(result['50K'][0][self.env.current_data.get_axis('Echo Time')[0]].sum()),4539)
+
+        self.env.mask.mask = np.zeros((128,128))
+        self.env.mask.mask[32:92, 32:92] = 1
+        
+        self.env.fit.calcContrastRef(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        result = self.env.results.getLastResult('Reference contrast calculation')
+        print(result)
+
+        self.env.fit.calcContrastMain(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results,
+            select = self.env.current_data.get_axis('Parameter'))
+
+        self.env.fit.contrastFit(
+            self.env.current_data,
+            self.env.mask,
+            self.env.results)
+
+        self.result = self.env.results.getLastResult('Contrast fit')['Parameters']
+
 if __name__ == '__main__':
     ground_0 = Test_Phase_correction()
-    ground_0.test_phase_correction_mask()
+    ground_0.test_phase_correction_mask_data()
+    from matplotlib import pyplot as plt
+    # plt.plot(ground_0.result['5K']['x'], ground_0.result['5K']['y_raw'])
+    plt.plot(ground_0.result['5K']['x'], ground_0.result['5K']['y'])
+    # plt.plot(ground_0.result['50K']['x'], ground_0.result['50K']['y_raw'])
+    # plt.plot(ground_0.result['50K']['x'], ground_0.result['50K']['y'])
+    # plt.plot(ground_0.result['reso']['x'], ground_0.result['reso']['y_raw'])
+    plt.plot(ground_0.result['reso']['x'], ground_0.result['reso']['y'])
 
-
+    plt.xscale('log')
+    plt.show()

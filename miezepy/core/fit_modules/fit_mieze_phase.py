@@ -31,9 +31,9 @@ from .library_fit import phaseMaskFunction
 from .library_fit import correctPhaseParaMeas
 from .library_fit import loopLibrary
 from .library_fit import phaseExposure
+from .library_fit import reorganizeResult
 
 #functions to be used for processing the phase through foil corrections
-
 from .fit_worker import WorkerPool
 
 class PhaseProcessing(): 
@@ -47,6 +47,17 @@ class PhaseProcessing():
         to process with the change of the phase. 
         note that this method uses the pregroup
         mask method.
+
+        Parameters
+        ----------
+        target : DataStructure
+            The current active datastructure
+
+        mask : MaskStructure
+            The current active mask structure
+
+        results : ResultStructure
+            The current active result structure
         '''
 
         #Initialize the output dictionary with all def.
@@ -85,7 +96,7 @@ class PhaseProcessing():
         idx = 0
         for key, meas, echo in loop:
             #grab the data slice
-            if data_map[ para_axis.index(index_array[idx][0]), 
+            if data_map[para_axis.index(index_array[idx][0]), 
                         meas_axis.index(index_array[idx][1]), 
                         echo_axis.index(index_array[idx][2]), 0, 0] == -1:
                 pass
@@ -102,28 +113,11 @@ class PhaseProcessing():
             idx += 1
 
         temp = worker_pool.startPool()
-
-        temp_reorganized = {}
-        idx = 0
-        for key, meas, echo in loop:
-            if idx in temp.keys():
-                para = index_array[idx][0]
-                meas = index_array[idx][1]
-                echo = index_array[idx][2]
-
-                if not para in temp_reorganized.keys():
-                    temp_reorganized[para] = {}
-                
-                if not meas in temp_reorganized[para].keys():
-                    temp_reorganized[para][meas] = {}
-
-                temp_reorganized[para][meas][echo] = temp[idx]
-                
-            idx += 1
+        temp_reorganized = reorganizeResult(temp, index_array, loop)
 
         ##############################################
         #finalize result and send it out
-        local_results['Shift']        = temp_reorganized
+        local_results['Shift'] = temp_reorganized
 
         #write the dictionary entries
         local_results.addLog('info', 'Computation of the shift was a success')
@@ -140,13 +134,24 @@ class PhaseProcessing():
         fit of each mask region an then fit it the sinus form. After
         which a map will be generated to which the entire dataset will
         be corrected.
+
+        Parameters
+        ----------
+        target : DataStructure
+            The current active datastructure
+
+        mask : MaskStructure
+            The current active mask structure
+
+        results : ResultStructure
+            The current active result structure
         '''
         #Initialize the output dictionary with all def.
         local_results   = results.generateResult( name = 'Phase calculation')
         selected_ref    = self.para_dict['Reference']
-        reference_meas  = target.bufferedData.__getitem__(tuple(selected_ref))
-        premask         = mask.mask
 
+        para_name       = self.para_dict['para_name']
+        meas_name       = self.para_dict['meas_name']
         echo_name       = self.para_dict['echo_name']
         foil_name       = self.para_dict['foil_name']
         tcha_name       = self.para_dict['tcha_name']
@@ -154,6 +159,12 @@ class PhaseProcessing():
         echo_axis = target.get_axis(echo_name)
         foil_axis = target.get_axis(foil_name)
         chan_num  = target.get_axis_len(tcha_name)
+        
+        ref_index       = [
+            target.get_axis_idx(para_name, selected_ref[0]),
+            target.get_axis_idx(meas_name, selected_ref[1])]
+        reference_meas  = target.bufferedData.__getitem__(tuple(ref_index))
+        premask         = mask.mask
 
         #set result dimensions
         result_dimension = (
@@ -168,15 +179,11 @@ class PhaseProcessing():
 
         #initialise the output
         phase_shift = {}
-        worker_pool = WorkerPool(10)
         for echo in target.get_axis(echo_name):
-            worker_pool.addWorker([
-                phaseMaskFunction,
+            phaseMaskFunction(
                 result_dimension,echo, loop,
                 foil_axis,reference_meas[echo_axis.index(echo)], 
-                chan_num, premask])
-
-        phase_shift = worker_pool.startPool()
+                chan_num, premask, phase_shift)
 
         ############################################
         #send out the result to the handler
@@ -198,6 +205,17 @@ class PhaseProcessing():
         to process with the change of the phase. 
         note that this method uses the pregroup
         mask method.
+
+        Parameters
+        ----------
+        target : DataStructure
+            The current active datastructure
+
+        mask : MaskStructure
+            The current active mask structure
+
+        results : ResultStructure
+            The current active result structure
         '''
 
         #Initialize the output dictionary with all def.
@@ -262,7 +280,6 @@ class PhaseProcessing():
             index_map[echo_idx,foil_idx] = np.round(
                 ((2*np.pi-calc_phase[echo_idx,foil_idx])/(2*np.pi/16.)+np.pi/2.)%16)
 
-
         worker_pool = WorkerPool(10)
         index_array = []
         for key, meas, echo in loop_main:
@@ -273,7 +290,8 @@ class PhaseProcessing():
         for key, meas, echo in loop_main:
             #grab the data slice
             if data_map[para_axis.index(index_array[idx][0]), 
-                        meas_axis.index(index_array[idx][1]), 0, 0, 0] == -1:
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2]), 0, 0] == -1:
                 pass
             else:
                 worker_pool.addWorker([
@@ -287,24 +305,7 @@ class PhaseProcessing():
             idx += 1
 
         temp = worker_pool.startPool()
-
-        temp_reorganized = {}
-        idx = 0
-        for key, meas, echo in loop_main:
-            if idx in temp.keys():
-                para = index_array[idx][0]
-                meas = index_array[idx][1]
-                echo = index_array[idx][2]
-
-                if not para in temp_reorganized.keys():
-                    temp_reorganized[para] = {}
-                
-                if not meas in temp_reorganized[para].keys():
-                    temp_reorganized[para][meas] = {}
-
-                temp_reorganized[para][meas][echo] = temp[idx]
-                
-            idx += 1
+        temp_reorganized = reorganizeResult(temp, index_array, loop_main)
 
         ##############################################
         #finalize result and send it out

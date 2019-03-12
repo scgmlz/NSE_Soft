@@ -246,11 +246,13 @@ def phaseMaskFunction(result_dimension,echo, loop, foil_axis,reference_meas, cha
     '''
     results = ResultStructure()
     output  = np.zeros(result_dimension)
+    print('Starting:', echo)
     for mask_num, foil in loop:
         proc_mask   = premask == mask_num
         foil_idx    = foil_axis.index(foil)
         output[foil_idx, :, :] += phaseFit(
             proc_mask, foil_idx, chan_num, reference_meas, results)
+    print('Finishing:', echo)
     result_dict[echo] = output
 
 def phaseFit(proc_mask, foil_idx, chan_num, reference_meas, results):
@@ -572,3 +574,195 @@ def loopLibrary(fit, target, name):
             for e2 in cha_axis]
 
     return loop
+
+def reorganizeResult(temp, index_array, loop):
+    '''
+    This routine allows to ease the code within the
+    critical functions by returning the requested loop
+
+    Parameters
+    ----------
+    temp : data
+        The data organized in a linear dictionary
+
+    index_array : array of values
+        These will be used to construct the keys of the output
+
+    loop : array of values
+        The definition of the loop
+
+    Returns
+    ----------
+    temp_reorganized : dictionary of values
+    '''
+    temp_reorganized = {}
+    idx = 0
+    for idx in range(len(loop)):
+        if idx in temp.keys():
+            para = index_array[idx][0]
+            meas = index_array[idx][1]
+            echo = index_array[idx][2]
+
+            if not para in temp_reorganized.keys():
+                temp_reorganized[para] = {}
+            
+            if not meas in temp_reorganized[para].keys():
+                temp_reorganized[para][meas] = {}
+
+            temp_reorganized[para][meas][echo] = temp[idx]
+        idx +=1
+
+    return temp_reorganized
+
+
+def contrastLogicRef(target, local_results):
+    '''
+    This function was built to ease readability
+    and to provide the contrast calculation
+    routine.
+
+    Parameters
+    ----------
+    target : DataStructure
+        The current dataset with all metadata
+    
+    local_results : ResultStructure 
+
+    Returns
+    ------- 
+    contrast : list of float
+        The Contrast and its error
+    '''
+    #initialise the contrast result
+    contrast_ref        = {}
+    contrast_ref_error  = {}
+
+    #Process the result
+    for echo in target.keys():
+
+        #do a check of the value and throw an error if 0
+        if target[echo][0] == 0 or target[echo][2] == 0:
+            if target[echo][0] == 0:
+                local_results.addLog(
+                    'warning', 
+                    'The amplitude from the reference fit is 0. Please investigate...')
+                local_results.addLog(
+                    'error', 
+                    'Setting the value to 1')
+            elif target[echo][2] == 0:
+                local_results.addLog(
+                    'error', 
+                    'The mean from the reference fit is 0. Please investigate...')
+                local_results.addLog(
+                    'error', 
+                    'Setting the value to 1')
+
+            target[echo][0] = 1.
+            target[echo][1] = 1.
+
+        #set output
+        contrast_ref[echo] = contrastEquation(
+            target[echo],    
+            [0,0,0,0])
+
+        contrast_ref_error[echo] = contrastErrorEquation(
+            target[echo], 
+            [0,0,0,0])
+
+    return [contrast_ref, contrast_ref_error]
+
+def contrastLogicMain(positions, contrast_results, BG_result, local_results):
+    '''
+    This function was built to ease readability
+    and to provide the contrast calculation
+    routine.
+
+    Parameters
+    ----------
+    target : DataStructure
+        The current dataset with all metadata
+
+    BG_result : array of float
+        The result of the background processing
+    
+    local_results : ResultStructure 
+
+    Returns
+    ------- 
+    contrast : list of float
+        The Contrast and its error
+    '''
+    ############################################
+    #initialise the contrast result
+    contrast        = []
+    contrast_error  = []
+
+    for meas, echo in positions:
+        
+        target = contrast_results[meas][echo]
+
+        if not BG_result == None:
+            BG_target = BG_result[echo]
+        else:
+            BG_target = [0,0,0,0]
+
+        contrast.append(
+            float(contrastEquation(target, BG_target)))
+        contrast_error.append(
+            float(contrastErrorEquation(target, BG_target)))
+
+    return [contrast, contrast_error]
+
+def multiAxis(select, target):
+    '''
+    This function performs axis modifications 
+    to allow the compression of measurements
+    for different parameters
+
+    Parameters
+    ----------
+    select : list of parameters
+        The selected elements
+
+    target : DataStructure
+        The current active datastructure 
+
+    Returns
+    ------- 
+    axis and position of the elements
+    '''
+    #grab meta
+    para_name = target.axes.names[0]
+    meas_name = target.axes.names[1]
+    echo_name = target.axes.names[2]
+
+    para_axis = target.get_axis(para_name)
+    meas_axis = target.get_axis(meas_name)
+    echo_axis = target.get_axis(echo_name)
+
+    data_map  = target.map
+    axis      = {}
+    positions = {}
+
+    #set the loop
+    loop = [
+        (e1, e2, e3) 
+        for e1 in select 
+        for e2 in meas_axis
+        for e3 in echo_axis]
+
+    #loop
+    for para, meas, echo in loop:
+        if not data_map[
+            para_axis.index(para),
+            meas_axis.index(meas),
+            echo_axis.index(echo),0,0] == -1:
+
+            if not para in axis.keys():
+                axis[para]      = []
+                positions[para] = []
+
+            axis[para].append(echo)
+            positions[para].append((meas, echo))
+
+    return axis, positions

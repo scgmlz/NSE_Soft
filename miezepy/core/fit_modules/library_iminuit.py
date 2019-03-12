@@ -95,7 +95,7 @@ class CosineMinuit:
         '''
         with warnings.catch_warnings():
             try:
-                return sum((((amplitude*np.cos(self.argument_dict['freq']*t+phase)+offset-c)**2)/e**2 for c,t,e in zip(self.argument_dict['counts'],self.argument_dict['time'],self.argument_dict['error'])))
+                return sum((((amplitude*np.cos(self.argument_dict['freq']*t+phase)+offset-c)**2)/e**2 if not e == 0 else np.nan for c,t,e in zip(self.argument_dict['counts'],self.argument_dict['time'],self.argument_dict['error'])))
             except:
                 return np.nan
 
@@ -120,7 +120,6 @@ class ExpMinuit:
         -------
         fit : fit result dictionary
         '''
-
         self.argument_dict = {}
         self.argument_dict['contrast']      = contrast
         self.argument_dict['SpinEchoTime']  = SpinEchoTime
