@@ -294,12 +294,12 @@ class Test_Phase_correction(unittest.TestCase):
         Background = 0
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        foil_0 = np.loadtxt(os.path.join(dir_path, 'foilheight_final0.txt'))
-        foil_1 = np.loadtxt(os.path.join(dir_path, 'foilheight_final1.txt'))
-        foil_2 = np.loadtxt(os.path.join(dir_path, 'foilheight_final2.txt'))
-        foil_5 = np.loadtxt(os.path.join(dir_path, 'foilheight_final3.txt'))
-        foil_6 = np.loadtxt(os.path.join(dir_path, 'foilheight_final4.txt'))
-        foil_7 = np.loadtxt(os.path.join(dir_path, 'foilheight_final5.txt'))
+        foil_0 = np.loadtxt(os.path.join(dir_path,'ressources', 'foilheight_final0.txt'))
+        foil_1 = np.loadtxt(os.path.join(dir_path,'ressources', 'foilheight_final1.txt'))
+        foil_2 = np.loadtxt(os.path.join(dir_path,'ressources', 'foilheight_final2.txt'))
+        foil_5 = np.loadtxt(os.path.join(dir_path,'ressources', 'foilheight_final3.txt'))
+        foil_6 = np.loadtxt(os.path.join(dir_path,'ressources', 'foilheight_final4.txt'))
+        foil_7 = np.loadtxt(os.path.join(dir_path,'ressources', 'foilheight_final5.txt'))
         surface_profile = [
             foil_0,
             foil_1,
