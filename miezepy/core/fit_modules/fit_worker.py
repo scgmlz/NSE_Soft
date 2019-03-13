@@ -61,7 +61,7 @@ class WorkerPool():
             for i in temp:
                 self.workers[i].join()
 
-        return self.result_dict
+        return dict(self.result_dict)
             
             
 

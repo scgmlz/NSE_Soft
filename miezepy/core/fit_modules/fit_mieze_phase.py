@@ -87,7 +87,7 @@ class PhaseProcessing():
             for m1 in range(1,premask.max()+1)
             for m2 in range(target.get_axis_len(foil_name))] 
 
-        worker_pool = WorkerPool(10)
+        worker_pool = WorkerPool(self.para_dict['processors'])
         index_array = []
         for key, meas, echo in loop:
             index_array.append([key,meas, echo])
@@ -185,7 +185,7 @@ class PhaseProcessing():
                 target.data_objects[0].dim[0],
                 target.data_objects[0].dim[1]))
 
-        worker_pool = WorkerPool(10)
+        worker_pool = WorkerPool(self.para_dict['processors'])
         index_array = []
         for echo, foil in loop_2:
             index_array.append([echo, foil])
@@ -298,7 +298,7 @@ class PhaseProcessing():
             index_map[echo_idx,foil_idx] = np.round(
                 ((2*np.pi-calc_phase[echo_idx,foil_idx])/(2*np.pi/16.)+np.pi/2.)%16)
 
-        worker_pool = WorkerPool(10)
+        worker_pool = WorkerPool(self.para_dict['processors'])
         index_array = []
         for key, meas, echo in loop_main:
             index_array.append([key,meas, echo])

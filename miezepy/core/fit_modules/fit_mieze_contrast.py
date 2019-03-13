@@ -98,7 +98,7 @@ class ContrastProcessing:
 
         #do the lifting
         idx = 0
-        worker_pool = WorkerPool(10)
+        worker_pool = WorkerPool(self.para_dict['processors'])
         for para, meas, echo in loop:
 
             if  not data_map[
