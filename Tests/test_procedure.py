@@ -78,7 +78,7 @@ def generateMap(input):
         (128,128), 
         dtype=int)
 
-def createHTO():
+def createHTO(proc):
     env  = Environment(None, 'test_phase')
     dir_path = os.path.dirname(os.path.realpath(__file__))
     env.io.load_MIEZE_TOF(os.path.join(dir_path, 'ressources','LoadTest.txt' ))
@@ -152,6 +152,7 @@ def createHTO():
     env.fit.set_parameter( name = 'Background',       value = Background   )
     env.fit.set_parameter( name = 'foils_in_echo',    value = foils_in_echo)
     env.fit.set_parameter( name = 'surface_profile',  value = surface_profile )
+    env.fit.set_parameter( name = 'processors',       value = proc )
 
     return env
 
@@ -169,6 +170,8 @@ class Test_data_module(unittest.TestCase):
         self.assertEqual(len(self.data.metadata_objects), 0)
         self.assertEqual(len(self.data.metadata_addresses), 0)
 
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True") ,  "Skipping this test on Appveyor due to memory.")
     def test_data_creation(self):
         self.data = createFakeDataset()
         self.assertEqual(self.data.generated, False)
@@ -189,6 +192,10 @@ class Test_data_module(unittest.TestCase):
 
 class Test_Phase_correction(unittest.TestCase):
 
+
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def test_phase_correction_mask(self):
         self.env  = Environment(None, 'test_phase')
         self.env.data[0] = createFakeDataset()
@@ -260,6 +267,9 @@ class Test_Phase_correction(unittest.TestCase):
         keys = [key for key in result.keys()]
         self.assertEqual(int(result[0][0][self.env.current_data.get_axis('Echo Time')[0]].sum()),156672000)
 
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def test_phase_correction_exposure(self):
         self.env  = Environment(None, 'test_phase')
         self.env.data[0] = createFakeDataset()
@@ -365,11 +375,28 @@ class Test_Phase_correction(unittest.TestCase):
         self.result = self.env.results.getLastResult('Contrast fit')['Parameters']
 
 
-    def test_phase_correction_mask_data(self):
+    def test_single_proc_mask_data(self):
+        self.phase_correction_mask_data(1)
+        
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
+    def test_multi_proc_mask_data(self):
+        self.phase_correction_mask_data(12)
 
+    def test_single_proc_exposure_data(self):
+        self.phase_correction_exposure_data(1)
+        
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
+    def test_multi_proc_exposure_data(self):
+        self.phase_correction_exposure_data(12)
+
+    def phase_correction_mask_data(self, proc):
         ######################################################
         #test the dataset
-        self.env = createHTO()
+        self.env = createHTO(proc)
         data_sum = 0
         for data_object in self.env.current_data.data_objects:
             data_sum += data_object.data.sum()
@@ -430,17 +457,17 @@ class Test_Phase_correction(unittest.TestCase):
         
         self.assertEqual(self.result['reso']['y'].tolist(), [1,1,1])
         self.assertEqual(
-            self.result['5K']['y'].tolist(), 
-            [0.8325509860263258, 0.7773302578953385, 0.7119443607471796])
+            [round(e, 4) for e in self.result['5K']['y'].tolist()], 
+            [round(e, 4) for e in [0.8325509860263258, 0.7773302578953385, 0.7119443607471796]])
         self.assertEqual(
-            self.result['50K']['y'].tolist(), 
-            [0.8442781271626505, 0.5113068154251951, 0.28264047696266037])
+            [round(e, 4) for e in self.result['50K']['y'].tolist()], 
+            [round(e, 4) for e in [0.8442781271626505, 0.5113068154251951, 0.28264047696266037]])
 
-    def test_phase_correction_exposure_data(self):
+    def phase_correction_exposure_data(self, proc):
 
         ######################################################
         #test the dataset
-        self.env = createHTO()
+        self.env = createHTO(proc)
         data_sum = 0
         for data_object in self.env.current_data.data_objects:
             data_sum += data_object.data.sum()
@@ -492,12 +519,12 @@ class Test_Phase_correction(unittest.TestCase):
         self.result = self.env.results.getLastResult('Contrast fit')['Parameters']
         self.assertEqual(self.result['reso']['y'].tolist(), [1,1,1])
         self.assertEqual(
-            self.result['5K']['y'].tolist(), 
-            [0.9202105470865976, 0.8952656900529399, 0.8204182337749286])
+            [round(e, 4) for e in self.result['5K']['y'].tolist()], 
+            [round(e, 4) for e in [0.9202105470865976, 0.8952656900529399, 0.8204182337749286]])
         self.assertEqual(
-            self.result['50K']['y'].tolist(), 
-            [0.7607151726522323, 0.5407819350675142, 0.13512816355553667])
+            [round(e, 4) for e in self.result['50K']['y'].tolist()], 
+            [round(e, 4) for e in [0.7607151726522323, 0.5407819350675142, 0.13512816355553667]])
 
 if __name__ == '__main__':
     ground_0 = Test_Phase_correction()
-    ground_0.test_phase_correction_mask_data()
+    ground_0.test_multi_proc_exposure_data()

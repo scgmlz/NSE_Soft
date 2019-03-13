@@ -338,7 +338,6 @@ class ContrastProcessing:
                 +str(BG))
             BG_result = self.calcContrastFit(
                 [BG], data, target, mask)
-            print(BG_result)
 
         #contrast calculation
         contrast_results = self.calcContrastFit(
@@ -346,7 +345,6 @@ class ContrastProcessing:
 
         #now process the data on the axis
         axis, positions = multiAxis(select, target)
-        print(axis, positions)
 
         #initialise the contrast result
         contrast            = {}
@@ -438,8 +436,6 @@ class ContrastProcessing:
         Output['Curve']         = {}
         Output['Parameters']    = {}
         Output['Curve Axis']    = {}
-
-        print(contrast)
 
         #process thecomputation
         for key in contrast.keys():

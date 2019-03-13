@@ -132,7 +132,6 @@ class Fit_MIEZE(Fit_Handler,PhaseProcessing, ContrastProcessing):
 
             #check the dimension of this list
             if not BG == None and not BG in target.axes.axes[0]:
-
                 print('The background is not in the loaded data. Error...')
                 return False
 
@@ -145,7 +144,6 @@ class Fit_MIEZE(Fit_Handler,PhaseProcessing, ContrastProcessing):
             reference = self.para_dict['Reference']
             
             if not reference == None and not reference[0] in target.axes.axes[0]:
-                print(target.axes.axes[0])
                 print('This reference does not exist. Error...')
                 return False
 

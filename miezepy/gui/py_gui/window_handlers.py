@@ -40,13 +40,13 @@ class WindowHandler:
     
     The manager will also create root of the bat. 
     Tkinter build tge windows with dependance and
-    root needs to be initialised from the start. 
+    root needs to be initialise from the start. 
     '''
 
-    def __init__(self, link):
+    def __init__(self):
         self.app = QtWidgets.QApplication(sys.argv)
 
-    def initialize(self):
+    def initialize(self, link):
         '''
         This routine performs the initialization in case that the 
         gui is loaded.

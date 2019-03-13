@@ -24,7 +24,7 @@ class Import_MIEZE_TOF:
         in order to generate a dictionary that will
         be fed back to the data handler
         '''
-        with  open(load_path, "r") as f:
+        with  open(os.path.realpath(load_path), "r") as f:
             lines           = f.readlines()
             path            = ""
             dimensions_names= []
@@ -37,9 +37,7 @@ class Import_MIEZE_TOF:
                 if len(line.split("Path : ")) > 1:
                     path = line.strip("\n").split("Path : ")[1]
                     if 'default' in path: 
-                        path = os.path.sep + os.path.join(
-                            os.path.join(*os.path.abspath(__file__).split(os.path.sep)[:-4])+
-                            path.split('default')[1]) +os.path.sep
+                        path = os.path.dirname(load_path)
 
                 elif len(line.split("Data : ")) > 1:
                     templine = line.strip('\n')
@@ -156,11 +154,9 @@ class Import_MIEZE_TOF:
         for idx_0, source in enumerate(para_array):
 
             #unfold generate the path array
-            path_iter = [
-                path
-                + str(source[1]) 
-                + str(path_string) 
-                + ".tof" 
+            path_iter = [os.path.join(
+                path,
+                str(source[1]) + str(path_string) + ".tof")
                 for path_string in eval(source[2])]
 
             #Axis selection

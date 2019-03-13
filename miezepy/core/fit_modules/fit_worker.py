@@ -36,13 +36,20 @@ class WorkerPool():
         self.processes  = processes
         self.queue      = mp.Queue()
         self.manager    = mp.Manager()
-        self.result_dict= self.manager.dict()
+        if self.processes == 1:
+            self.result_dict= {}
+        else:
+            self.result_dict= self.manager.dict()
 
     def addWorker(self, worker):
         '''
         add a worker to the list
         '''
-        self.workers.append(mp.Process(target = worker[0], args = worker[1:] + [self.result_dict]))
+        if self.processes == 1: 
+            args = worker[1:] + [self.result_dict]
+            worker[0](*args)
+        else:
+            self.workers.append(mp.Process(target = worker[0], args = worker[1:] + [self.result_dict]))
 
     def startPool(self):
         '''
