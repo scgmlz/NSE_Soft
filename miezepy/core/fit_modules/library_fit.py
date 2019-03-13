@@ -138,7 +138,7 @@ def fitDataSinus(results, data, data_error, Q_min = 0, time_chan = 16):
     local_results['amplitude']      = amplitude
     local_results['amplitude_error']= amplitude_error
 
-    local_results['phase']          = params['phase']%np.pi
+    local_results['phase']          = params['phase']
     local_results['phase_error']    = phase_error
 
     local_results['mean']           = params['offset']
@@ -207,7 +207,7 @@ def phaseExposure(idx, data_input, index_map, loop, foil_axis, cha_axis, result_
 
     result_dict[idx] = temp_reorganized
 
-def phaseMaskFunction(result_dimension,echo, loop, foil_axis,reference_meas, chan_num, premask, result_dict):
+def phaseMaskFunction(idx, foil, result_dimension, loop, foil_axis,reference_meas, chan_num, premask, result_dict):
     '''
     This function will manage the run over the echo 
     times for the set echo time. Note that the 
@@ -245,15 +245,13 @@ def phaseMaskFunction(result_dimension,echo, loop, foil_axis,reference_meas, cha
 
     '''
     results = ResultStructure()
+    foil_idx    = foil_axis.index(foil)
     output  = np.zeros(result_dimension)
-    print('Starting:', echo)
-    for mask_num, foil in loop:
+    for mask_num in loop:
         proc_mask   = premask == mask_num
-        foil_idx    = foil_axis.index(foil)
-        output[foil_idx, :, :] += phaseFit(
+        output[:, :] += phaseFit(
             proc_mask, foil_idx, chan_num, reference_meas, results)
-    print('Finishing:', echo)
-    result_dict[echo] = output
+    result_dict[idx] = output
 
 def phaseFit(proc_mask, foil_idx, chan_num, reference_meas, results):
     '''

@@ -186,8 +186,7 @@ class Import_MIEZE_TOF:
                 echo_idx +=1
 
         #validate the loaded data
-        target.validate()    
-        print(target.axes.axes)
+        target.validate() 
  
         for idx, name in enumerate(dimensions_names):
             try:

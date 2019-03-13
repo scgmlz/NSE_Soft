@@ -168,22 +168,40 @@ class PhaseProcessing():
 
         #set result dimensions
         result_dimension = (
-            target.get_axis_len(foil_name),
             target.data_objects[0].dim[0],
             target.data_objects[0].dim[1])   
 
-        loop = [
-            (e1, e3)
-            for e1 in range(1,premask.max()+1)
-            for e3 in target.get_axis(foil_name)]
+        loop = [e1 for e1 in range(1,premask.max()+1)]
 
-        #initialise the output
+        loop_2 = [
+            (e1, e2)
+            for e1 in target.get_axis(echo_name)
+            for e2 in target.get_axis(foil_name)]
+
         phase_shift = {}
         for echo in target.get_axis(echo_name):
-            phaseMaskFunction(
-                result_dimension,echo, loop,
-                foil_axis,reference_meas[echo_axis.index(echo)], 
-                chan_num, premask, phase_shift)
+            phase_shift[echo] = np.zeros((
+                target.get_axis_len(foil_name),
+                target.data_objects[0].dim[0],
+                target.data_objects[0].dim[1]))
+
+        worker_pool = WorkerPool(10)
+        index_array = []
+        for echo, foil in loop_2:
+            index_array.append([echo, foil])
+
+        #initialise the output
+        idx = 0
+        for echo, foil in loop_2:
+            worker_pool.addWorker([
+                phaseMaskFunction, idx, foil,
+                result_dimension, loop,
+                foil_axis,reference_meas[echo_axis.index(echo)],
+                chan_num, premask])
+            idx += 1
+        temp = worker_pool.startPool()
+        for idx in range(len(index_array)):
+            phase_shift[index_array[idx][0]][index_array[idx][1],:,:] = temp[idx][:,:]
 
         ############################################
         #send out the result to the handler

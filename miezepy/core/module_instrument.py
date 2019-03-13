@@ -24,7 +24,8 @@
 
 class InstrumentStructure:
     '''
-
+    This module will contain the instruments
+    characteristics.
     '''
 
     def __init__(self):
@@ -32,3 +33,19 @@ class InstrumentStructure:
 
         '''
         pass
+
+
+class DetectorStructure:
+    '''
+    This module will contain the detector
+    characteristics. This will be the ability 
+    to load the appropriate config file and the 
+    foil distortions
+    '''
+
+    def __init__(self):
+        '''
+
+        '''
+        pass
+

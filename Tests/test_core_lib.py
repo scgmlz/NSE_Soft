@@ -31,9 +31,9 @@ class Test_fit_library(unittest.TestCase):
         self.assertLessEqual(
             self.results.getLastResult(name = 'Fit Data Sinus', key = 'mean'),101)
         self.assertGreaterEqual(
-            self.results.getLastResult(name = 'Fit Data Sinus', key = 'phase'),1.65)
+            self.results.getLastResult(name = 'Fit Data Sinus', key = 'phase'),7.94)
         self.assertLessEqual(
-            self.results.getLastResult(name = 'Fit Data Sinus', key = 'phase'),1.67)
+            self.results.getLastResult(name = 'Fit Data Sinus', key = 'phase'),7.95)
 
     def test_sinus_fit_1(self):
         #generate the data
