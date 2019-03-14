@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_script_widget(object):
     def setupUi(self, script_widget):
         script_widget.setObjectName("script_widget")
-        script_widget.resize(1571, 1316)
+        script_widget.resize(1395, 757)
         script_widget.setStyleSheet("#script_widget{background-color: rgb(179, 179, 179);}\n"
 "QGroupBox::title{color:rgb(0, 0, 0)}\n"
 "QLabel{color:rgb(0, 0, 0)}\n"
@@ -138,17 +138,6 @@ class Ui_script_widget(object):
         self.process_radio_exposure = QtWidgets.QRadioButton(self.groupBox)
         self.process_radio_exposure.setObjectName("process_radio_exposure")
         self.verticalLayout_12.addWidget(self.process_radio_exposure)
-        self.label_5 = QtWidgets.QLabel(self.groupBox)
-        self.label_5.setObjectName("label_5")
-        self.verticalLayout_12.addWidget(self.label_5)
-        self.process_box_refs = QtWidgets.QComboBox(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.process_box_refs.sizePolicy().hasHeightForWidth())
-        self.process_box_refs.setSizePolicy(sizePolicy)
-        self.process_box_refs.setObjectName("process_box_refs")
-        self.verticalLayout_12.addWidget(self.process_box_refs)
         self.verticalLayout_9.addLayout(self.verticalLayout_12)
         self.verticalLayout_18.addWidget(self.groupBox)
         self.groupBox_3 = QtWidgets.QGroupBox(self.groupBox_2)
@@ -197,33 +186,38 @@ class Ui_script_widget(object):
         self.process_box_mask_fit.setObjectName("process_box_mask_fit")
         self.verticalLayout_11.addWidget(self.process_box_mask_fit)
         self.verticalLayout_10.addLayout(self.verticalLayout_11)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_10.addItem(spacerItem1)
         self.verticalLayout_18.addWidget(self.groupBox_3)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_18.addItem(spacerItem1)
-        self.groupBox_4 = QtWidgets.QGroupBox(self.groupBox_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.horizontalLayout_15.addLayout(self.verticalLayout_18)
+        self.verticalLayout_7.addLayout(self.horizontalLayout_15)
+        self.groupBox_5 = QtWidgets.QGroupBox(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
-        self.groupBox_4.setSizePolicy(sizePolicy)
-        self.groupBox_4.setMinimumSize(QtCore.QSize(220, 350))
-        self.groupBox_4.setMaximumSize(QtCore.QSize(220, 350))
-        self.groupBox_4.setObjectName("groupBox_4")
-        self.verticalLayout_14 = QtWidgets.QVBoxLayout(self.groupBox_4)
-        self.verticalLayout_14.setObjectName("verticalLayout_14")
-        self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_11.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
-        self.horizontalLayout_11.setContentsMargins(-1, 0, -1, -1)
-        self.horizontalLayout_11.setSpacing(0)
-        self.horizontalLayout_11.setObjectName("horizontalLayout_11")
+        sizePolicy.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
+        self.groupBox_5.setSizePolicy(sizePolicy)
+        self.groupBox_5.setMinimumSize(QtCore.QSize(0, 0))
+        self.groupBox_5.setMaximumSize(QtCore.QSize(5000, 5000))
+        self.groupBox_5.setObjectName("groupBox_5")
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.groupBox_5)
+        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.horizontalLayout_14 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_14.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
+        self.horizontalLayout_14.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_14.setSpacing(10)
+        self.horizontalLayout_14.setObjectName("horizontalLayout_14")
         spacerItem2 = QtWidgets.QSpacerItem(0, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_11.addItem(spacerItem2)
-        self.gridLayout_2 = QtWidgets.QGridLayout()
-        self.gridLayout_2.setContentsMargins(0, -1, -1, -1)
-        self.gridLayout_2.setHorizontalSpacing(0)
-        self.gridLayout_2.setVerticalSpacing(10)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.process_button_run_data = QtWidgets.QPushButton(self.groupBox_4)
+        self.horizontalLayout_14.addItem(spacerItem2)
+        self.gridLayout_4 = QtWidgets.QGridLayout()
+        self.gridLayout_4.setContentsMargins(0, -1, -1, 0)
+        self.gridLayout_4.setSpacing(0)
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setContentsMargins(-1, -1, -1, 0)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.process_button_run_data = QtWidgets.QPushButton(self.groupBox_5)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -248,8 +242,31 @@ class Ui_script_widget(object):
         self.process_button_run_data.setIconSize(QtCore.QSize(40, 40))
         self.process_button_run_data.setFlat(False)
         self.process_button_run_data.setObjectName("process_button_run_data")
-        self.gridLayout_2.addWidget(self.process_button_run_data, 0, 0, 1, 1)
-        self.process_button_run_fit = QtWidgets.QPushButton(self.groupBox_4)
+        self.horizontalLayout_2.addWidget(self.process_button_run_data)
+        self.process_button_run_phase = QtWidgets.QPushButton(self.groupBox_5)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.process_button_run_phase.sizePolicy().hasHeightForWidth())
+        self.process_button_run_phase.setSizePolicy(sizePolicy)
+        self.process_button_run_phase.setMinimumSize(QtCore.QSize(50, 40))
+        self.process_button_run_phase.setMaximumSize(QtCore.QSize(50, 50))
+        self.process_button_run_phase.setStyleSheet("#process_button_run_phase { \n"
+"background-color: transparent; \n"
+"qproperty-icon: url(:/Ressources/run_phase.ico); \n"
+"background-color: rgba(213, 211, 214, 92);\n"
+"border-style: inset;\n"
+"border-width: 2px;\n"
+"\n"
+"} \n"
+"#process_button_run_phase:pressed { \n"
+"border-style: outset;\n"
+"}")
+        self.process_button_run_phase.setText("")
+        self.process_button_run_phase.setIconSize(QtCore.QSize(40, 40))
+        self.process_button_run_phase.setObjectName("process_button_run_phase")
+        self.horizontalLayout_2.addWidget(self.process_button_run_phase)
+        self.process_button_run_fit = QtWidgets.QPushButton(self.groupBox_5)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -273,31 +290,8 @@ class Ui_script_widget(object):
         self.process_button_run_fit.setText("")
         self.process_button_run_fit.setIconSize(QtCore.QSize(40, 40))
         self.process_button_run_fit.setObjectName("process_button_run_fit")
-        self.gridLayout_2.addWidget(self.process_button_run_fit, 2, 0, 1, 1)
-        self.process_button_run_phase = QtWidgets.QPushButton(self.groupBox_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.process_button_run_phase.sizePolicy().hasHeightForWidth())
-        self.process_button_run_phase.setSizePolicy(sizePolicy)
-        self.process_button_run_phase.setMinimumSize(QtCore.QSize(50, 40))
-        self.process_button_run_phase.setMaximumSize(QtCore.QSize(50, 50))
-        self.process_button_run_phase.setStyleSheet("#process_button_run_phase { \n"
-"background-color: transparent; \n"
-"qproperty-icon: url(:/Ressources/run_phase.ico); \n"
-"background-color: rgba(213, 211, 214, 92);\n"
-"border-style: inset;\n"
-"border-width: 2px;\n"
-"\n"
-"} \n"
-"#process_button_run_phase:pressed { \n"
-"border-style: outset;\n"
-"}")
-        self.process_button_run_phase.setText("")
-        self.process_button_run_phase.setIconSize(QtCore.QSize(40, 40))
-        self.process_button_run_phase.setObjectName("process_button_run_phase")
-        self.gridLayout_2.addWidget(self.process_button_run_phase, 1, 0, 1, 1)
-        self.process_button_run_post = QtWidgets.QPushButton(self.groupBox_4)
+        self.horizontalLayout_2.addWidget(self.process_button_run_fit)
+        self.process_button_run_post = QtWidgets.QPushButton(self.groupBox_5)
         self.process_button_run_post.setMinimumSize(QtCore.QSize(50, 50))
         self.process_button_run_post.setMaximumSize(QtCore.QSize(50, 50))
         self.process_button_run_post.setStyleSheet("#process_button_run_post { \n"
@@ -315,140 +309,22 @@ class Ui_script_widget(object):
         self.process_button_run_post.setText("")
         self.process_button_run_post.setIconSize(QtCore.QSize(40, 40))
         self.process_button_run_post.setObjectName("process_button_run_post")
-        self.gridLayout_2.addWidget(self.process_button_run_post, 3, 0, 1, 1)
-        self.horizontalLayout_11.addLayout(self.gridLayout_2)
-        spacerItem3 = QtWidgets.QSpacerItem(0, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_11.addItem(spacerItem3)
-        self.progress_bar_reduction = QtWidgets.QProgressBar(self.groupBox_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.progress_bar_reduction.sizePolicy().hasHeightForWidth())
-        self.progress_bar_reduction.setSizePolicy(sizePolicy)
-        self.progress_bar_reduction.setProperty("value", 24)
-        self.progress_bar_reduction.setOrientation(QtCore.Qt.Vertical)
-        self.progress_bar_reduction.setInvertedAppearance(True)
-        self.progress_bar_reduction.setObjectName("progress_bar_reduction")
-        self.horizontalLayout_11.addWidget(self.progress_bar_reduction)
-        self.gridLayout_3 = QtWidgets.QGridLayout()
-        self.gridLayout_3.setContentsMargins(0, -1, -1, -1)
-        self.gridLayout_3.setHorizontalSpacing(0)
-        self.gridLayout_3.setVerticalSpacing(10)
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.process_button_script_data = QtWidgets.QPushButton(self.groupBox_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.process_button_script_data.sizePolicy().hasHeightForWidth())
-        self.process_button_script_data.setSizePolicy(sizePolicy)
-        self.process_button_script_data.setMinimumSize(QtCore.QSize(50, 50))
-        self.process_button_script_data.setMaximumSize(QtCore.QSize(50, 50))
-        self.process_button_script_data.setStyleSheet("#process_button_script_data { \n"
-"background-color: transparent; \n"
-"qproperty-icon: url(:/Ressources/script_data.ico); \n"
-"background-color: rgba(213, 211, 214, 92);\n"
-"border-style: inset;\n"
-"border-width: 2px;\n"
-"\n"
-"} \n"
-"#process_button_script_data:pressed { \n"
-"border-style: outset;\n"
-"}")
-        self.process_button_script_data.setText("")
-        self.process_button_script_data.setIconSize(QtCore.QSize(40, 40))
-        self.process_button_script_data.setObjectName("process_button_script_data")
-        self.gridLayout_3.addWidget(self.process_button_script_data, 0, 0, 1, 1)
-        self.process_button_script_phase = QtWidgets.QPushButton(self.groupBox_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.process_button_script_phase.sizePolicy().hasHeightForWidth())
-        self.process_button_script_phase.setSizePolicy(sizePolicy)
-        self.process_button_script_phase.setMinimumSize(QtCore.QSize(50, 50))
-        self.process_button_script_phase.setMaximumSize(QtCore.QSize(50, 50))
-        self.process_button_script_phase.setStyleSheet("#process_button_script_phase { \n"
-"background-color: transparent; \n"
-"qproperty-icon: url(:/Ressources/script_phase.ico); \n"
-"background-color: rgba(213, 211, 214, 92);\n"
-"border-style: inset;\n"
-"border-width: 2px;\n"
-"\n"
-"} \n"
-"#process_button_script_phase:pressed { \n"
-"border-style: outset;\n"
-"}\n"
-"")
-        self.process_button_script_phase.setText("")
-        self.process_button_script_phase.setIconSize(QtCore.QSize(40, 40))
-        self.process_button_script_phase.setObjectName("process_button_script_phase")
-        self.gridLayout_3.addWidget(self.process_button_script_phase, 1, 0, 1, 1)
-        self.process_button_script_fit = QtWidgets.QPushButton(self.groupBox_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.process_button_script_fit.sizePolicy().hasHeightForWidth())
-        self.process_button_script_fit.setSizePolicy(sizePolicy)
-        self.process_button_script_fit.setMinimumSize(QtCore.QSize(50, 50))
-        self.process_button_script_fit.setMaximumSize(QtCore.QSize(50, 50))
-        self.process_button_script_fit.setStyleSheet("#process_button_script_fit { \n"
-"background-color: transparent; \n"
-"qproperty-icon: url(:/Ressources/script_fit.ico); \n"
-"background-color: rgba(213, 211, 214, 92);\n"
-"border-style: inset;\n"
-"border-width: 2px;\n"
-"\n"
-"} \n"
-"#process_button_script_fit:pressed { \n"
-"border-style: outset;\n"
-"}\n"
-"\n"
-"")
-        self.process_button_script_fit.setText("")
-        self.process_button_script_fit.setIconSize(QtCore.QSize(40, 40))
-        self.process_button_script_fit.setObjectName("process_button_script_fit")
-        self.gridLayout_3.addWidget(self.process_button_script_fit, 2, 0, 1, 1)
-        self.process_button_script_post = QtWidgets.QPushButton(self.groupBox_4)
-        self.process_button_script_post.setMinimumSize(QtCore.QSize(50, 50))
-        self.process_button_script_post.setMaximumSize(QtCore.QSize(50, 50))
-        self.process_button_script_post.setStyleSheet("#process_button_script_post { \n"
-"background-color: transparent; \n"
-"qproperty-icon: url(:/Ressources/script_post.ico); \n"
-"background-color: rgba(213, 211, 214, 92);\n"
-"border-style: inset;\n"
-"border-width: 2px;\n"
-"\n"
-"} \n"
-"#process_button_script_post:pressed { \n"
-"border-style: outset;\n"
-"}\n"
-"")
-        self.process_button_script_post.setText("")
-        self.process_button_script_post.setIconSize(QtCore.QSize(40, 40))
-        self.process_button_script_post.setObjectName("process_button_script_post")
-        self.gridLayout_3.addWidget(self.process_button_script_post, 3, 0, 1, 1)
-        self.horizontalLayout_11.addLayout(self.gridLayout_3)
-        self.verticalLayout_14.addLayout(self.horizontalLayout_11)
-        self.verticalLayout_18.addWidget(self.groupBox_4)
-        self.horizontalLayout_15.addLayout(self.verticalLayout_18)
-        self.verticalLayout_7.addLayout(self.horizontalLayout_15)
-        self.horizontalLayout_12.addWidget(self.groupBox_2)
-        self.verticalLayout_15.addLayout(self.horizontalLayout_12)
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setContentsMargins(20, -1, -1, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.script_label_running = QtWidgets.QLabel(self.process_tab)
+        self.horizontalLayout_2.addWidget(self.process_button_run_post)
+        self.gridLayout_4.addLayout(self.horizontalLayout_2, 0, 1, 1, 1)
+        self.horizontalLayout_14.addLayout(self.gridLayout_4)
+        self.script_label_running = QtWidgets.QLabel(self.groupBox_5)
         self.script_label_running.setObjectName("script_label_running")
-        self.horizontalLayout.addWidget(self.script_label_running)
-        self.script_bar_running = QtWidgets.QProgressBar(self.process_tab)
+        self.horizontalLayout_14.addWidget(self.script_label_running)
+        self.script_bar_running = QtWidgets.QProgressBar(self.groupBox_5)
         self.script_bar_running.setMinimumSize(QtCore.QSize(150, 0))
         self.script_bar_running.setMaximumSize(QtCore.QSize(150, 16777215))
         self.script_bar_running.setProperty("value", 24)
         self.script_bar_running.setObjectName("script_bar_running")
-        self.horizontalLayout.addWidget(self.script_bar_running)
-        self.scrip_label_action = QtWidgets.QLabel(self.process_tab)
+        self.horizontalLayout_14.addWidget(self.script_bar_running)
+        self.scrip_label_action = QtWidgets.QLabel(self.groupBox_5)
         self.scrip_label_action.setObjectName("scrip_label_action")
-        self.horizontalLayout.addWidget(self.scrip_label_action)
-        self.script_label_action_2 = QtWidgets.QLabel(self.process_tab)
+        self.horizontalLayout_14.addWidget(self.scrip_label_action)
+        self.script_label_action_2 = QtWidgets.QLabel(self.groupBox_5)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -456,14 +332,18 @@ class Ui_script_widget(object):
         self.script_label_action_2.setSizePolicy(sizePolicy)
         self.script_label_action_2.setMinimumSize(QtCore.QSize(0, 0))
         self.script_label_action_2.setMaximumSize(QtCore.QSize(600, 16777215))
+        self.script_label_action_2.setWordWrap(True)
         self.script_label_action_2.setObjectName("script_label_action_2")
-        self.horizontalLayout.addWidget(self.script_label_action_2)
-        spacerItem4 = QtWidgets.QSpacerItem(0, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem4)
-        self.verticalLayout_15.addLayout(self.horizontalLayout)
+        self.horizontalLayout_14.addWidget(self.script_label_action_2)
+        spacerItem3 = QtWidgets.QSpacerItem(0, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_14.addItem(spacerItem3)
+        self.horizontalLayout_5.addLayout(self.horizontalLayout_14)
+        self.verticalLayout_7.addWidget(self.groupBox_5)
+        self.horizontalLayout_12.addWidget(self.groupBox_2)
+        self.verticalLayout_15.addLayout(self.horizontalLayout_12)
         self.horizontalLayout_13.addLayout(self.verticalLayout_15)
-        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_13.addItem(spacerItem5)
+        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_13.addItem(spacerItem4)
         self.tabWidget.addTab(self.process_tab, "")
         self.panel_tab = QtWidgets.QWidget()
         self.panel_tab.setObjectName("panel_tab")
@@ -499,14 +379,17 @@ class Ui_script_widget(object):
         self.label_9.setText(_translate("script_widget", "Selected measurements:"))
         self.groupBox.setTitle(_translate("script_widget", "Phase settings"))
         self.process_radio_mask.setText(_translate("script_widget", "Use mas&k method"))
-        self.label_6.setText(_translate("script_widget", "Select a mask:"))
+        self.label_6.setText(_translate("script_widget", "Selected:"))
         self.process_radio_exposure.setText(_translate("script_widget", "&Use high exposure"))
-        self.label_5.setText(_translate("script_widget", "Select the measurement:"))
         self.groupBox_3.setTitle(_translate("script_widget", "Reduction settings"))
         self.label_2.setText(_translate("script_widget", "Reference measurement: "))
         self.label_3.setText(_translate("script_widget", "Background measurement:"))
         self.label_4.setText(_translate("script_widget", "Mask for reduction:"))
-        self.groupBox_4.setTitle(_translate("script_widget", "Process"))
+        self.groupBox_5.setTitle(_translate("script_widget", "Process"))
+        self.process_button_run_data.setToolTip(_translate("script_widget", "Set metadata and fit parameters"))
+        self.process_button_run_phase.setToolTip(_translate("script_widget", "Run phase processing script"))
+        self.process_button_run_fit.setToolTip(_translate("script_widget", "Run Reduction script"))
+        self.process_button_run_post.setToolTip(_translate("script_widget", "Run post-reduction script"))
         self.script_label_running.setText(_translate("script_widget", "Script running:"))
         self.scrip_label_action.setText(_translate("script_widget", "Action:"))
         self.script_label_action_2.setText(_translate("script_widget", "TextLabel"))

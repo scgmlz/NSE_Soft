@@ -83,10 +83,10 @@ class PageScriptWidget(Ui_script_widget):
             self.process_button_run_fit,
             self.process_button_run_post,            
             
-            self.process_button_script_data,
-            self.process_button_script_phase,
-            self.process_button_script_fit,
-            self.process_button_script_post,
+            None,
+            None,
+            None,
+            None,
             
             self.script_button_import_gui,
             self.script_button_phase_gui,
@@ -96,9 +96,9 @@ class PageScriptWidget(Ui_script_widget):
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
-        self.progress_bar_reduction.setMaximum(4)
-        self.progress_bar_reduction.setMinimum(0)
-        self.progress_bar_reduction.setValue(0)
+        # self.progress_bar_reduction.setMaximum(4)
+        # self.progress_bar_reduction.setMinimum(0)
+        # self.progress_bar_reduction.setValue(0)
 
         with open(os.path.realpath(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-3] + ['ressources', 'default_post_path.txt'])),'r') as f:
             self.path = f.readline()
@@ -256,10 +256,10 @@ class PageScriptWidget(Ui_script_widget):
         self.button_widgets[7].clicked.connect(partial(self.run,2))
         self.button_widgets[8].clicked.connect(partial(self.run,3))
 
-        self.button_widgets[9].clicked.connect(partial(self.show,0))
-        self.button_widgets[10].clicked.connect(partial(self.show,1))
-        self.button_widgets[11].clicked.connect(partial(self.show,2))
-        self.button_widgets[12].clicked.connect(partial(self.show,3))
+        # self.button_widgets[9].clicked.connect(partial(self.show,0))
+        # self.button_widgets[10].clicked.connect(partial(self.show,1))
+        # self.button_widgets[11].clicked.connect(partial(self.show,2))
+        # self.button_widgets[12].clicked.connect(partial(self.show,3))
 
         self.button_widgets[13].clicked.connect(partial(self.link, None))
         self.button_widgets[14].clicked.connect(partial(self.link, None))
@@ -500,10 +500,6 @@ class PageScriptWidget(Ui_script_widget):
         self.process_box_masks.clear()
         self.process_box_masks.addItems(
             [ key for key in self.env.mask.mask_dict.keys() ])
-
-        self.process_box_refs.clear()
-        self.process_box_refs.addItems(
-            [ str(val) for val in self.env.current_data.get_axis('Parameter') ])
 
     def _setVisualPhase(self):
         '''
@@ -1108,13 +1104,13 @@ class PageScriptWidget(Ui_script_widget):
         if success:
             self.setProgress('Script ended with success', len(meta_array))
             self.fadeActivity()
-            self.progress_bar_reduction.setValue(index + 1)
+            # self.progress_bar_reduction.setValue(index + 1)
 
         else:
             self.script_label_running.setText('Aborted')
             self.scrip_label_action.setText('Error: ')
             self.setProgress(str(error), i)
-            self.progress_bar_reduction.setValue(index)
+            # self.progress_bar_reduction.setValue(index)
 
     def _parseCode(self, code):
         '''
