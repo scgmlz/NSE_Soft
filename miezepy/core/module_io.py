@@ -32,6 +32,7 @@ import numpy as np
 from .io_modules.import_mieze_tof import Import_MIEZE_TOF
 from .io_modules.import_sans_pad import Import_SANS_PAD
 from .module_data import DataStructure
+from .fit_modules.library_fit import miezeTauCalculation
 
 def loadData(env,gui):
     return ''
@@ -145,8 +146,8 @@ class IOStructure:
         structure populate it and then send it's 
         content to the main environment handler.
         '''
-        self.env.data[self.env.initial_data_name] = self.generator.generate(self.import_objects)
-        self.env.set_current_data(self.env.initial_data_name)
+        self.env.data[0] = self.generator.generate(self.import_objects)
+        self.env.setCurrentData(0)
 
     def load_MIEZE_TOF(self,load_path):
         '''
@@ -180,7 +181,7 @@ class Generator:
         '''
         axes,idx    = self.getAxes(import_objects)
         data        = self.populateData(axes, idx, import_objects)
-        data        = self.setAxes( data,axes)
+        data        = self.setAxes(data,axes)
         return data
 
     def getAxes(self, import_objects):
@@ -245,11 +246,11 @@ class Generator:
         and then stick them together and finally 
         remove repetitions through sets
         '''
-        data_struct = Data_Structure()
+        data_structure = DataStructure()
 
         for i,import_object in enumerate(import_objects):
             for j,path in enumerate(import_object.file_handler.total_path_files):
-                data_struct.add_metadata_object(self.generateMetadata(import_object, j))
+                data_structure.addMetadataObject(self.generateMetadata(import_object, j))
 
                 f = open(path,'rb')
                 loadeddata = np.fromfile(f, dtype=np.int32)[:np.prod(import_object.data_handler.dimension)]
@@ -259,31 +260,31 @@ class Generator:
                 for idx_1 in range(import_object.data_handler.dimension[0]):
                     for idx_2 in range(import_object.data_handler.dimension[1]):
                         address = list(idx[i][j]) + [idx_1,idx_2]
-                        data_struct[address] = data[idx_1,idx_2,:,:]
+                        data_structure[address] = data[idx_1,idx_2,:,:]
 
-        data_struct.validate()
+        data_structure.validate()
 
-        data_struct.metadata_class.add_metadata(
+        data_structure.metadata_class.addMetadata(
             'Selected foils', 
             value = '[1,1,1,0,0,1,1,1]' , 
             logical_type = 'int_array', 
             unit = '-')
 
         reference = self.getReference(import_objects)
-        data_struct.metadata_class.add_metadata(
+        data_structure.metadata_class.addMetadata(
             'Reference', 
             value = reference, 
             logical_type = 'float', 
             unit = 'K')
 
         background = self.getBackground(import_objects)
-        data_struct.metadata_class.add_metadata(
+        data_structure.metadata_class.addMetadata(
             'Background', 
             value = str(background) , 
             logical_type = 'float', 
             unit = 'K')
 
-        return data_struct
+        return data_structure
 
     def generateMetadata(self,import_object, index):
         '''
@@ -739,7 +740,7 @@ class MetaHandler:
             self.values['Echo'] = [0]*len(self.values['Wavelength'])
 
             for i in range(len(self.values['Wavelength'])):
-                self.values['Echo'][i],val = fit_handler.mieze_tau_calc(
+                self.values['Echo'][i],val = miezeTauCalculation(
                     float(self.values['Wavelength'][i]),
                     float(self.values['Freq. first'][i]),
                     float(self.values['Freq. second'][i]),

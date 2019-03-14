@@ -69,7 +69,6 @@ class Process_MIEZE(Process_Handler):
         contains the method related to processing the 
         MIEZE data
         '''
-        #initialize the superclass
         Process_Handler.__init__(self, env)
         self.env = env
         self.initialize()
@@ -111,6 +110,9 @@ class Process_MIEZE(Process_Handler):
         with open(path,'r') as f:
             text = f.read()
 
+        if 'metadata_class.add_metadata' in text:
+            text = self.reformatScript(text)
+
         check = text.split('##--FIT-PARA--##')
         if len(check) > 1:
             file_type = 'new'
@@ -135,6 +137,32 @@ class Process_MIEZE(Process_Handler):
                 text.split('##--POST--##')[1]]
 
         self.editable_scripts = list(strings)
+
+    def reformatScript(self, text):
+        '''
+        This function will reformat the text input to meet the
+        new specifications of our software. Most function calls
+        have been updated.
+
+        Parameters
+        ----------
+        text : string
+            The formated text to be formater
+
+        Returns
+        ------- 
+        text : string
+            The formated text to returned to the text importer
+        '''
+        text = text.replace('add_metadata', 'addMetadata')
+        text = text.replace('get_result', 'results.getLastResult')
+        text = text.replace('calculate_echo', 'calculateEcho')
+        text = text.replace('calculate_shift', 'calcShift')
+        text = text.replace('calculate_ref_contrast', 'calcContrastRef')
+        text = text.replace('calculate_contrast', 'calcContrastMain')
+        text = text.replace('environnement.process.remove_foils()\n', '')
+
+        return text
 
     def saveScripts(self, path, strings):
         '''
@@ -168,8 +196,10 @@ class Process_MIEZE(Process_Handler):
 
     def calculateEcho(self):
         '''
-        In this function we will process the eco time
-        on the provided datastructure. 
+        This function will calculate the echo times of 
+        the dataset depending on the input of the 
+        matdata from both the data_objects and the 
+        dataclass itself
         '''
         self.env.fit.set_parameter( 
             name = 'para_name', 
@@ -204,17 +234,19 @@ class Process_MIEZE(Process_Handler):
         local_results.addLog('info', 'Computation of the shift was a success')
         local_results.setComplete()
         self.extract_from_metadata(self.env.current_data.axes.names[2],'tau')
+        self.prepareBuffer()
 
     def prepareBuffer(self):
         '''
-        This method will be completely rewritten and
-        is now called prepareBuffer (previously remove_foils)
+        Tell the datclass to process the buffer of 
+        the dataset
         '''
         self.env.current_data.bufferAsNumpy()
 
-    def calculate_shift(self):
+    def calcShift(self):
         '''
-        apply the masks and process the information
+        Calculate and process the phase shift of the 
+        dataset if required.
         '''
         #generate the mask adapted to this dataset
         self.env.mask.generateMask(
@@ -222,36 +254,20 @@ class Process_MIEZE(Process_Handler):
             self.env.current_data.data_objects[0].dim[1])
         
         #extract the phase
-        self.env.fit['extract_phase'](
+        self.env.fit.extractPhaseMask(
             self.env.current_data, 
             self.env.mask, 
             self.env.results)
 
         #process the shift
-        self.env.fit['calc_shift'](
+        self.env.fit.correctPhase(
             self.env.current_data, 
             self.env.mask, 
             self.env.results)
 
-    def calculate_ref_contrast(self):
+    def calcContrastRef(self):
         '''
-        apply the masks and process the information
-        '''
-
-        #generate the mask adapted to this dataset
-        self.env.mask.generateMask(
-            self.env.current_data.data_objects[0].dim[0],
-            self.env.current_data.data_objects[0].dim[1])
-
-        #calculate the contrast
-        self.env.fit['calc_ref_contrast'](
-            self.env.current_data, 
-            self.env.mask, 
-            self.env.results)
-
-    def calculate_contrast(self):
-        '''
-        apply the masks and process the information
+        Calculate the contrast of the reference measurement.
         '''
         #generate the mask adapted to this dataset
         self.env.mask.generateMask(
@@ -259,13 +275,28 @@ class Process_MIEZE(Process_Handler):
             self.env.current_data.data_objects[0].dim[1])
 
         #calculate the contrast
-        self.env.fit['calc_contrast'](
+        self.env.fit.calcContrastRef(
+            self.env.current_data, 
+            self.env.mask, 
+            self.env.results)
+
+    def calcContrastMain(self):
+        '''
+        Calculate and process the contrast of all measurement.
+        '''
+        #generate the mask adapted to this dataset
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
+
+        #calculate the contrast
+        self.env.fit.calcContrastMain(
             self.env.current_data, 
             self.env.mask, 
             self.env.results)
 
         #fit the contrast data
-        self.env.fit['fit_contrast'](
+        self.env.fit.contrastFit(
             self.env.current_data, 
             self.env.mask, 
             self.env.results)

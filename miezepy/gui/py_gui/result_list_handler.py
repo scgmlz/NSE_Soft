@@ -114,7 +114,7 @@ class ResultHandlerUI:
         self.data_set = {}
         for env in self.env_handler.env_array:
             try:
-                self.data_set[env.name] = env.get_result(name = 'Contrast fit').result_dict
+                self.data_set[env.name] = env.results.getLastResult(name = 'Contrast fit').result_dict
             except:
                 pass
                 

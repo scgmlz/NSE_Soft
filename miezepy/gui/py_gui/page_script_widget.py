@@ -359,7 +359,7 @@ class PageScriptWidget(Ui_script_widget):
 
         #Foils to consider
         filtered_text_array = [
-            element if "metadata_class.add_metadata('Selected foils'" in element 
+            element if "metadata_class.addMetadata('Selected foils'" in element 
             else '' 
             for element in text_array]
         foil_check = []
@@ -452,7 +452,7 @@ class PageScriptWidget(Ui_script_widget):
             self.process_layout_foil_check.itemAt(i).widget().deleteLater()
 
         self.foil_check = []
-        for i in range(self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis_len('Foil')):
+        for i in range(self.env.current_data.get_axis_len('Foil')):
             self.foil_check.append(
                 QtWidgets.QCheckBox(str(i),parent = self.local_widget))
             self.process_layout_foil_check.addWidget(self.foil_check[-1])
@@ -466,7 +466,7 @@ class PageScriptWidget(Ui_script_widget):
             if self.container['foil_check'] == None:
                 try:
                     checkbox.setChecked(bool(
-                        self.env.data[self.env.current_data_key.split('_reduced')[0]].metadata_class['Selected foils'][i]))
+                        self.env.current_data.metadata_class['Selected foils'][i]))
                 except:
                     pass
             else:
@@ -480,7 +480,7 @@ class PageScriptWidget(Ui_script_widget):
         Connect all the elements after the value has been
         set in the set routine.
         '''
-        for i in range(self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis_len('Foil')):
+        for i in range(self.env.current_data.get_axis_len('Foil')):
             self.foil_check[i].stateChanged.connect(self._updateFoilEnabled)
 
     def _disconnectVisualData(self):
@@ -488,7 +488,7 @@ class PageScriptWidget(Ui_script_widget):
         Disconnect all the elements after the value has been
         set in the set routine.
         '''
-        for i in range(self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis_len('Foil')):
+        for i in range(self.env.current_data.get_axis_len('Foil')):
             self.foil_check[i].stateChanged.disconnect(self._updateFoilEnabled)
 
     #######################################################################
@@ -741,10 +741,10 @@ class PageScriptWidget(Ui_script_widget):
 
         try:
             names = [
-                '{:0.5e}'.format(x) for x in self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time').sort()]
+                '{:0.5e}'.format(x) for x in self.env.current_data.get_axis('Echo Time').sort()]
         except:
             names = [
-                '{:0.5e}'.format(x) for x in self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis('Echo Time')]
+                '{:0.5e}'.format(x) for x in self.env.current_data.get_axis('Echo Time')]
 
         for name in names:
             self._addEchoWidget(name)
@@ -775,7 +775,7 @@ class PageScriptWidget(Ui_script_widget):
 
         checkboxes = []
 
-        for i in range(self.env.data[self.env.current_data_key.split('_reduced')[0]].get_axis_len('Foil')):
+        for i in range(self.env.current_data.get_axis_len('Foil')):
             checkboxes.append(QtWidgets.QCheckBox(
                 str(i),parent = self.local_widget))
             checkboxes[-1].setTristate(tri)

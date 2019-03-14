@@ -103,7 +103,7 @@ class PageEnvWidget(Ui_main_env_widget):
         '''
         Add an environment to the system
         '''
-        env = self.handler.new_environment()
+        env = self.handler.addEnv()
         self.refreshList()
 
     def deleteEnvironment(self):
@@ -138,7 +138,7 @@ class PageEnvWidget(Ui_main_env_widget):
             index = self.main_widget_env.currentRow()
 
         # self.main_widget_env.itemWidget(self.main_widget_env.item(index)).setFocus()
-        self.handler.set_current_env(idx = index)
+        self.handler.setCurrentEnv(idx = index)
         self.parent.window.setWindowTitle('MIEZEPY ('+str(self.handler.current_env.name)+')')
         self.envs[index].widget.setFocus()
 
@@ -156,7 +156,7 @@ class PageEnvWidget(Ui_main_env_widget):
         '''
         for element in self.handler.env_array:
             if element.name == env.name:
-                self.handler.set_current_env(element.name)
+                self.handler.setCurrentEnv(element.name)
 
         self.parent.actionDispatcher(1)
 
@@ -167,7 +167,7 @@ class PageEnvWidget(Ui_main_env_widget):
         '''
         for element in self.handler.env_array:
             if element.name == env.name:
-                self.handler.set_current_env(element.name)
+                self.handler.setCurrentEnv(element.name)
                 
         self.parent.actionDispatcher(2)
 
@@ -178,6 +178,6 @@ class PageEnvWidget(Ui_main_env_widget):
         '''
         for element in self.handler.env_array:
             if element.name == env.name:
-                self.handler.set_current_env(element.name)
+                self.handler.setCurrentEnv(element.name)
                 
         self.parent.actionDispatcher(3)

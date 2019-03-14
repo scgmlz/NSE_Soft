@@ -319,7 +319,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         
         self.initialize()
         self.env        = env
-        self.data       = self.env.current_data.return_as_np()
+        self.data       = self.env.current_data.returnAsNumpy()
         self.mask_core  = mask_core
         self.mask_model.link(self.mask_core)
         self.populateSelectors()
@@ -475,6 +475,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not finished interupted to allow the UI to
         run smoothly
         '''
+        return None
         self.thread.terminate()
         self.thread.wait()
         parameters = self.prepareThread()
@@ -494,6 +495,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         try:
             self.env.get_result('Shift calculation')
         except:
+            
             self.env.process.calculate_echo()
             self.env.process.remove_foils()
             self.env.fit.fake_calc_shift(

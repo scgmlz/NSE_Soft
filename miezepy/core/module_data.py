@@ -495,7 +495,7 @@ class DataStructure:
         #send it also out to the log
         self.log.addLog(
             'info', 
-            'Successfully fixed metadata informations')
+            'Successfully fixed metadata information')
 
         ##############################################
         ##############################################

@@ -158,39 +158,3 @@ class Environment:
             self.current_data = self.data[idx]
         else:
             self.current_data = self.data[-1]
-
-    #TO-DO: remove this ... in the long term
-    def get_result(self, name = '', key = None, last = True):
-        '''
-        Fetch the result class from the current result
-        class. The result object can then be used
-        locally. We do not advise to change eventual
-        results the result of this method. 
-        For this a specific branch of the set method
-        has been engineered. 
-        Input: 
-        - key (str)
-        '''
-        if last:
-            try:
-                return self.results.get_last_result(name, key)
-            except ValueError:
-                print("\nERROR: The name '"+str(name)+"' or key '"+str(key)+"'you have provided is not present in the dictionary. Error...\n")
-
-    #TO-DO: remove this ... in the long term
-    def purge(self, name = '', key = None, last = True):
-        '''
-        Will free memory be deleting all the data 
-        slices and the results. This is in an effort
-        to save RAM. 
-        '''
-        #delete the current data slices
-        self.current_data = self.data[self.initial_data_name]
-        self.data[self.initial_data_name].delete_all_slices()
-        pointer = [key for key in self.data.keys()]
-
-        #delete the other datastructures
-        for key in pointer:
-            if not self.initial_data_name == key:
-                self.data[key].delete_all_slices()
-                del self.data[key]

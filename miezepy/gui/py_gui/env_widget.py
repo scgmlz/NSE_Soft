@@ -90,7 +90,7 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
         '''
         connect
         '''
-        self.env_text_data_print.setText(self.env.data[self.env.initial_data_name].__str__())
+        self.env_text_data_print.setText(self.env.current_data.__str__())
 
     def nameEdit(self):
         '''

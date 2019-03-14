@@ -48,7 +48,7 @@ class Mieze(CoreHandler):
         if GUI == True:
             self.gui = WindowHandler()
             self.gui.initialize(self)
-            
+
         self.success = True
 
     def checkRessources(self):
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     env = app.current_env
     env.io.loadFromPython(
         "Examples/file_3.py")
-    # app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
+    app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
     # app.gui.active_windows['MainWindow'].target.actionDispatcher(3)
     # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(0)
     # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(1)

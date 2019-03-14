@@ -312,7 +312,9 @@ class CoreHandler:
                 main_window.setProgress('Setting env '+str(i),i)
 
             with open(path) as f:
-                code = compile(f.read(), path, 'exec')
+                temp = f.read()
+                temp = temp.replace('.new_environment(', '.addEnv(')
+                code = compile(temp, path, 'exec')
                 exec(code,globals())
 
             #the setEnv method is overwritten in the load file
