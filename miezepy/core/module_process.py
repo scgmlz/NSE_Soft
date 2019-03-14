@@ -51,11 +51,14 @@ class Process_Handler:
         This function will populate the axis with a 
         given metadata entry and then collapse the
         axis around it.  
-        ———————
-        Input: 
-        - data_structure class (loaded already)
-        - mask object
-        - fit object
+
+        Parameters
+        ----------
+        axis : int
+            Integer pointer to the axis to modify
+
+        key : string
+            The metadata key to grab
         '''
         idx = self.env.current_data.axes.names.index(axis)
         self.env.current_data.axes.grab_meta(idx, key, self.env.current_data)
@@ -106,6 +109,11 @@ class Process_MIEZE(Process_Handler):
         '''
         Initialize the default python scipts so that 
         the system can be set.
+
+        Parameters
+        ----------
+        path : string
+            The path of the file
         '''
         with open(path,'r') as f:
             text = f.read()
@@ -168,10 +176,14 @@ class Process_MIEZE(Process_Handler):
         '''
         Initialize the default python scipts so that 
         the system can be set.
-        ———————
-        Input: 
-        - path (str) file path to be saved
-        - strings([str]) scripts 
+
+        Parameters
+        ----------
+        path : string
+            The file path to be saved
+
+        strings : string array
+            The list of scripts to be saved
         '''
         string = (
             "##--IMPORT--##\n"
