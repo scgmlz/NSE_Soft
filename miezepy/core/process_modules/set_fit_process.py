@@ -26,7 +26,15 @@ Reference = [28.6,0]
 #set the background
 Background = 68.0
 
+instrument = 'Reseda'
+
+detector = None
+
+exposure = False
+
 environnement.fit.set_parameter( name = 'Select',        value = Selected     )
 environnement.fit.set_parameter( name = 'Reference',     value = Reference    )
 environnement.fit.set_parameter( name = 'Background',    value = Background   )
 environnement.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)
+environnement.fit.set_parameter( name = 'exposure', value = exposure)
+environnement.instrument.setDetector(instrument, detector)

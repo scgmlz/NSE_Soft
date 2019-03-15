@@ -32,5 +32,5 @@ print(environment.mask)
 #          value = 0.0035)
 
 
-environment.process.calculate_ref_contrast()
-environment.process.calculate_contrast()
+environment.process.calcContrastRef()
+environment.process.calcContrastMain()
