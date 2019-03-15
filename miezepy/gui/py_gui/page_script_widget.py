@@ -325,6 +325,8 @@ class PageScriptWidget(Ui_script_widget):
         self._readFromScripts()
         self._linkVisualData()
         self._linkVisualPhase()
+        self._linkVisualInstrument()
+        self._linkVisualDetector()
         self._linkVisualFit()
 
         self._setVisualData()
@@ -332,6 +334,9 @@ class PageScriptWidget(Ui_script_widget):
         self._setVisualFit()
         self._updateFoilTri()
         self._setVisualPhase()
+        self._setVisualExposure()
+        self._setVisualInstrument()
+        self._setVisualDetector()
 
         self.foil_header_active     = True
         self.foil_elements_active   = True
@@ -340,6 +345,7 @@ class PageScriptWidget(Ui_script_widget):
         self._connectVisualData()
         self._connectVisualFit()
         self._connectVisualPhase()
+        self._connectVisualInstrument()
 
         self._synthesize()
 
@@ -406,6 +412,32 @@ class PageScriptWidget(Ui_script_widget):
             if not element == '':
                 Background = eval(element.split('Background = ' )[1])
 
+        #instrument
+        filtered_text_array = [
+            element if 'instrument = ' in element else '' 
+            for element in text_array]
+        instrument = None
+        for element in filtered_text_array:
+            if not element == '':
+                Background = eval(element.split('instrument = ' )[1])
+
+        #detector
+        filtered_text_array = [
+            element if 'detector = ' in element else '' 
+            for element in text_array]
+        detector = None
+        for element in filtered_text_array:
+            if not element == '':
+                Background = eval(element.split('detector = ' )[1])
+
+        #exposure
+        filtered_text_array = [
+            element if 'exposure = ' in element else '' 
+            for element in text_array]
+        exposure = False
+        for element in filtered_text_array:
+            if not element == '':
+                Background = eval(element.split('exposure = ' )[1])
         #----------------------------------------#
         text_array = self.env.process.editable_scripts[2].split("\n")
 
@@ -440,6 +472,9 @@ class PageScriptWidget(Ui_script_widget):
         self.container['foil_check']    = foil_check
         self.container['phase_mask']    = phase_mask
         self.container['reduction_mask']= reduction_mask
+        self.container['instrument']    = instrument
+        self.container['detector']      = detector
+        self.container['exposure']      = exposure
 
     #######################################################################
     #######################################################################
@@ -526,6 +561,97 @@ class PageScriptWidget(Ui_script_widget):
         set in the set routine.
         '''
         self.process_box_masks.currentIndexChanged.disconnect(self._synthesizeFit)
+
+    #######################################################################
+    #######################################################################
+    def _linkVisualInstrument(self):
+        '''
+        Link the Instrument selection component
+        '''
+        self.process_box_instrument.clear()
+        self.process_box_instrument.addItems(self.env.instrument.detector_names)
+
+    def _linkVisualDetector(self, update = False):
+        '''
+        Link the detector selection component
+        '''
+        array = [ text[2] for text in self.env.instrument.detector.foil_file_list] + ['None']
+        self.process_box_detector.clear()
+        self.process_box_detector.addItems(array)
+        if update:
+            self._setVisualDetector()
+
+    def _setVisualExposure(self):
+        '''
+        Link the exposure selection component
+        '''
+        if self.container['exposure']:
+            self.process_radio_exposure.setChecked(True)
+            self.process_radio_mask.setChecked(False)
+        else:
+            self.process_radio_exposure.setChecked(False)
+            self.process_radio_mask.setChecked(True)
+
+    def _setVisualInstrument(self):
+        '''
+        Set the widget values depending on the input of the 
+        environnement
+        '''
+        try:
+            self.process_box_instrument.setCurrentIndex(
+                self.env.instrument.detector_names.index(self.container['instrument']))
+        except:
+            pass
+
+    def _setVisualDetector(self):
+        '''
+        Set the widget values depending on the input of the 
+        environnement
+        '''
+        array = [text[0] for text in self.env.instrument.detector.foil_file_list] + ['None']
+        try:
+            self.process_box_detector.setCurrentIndex(
+                array.index(self.container['detector']))
+        except:
+            pass
+
+    def _connectVisualInstrument(self):
+        '''
+        Connect all the elements after the value has been
+        set in the set routine.
+        '''
+        self.process_box_instrument.currentIndexChanged.connect(self._processInstrument)
+        self.process_box_detector.currentIndexChanged.connect(self._processInstrument)
+        self.process_radio_exposure.toggled.connect(self._processInstrument)
+
+    def _disconnectVisualInstrument(self):
+        '''
+        Disconnect all the elements after the value has been
+        set in the set routine.
+        '''
+        self.process_box_instrument.currentIndexChanged.disconnect(self._processInstrument)
+        self.process_box_detector.currentIndexChanged.disconnect(self._processInstrument)
+        self.process_radio_exposure.toggled.disconnect(self._processInstrument)
+
+    def _processInstrument(self):
+        '''
+        The instrument is more complex and needs to be managed 
+        through an intermediate routine here
+        '''
+        self._disconnectVisualInstrument()
+
+        new     = self.process_box_instrument.currentText()
+        array   = [text[0] for text in self.env.instrument.detector.foil_file_list] + ['None']
+        element = array[self.process_box_detector.currentIndex()]
+
+        self.env.instrument.setDetector(
+            new, None if element == 'None' else int(element))
+
+        self._linkVisualDetector()
+        self._setVisualInstrument()
+        self._setVisualDetector()
+        self._synthesizeFit()
+        self._connectVisualInstrument()
 
     #######################################################################
     #######################################################################
@@ -939,6 +1065,19 @@ class PageScriptWidget(Ui_script_widget):
             python_string_init += "Reference = ["+str(float([ str(val) for val in self.env.current_data.get_axis('Parameter') ][self.process_box_refs_fit.currentIndex()]))+",0]\n"
         except:
             python_string_init += "Reference = ['"+str([ str(val) for val in self.env.current_data.get_axis('Parameter') ][self.process_box_refs_fit.currentIndex()])+"',0]\n"
+
+        #set the instrument
+        python_string_init += "\n#Instrument (edit in GUI)\n"
+        python_string_init += "instrument = '"+str(self.process_box_instrument.currentText())+"'\n"
+
+        #set the detector
+        array = [ text[0] for text in self.env.instrument.detector.foil_file_list] + ['None']
+        python_string_init += "\n#Detector(edit in GUI)\n"
+        python_string_init += "detector = "+str(array[self.process_box_detector.currentIndex()])+"\n"
+
+        #set the exposure setting
+        python_string_init += "\n#Use the high exposure setting (edit in GUI)\n"
+        python_string_init += "exposure = "+str(self.process_radio_exposure.isChecked())+"\n"
 
         #find area to edit
         text = self.env.process.editable_scripts[1]

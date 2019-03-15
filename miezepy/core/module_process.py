@@ -169,6 +169,17 @@ class Process_MIEZE(Process_Handler):
         text = text.replace('calculate_ref_contrast', 'calcContrastRef')
         text = text.replace('calculate_contrast', 'calcContrastMain')
         text = text.replace('environnement.process.remove_foils()\n', '')
+        text = text.replace(
+            "environnement.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)\n", 
+            "environnement.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)\n"
+            +"environnement.fit.set_parameter( name = 'exposure', value = exposure)\n"
+            +"environnement.instrument.setDetector(instrument, detector)\n")
+        text = text.replace(
+            "environnement.fit.set_parameter( name = 'Select',",
+            "instrument = 'Reseda'\n"
+            +"detector = None\n\n"
+            +"exposure = False\n\n"
+            +"environnement.fit.set_parameter( name = 'Select',")
 
         return text
 
@@ -260,22 +271,30 @@ class Process_MIEZE(Process_Handler):
         Calculate and process the phase shift of the 
         dataset if required.
         '''
-        #generate the mask adapted to this dataset
-        self.env.mask.generateMask(
-            self.env.current_data.data_objects[0].dim[0],
-            self.env.current_data.data_objects[0].dim[1])
-        
-        #extract the phase
-        self.env.fit.extractPhaseMask(
-            self.env.current_data, 
-            self.env.mask, 
-            self.env.results)
+        if self.env.fit.para_dict['exposure']:
+            #process the exposure
+            self.env.fit.correctPhaseExposure(
+                self.env.current_data,
+                self.env.mask,
+                self.env.instrument,
+                self.env.results)
+        else:
+            #generate the mask adapted to this dataset
+            self.env.mask.generateMask(
+                self.env.current_data.data_objects[0].dim[0],
+                self.env.current_data.data_objects[0].dim[1])
+            
+            #extract the phase
+            self.env.fit.extractPhaseMask(
+                self.env.current_data, 
+                self.env.mask, 
+                self.env.results)
 
-        #process the shift
-        self.env.fit.correctPhase(
-            self.env.current_data, 
-            self.env.mask, 
-            self.env.results)
+            #process the shift
+            self.env.fit.correctPhase(
+                self.env.current_data, 
+                self.env.mask, 
+                self.env.results)
 
     def calcContrastRef(self):
         '''
@@ -289,7 +308,7 @@ class Process_MIEZE(Process_Handler):
         #calculate the contrast
         self.env.fit.calcContrastRef(
             self.env.current_data, 
-            self.env.mask, 
+            self.env.mask,
             self.env.results)
 
     def calcContrastMain(self):
