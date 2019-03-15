@@ -217,7 +217,7 @@ class PhaseProcessing():
             'Info', 
             'Fit of the phase was a success')
 
-    def correctPhaseExposure(self, target, mask, results):
+    def correctPhaseExposure(self, target, mask, instrument, results):
         '''
         This function is the main callable
         to process with the change of the phase. 
@@ -243,7 +243,6 @@ class PhaseProcessing():
         echo_source     = results.getLastResult('Echo Sources', 'Echo Dict')
         data_meas       = target.bufferedData
         data_map        = target.map
-        surface_profile = self.para_dict['surface_profile']
 
         para_name   = self.para_dict['para_name']
         meas_name   = self.para_dict['meas_name']
@@ -265,7 +264,6 @@ class PhaseProcessing():
         #other constants
         m_n             = 1.674927471e-27 # kg
         h_J             = 6.626070040e-34 # J*s
-        m_pixel         = 0.2/128.
 
         #neutron velocities
         velocities  = {}
@@ -276,27 +274,9 @@ class PhaseProcessing():
             d_sam_det[key]  = echo_source[key]['lsd']*1e-9
             freq[key]       = echo_source[key]['freq_1'] - echo_source[key]['freq_0']
 
-        calc_phase = np.zeros([
-            len(echo_axis), 
-            len(foil_axis),
-            len(cha_axis),128,128])
-
-        for echo, foil in loop_para:
-            echo_idx    = echo_axis.index(echo)
-            foil_idx    = foil_axis.index(foil)
-            for x,y in loop_pixel:
-                calc_phase[echo_idx, foil_idx, :,x,y] = (
-                    2*np.pi-2*np.pi*(
-                        d_sam_det[echo] - np.sqrt(d_sam_det[echo]**2 - ((x-64)*m_pixel)**2- ((y-64)*m_pixel)**2)
-                        + surface_profile[foil_idx,x,y])
-                    /(velocities[echo]/(2*freq[echo])))
-
-        index_map = np.zeros(calc_phase.shape)
-        for echo, foil in loop_para:
-            echo_idx    = echo_axis.index(echo)
-            foil_idx    = foil_axis.index(foil)
-            index_map[echo_idx,foil_idx] = np.round(
-                ((2*np.pi-calc_phase[echo_idx,foil_idx])/(2*np.pi/16.)+np.pi/2.)%16)
+        index_map = instrument.detector.processPhaseShift(
+            echo_axis,velocities,
+            d_sam_det,freq)
 
         worker_pool = WorkerPool(self.para_dict['processors'])
         index_array = []

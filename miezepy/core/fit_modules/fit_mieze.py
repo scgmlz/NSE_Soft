@@ -59,7 +59,8 @@ class Fit_MIEZE(Fit_Handler,PhaseProcessing, ContrastProcessing):
         self.para_dict['Reference']     = None
         self.para_dict['Select']        = []
         self.para_dict['foil_correct']  = []
-        self.para_dict['processors']    = 4
+        self.para_dict['processors']    = 1
+        self.para_dict['exposure']      = False
     
         ############################################
         #set deafult pointers

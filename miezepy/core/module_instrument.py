@@ -24,19 +24,32 @@
 
 import os
 import numpy as np
+import sys
+import inspect
+
 
 class InstrumentStructure:
     '''
     This module will contain the instruments
     characteristics.
     '''
-
     def __init__(self):
         '''
 
         '''
-        self.detector   = DetectorStructure()
+        self._getDetectors()
+        self.setDetector('Reseda')
         self.success    = True
+
+    def _getDetectors(self):
+        '''
+        Investigate the present detector classes to 
+        initialize the detector list for the GUI
+        '''
+        self.detector_names = []
+        for name, obj in inspect.getmembers(sys.modules[__name__]):
+            if inspect.isclass(obj) and 'MIEZE' in name:
+                self.detector_names.append(name.split('MIEZE')[1])
 
     def setDetector(self, name, date = None):
         '''
@@ -49,13 +62,13 @@ class InstrumentStructure:
         ----------
         idx : int
             foil to be used from the foil array
-            
         '''
-        exec('self.detector = MIEZE'+name+'()')
-        if date == None:
-            self.detector.setFoilFile(None)
-        else:
-            self.detector.setFoilFile(date)
+        if name in self.detector_names:
+            exec('self.detector = MIEZE'+name+'()')
+            if date == None:
+                self.detector.setFoilFile(None)
+            else:
+                self.detector.setFoilFile(date)
 
 class DetectorStructure:
     '''
@@ -73,6 +86,7 @@ class DetectorStructure:
         self.num_foils          = 0
         self.size_foil          = [0, 0]
         self.num_foil_pixels    = [0, 0]
+        self.foil_center        = [0, 0]
         self.num_time_channels  = 0
 
     def setFoilFile(self, date):
@@ -87,13 +101,11 @@ class DetectorStructure:
         date : int or string
             foil to be used from the foil array
         '''
-
         if date == None:
             self._loadFoils(self.foil_file_list[-1])
         else:
             idx = [e[0] for e in self.foil_file_list].index(date)
-            self._loadFoils(
-                self.foil_file_list[idx])
+            self._loadFoils(self.foil_file_list[idx])
         
     def _loadFoils(self, foil_info):
         '''
@@ -124,6 +136,59 @@ class DetectorStructure:
             formated_file_list,
             key = lambda formated_file_list: formated_file_list[0])
 
+    def processPhaseShift(self, echos, velocities, d_sam_det, freq):
+        '''
+        This function is the detector routine to 
+        correct the phase shift of the foil through
+        the height profile loaded
+
+        Parameters
+        ----------
+        echos : list float
+            The list of echo times
+
+        velocities : dict float
+            The list of velocities for each echo
+
+        d_sam_det : dict float
+            The dictionary of distances sample detector
+
+        freq : dict float
+            The dictionary of frequency difference
+        '''
+        m_pixel_x   = self.size_foil[0]/self.num_foil_pixels[0]
+        m_pixel_y   = self.size_foil[1]/self.num_foil_pixels[1]
+
+        phase = np.zeros([
+            len(echos), 
+            self.num_foils,
+            self.num_time_channels,
+            self.num_foil_pixels[0] ,
+            self.num_foil_pixels[1] ])
+
+        loop_pixel = [
+            (e1,e2) 
+            for e1 in range(self.num_foil_pixels[0])
+            for e2 in range(self.num_foil_pixels[1]) ]
+
+        for echo_idx,echo in enumerate(echos):
+            for foil_idx in range(self.num_foils):
+                for x,y in loop_pixel:
+                    phase[echo_idx, foil_idx, :,x,y] = (
+                        2*np.pi-2*np.pi*(
+                            d_sam_det[echo] - np.sqrt(d_sam_det[echo]**2 - ((x-self.foil_center[0])*m_pixel_x)**2- ((y-self.foil_center[1])*m_pixel_y)**2)
+                            + self.foil_array[foil_idx,x,y])
+                        /(velocities[echo]/(2*freq[echo])))
+
+        index_map = np.zeros(phase.shape)
+        for echo_idx,echo in enumerate(echos):
+            for foil_idx in range(self.num_foils):
+                index_map[echo_idx,foil_idx] = np.round(
+                    ((2*np.pi-phase[echo_idx,foil_idx])/(2*np.pi/16.)+np.pi/2.)%16)
+
+        return index_map
+
+
 class MIEZEReseda(DetectorStructure):
     '''
     This module will contain the detector
@@ -138,8 +203,9 @@ class MIEZEReseda(DetectorStructure):
         '''
         self.identifier         = 'Reseda'
         self.num_foils          = 8
-        self.size_foil          = [20,20]
+        self.size_foil          = [0.20,0.20]
         self.num_foil_pixels    = [128, 128]
+        self.foil_center        = [64, 64]
         self.num_time_channels  = 16
 
         self._initFoilList()

@@ -345,6 +345,7 @@ class Test_Phase_correction(unittest.TestCase):
         self.env.fit.correctPhaseExposure(
             self.env.current_data,
             self.env.mask,
+            self.env.instrument,
             self.env.results)
 
         result = self.env.results.getLastResult('Corrected Phase')['Shift']
@@ -490,6 +491,7 @@ class Test_Phase_correction(unittest.TestCase):
         self.env.fit.correctPhaseExposure(
             self.env.current_data,
             self.env.mask,
+            self.env.instrument,
             self.env.results)
 
         result = self.env.results.getLastResult('Corrected Phase')['Shift']
