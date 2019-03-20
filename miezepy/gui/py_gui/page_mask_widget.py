@@ -25,12 +25,12 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QInputDialog
 import numpy as np
-import os
 
 #private dependencies
 from ..qt_gui.main_mask_editor_ui   import Ui_mask_editor
 from ...gui.py_gui.dialog           import dialog 
 from ..qt_gui.new_mask_ui           import Ui_new_msk
+from .panel_worker                  import PanelWorker
 
 #private plotting library
 from simpleplot.multi_canvas import Multi_Canvas
@@ -475,11 +475,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not finished interupted to allow the UI to
         run smoothly
         '''
-        return None
         self.thread.terminate()
         self.thread.wait()
         parameters = self.prepareThread()
-        self.worker = Worker(parameters)
+        self.worker = PanelWorker(parameters)
         self.thread = QtCore.QThread()
         self.worker.moveToThread(self.thread)
         self.worker.finished.connect(self.updateVisual)
@@ -493,14 +492,11 @@ class PanelPageMaskWidget(PageMaskWidget):
         run smoothly
         '''
         try:
-            self.env.get_result('Shift calculation')
+            self.env.results.getLastResult('Corrected Phase')
         except:
-            
-            self.env.process.calculate_echo()
-            self.env.process.remove_foils()
-            self.env.fit.fake_calc_shift(
-                self.env.current_data, 
-                self.env.mask, 
+            self.env.process.calculateEcho()
+            self.env.fit.noCorrection(
+                self.env.current_data,
                 self.env.results)
 
         ##############################################
@@ -521,17 +517,13 @@ class PanelPageMaskWidget(PageMaskWidget):
         ##############################################
         #process index
         para_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[0],
-            para)
+            self.env.current_data.axes.names[0], para)
         meas_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[1],
-            meas)
+            self.env.current_data.axes.names[1], meas)
         echo_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[2],
-            echo)
+            self.env.current_data.axes.names[2], echo)
         foil_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[3], 
-            foil)
+            self.env.current_data.axes.names[3], foil)
 
         self.mask = self.env.mask.mask
 
@@ -602,7 +594,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not self.fit == None:
             self.cx.add_plot(
                 'Scatter', x_1, 
-                self.fit['ampl']*np.cos(x_1/16.*2*np.pi+self.fit['phase'])+self.fit['mean'], 
+                self.fit['amplitude']*np.cos(x_1/16.*2*np.pi+self.fit['phase'])+self.fit['mean'], 
                 Style   = ['-'], 
                 Log     = [False,False])
 
@@ -618,79 +610,6 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.bx.redraw()
         self.cx.redraw()
         self.dx.redraw()
-
-class Worker(QtCore.QObject):
-    finished = QtCore.pyqtSignal()
-    intReady = QtCore.pyqtSignal(int)
-
-    def __init__(self, parameters):
-        '''
-        define the parameters
-        ———————
-        Input: 
-        - 0 data as numpy array
-        - 1 para
-        - 2 meas
-        - 3 echo
-        - 4 foil
-        - 5 para
-        - 6 meas
-        - 7 echo
-        - 8 foil
-        - 9 env
-        - 10 mask
-        '''
-        QtCore.QObject.__init__(self)
-        self.parameters = parameters
-        
-    @QtCore.pyqtSlot()
-    def run(self): 
-        '''
-        define the parameters
-        '''
-        para        = self.parameters[1]
-        foil        = self.parameters[4]
-        echo_idx    = self.parameters[7]
-        foil_idx    = self.parameters[8]
-
-        self.reshaped       = self.parameters[0]
-        self.mask           = self.parameters[10]
-        self.env            = self.parameters[9]
-        self.counts         = [
-            np.sum(self.mask * self.reshaped[echo_idx,foil_idx,timechannel]) 
-            for timechannel in range(16)]
-
-        try:
-            self.env.fit.fit_data_cov(
-                self.env.results, 
-                self.counts, 
-                np.sqrt(self.counts), 
-                Qmin=0.)
-
-            self.fit = self.env.get_result('Fit data covariance')
-        except:
-            self.fit = None
-        self.env.fit.calcCtrstMain( 
-                self.env.current_data,
-                self.env.mask,
-                self.env.results,
-                select = [para],
-                foil = foil)
-
-        self.process = self.env.get_result('Contrast calculation')
-        try:
-            self.env.fit.calcCtrstMain( 
-                    self.env.current_data,
-                    self.env.mask,
-                    self.env.results,
-                    select = [para],
-                    foil = foil)
-
-            self.process = self.env.get_result('Contrast calculation')
-        except:
-            self.process = None
-
-        self.finished.emit()
 
 class NewMaskWindow(QtWidgets.QMainWindow,Ui_new_msk):
     '''

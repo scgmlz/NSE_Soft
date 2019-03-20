@@ -93,11 +93,11 @@ class CosineMinuit:
         -------
         fit result : float
         '''
-        with warnings.catch_warnings():
-            try:
-                return sum((((amplitude*np.cos(self.argument_dict['freq']*t+phase)+offset-c)**2)/e**2 if not e == 0 else np.nan for c,t,e in zip(self.argument_dict['counts'],self.argument_dict['time'],self.argument_dict['error'])))
-            except:
-                return np.nan
+        # with warnings.catch_warnings():
+        try:
+            return sum((((amplitude*np.cos(self.argument_dict['freq']*t+phase)+offset-c)**2)/e**2 if not e == 0 else np.nan for c,t,e in zip(self.argument_dict['counts'],self.argument_dict['time'],self.argument_dict['error'])))
+        except:
+            return np.nan
 
 class ExpMinuit:
 

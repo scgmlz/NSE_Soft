@@ -41,6 +41,68 @@ class PhaseProcessing():
     def __init__(self):
         self.para_dict = {}
 
+    def noCorrection(self, target, results):
+        '''
+        The pahse correction can be turned off to 
+        allow for quick analysis of the data. This
+        will simply fill the associated datafield.
+
+        Parameters
+        ----------
+        target : DataStructure
+            The current active datastructure
+
+        results : ResultStructure
+            The current active result structure
+        '''
+        #Initialize the output dictionary with all def.
+        local_results = results.generateResult( name = 'Corrected Phase')
+        data_meas   = target.bufferedData
+        data_map    = target.map
+        para_name   = self.para_dict['para_name']
+        echo_name   = self.para_dict['echo_name']
+        meas_name   = self.para_dict['meas_name']
+
+        para_axis   = target.get_axis(para_name) 
+        meas_axis   = target.get_axis(meas_name) 
+        echo_axis   = target.get_axis(echo_name)
+
+        loop = loopLibrary(self, target, 'loop_main')
+        index_array = []
+        for key, meas, echo in loop:
+            index_array.append([key,meas, echo])
+
+        #loop
+        idx = 0
+        temp = {}
+        for key, meas, echo in loop:
+            #grab the data slice
+            if not data_map[para_axis.index(index_array[idx][0]), 
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2]), 0, 0] == -1:
+
+                temp[idx] = data_meas[
+                        para_axis.index(index_array[idx][0]), 
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2])]
+
+            idx += 1
+
+        temp_reorganized = reorganizeResult(temp, index_array, loop)
+
+        ##############################################
+        #finalize result and send it out
+        local_results['Shift'] = temp_reorganized
+
+        #write the dictionary entries
+        local_results.addLog('info', 'Computation of the shift was a success')
+        local_results.setComplete()
+        
+        #tell fit handler what happened
+        self.log.addLog(
+            'info', 
+            'Computation of the shift was a success')
+
     def correctPhase(self,target, mask, results):
         '''
         This function is the main callable
