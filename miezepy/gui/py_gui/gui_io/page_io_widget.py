@@ -24,9 +24,8 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 import os
 
-from ..qt_gui.main_io_widget_ui     import Ui_io_widget
-from ..py_gui.env_widget            import EnvWidget
-from ..py_gui.tree_class            import *
+from ...qt_gui.main_io_widget_ui    import Ui_io_widget
+from .tree_class                    import *
 
 class PageIOWidget(Ui_io_widget):
     

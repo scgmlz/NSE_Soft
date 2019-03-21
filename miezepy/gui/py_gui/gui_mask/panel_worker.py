@@ -24,7 +24,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 import numpy as np
 
-from ...core.fit_modules.library_fit import fitDataSinus
+from ....core.fit_modules.library_fit import fitDataSinus
 
 class PanelWorker(QtCore.QObject):
     '''

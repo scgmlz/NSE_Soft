@@ -28,9 +28,9 @@ import numpy as np
 import os
 
 #private dependencies
-from ..qt_gui.main_mask_editor_ui   import Ui_mask_editor
-from ...gui.py_gui.dialog           import dialog 
-from ..qt_gui.new_mask_ui           import Ui_new_msk
+from ...qt_gui.main_mask_editor_ui  import Ui_mask_editor
+from ..gui_common.dialog            import dialog 
+from ...qt_gui.new_mask_ui         import Ui_new_msk
 from .panel_worker                  import PanelWorker
 
 #private plotting library

@@ -26,8 +26,8 @@ import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from .main_window           import MainWindowLayout
-from .meta_window           import MetadataWindowLayout
-from .display_raw_window    import DisplayRawWindowLayout
+from .gui_data.meta_window           import MetadataWindowLayout
+from .gui_data.display_raw_window    import DisplayRawWindowLayout
 
 from ...gui.qt_gui import images_rcc
 

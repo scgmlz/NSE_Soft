@@ -26,7 +26,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import sys
 import os
 
-from ...gui.qt_gui.env_widget_ui import Ui_env_widget
+from ...qt_gui.env_widget_ui import Ui_env_widget
 
 class EnvWidget(Ui_env_widget,QtCore.QObject):
     '''

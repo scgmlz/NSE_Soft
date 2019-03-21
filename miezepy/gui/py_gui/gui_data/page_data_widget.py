@@ -29,11 +29,11 @@ import copy
 import time
 
 #private dependencies
-from ..qt_gui.main_data_import_ui       import Ui_data_import
-from ...gui.py_gui.loaded_data_widget   import LoadedDataWidget
-from ...gui.py_gui.meta_widget          import MetaWidget 
-from ...gui.py_gui.dialog               import dialog 
-from ...gui.py_gui.drag_drop_file       import DropListView 
+from ...qt_gui.main_data_import_ui  import Ui_data_import
+from .loaded_data_widget            import LoadedDataWidget
+from .meta_widget                   import MetaWidget 
+from ..gui_common.dialog            import dialog 
+from .drag_drop_file    import DropListView 
 
 #private plotting library
 from simpleplot.multi_canvas import Multi_Canvas

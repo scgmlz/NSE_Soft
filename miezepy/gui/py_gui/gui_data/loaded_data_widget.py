@@ -26,7 +26,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore, uic
 import sys
 import os
 
-from ...gui.qt_gui.loaded_data_ui import Ui_dataset_widget
+from ...qt_gui.loaded_data_ui import Ui_dataset_widget
 
 class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
     '''

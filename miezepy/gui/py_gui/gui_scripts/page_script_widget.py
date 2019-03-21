@@ -29,11 +29,11 @@ import numpy as np
 import os
 
 #private dependencies
-from ..qt_gui.main_script_ui    import Ui_script_widget
-from .python_syntax             import PythonHighlighter
-from .page_mask_widget          import PanelPageMaskWidget
-from .dialog                    import dialog 
-from .code_editor               import CodeEditor
+from ...qt_gui.main_script_ui       import Ui_script_widget
+from ..gui_common.python_syntax     import PythonHighlighter
+from ..gui_mask.page_mask_widget    import PanelPageMaskWidget
+from ..gui_common.dialog            import dialog 
+from ..gui_common.code_editor       import CodeEditor
 
 #private plotting library
 from simpleplot.multi_canvas    import Multi_Canvas
@@ -96,11 +96,7 @@ class PageScriptWidget(Ui_script_widget):
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
-        # self.progress_bar_reduction.setMaximum(4)
-        # self.progress_bar_reduction.setMinimum(0)
-        # self.progress_bar_reduction.setValue(0)
-
-        with open(os.path.realpath(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-3] + ['ressources', 'default_post_path.txt'])),'r') as f:
+        with open(os.path.realpath(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-4] + ['ressources', 'default_post_path.txt'])),'r') as f:
             self.path = f.readline()
             self.script_line_def_save.setText(self.path)
 

@@ -26,7 +26,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import sys
 import os
 
-from ...gui.qt_gui.meta_widget_ui import Ui_meta_widget
+from ...qt_gui.meta_widget_ui import Ui_meta_widget
 
 class MetaWidget(Ui_meta_widget,QtCore.QObject):
     '''

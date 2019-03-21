@@ -27,7 +27,7 @@ import sys
 import os
 from scipy.ndimage import imread
 
-from ..qt_gui.metadata_window_ui import Ui_select_meta 
+from ...qt_gui.metadata_window_ui import Ui_select_meta 
 
 class MetadataWindowLayout(Ui_select_meta):
     '''

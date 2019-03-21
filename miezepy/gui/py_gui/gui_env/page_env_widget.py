@@ -24,8 +24,8 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from functools import partial
 
-from ..qt_gui.main_env_widget_ui    import Ui_main_env_widget
-from ..py_gui.env_widget            import EnvWidget
+from ...qt_gui.main_env_widget_ui   import Ui_main_env_widget
+from .env_widget                    import EnvWidget
 
 class PageEnvWidget(Ui_main_env_widget):
     

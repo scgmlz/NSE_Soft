@@ -29,7 +29,7 @@ import os
 import copy
 
 #private dependencies
-from ...gui.qt_gui.display_data_raw_ui import Ui_raw_display
+from ...qt_gui.display_data_raw_ui import Ui_raw_display
 
 #private plotting library
 from simpleplot.multi_canvas import Multi_Canvas

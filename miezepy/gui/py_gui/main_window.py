@@ -29,14 +29,14 @@ from functools import partial
 
 from ..qt_gui.mainwindow_ui         import Ui_MIEZETool 
 
-from ..py_gui.page_data_widget      import PageDataWidget
-from ..py_gui.page_mask_widget      import PageMaskWidget
-from ..py_gui.page_env_widget       import PageEnvWidget
-from ..py_gui.page_script_widget    import PageScriptWidget
-from ..py_gui.page_result_widget    import PageResultWidget
-from ..py_gui.page_io_widget        import PageIOWidget
-from ..py_gui.dialog                import dialog
-from ..py_gui.mask_visual_handler   import MaskVisualHandler
+from ..py_gui.gui_data.page_data_widget         import PageDataWidget
+from ..py_gui.gui_mask.page_mask_widget         import PageMaskWidget
+from ..py_gui.gui_env.page_env_widget           import PageEnvWidget
+from ..py_gui.gui_scripts.page_script_widget    import PageScriptWidget
+from ..py_gui.gui_results.page_result_widget    import PageResultWidget
+from ..py_gui.gui_io.page_io_widget             import PageIOWidget
+from ..py_gui.gui_common.dialog                 import dialog
+from ..py_gui.gui_mask.mask_visual_handler      import MaskVisualHandler
 
 import miezepy
 

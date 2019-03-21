@@ -28,9 +28,9 @@ from functools import partial
 import numpy as np
 
 #private dependencies
-from ..qt_gui.main_result_ui        import Ui_result_widget
-from ..py_gui.dialog                import dialog 
-from ..py_gui.result_list_handler   import ResultHandlerUI
+from ...qt_gui.main_result_ui   import Ui_result_widget
+from ..gui_common.dialog        import dialog 
+from .result_list_handler       import ResultHandlerUI
 
 #private plotting library
 from simpleplot.multi_canvas        import Multi_Canvas

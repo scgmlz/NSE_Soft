@@ -26,7 +26,7 @@
 
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
-from .python_syntax import PythonHighlighter
+from ..gui_common.python_syntax import PythonHighlighter
 import sys
 
 class LineNumberArea(QtWidgets.QWidget):

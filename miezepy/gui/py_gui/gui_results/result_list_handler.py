@@ -25,7 +25,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 #private dependencies
-from ..py_gui.plot_widget           import PlotItem
+from .plot_widget import PlotItem
 
 class ResultHandlerUI:
  
