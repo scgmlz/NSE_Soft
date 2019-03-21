@@ -306,7 +306,36 @@ class ScriptStructure:
         script : string
             The code of the script to be set in
         '''
+        code = self._cleanLines(code)
+
         self.editable_scripts[index] = str(code)
+
+    def _cleanLines(self,text):
+        '''
+        Remove all the surplus of blank lines
+        at the start and then end of the script
+
+        Parameters
+        ----------
+        text : string
+            The code of the script to be set in
+        '''
+        text_array  = text.split('\n')
+        start       = 0
+        start_found = False
+        end         = 0
+
+        for i, line in enumerate(text_array):
+            if not start_found:
+                if line == '':
+                    start = i
+                else:
+                    start_found = True
+            else:
+                if not line == '':
+                    end = i
+
+        return self._concatenateText([text_array[start:end+1]])
 
     def preprocessScript(self, index):
         '''
