@@ -322,7 +322,7 @@ class PageScriptWidget(Ui_script_widget):
         self.synthesize_scripts     = False
         self._reset()
 
-        self._readFromScripts()
+        self.container = self.env.scripts.readFromScripts()
         self._linkVisualData()
         self._linkVisualPhase()
         self._linkVisualInstrument()
@@ -354,127 +354,6 @@ class PageScriptWidget(Ui_script_widget):
         '''
         pass
 
-    def _readFromScripts(self):
-        '''
-        Read from the scripts to produce a dictionary
-        with all the information that can be set if it
-        is found.
-        '''
-        #----------------------------------------#
-        text_array = self.env.process.editable_scripts[0].split("\n")
-
-        #Foils to consider
-        filtered_text_array = [
-            element if "metadata_class.addMetadata('Selected foils'" in element 
-            else '' 
-            for element in text_array]
-        foil_check = []
-        for element in filtered_text_array:
-            if not element == '':
-                foil_check = eval('['+element.split('[')[1].split(']')[0]+']')
-
-        #----------------------------------------#
-        text_array = self.env.process.editable_scripts[1].split("\n")
-
-        #Foils
-        filtered_text_array = [
-            element if 'foils_in_echo.append(' in element else '' 
-            for element in text_array]
-        foils_in_echo = []
-        for element in filtered_text_array:
-            if not element == '':
-                exec(element.strip())
-            
-        #Selected
-        filtered_text_array = [
-            element if 'Selected = [' in element else '' 
-            for element in text_array]
-        Selected = []
-        for element in filtered_text_array:
-            if not element == '':
-                Selected = eval(element.split('Selected =' )[1])
-
-        #Reference
-        filtered_text_array = [
-            element if 'Reference = [' in element else '' 
-            for element in text_array]
-        Reference = None
-        for element in filtered_text_array:
-            if not element == '':
-                Reference = eval(element.split('Reference = ' )[1])
-
-        #Background
-        filtered_text_array = [
-            element if 'Background = ' in element else '' 
-            for element in text_array]
-        Background = None
-        for element in filtered_text_array:
-            if not element == '':
-                Background = eval(element.split('Background = ' )[1])
-
-        #instrument
-        filtered_text_array = [
-            element if 'instrument = ' in element else '' 
-            for element in text_array]
-        instrument = None
-        for element in filtered_text_array:
-            if not element == '':
-                Background = eval(element.split('instrument = ' )[1])
-
-        #detector
-        filtered_text_array = [
-            element if 'detector = ' in element else '' 
-            for element in text_array]
-        detector = None
-        for element in filtered_text_array:
-            if not element == '':
-                Background = eval(element.split('detector = ' )[1])
-
-        #exposure
-        filtered_text_array = [
-            element if 'exposure = ' in element else '' 
-            for element in text_array]
-        exposure = False
-        for element in filtered_text_array:
-            if not element == '':
-                Background = eval(element.split('exposure = ' )[1])
-        #----------------------------------------#
-        text_array = self.env.process.editable_scripts[2].split("\n")
-
-        #masks
-        filtered_text_array = [
-            element if "mask.setMask(" in element 
-            else '' 
-            for element in text_array]
-        phase_mask = []
-        for element in filtered_text_array:
-            if not element == '':
-                phase_mask = eval(element.split('(')[1].split(')')[0])
-
-        #----------------------------------------#
-        text_array = self.env.process.editable_scripts[3].split("\n")
-
-        #Foils to consider
-        filtered_text_array = [
-            element if "mask.setMask(" in element 
-            else '' 
-            for element in text_array]
-        reduction_mask = []
-        for element in filtered_text_array:
-            if not element == '':
-                reduction_mask = eval(element.split('(')[1].split(')')[0])
-
-        self.container = {}
-        self.container['foils_in_echo'] = foils_in_echo
-        self.container['Selected']      = Selected
-        self.container['Reference']     = Reference
-        self.container['Background']    = Background
-        self.container['foil_check']    = foil_check
-        self.container['phase_mask']    = phase_mask
-        self.container['reduction_mask']= reduction_mask
-        self.container['instrument']    = instrument
-        self.container['detector']      = detector
-        self.container['exposure']      = exposure
 
     #######################################################################
     #######################################################################

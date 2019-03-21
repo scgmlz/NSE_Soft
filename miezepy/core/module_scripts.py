@@ -35,23 +35,23 @@ class ScriptStructure:
         self.default_scripts = []
         with open(
             os.path.dirname(os.path.realpath(__file__))
-            + '/import_process.py','r') as f:
+            + '/script_modules/import_process.py','r') as f:
             self.default_scripts.append(f.read())
         with open(
             os.path.dirname(os.path.realpath(__file__))
-            + '/set_fit_process.py','r') as f:
+            + '/script_modules/set_fit_process.py','r') as f:
             self.default_scripts.append(f.read())
         with open(
             os.path.dirname(os.path.realpath(__file__))
-            + '/phase_process.py','r') as f:
+            + '/script_modules/phase_process.py','r') as f:
             self.default_scripts.append(f.read())
         with open(
             os.path.dirname(os.path.realpath(__file__))
-            + '/reduction_process.py','r') as f:
+            + '/script_modules/reduction_process.py','r') as f:
             self.default_scripts.append(f.read())
         with open(os.path.dirname(
             os.path.realpath(__file__))
-            + '/post_process.py','r') as f:
+            + '/script_modules/post_process.py','r') as f:
             self.default_scripts.append(f.read())
 
         self.editable_scripts = list(self.default_scripts)
@@ -167,3 +167,127 @@ class ScriptStructure:
             +"environnement.fit.set_parameter( name = 'Select',")
 
         return text
+
+    def readFromScripts(self):
+        '''
+        Read from the scripts to produce a dictionary
+        with all the information that can be set if it
+        is found.
+        '''
+        #----------------------------------------#
+        text_array = self.editable_scripts[0].split("\n")
+
+        #Foils to consider
+        filtered_text_array = [
+            element if "metadata_class.addMetadata('Selected foils'" in element 
+            else '' 
+            for element in text_array]
+        foil_check = []
+        for element in filtered_text_array:
+            if not element == '':
+                foil_check = eval('['+element.split('[')[1].split(']')[0]+']')
+
+        #----------------------------------------#
+        text_array = self.editable_scripts[1].split("\n")
+
+        #Foils
+        filtered_text_array = [
+            element if 'foils_in_echo.append(' in element else '' 
+            for element in text_array]
+        foils_in_echo = []
+        for element in filtered_text_array:
+            if not element == '':
+                exec(element.strip())
+            
+        #Selected
+        filtered_text_array = [
+            element if 'Selected = [' in element else '' 
+            for element in text_array]
+        Selected = []
+        for element in filtered_text_array:
+            if not element == '':
+                Selected = eval(element.split('Selected =' )[1])
+
+        #Reference
+        filtered_text_array = [
+            element if 'Reference = [' in element else '' 
+            for element in text_array]
+        Reference = None
+        for element in filtered_text_array:
+            if not element == '':
+                Reference = eval(element.split('Reference = ' )[1])
+
+        #Background
+        filtered_text_array = [
+            element if 'Background = ' in element else '' 
+            for element in text_array]
+        Background = None
+        for element in filtered_text_array:
+            if not element == '':
+                Background = eval(element.split('Background = ' )[1])
+
+        #instrument
+        filtered_text_array = [
+            element if 'instrument = ' in element else '' 
+            for element in text_array]
+        instrument = None
+        for element in filtered_text_array:
+            if not element == '':
+                Background = eval(element.split('instrument = ' )[1])
+
+        #detector
+        filtered_text_array = [
+            element if 'detector = ' in element else '' 
+            for element in text_array]
+        detector = None
+        for element in filtered_text_array:
+            if not element == '':
+                Background = eval(element.split('detector = ' )[1])
+
+        #exposure
+        filtered_text_array = [
+            element if 'exposure = ' in element else '' 
+            for element in text_array]
+        exposure = False
+        for element in filtered_text_array:
+            if not element == '':
+                Background = eval(element.split('exposure = ' )[1])
+        #----------------------------------------#
+        text_array = self.editable_scripts[2].split("\n")
+
+        #masks
+        filtered_text_array = [
+            element if "mask.setMask(" in element 
+            else '' 
+            for element in text_array]
+        phase_mask = []
+        for element in filtered_text_array:
+            if not element == '':
+                phase_mask = eval(element.split('(')[1].split(')')[0])
+
+        #----------------------------------------#
+        text_array = self.editable_scripts[3].split("\n")
+
+        #Foils to consider
+        filtered_text_array = [
+            element if "mask.setMask(" in element 
+            else '' 
+            for element in text_array]
+        reduction_mask = []
+        for element in filtered_text_array:
+            if not element == '':
+                reduction_mask = eval(element.split('(')[1].split(')')[0])
+
+        container = {}
+        container['foils_in_echo'] = foils_in_echo
+        container['Selected']      = Selected
+        container['Reference']     = Reference
+        container['Background']    = Background
+        container['foil_check']    = foil_check
+        container['phase_mask']    = phase_mask
+        container['reduction_mask']= reduction_mask
+        container['instrument']    = instrument
+        container['detector']      = detector
+        container['exposure']      = exposure
+
+        return container
