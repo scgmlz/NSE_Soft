@@ -23,12 +23,11 @@
 
 #############################
 #import main components
-from .core.core_handler             import Handler
+from .core.core_handler             import CoreHandler
 from .gui.py_gui.window_handlers    import WindowHandler
 import os
 
-
-class Mieze(Handler):
+class Mieze(CoreHandler):
     '''
     Here lies the main NSE tool manager class. It can be
     accessed in the python terminal through: 
@@ -41,11 +40,15 @@ class Mieze(Handler):
         '''
         self.success = False
         self.checkRessources()
+        
         #initiate the core manager  
-        Handler.__init__(self)
+        CoreHandler.__init__(self)
+
         #initiate the GUI manager if need be
         if GUI == True:
-            self.gui = WindowHandler(self)
+            self.gui = WindowHandler()
+            self.gui.initialize(self)
+
         self.success = True
 
     def checkRessources(self):
@@ -81,11 +84,11 @@ if __name__ == '__main__':
     from sys import platform
     print(platform)
     app = Mieze(GUI = True)
-    # app.gui.active_windows['MainWindow'].target.widgetClasses[0].addEnvironment()
-    # env = app.current_env
-    # env.io.loadFromPython(
-    #     "Examples/file_3.py")
-    # app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
+    app.gui.active_windows['MainWindow'].target.widgetClasses[0].addEnvironment()
+    env = app.current_env
+    env.io.loadFromPython(
+        "Examples/file_3.py")
+    app.gui.active_windows['MainWindow'].target.widgetClasses[0].refreshData()
     # app.gui.active_windows['MainWindow'].target.actionDispatcher(3)
     # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(0)
     # app.gui.active_windows['MainWindow'].target.widgetClasses[3].run(1)

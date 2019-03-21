@@ -26,8 +26,8 @@ import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from .main_window           import MainWindowLayout
-from .meta_window           import MetadataWindowLayout
-from .display_raw_window    import DisplayRawWindowLayout
+from .gui_data.meta_window           import MetadataWindowLayout
+from .gui_data.display_raw_window    import DisplayRawWindowLayout
 
 from ...gui.qt_gui import images_rcc
 
@@ -40,11 +40,17 @@ class WindowHandler:
     
     The manager will also create root of the bat. 
     Tkinter build tge windows with dependance and
-    root needs to be initialised from the start. 
+    root needs to be initialise from the start. 
     '''
 
-    def __init__(self, link):
+    def __init__(self):
         self.app = QtWidgets.QApplication(sys.argv)
+
+    def initialize(self, link):
+        '''
+        This routine performs the initialization in case that the 
+        gui is loaded.
+        '''
         self.window_dictionary = {}
         self.window_dictionary['MainWindow']    = [MainWindowLayout, None]
         self.window_dictionary['MetaWindow']    = [MetadataWindowLayout, 'MainWindow']
@@ -93,7 +99,7 @@ class WindowHandler:
         '''
         Run the application
         '''
-        self.app.exec_()
+        sys.exit(self.app.exec_())
 
 class MainWindow(QtWidgets.QMainWindow):
     '''
@@ -109,6 +115,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         # do stuff
         event.accept() # let the window close
+        sys.exit()
 
 class ChildWindow(QtWidgets.QMainWindow):
     '''

@@ -2,6 +2,7 @@ import sys
 import io
 import numpy as np
 import time
+import os
 
 class Import_MIEZE_TOF:
 
@@ -23,58 +24,63 @@ class Import_MIEZE_TOF:
         in order to generate a dictionary that will
         be fed back to the data handler
         '''
-        f               = open(load_path, "r")
-        lines           = f.readlines()
-        path            = ""
-        dimensions_names= []
-        units           = []
-        para_array      = []
-        ignore_array    = []
-        meta_array      = []
+        with  open(os.path.realpath(load_path), "r") as f:
+            lines           = f.readlines()
+            path            = ""
+            dimensions_names= []
+            units           = []
+            para_array      = []
+            ignore_array    = []
+            meta_array      = []
 
-        for line in lines:
-            if len(line.split("Path : ")) > 1:
-                path = line.strip("\n").split("Path : ")[1]
-            elif len(line.split("Data : ")) > 1:
-                templine = line.strip('\n')
-                elements = templine.split(" : ")
-                para_array.append([
-                    eval(elements[1]),
-                    elements[2],
-                    elements[3],
-                    elements[4]
-                    ])
+            for line in lines:
+                if len(line.split("Path : ")) > 1:
+                    path = line.strip("\n").split("Path : ")[1]
+                    if 'default' in path: 
+                        path = os.path.dirname(load_path)
 
-            ########################################
-            #grab exclusions        
-            elif len(line.split("Ignore : ")) > 1:
-                templine = line.strip('\n')
-                elements = templine.split(" : ")
-                ignore_array.append([int(elements[1]),eval(elements[2]) ])
+                elif len(line.split("Data : ")) > 1:
+                    templine = line.strip('\n')
+                    elements = templine.split(" : ")
+                    para_array.append([
+                        [
+                            elements[1].split('[')[1].split(',')[0],
+                            elements[1].split(',')[1].split(']')[0]],
 
-            ########################################
-            #grab the metadata load instructions        
-            elif len(line.split("Metadata : ")) > 1:             
-                templine = line.strip('\n')
-                elements = templine.split(" : ")
-                meta_array.append([element for element in elements])
+                        elements[2],
+                        elements[3],
+                        elements[4]
+                        ])
 
-            ########################################
-            #grab the dimension names     
-            elif len(line.split("Dim : ")) > 1:
-                templine = line.strip('\n').strip("Dim : ")
-                elements = templine.split(" : ")
-                dimensions_names = elements
+                ########################################
+                #grab exclusions        
+                elif len(line.split("Ignore : ")) > 1:
+                    templine = line.strip('\n')
+                    elements = templine.split(" : ")
+                    ignore_array.append([int(elements[1]),eval(elements[2]) ])
 
-            ########################################
-            #grab the units    
-            elif len(line.split("Unit : ")) > 1:
-                templine = line.strip('\n').strip("Unit : ")
-                elements = templine.split(" : ")
+                ########################################
+                #grab the metadata load instructions        
+                elif len(line.split("Metadata : ")) > 1:             
+                    templine = line.strip('\n')
+                    elements = templine.split(" : ")
+                    meta_array.append([element for element in elements])
 
-                units = elements
+                ########################################
+                #grab the dimension names     
+                elif len(line.split("Dim : ")) > 1:
+                    templine = line.strip('\n').strip("Dim : ")
+                    elements = templine.split(" : ")
+                    dimensions_names = elements
+
+                ########################################
+                #grab the units    
+                elif len(line.split("Unit : ")) > 1:
+                    templine = line.strip('\n').strip("Unit : ")
+                    elements = templine.split(" : ")
+
+                    units = elements
                 
-        f.close()
         container = [
             path,
             para_array,
@@ -148,20 +154,19 @@ class Import_MIEZE_TOF:
         for idx_0, source in enumerate(para_array):
 
             #unfold generate the path array
-            path_iter = [
-                path
-                + str(source[1]) 
-                + str(path_string) 
-                + ".tof" 
+            path_iter = [os.path.join(
+                path,
+                str(source[1]) + str(path_string) + ".tof")
                 for path_string in eval(source[2])]
 
             #Axis selection
             index = tuple([ element[idx_0] for element in real_idx_definition ])
 
+            echo_idx = 0
             #loop over and process
             for idx_1,file_path in enumerate(path_iter):
                 f = open(file_path,'rb')
-                target.add_metadata_object(self.generate_tof_metadata(f, meta_array))
+                target.addMetadataObject(self.generate_tof_metadata(f, meta_array))
                 dimensionality  = [
                     int(source[-1].strip("(").strip(")").split("x")[i]) 
                     for i in range(len(source[-1].split("x")))]
@@ -172,11 +177,12 @@ class Import_MIEZE_TOF:
                 #fill the data into the target
                 for idx_2 in range(extra_dim[0]):
                     for idx_3 in range(extra_dim[1]):
-                        address = tuple(index) + (idx_1,idx_2,idx_3)
+                        address = tuple(index) + (echo_idx,idx_2,idx_3)
                         target[address] = data[idx_2,idx_3,:,:]
+                echo_idx +=1
 
         #validate the loaded data
-        target.validate()    
+        target.validate() 
  
         for idx, name in enumerate(dimensions_names):
             try:
@@ -190,21 +196,21 @@ class Import_MIEZE_TOF:
                 pass
 
         #set some metadata
-        target.metadata_class.add_metadata('Creation date', value = str(time.ctime()), logical_type = 'str')
-        target.metadata_class.add_metadata('Source format', value = "ToF files", logical_type = 'str')
-        target.metadata_class.add_metadata('Measurement type', value = "MIEZE", logical_type = 'float')
-        target.metadata_class.add_metadata('Wavelength error', value = 0.117 , logical_type = 'float')
-        target.metadata_class.add_metadata('Distance error', value = 0.0005 , logical_type = 'float')
+        target.metadata_class.addMetadata('Creation date', value = str(time.ctime()), logical_type = 'str')
+        target.metadata_class.addMetadata('Source format', value = "ToF files", logical_type = 'str')
+        target.metadata_class.addMetadata('Measurement type', value = "MIEZE", logical_type = 'float')
+        target.metadata_class.addMetadata('Wavelength error', value = 0.117 , logical_type = 'float')
+        target.metadata_class.addMetadata('Distance error', value = 0.0005 , logical_type = 'float')
 
-        target.metadata_class.add_metadata('R_1', value = 9. , logical_type = 'float', unit = 'm')
-        target.metadata_class.add_metadata('R_2', value = 5. , logical_type = 'float', unit = 'm')
-        target.metadata_class.add_metadata('L_1', value = 1200 , logical_type = 'float', unit = 'm')
-        target.metadata_class.add_metadata('L_2', value = 3500 , logical_type = 'float', unit = 'm')
-        target.metadata_class.add_metadata('Wavelength in', value = 6. , logical_type = 'float', unit = 'A')
-        target.metadata_class.add_metadata('Pixel size', value = 1.5625 , logical_type = 'float', unit = 'mum')
-        target.metadata_class.add_metadata('Qy', value = 0.035 , logical_type = 'float', unit = '-')
-        target.metadata_class.add_metadata('Selected foils', value = '[1,1,1,0,0,1,1,1]' , logical_type = 'int_array', unit = '-')
-        target.metadata_class.add_metadata('Resolution', value = '[28.6, 0]' , logical_type = 'float_array', unit = 'K')
+        target.metadata_class.addMetadata('R_1', value = 9. , logical_type = 'float', unit = 'm')
+        target.metadata_class.addMetadata('R_2', value = 5. , logical_type = 'float', unit = 'm')
+        target.metadata_class.addMetadata('L_1', value = 1200 , logical_type = 'float', unit = 'm')
+        target.metadata_class.addMetadata('L_2', value = 3500 , logical_type = 'float', unit = 'm')
+        target.metadata_class.addMetadata('Wavelength in', value = 6. , logical_type = 'float', unit = 'A')
+        target.metadata_class.addMetadata('Pixel size', value = 1.5625 , logical_type = 'float', unit = 'mum')
+        target.metadata_class.addMetadata('Qy', value = 0.035 , logical_type = 'float', unit = '-')
+        target.metadata_class.addMetadata('Selected foils', value = '[1,1,1,0,0,1,1,1]' , logical_type = 'int_array', unit = '-')
+        target.metadata_class.addMetadata('Resolution', value = '[28.6, 0]' , logical_type = 'float_array', unit = 'K')
 
 
     def generate_tof_metadata(self,f,meta_array):
