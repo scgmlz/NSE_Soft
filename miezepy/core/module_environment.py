@@ -30,6 +30,7 @@ from .module_result     import ResultStructure
 from .module_process    import getProcessStructure
 from .module_io         import IOStructure
 from .module_instrument import InstrumentStructure
+from .module_scripts    import ScriptStructure
 
 class Environment:
     '''
@@ -69,6 +70,7 @@ class Environment:
         self._initResultStructure()
         self._initIOHandler()
         self._initInstrumentStructure()
+        self._initScriptStructure()
     
     def _initDataStructure(self):
         '''
@@ -122,6 +124,14 @@ class Environment:
         current environment.
         '''
         self.instrument = InstrumentStructure()
+
+    def _initScriptStructure(self):
+        '''
+        This function will initiate a new 
+        result structure that will be used int he 
+        current environment.
+        '''
+        self.scripts = ScriptStructure()
 
     def saveToPy(self, path):
         '''
