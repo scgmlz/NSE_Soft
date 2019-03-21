@@ -22,69 +22,79 @@
 # *****************************************************************************
 
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QInputDialog
 import numpy as np
 
 from ...core.fit_modules.library_fit import fitDataSinus
 
 class PanelWorker(QtCore.QObject):
-    finished = QtCore.pyqtSignal()
-    intReady = QtCore.pyqtSignal(int)
+    '''
+    This is the panel worker that will be used to 
+    perform on the fly computation of the contrast
+    for a single parameter, measurement, echo, and
+    foil.
 
-    def __init__(self, parameters):
+    Signals
+    ----------
+    finished : pyqt signal
+        Triggered when the worker successfully completed his job
+    '''
+    finished = QtCore.pyqtSignal()
+
+    def __init__(self, method):
         '''
-        define the parameters
-        ———————
-        Input: 
-        - 0 data as numpy array
-        - 1 para
-        - 2 meas
-        - 3 echo
-        - 4 foil
-        - 5 para
-        - 6 meas
-        - 7 echo
-        - 8 foil
-        - 9 env
-        - 10 mask
+        Parameters
+        ----------
+        method : python class method
+            The contrast calculation method
         '''
         QtCore.QObject.__init__(self)
-        self.parameters = parameters
+        self.method = method
         
+    def setParameters(self,data, para, foil, mask, results):
+        '''
+        Parameters
+        ----------
+        data : numpy array
+            The reduced data
+
+        para : str or float
+            The parameter value
+
+        meas : int
+            The measurement idx
+
+        echo : float
+            The echo time value
+
+        foil : int 
+            The foil value
+        
+        mask : numpy array
+            The mask
+        '''
+        self.data = data
+        self.para = para
+        self.foil = foil
+        self.mask = mask
+        self.results = results
+
     @QtCore.pyqtSlot()
     def run(self): 
         '''
         define the parameters
         '''
-        para        = self.parameters[1]
-        foil        = self.parameters[4]
-        echo_idx    = self.parameters[7]
-        foil_idx    = self.parameters[8]
-
-        self.reshaped   = self.parameters[0]
-        self.mask       = self.parameters[10]
-        self.env        = self.parameters[9]
-        self.counts     = [
-            np.sum(self.mask * self.reshaped[echo_idx,foil_idx,timechannel]) 
+        self.counts = [
+            np.sum(self.mask * self.data[timechannel]) 
             for timechannel in range(16)]
-        fitDataSinus(self.env.results,self.counts, np.sqrt(self.counts))
         try:
-            fitDataSinus(self.env.results,self.counts, np.sqrt(self.counts))
-
-            self.fit = self.env.results.getLastResult('Fit Data Sinus')
+            fitDataSinus(self.results,self.counts, np.sqrt(self.counts))
+            self.fit = self.results.getLastResult('Fit Data Sinus')
         except:
             self.fit = None
 
-
         try:
-            self.env.fit.calcContrastMain( 
-                    self.env.current_data,
-                    self.env.mask,
-                    self.env.results,
-                    select = [para],
-                    foil = foil)
-
-            self.process = self.env.results.getLastResult('Contrast calculation')
+            self.method(self.para,self.foil)
+            self.process = self.results.getLastResult('Contrast calculation')
         except:
             self.process = None
 

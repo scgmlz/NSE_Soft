@@ -332,6 +332,20 @@ class Process_MIEZE(Process_Handler):
             self.env.mask, 
             self.env.results)
 
+    def calcContrastSingle(self, select, foil):
+        '''
+        Calculate and process the contrast of one measurement.
+        This function is used in the panel
+        '''
+        #calculate the contrast
+        self.env.fit.calcContrastMain(
+            self.env.current_data, 
+            self.env.mask, 
+            self.env.results,
+            select  = [select],
+            foil    = foil, 
+            no_bg   = True)
+
 class Process_SANS(Process_Handler):
     
     def __init__(self, env):

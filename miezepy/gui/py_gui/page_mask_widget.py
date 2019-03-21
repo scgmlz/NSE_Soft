@@ -25,6 +25,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QInputDialog
 import numpy as np
+import os
 
 #private dependencies
 from ..qt_gui.main_mask_editor_ui   import Ui_mask_editor
@@ -268,7 +269,6 @@ class PageMaskWidget(Ui_mask_editor):
         if not file_path == '':
             self.mask_core.loadSingleMask(os.path.abspath(file_path))
             self.updateSelector(self.mask_core.current_mask)
-            self.populateAll()
 
     def loadMultiple(self):
         '''
@@ -284,7 +284,6 @@ class PageMaskWidget(Ui_mask_editor):
         if not file_path == '':
             self.mask_core.loadAllMasks(os.path.abspath(file_path))
             self.updateSelector(self.mask_core.current_mask)
-            self.populateAll()
 
 class PanelPageMaskWidget(PageMaskWidget):
 
@@ -293,6 +292,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.thread = QtCore.QThread()
+        self.para_group = QtWidgets.QGroupBox(self.local_widget)
 
     def link(self, mask_core, env):
         '''
@@ -306,7 +306,7 @@ class PanelPageMaskWidget(PageMaskWidget):
 
         self.para_group = QtWidgets.QGroupBox(self.local_widget)
         sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Fixed, 
+            QtWidgets.QSizePolicy.Expanding, 
             QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -477,8 +477,13 @@ class PanelPageMaskWidget(PageMaskWidget):
         '''
         self.thread.terminate()
         self.thread.wait()
+
         parameters = self.prepareThread()
-        self.worker = PanelWorker(parameters)
+        self.worker = PanelWorker(self.env.process.calcContrastSingle)
+        self.worker.setParameters(*parameters)
+        self.worker.run()
+        self.updateVisual()
+
         self.thread = QtCore.QThread()
         self.worker.moveToThread(self.thread)
         self.worker.finished.connect(self.updateVisual)
@@ -524,17 +529,11 @@ class PanelPageMaskWidget(PageMaskWidget):
             self.env.current_data.axes.names[2], echo)
         foil_idx = self.env.current_data.get_axis_idx(
             self.env.current_data.axes.names[3], foil)
-
         self.mask = self.env.mask.mask
 
         return [
-            self.data[para_idx,meas_idx,:,:,:],
-            para,meas,
-            echo,foil,
-            para_idx, meas_idx,
-            echo_idx, foil_idx,
-            self.env,
-            self.mask]
+            self.data[para_idx,meas_idx,echo_idx,foil_idx,:],
+            para,foil,self.mask,self.env.results]
 
     def updateVisual(self):
         '''
@@ -542,11 +541,11 @@ class PanelPageMaskWidget(PageMaskWidget):
         '''
 
         try:
-            para            = self.worker.parameters[1]
-            self.reshaped   = self.worker.parameters[0]
-            self.process    = self.worker.process
-            self.counts     = self.worker.counts
-            self.fit        = self.worker.fit
+            para    = self.worker.para
+            data    = self.worker.data
+            process = self.worker.process
+            counts  = self.worker.counts
+            fit     = self.worker.fit
 
         except:
             return None
@@ -566,43 +565,38 @@ class PanelPageMaskWidget(PageMaskWidget):
 
         #set the two bin
         self.ax.add_plot(
-            'Bin', x, y, np.log10(np.sum(
-                self.reshaped[
-                    self.echo_drop.currentIndex(),
-                    self.foil_drop.currentIndex()], 
-                    axis=(0))+1), Name = 'bin' )
+            'Bin', x, y, 
+            np.log10(np.sum(data,axis=(0))+1), 
+            Name = 'bin' )
 
         self.bx.add_plot(
-            'Bin', x, y, np.log10(
-                self.mask * np.sum(
-                    self.reshaped[
-                        self.echo_drop.currentIndex(),
-                        self.foil_drop.currentIndex()
-                    ], axis=(0))+1 ), Name = 'bin')
+            'Bin', x, y, 
+            np.log10(self.mask * np.sum(data, axis=(0))+1 ), 
+            Name = 'bin')
 
         #set the main scatter plot of the counts
         self.cx.add_plot(
             'Scatter', 
             range(16), 
-            self.counts, 
+            counts, 
             Style   = ['s','10'], 
             Log     = [False,False],
             Error   = {
-                'bottom': np.sqrt(self.counts),
-                'top': np.sqrt(self.counts)})
+                'bottom': np.sqrt(counts),
+                'top': np.sqrt(counts)})
 
-        if not self.fit == None:
+        if not fit == None:
             self.cx.add_plot(
                 'Scatter', x_1, 
-                self.fit['amplitude']*np.cos(x_1/16.*2*np.pi+self.fit['phase'])+self.fit['mean'], 
+                fit['amplitude']*np.cos(x_1/16.*2*np.pi+fit['phase'])+fit['mean'],
                 Style   = ['-'], 
                 Log     = [False,False])
 
-        if not self.process == None:
+        if not process == None:
             self.dx.add_plot(
                 'Scatter', 
-                self.process['Axis'][para], 
-                self.process['Contrast'][para], 
+                process['Axis'][para], 
+                process['Contrast'][para], 
                 Style   = ['-','s','10'], 
                 Log     = [True,False])
 

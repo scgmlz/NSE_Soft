@@ -303,7 +303,7 @@ class ContrastProcessing:
         #close up the result
         local_results.setComplete()
 
-    def calcContrastMain(self,target, mask, results, select = False, foil = None):
+    def calcContrastMain(self,target, mask, results, select = False, foil = None, no_bg = False):
         '''
         This is the main contrast calculation routine.
 
@@ -332,13 +332,14 @@ class ContrastProcessing:
             pass
 
         #process Background
-        if not BG == None:
+        if not BG == None and not no_bg:
             print(
                 'Processing the Background contrast calculation for: '
                 +str(BG))
             BG_result = self.calcContrastFit(
                 [BG], data, target, mask)
 
+        print(select)
         #contrast calculation
         contrast_results = self.calcContrastFit(
             select, data, target, mask, foil)
@@ -378,7 +379,7 @@ class ContrastProcessing:
         local_results['Contrast_error']       = contrast_error
         local_results['Background']           = BG
         local_results['Foil']                 = foil      
-    
+
         #write the dictionary entries
         local_results.addLog('info', 'Computation of the contrast was was a success')
         local_results.setComplete()
