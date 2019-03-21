@@ -97,7 +97,7 @@ class ScriptStructure:
 
         self.editable_scripts = list(strings)
 
-    def saveScripts(self, path, strings):
+    def saveScripts(self, path):
         '''
         Initialize the default python scipts so that 
         the system can be set.
@@ -112,19 +112,19 @@ class ScriptStructure:
         '''
         string = (
             "##--IMPORT--##\n"
-            + strings[0]
+            + self.editable_scripts[0]
             + "\n##--IMPORT--##\n"
             "##--FIT-PARA--##\n"
-            + strings[1]
+            + self.editable_scripts[1]
             + "\n##--FIT-PARA--##\n"
             + "##--PHASE--##\n"
-            + strings[2]
+            + self.editable_scripts[2]
             + "\n##--PHASE--##\n"
             + "##--REDUCTION--##\n"
-            + strings[3]
+            + self.editable_scripts[3]
             + "\n##--REDUCTION--##\n"
             + "##--POST--##\n"
-            + strings[4]
+            + self.editable_scripts[4]
             + "\n##--POST--##\n")
 
         f = open(path, 'w')
@@ -291,3 +291,255 @@ class ScriptStructure:
         container['exposure']      = exposure
 
         return container
+
+    def setEditable(self, index, code):
+        '''
+        Read from the scripts to produce a dictionary
+        with all the information that can be set if it
+        is found.
+
+        Parameters
+        ----------
+        index : int
+            The index of the code in the editable array
+
+        script : string
+            The code of the script to be set in
+        '''
+        self.editable_scripts[index] = str(code)
+
+    def preprocessScript(self, index):
+        '''
+        Read from the scripts to produce a dictionary
+        with all the information that can be set if it
+        is found.
+
+        Parameters
+        ----------
+        text : string
+            The formated text to be formater
+
+        Returns
+        ------- 
+        text : string
+            The formated text to returned to the text importer
+        '''
+        code_array = self._parseCode(self.editable_scripts[index])
+        meta_array = self._parseMeta(code_array)
+
+        return code_array, meta_array
+
+    def _parseCode(self, code):
+        '''
+        This function will break down the code into smaller 
+        parts to allow interpretation of the failed sequence
+        as well as a meaningfull understanding of the progress.
+
+        Parameters
+        ----------
+        text : string
+            The text to be formater
+        '''
+
+        temp_code_array = []
+        indentation     = False
+        comment_bool    = False
+        code_lines      = code.split('\n') 
+
+        for line in code_lines:
+            if line == '' or line[0] == '#':
+                pass
+            elif line[0] == "'" or line[0] == '"':
+                comment_bool = not comment_bool
+
+            elif line[0].isspace() and not line == '' and not comment_bool:
+                if not indentation:
+                    indentation = not indentation
+                    temp = temp_code_array[-1]
+                    temp.append(line)
+                else:
+                    temp.append(line)
+            elif not comment_bool:
+                if indentation:
+                    indentation = not indentation
+                temp_code_array.append([line])
+
+        code_array = []
+        for element in temp_code_array:
+            if len(element) > 1:
+                code_string = ''
+                for sub_element in element:
+                    code_string += sub_element + '\n'
+                code_array.append(code_string)
+            else:
+                code_array.append(element[0])
+
+        return code_array
+
+    def _parseMeta(self, code_array):
+        '''
+        This function will try to identify the individual 
+        function parts to provide nice insight on what is 
+        being processed at the moment.
+        '''
+        meta_array = []
+        for element in code_array:
+            if len(element.split('for ')) > 1:
+                meta_array.append(
+                    "'for' loop over "+str(element.split(' in ')[1].split(':')[0]))
+            elif '(' in element and ')' in element:
+                meta_array.append(
+                    "'function' "+element.split('(')[0]+' with the parameters ('+''.join(element.split('(')[1].split(')')[0])[0:30]+')')
+            else:
+                 meta_array.append(element[0:40])
+
+        return meta_array
+
+    def synthesizeDataScript(self, container):
+        '''
+        prepare the python script part that will
+        manage the fit parameter part
+
+        Parameters
+        ----------
+        container : misc items in dictionary
+            The text to be formater
+        '''         
+        #find area to edit
+        text = self.editable_scripts[0]
+        text_array = text.split("\n")
+
+        for i,element in enumerate(text_array):
+            if "metadata_class.add_metadata('Selected foils'" in element:
+                text_array[i] = element.split(".current_data.metadata_class.add_metadata(")[0]+".current_data.metadata_class.add_metadata('Selected foils', value = '"+str(container['checked'])+"' , logical_type = 'int_array', unit = '-')"
+                break
+
+        #find strings
+        self.setEditable(0, self._concatenateText([text_array]))
+
+    def synthesizeFitScript(self, container):
+        '''
+        prepare the python script part that will
+        manage the fit parameter part
+
+        Parameters
+        ----------
+        container : misc items in dictionary
+            The text to be formater
+        '''         
+        python_string_init = ""
+
+        #set the foils
+        python_string_init += "\n#Set the foils (edit in GUI)\n"
+        python_string_init += "foils_in_echo = []\n"
+        for i,item in enumerate(container['foils_in_echo']):
+            python_string_init += "foils_in_echo.append("+str(item)+")\n"
+
+        #set the selected
+        python_string_init += "\n#Set the selected (edit in GUI)\n"
+        python_string_init += "Selected = [ "
+        for i, item in enumerate(container['selected']):
+            try:
+                python_string_init += str(float(item))+ ", "
+            except:
+                python_string_init += "'"+str(item)+ "', "
+
+        python_string_init = python_string_init[:-2]
+        python_string_init += "]\n"
+
+        #set the background
+        python_string_init += "\n#Set the background (edit in GUI)\n"
+        python_string_init += "Background = "+container['Background']+"\n"
+
+        #set the reference
+        python_string_init += "\n#Set the reference (edit in GUI)\n"
+        python_string_init += "Reference = "+container['Reference']+"\n"
+
+        #set the instrument
+        python_string_init += "\n#Instrument (edit in GUI)\n"
+        python_string_init += "instrument = '"+container['Instrument']+"'\n"
+
+        #set the detector
+        python_string_init += "\n#Detector(edit in GUI)\n"
+        python_string_init += "detector = "+container['Detector']+"\n"
+
+        #set the exposure setting
+        python_string_init += "\n#Use the high exposure setting (edit in GUI)\n"
+        python_string_init += "exposure = "+container['exposure']+"\n"
+
+        #find area to edit
+        text = self.editable_scripts[1]
+        text_array = text.split("\n")
+
+        edit_start = 0
+        edit_end = len(text_array)
+
+        for i,line in enumerate(text_array):
+            if "self.env" in line:
+                edit_start = i
+            if ".fit.set_parameter( " in line:
+                edit_end = i
+                break
+
+        text_array = self._concatenateText([
+            text_array[0:edit_start+1],
+            python_string_init.split("\n"),
+            text_array[edit_end-1:]])
+
+        self.setEditable(1, text_array)
+
+    def synthesizePhaseScript(self, container):
+        '''
+        prepare the python script part that will
+        manage the phase parameter part
+
+        Parameters
+        ----------
+        container : misc items in dictionary
+            The text to be formater
+        '''         
+        #find area to edit
+        text = self.editable_scripts[2]
+        text_array = text.split("\n")
+
+        for i,element in enumerate(text_array):
+            if "mask.setMask(" in element:
+                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+container['mask']+"')"
+                break
+
+        #find strings
+        self.setEditable(2, self._concatenateText([text_array]))
+
+    def synthesizeReductionScript(self, container):
+        '''
+        prepare the python script part that will
+        manage the phase parameter part
+
+        Parameters
+        ----------
+        container : misc items in dictionary
+            The text to be formater
+        '''         
+        #find area to edit
+        text = self.editable_scripts[3]
+        text_array = text.split("\n")
+
+        for i,element in enumerate(text_array):
+            if "mask.setMask(" in element:
+                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+container['mask']+"')"
+                break
+
+        #find strings
+        self.setEditable(3, self._concatenateText([text_array]))
+
+    def _concatenateText(self, element_arrays):
+        '''
+        Sticks the array together into a single 
+        string item
+        '''
+        output = ''
+        for element in element_arrays:
+            for line in element:
+                output += line + "\n"
+
+        return output

@@ -256,11 +256,6 @@ class PageScriptWidget(Ui_script_widget):
         self.button_widgets[7].clicked.connect(partial(self.run,2))
         self.button_widgets[8].clicked.connect(partial(self.run,3))
 
-        # self.button_widgets[9].clicked.connect(partial(self.show,0))
-        # self.button_widgets[10].clicked.connect(partial(self.show,1))
-        # self.button_widgets[11].clicked.connect(partial(self.show,2))
-        # self.button_widgets[12].clicked.connect(partial(self.show,3))
-
         self.button_widgets[13].clicked.connect(partial(self.link, None))
         self.button_widgets[14].clicked.connect(partial(self.link, None))
         self.button_widgets[15].clicked.connect(partial(self.link, None))
@@ -312,7 +307,6 @@ class PageScriptWidget(Ui_script_widget):
         self.tabWidget.setCurrentIndex(0)
         self.script_tabs.setCurrentIndex(0)
         self.run(0)
-        
 
     def _linkVisualComponents(self):
         '''
@@ -855,6 +849,9 @@ class PageScriptWidget(Ui_script_widget):
         '''
         run synthesis scripts
         '''
+        if not self.synthesize_scripts:
+            return None
+
         self._synthesizeData()
         self._synthesizeFit()
         self._synthesizePhase()
@@ -865,119 +862,72 @@ class PageScriptWidget(Ui_script_widget):
         prepare the python script part that will
         manage the data parameter part
         '''
-        if not self.synthesize_scripts:
-            return None
-
-        #find area to edit
-        text = self.env.process.editable_scripts[0]
-        text_array = text.split("\n")
+        container = {}
 
         #Foils to consider
-        checked = []
+        container['checked'] = []
         for i, checkbox in enumerate(self.foil_check):
-            checked.append(int(checkbox.isChecked()))
-        for i,element in enumerate(text_array):
-            if "metadata_class.add_metadata('Selected foils'" in element:
-                text_array[i] = element.split(".current_data.metadata_class.add_metadata(")[0]+".current_data.metadata_class.add_metadata('Selected foils', value = '"+str(checked)+"' , logical_type = 'int_array', unit = '-')"
-                break
+            container['checked'].append(int(checkbox.isChecked()))
 
-        #find strings
-        self.env.process.editable_scripts[0] = self._concatenateText([text_array])
+        self.env.scripts.synthesizeDataScript(container)
         self._refresh()
 
     def _synthesizeFit(self):
         '''
-        prepare the python script part that will
-        manage the fit parameter part
+        This function will build the container for the
+        script structure to rewrite the script. This
+        was separated into reading the GUI here and 
+        writing the script in the script structure.
         '''
-        if not self.synthesize_scripts:
-            return None
-            
-        python_string_init = ""
+        container = {}
 
-        #set the foils
-        python_string_init += "\n#Set the foils (edit in GUI)\n"
-        python_string_init += "foils_in_echo = []\n"
+        #get the foils
+        foils_in_echo = []
         for i,row in enumerate(self.grid_checkboxes[1:]):
             items = []
             for j,element in enumerate(row): 
-                if element.isEnabled():
-                    if element.checkState():
-                        items.append(1)
-                    else:
-                        items.append(0)
-            python_string_init += "foils_in_echo.append("+str(items)+")\n"
+                if element.checkState() and element.isEnabled():
+                    items.append(1)
+                else:
+                    items.append(0)
+            foils_in_echo.append(items)    
+        container['foils_in_echo'] = foils_in_echo
 
-        #set the selected
-        python_string_init += "\n#Set the selected (edit in GUI)\n"
-        python_string_init += "Selected = [ "
-        string_array = []
-
+        #get selected
+        selected = []
         for i, item in enumerate(self.selected_items):
             if item.checkState() == QtCore.Qt.Checked:
-                string_array.append(self.env.current_data.get_axis('Parameter')[i])
+                selected.append(self.env.current_data.get_axis('Parameter')[i])
+        container['selected'] = sorted(selected)
 
-        string_array = sorted(string_array)
-        for i, item in enumerate(string_array):
-            try:
-                python_string_init += str(float(item))+ ", "
-            except:
-                python_string_init += "'"+str(item)+ "', "
-
-        python_string_init = python_string_init[:-2]
-        python_string_init += "]\n"
-
-        #set the background
-        python_string_init += "\n#Set the background (edit in GUI)\n"
+        #get the background
         array = [ str(val) for val in self.env.current_data.get_axis('Parameter') ]
         if self.process_box_back_fit.currentIndex() == len(array):
-            python_string_init += "Background = None"        
+            container['Background'] = "None"
         else:
             try:
-                python_string_init += "Background = "+str(float(array[self.process_box_back_fit.currentIndex()]))+"\n"
+                container['Background'] = str(float(array[self.process_box_back_fit.currentIndex()]))
             except:
-                python_string_init += "Background = '"+str(array[self.process_box_back_fit.currentIndex()])+"'\n"
+               container['Background'] = "'"+str(array[self.process_box_back_fit.currentIndex()])+"'"
 
-        #set the background
-        python_string_init += "\n#Set the reference (edit in GUI)\n"
+        #get the reference
+        array = [ str(val) for val in self.env.current_data.get_axis('Parameter') ]
         try:
-            python_string_init += "Reference = ["+str(float([ str(val) for val in self.env.current_data.get_axis('Parameter') ][self.process_box_refs_fit.currentIndex()]))+",0]\n"
+            container['Reference'] = "["+str(float(array[self.process_box_refs_fit.currentIndex()]))+",0]"
         except:
-            python_string_init += "Reference = ['"+str([ str(val) for val in self.env.current_data.get_axis('Parameter') ][self.process_box_refs_fit.currentIndex()])+"',0]\n"
+            container['Reference'] = "['"+str(array[self.process_box_refs_fit.currentIndex()])+"',0]"
 
-        #set the instrument
-        python_string_init += "\n#Instrument (edit in GUI)\n"
-        python_string_init += "instrument = '"+str(self.process_box_instrument.currentText())+"'\n"
+        #get the Instrument
+        container['Instrument'] = str(self.process_box_instrument.currentText())
 
-        #set the detector
+        #get the detector
         array = [ text[0] for text in self.env.instrument.detector.foil_file_list] + ['None']
-        python_string_init += "\n#Detector(edit in GUI)\n"
-        python_string_init += "detector = "+str(array[self.process_box_detector.currentIndex()])+"\n"
+        container['Detector'] = str(array[self.process_box_detector.currentIndex()])
 
-        #set the exposure setting
-        python_string_init += "\n#Use the high exposure setting (edit in GUI)\n"
-        python_string_init += "exposure = "+str(self.process_radio_exposure.isChecked())+"\n"
+        #get the exposure
+        container['exposure'] = str(self.process_radio_exposure.isChecked())
 
-        #find area to edit
-        text = self.env.process.editable_scripts[1]
-        text_array = text.split("\n")
-
-        edit_start = 0
-        edit_end = len(text_array)
-
-        for i,line in enumerate(text_array):
-            if "self.env" in line:
-                edit_start = i
-            if ".fit.set_parameter( " in line:
-                edit_end = i
-                break
-
-        text_array = self._concatenateText([
-            text_array[0:edit_start+1],
-            python_string_init.split("\n"),
-            text_array[edit_end-1:]])
-
-        self.env.process.editable_scripts[1] = text_array
+        self.env.scripts.synthesizeFitScript(container)
         self._refresh()
 
     def _synthesizePhase(self):
@@ -985,21 +935,11 @@ class PageScriptWidget(Ui_script_widget):
         prepare the python script part that will
         manage the data parameter part
         '''
-        if not self.synthesize_scripts:
-            return None
-
-        #find area to edit
-        text = self.env.process.editable_scripts[2]
-        text_array = text.split("\n")
-
-        #the mask
-        for i,element in enumerate(text_array):
-            if "mask.setMask(" in element:
-                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_masks.currentIndex()])+"')"
-                break
+        container = {}
+        container['mask'] = str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_masks.currentIndex()])
 
         #find strings
-        self.env.process.editable_scripts[2] = self._concatenateText([text_array])
+        self.env.scripts.synthesizePhaseScript(container)
         self._refresh()
 
     def _synthesizeReduction(self):
@@ -1007,31 +947,13 @@ class PageScriptWidget(Ui_script_widget):
         prepare the python script part that will
         manage the data parameter part
         '''
-        if not self.synthesize_scripts:
-            return None
-
-        #find area to edit
-        text = self.env.process.editable_scripts[3]
-        text_array = text.split("\n")
-
-        #the mask
-        for i,element in enumerate(text_array):
-            if "mask.setMask(" in element:
-                text_array[i] = element.split(".mask.setMask(")[0]+".mask.setMask('"+str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_mask_fit.currentIndex()])+"')"
-                self.tool.comboBox.setCurrentIndex(self.process_box_mask_fit.currentIndex())
-                break
+        container = {}
+        container['mask'] = str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_mask_fit.currentIndex()])
+        self.tool.comboBox.setCurrentIndex(self.process_box_mask_fit.currentIndex())
 
         #find strings
-        self.env.process.editable_scripts[3] = self._concatenateText([text_array])
+        self.env.scripts.synthesizeReductionScript(container)
         self._refresh()
-
-    def _concatenateText(self, element_arrays):
-        output = ''
-        for element in element_arrays:
-            for line in element:
-                output += line + "\n"
-
-        return output
 
     #######################################################################
     #######################################################################
@@ -1042,16 +964,31 @@ class PageScriptWidget(Ui_script_widget):
         with the source present in the core env.process 
         class. 
         '''        
-        self.text_widgets[0].setPlainText(self.env.process.editable_scripts[0])
-        self.text_widgets[1].setPlainText(self.env.process.editable_scripts[1])
-        self.text_widgets[2].setPlainText(self.env.process.editable_scripts[2])
-        self.text_widgets[3].setPlainText(self.env.process.editable_scripts[3])
-        self.text_widgets[4].setPlainText(self.env.process.editable_scripts[4])
+        self.text_widgets[0].setPlainText(self.env.scripts.editable_scripts[0])
+        self.text_widgets[1].setPlainText(self.env.scripts.editable_scripts[1])
+        self.text_widgets[2].setPlainText(self.env.scripts.editable_scripts[2])
+        self.text_widgets[3].setPlainText(self.env.scripts.editable_scripts[3])
+        self.text_widgets[4].setPlainText(self.env.scripts.editable_scripts[4])
+
+    def _updateAllEditable(self):
+
+        if not self.env == None:
+            for i in range(5):
+                try:
+                    self.env.scripts.setEditable(i, self.text_widgets[i].toPlainText())
+                except Exception as e:
+                    dialog(
+                        parent = self.local_widget,
+                        icon = 'error', 
+                        title= 'Could not update script',
+                        message = 'The core encountered an error',
+                        add_message = str(e),
+                        det_message = traceback.format_exc())
 
     def _updateEditable(self, index):
         if not self.env == None:
             try:
-                self.env.process.editable_scripts[index] = self.text_widgets[index].toPlainText()
+                self.env.scripts.setEditable(index, self.text_widgets[index].toPlainText())
             except Exception as e:
                 dialog(
                     parent = self.local_widget,
@@ -1092,12 +1029,13 @@ class PageScriptWidget(Ui_script_widget):
         for i in range(4):
             self.run(i)
 
-    def _runPythonCode(self,index,  code):
+    def _runPythonCode(self, index, code):
         '''
         Parse and run python code. 
         '''
-        code_array = self._parseCode(code)
-        meta_array = self._parseMeta(code_array)
+        self.env.scripts.setEditable(index, code)
+        code_array, meta_array = self.env.scripts.preprocessScript(index)
+
         self.script_label_running.setText('Script running')
         self.scrip_label_action.setText('Command:')
         self.setActivity(0, len(meta_array))
@@ -1122,74 +1060,11 @@ class PageScriptWidget(Ui_script_widget):
         if success:
             self.setProgress('Script ended with success', len(meta_array))
             self.fadeActivity()
-            # self.progress_bar_reduction.setValue(index + 1)
 
         else:
             self.script_label_running.setText('Aborted')
             self.scrip_label_action.setText('Error: ')
             self.setProgress(str(error), i)
-            # self.progress_bar_reduction.setValue(index)
-
-    def _parseCode(self, code):
-        '''
-        This function will break down the code into smaller 
-        parts to allow interpretation of the failed sequence
-        as well as a meaningfull understanding of the progress.
-        '''
-
-        temp_code_array = []
-        indentation     = False
-        comment_bool    = False
-        code_lines      = code.split('\n') 
-
-        for line in code_lines:
-            if line == '' or line[0] == '#':
-                pass
-            elif line[0] == "'" or line[0] == '"':
-                comment_bool = not comment_bool
-
-            elif line[0].isspace() and not line == '' and not comment_bool:
-                if not indentation:
-                    indentation = not indentation
-                    temp = temp_code_array[-1]
-                    temp.append(line)
-                else:
-                    temp.append(line)
-            elif not comment_bool:
-                if indentation:
-                    indentation = not indentation
-                temp_code_array.append([line])
-
-        code_array = []
-        for element in temp_code_array:
-            if len(element) > 1:
-                code_string = ''
-                for sub_element in element:
-                    code_string += sub_element + '\n'
-                code_array.append(code_string)
-            else:
-                code_array.append(element[0])
-
-        return code_array
-
-    def _parseMeta(self, code_array):
-        '''
-        This function will try to identify the individual 
-        function parts to provide nice insight on what is 
-        being processed at the moment.
-        '''
-        meta_array = []
-        for element in code_array:
-            if len(element.split('for ')) > 1:
-                meta_array.append(
-                    "'for' loop over "+str(element.split(' in ')[1].split(':')[0]))
-            elif '(' in element and ')' in element:
-                meta_array.append(
-                    "'function' "+element.split('(')[0]+' with the parameters ('+''.join(element.split('(')[1].split(')')[0])[0:30]+')')
-            else:
-                 meta_array.append(element[0:40])
-
-        return meta_array
 
     def saveScripts(self):
         '''
@@ -1204,15 +1079,8 @@ class PageScriptWidget(Ui_script_widget):
                 self.window, 
                 'Select file',
                 filters)[0]
-
-        self.env.process.saveScripts(
-            file_path,
-            [
-                self.script_text_import.toPlainText(),
-                self.script_text_phase.toPlainText(),
-                self.script_text_reduction.toPlainText(),
-                self.script_text_post.toPlainText()
-            ])
+        self._updateAllEditable()
+        self.env.scripts.saveScripts(file_path)
 
     def loadScripts(self):
         '''
@@ -1227,8 +1095,7 @@ class PageScriptWidget(Ui_script_widget):
                 'Select file',
                 filters)[0]
 
-        self.env.process.loadScripts(
-            file_path)
+        self.env.scripts.loadScripts(file_path)
         self.refresh()
 
     def setActivity(self, min_val, max_val):

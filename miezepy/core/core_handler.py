@@ -336,6 +336,6 @@ class CoreHandler:
             if not self.prep_load_list[3][i] == None:
                 if not main_window == None:
                     main_window.setProgress('Setting script '+str(i),i)
-                env.process.loadScripts(self.prep_load_list[3][i])
+                env.scripts.loadScripts(self.prep_load_list[3][i])
 
         return [data_load_output, mask_load_output, script_load_output]
