@@ -48,7 +48,7 @@ class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
 
     def initialize(self):
         '''
-        set all the fields after initialising the gui
+        set all the fields after initializing the gui
         '''
         try:
             self.disconnect()

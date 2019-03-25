@@ -33,7 +33,7 @@ from ..gui_common.dialog        import dialog
 from .result_list_handler       import ResultHandlerUI
 
 #private plotting library
-from simpleplot.multi_canvas        import Multi_Canvas
+from simpleplot.canvas.multi_canvas import MultiCanvasItem
 
 class PageResultWidget(Ui_result_widget):
     
@@ -54,15 +54,15 @@ class PageResultWidget(Ui_result_widget):
         area.
         '''
         self.setupUi(self.local_widget)
-        self.my_canvas          = Multi_Canvas(
+        self.my_canvas          = MultiCanvasItem(
             self.process_widget_plot,
             grid        = [[True]],
             x_ratios    = [1],
             y_ratios    = [1],
             background  = "w",
             highlightthickness = 0)
-        self.ax                 = self.my_canvas.get_subplot(0,0)
-        self.ax.pointer['Label_Precision'] = ('.4','.4','.4','.4')
+        self.ax                 = self.my_canvas.getSubplot(0,0)
+        # self.ax.pointer['Label_Precision'] = ('.4','.4','.4','.4')
         self.result_handler_ui  = ResultHandlerUI(self)
 
     def _connect(self):
@@ -237,7 +237,7 @@ class PageResultWidget(Ui_result_widget):
         y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
         x = np.asarray([i for i in range(len(y))])
 
-        self.ax.add_plot(
+        self.ax.addPlot(
             'Scatter', 
             x, 
             y+instruction['offset'], 
@@ -255,7 +255,7 @@ class PageResultWidget(Ui_result_widget):
         x = np.asarray(self.result_handler_ui.getDataFromKey(instruction['x key']))
         sort_idx = x.argsort()
 
-        self.ax.add_plot(
+        self.ax.addPlot(
             'Scatter', 
             x[sort_idx], 
             y[sort_idx]+instruction['offset'],
@@ -274,7 +274,7 @@ class PageResultWidget(Ui_result_widget):
         e = np.asarray(self.result_handler_ui.getDataFromKey(instruction['e key']))
         sort_idx = x.argsort()
 
-        self.ax.add_plot(
+        self.ax.addPlot(
             'Scatter', 
             x[sort_idx], 
             y[sort_idx]+instruction['offset'],

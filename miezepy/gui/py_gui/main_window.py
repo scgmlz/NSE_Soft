@@ -27,8 +27,7 @@ import sys
 import optparse
 from functools import partial
 
-from ..qt_gui.mainwindow_ui         import Ui_MIEZETool 
-
+from ..qt_gui.mainwindow_ui                     import Ui_MIEZETool 
 from ..py_gui.gui_data.page_data_widget         import PageDataWidget
 from ..py_gui.gui_mask.page_mask_widget         import PageMaskWidget
 from ..py_gui.gui_env.page_env_widget           import PageEnvWidget

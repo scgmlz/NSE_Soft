@@ -32,8 +32,7 @@ import copy
 from ...qt_gui.display_data_raw_ui import Ui_raw_display
 
 #private plotting library
-from simpleplot.multi_canvas import Multi_Canvas
-
+from simpleplot.canvas.multi_canvas import MultiCanvasItem
 
 class DisplayRawWindowLayout(Ui_raw_display):
     '''
@@ -61,7 +60,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
         '''
         self.setupUi(self.window)
 
-        self.my_canvas    = Multi_Canvas(
+        self.my_canvas    = MultiCanvasItem(
             self.graph_widget,
             grid        = [[True]],
             x_ratios    = [1],
@@ -69,10 +68,9 @@ class DisplayRawWindowLayout(Ui_raw_display):
             background  = "w",
             highlightthickness = 0)
 
-        self.ax = self.my_canvas.get_subplot(0,0)
-        self.ax.pointer['Sticky'] = 3
-
-        self.my_canvas.canvas_objects[0][0][0].grid_layout.setMargin(0)
+        self.ax = self.my_canvas.getSubplot(0,0)
+        self.ax.pointer.setManually('Sticky', [3])
+        self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
 
     def link(self, import_object):
         '''
@@ -120,7 +118,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
         except:
             pass
 
-        self.ax.add_plot(
+        self.ax.addPlot(
             'Bin', 
             [ i for i in range(data.shape[0])], 
             [ i for i in range(data.shape[1])], 

@@ -33,10 +33,10 @@ from ...qt_gui.main_data_import_ui  import Ui_data_import
 from .loaded_data_widget            import LoadedDataWidget
 from .meta_widget                   import MetaWidget 
 from ..gui_common.dialog            import dialog 
-from .drag_drop_file    import DropListView 
+from .drag_drop_file                import DropListView 
 
 #private plotting library
-from simpleplot.multi_canvas import Multi_Canvas
+from simpleplot.canvas.multi_canvas import MultiCanvasItem
 
 class PageDataWidget(Ui_data_import):
     
@@ -93,7 +93,7 @@ class PageDataWidget(Ui_data_import):
             "QListWidget::item:selected { background-color: palette(Mid)  }")
         ##############################################
         #add the 
-        self.my_canvas    = Multi_Canvas(
+        self.my_canvas    = MultiCanvasItem(
             self.data_widget_graph,
             grid        = [[True]],
             x_ratios    = [1],
@@ -101,10 +101,9 @@ class PageDataWidget(Ui_data_import):
             background  = "w",
             highlightthickness = 0)
 
-        self.ax = self.my_canvas.get_subplot(0,0)
-        self.ax.pointer['Sticky'] = 3
-
-        self.my_canvas.canvas_objects[0][0][0].grid_layout.setMargin(0)
+        self.ax = self.my_canvas.getSubplot(0,0)
+        self.ax.pointer.setManually('Sticky', [3])
+        self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
 
     def link(self, io_core):
         '''
@@ -392,7 +391,7 @@ class PageDataWidget(Ui_data_import):
         except:
             pass
 
-        self.ax.add_plot(
+        self.ax.addPlot(
             'Bin', 
             [ i for i in range(self.file_handler.current_preview.shape[0])], 
             [ i for i in range(self.file_handler.current_preview.shape[1])], 

@@ -35,9 +35,6 @@ from ..gui_mask.page_mask_widget    import PanelPageMaskWidget
 from ..gui_common.dialog            import dialog 
 from ..gui_common.code_editor       import CodeEditor
 
-#private plotting library
-from simpleplot.multi_canvas    import Multi_Canvas
-
 class PageScriptWidget(Ui_script_widget):
     
     def __init__(self, stack, parent, mask_model):

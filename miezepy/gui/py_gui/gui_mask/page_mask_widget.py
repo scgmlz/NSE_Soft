@@ -30,11 +30,11 @@ import os
 #private dependencies
 from ...qt_gui.main_mask_editor_ui  import Ui_mask_editor
 from ..gui_common.dialog            import dialog 
-from ...qt_gui.new_mask_ui         import Ui_new_msk
+from ...qt_gui.new_mask_ui          import Ui_new_msk
 from .panel_worker                  import PanelWorker
 
 #private plotting library
-from simpleplot.multi_canvas import Multi_Canvas
+from simpleplot.canvas.multi_canvas import MultiCanvasItem
 
 class PageMaskWidget(Ui_mask_editor):
     
@@ -66,7 +66,7 @@ class PageMaskWidget(Ui_mask_editor):
         self.mask_model.connectView('main', self.mask_list_loaded)
         self.mask_model.connectDrop('main', self.comboBox)
 
-        self.my_canvas    = Multi_Canvas(
+        self.my_canvas    = MultiCanvasItem(
             self.mask_widget_visual,
             grid        = [[True]],
             x_ratios    = [1],
@@ -74,9 +74,9 @@ class PageMaskWidget(Ui_mask_editor):
             background  = "w",
             highlightthickness = 0)
 
-        self.ax = self.my_canvas.get_subplot(0,0)
-        self.ax.pointer['Sticky'] = 3
-        self.my_canvas.canvas_objects[0][0][0].grid_layout.setMargin(0)
+        self.ax = self.my_canvas.getSubplot(0,0)
+        self.ax.pointer.setManually('Sticky', [3])
+        self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
 
     def link(self, mask_core):
         '''
@@ -222,7 +222,7 @@ class PageMaskWidget(Ui_mask_editor):
             self.ax.clear()
         except:
             pass
-        self.ax.add_plot(
+        self.ax.addPlot(
             'Bin', 
             [ i for i in range(data.shape[0])], 
             [ i for i in range(data.shape[1])], 
@@ -353,7 +353,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.mask_model.connectView('panel', self.mask_list_loaded)
         self.mask_model.connectDrop('panel', self.comboBox)
 
-        self.my_canvas    = Multi_Canvas(
+        self.my_canvas    = MultiCanvasItem(
             self.mask_widget_visual,
             grid        = [[True,True],[True,True]],
             x_ratios    = [2,3],
@@ -362,10 +362,10 @@ class PanelPageMaskWidget(PageMaskWidget):
             highlightthickness = 0)
 
         #set the subplots as local
-        self.ax = self.my_canvas.get_subplot(0,0)
-        self.bx = self.my_canvas.get_subplot(0,1)
-        self.cx = self.my_canvas.get_subplot(1,0)
-        self.dx = self.my_canvas.get_subplot(1,1)
+        self.ax = self.my_canvas.getSubplot(0,0)
+        self.bx = self.my_canvas.getSubplot(0,1)
+        self.cx = self.my_canvas.getSubplot(1,0)
+        self.dx = self.my_canvas.getSubplot(1,1)
 
         self.dx.zoomer.set_fixed(fixed = [False,True], fixed_range = [
             None,
@@ -378,11 +378,11 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.cx.draw()
         self.dx.draw()
 
-        self.ax.pointer['Sticky'] = 3
-        self.bx.pointer['Sticky'] = 3
+        self.ax.pointer.setManually('Sticky', [3])
+        self.bx.pointer.setManually('Sticky', [3])
 
-        self.cx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
-        self.dx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
+        # self.cx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
+        # self.dx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
 
     def populateSelectors(self):
         '''
@@ -564,20 +564,20 @@ class PanelPageMaskWidget(PageMaskWidget):
         x_1 = np.arange(0,15,0.01)
 
         #set the two bin
-        self.ax.add_plot(
+        self.ax.addPlot(
             'Bin', x, y, 
             np.log10(np.sum(data,axis=(0))+1), 
             Name = 'bin' )
 
-        self.bx.add_plot(
+        self.bx.addPlot(
             'Bin', x, y, 
             np.log10(self.mask * np.sum(data, axis=(0))+1 ), 
             Name = 'bin')
 
         #set the main scatter plot of the counts
-        self.cx.add_plot(
+        self.cx.addPlot(
             'Scatter', 
-            range(16), 
+            range(len(counts)), 
             counts, 
             Style   = ['s','10'], 
             Log     = [False,False],
@@ -586,14 +586,14 @@ class PanelPageMaskWidget(PageMaskWidget):
                 'top': np.sqrt(counts)})
 
         if not fit == None:
-            self.cx.add_plot(
+            self.cx.addPlot(
                 'Scatter', x_1, 
                 fit['amplitude']*np.cos(x_1/16.*2*np.pi+fit['phase'])+fit['mean'],
                 Style   = ['-'], 
                 Log     = [False,False])
 
         if not process == None:
-            self.dx.add_plot(
+            self.dx.addPlot(
                 'Scatter', 
                 process['Axis'][para], 
                 process['Contrast'][para], 
