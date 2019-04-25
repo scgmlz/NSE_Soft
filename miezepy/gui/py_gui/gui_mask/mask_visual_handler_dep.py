@@ -309,6 +309,7 @@ class MaskVisualHandler(QtCore.QObject):
             temp_element = []
             item = self.model.item(row)
             temp_element.append(' '.join(item.text().split(' ')[:-1]))
+            
             for subrow in range(item.rowCount()):
                 if item.child(subrow).identifier == 'value':
                     temp_element.append(float(item.child(subrow, 1).text()))
@@ -321,6 +322,7 @@ class MaskVisualHandler(QtCore.QObject):
                             float(item.child(subrow, 1).text()), 
                             float(item.child(subrow, 2).text())])
                 elif item.child(subrow).identifier == 'drop':
+
                     sub_sub_item = item.child(subrow)
                     sub_temp_element = [' '.join(sub_sub_item.text().split(' ')[:-1])]
                     for subsubrow in range(sub_sub_item.rowCount()):

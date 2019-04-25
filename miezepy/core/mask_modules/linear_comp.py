@@ -48,92 +48,58 @@ class LinearComposition(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']         = 'linear composition'
-        self.parameters['child type']   = 'rectangle'
-        self.parameters['horizontal']   = 1
-        self.parameters['vertical']     = 1
-        self.parameters['width']        = 50
-        self.parameters['height']       = 50
-        self.parameters['close gap']    = True
-        self.parameters['increment']    = True
+        self.parameters['Name']         = 'Linear composition'
+        self.parameters['child']        = {'Name' : 'Rectangle'}
+        self.parameters['Multiplicity'] = [1,1]
+        self.parameters['Dimensions']   = [10.,10.]
+        self.parameters['Close Gap']    = True
+        self.parameters['Increment']    = True
         
         self.children = []
+        self.setChildType('Rectangle')
 
-        self.setChildType(self.parameters['child type'])
-
-    def testIfEdited(self, parameters):
-        '''
-        test if the parameters of this in particular has been
-        edited
-        '''
-        test = [
-            self.parameters['position']     == parameters[1],
-            self.parameters['angle']        == parameters[2],
-            self.parameters['horizontal']   == parameters[3],
-            self.parameters['vertical']     == parameters[4],
-            self.parameters['width']        == parameters[5],
-            self.parameters['height']       == parameters[6],
-            self.parameters['close gap']    == parameters[7][-1][0],
-            self.parameters['increment']    == parameters[7][-1][1],
-            self.parameters['exclude']      == parameters[7][-1][2]]
-
-        if not all(test): 
-            return True
-        else:
-            return False
-
-    def setDirectly(self, parameters):
+    def setDirectly(self, **kwargs):
         '''
         The mask generator favours the direct
         input of the values onto the mask
         and will therefore send it to the mask
         element to be anaged.
         '''
-        if self.testIfEdited(parameters) or self.template.testIfEdited(parameters[7]) or not self.template.parameters['type'] == parameters[7][0]:
-            self.parameters['position']     = list(parameters[1])
-            self.parameters['angle']        = float(parameters[2])
-            self.parameters['horizontal']   = int(parameters[3])
-            self.parameters['vertical']     = int(parameters[4])
-            self.parameters['width']        = float(parameters[5])
-            self.parameters['height']       = float(parameters[6])
-            self.parameters['close gap']    = bool(parameters[7][-1][0])
-            self.parameters['increment']    = bool(parameters[7][-1][1])
-            self.parameters['exclude']      = bool(parameters[7][-1][2])
-            self.parameters['processed']    = False
+        self.parameters = kwargs
+        self.setChildType(self.parameters['child']['Name'], self.parameters['child'])
 
-            self.setChildType(parameters[7][0])
-            self.template.setDirectly(parameters[7])
-
-    def setChildType(self, child_type):
+    def setChildType(self, child_type, parameters = None):
         '''
         If a child is selected we need to maintin a 
         certain coherence. This is why we then load
         a template into here to manage the parameters
         for all.
         '''
-        if child_type == 'rectangle':
+        if child_type == 'Rectangle':
             self.template = Rectangle()
-            self.parameters['child type']   = 'rectangle'
-        elif child_type == 'triangle':
+        elif child_type == 'Triangle':
             self.template = Triangle()
-            self.parameters['child type']   = 'triangle'
-        elif child_type == 'arc':
+        elif child_type == 'Arc':
             self.template = CircleArc()
-            self.parameters['child type']   = 'arc'
+
+        if parameters == None:
+            self.parameters['child']   = self.template.parameters
+        else:
+            self.template.setDirectly(**parameters)
 
     def setup(self):
         '''
         Setup the grid with the elements within
         '''
         x = np.linspace(
-            self.parameters['position'][0] - self.parameters['width'] / 2,
-            self.parameters['position'][0] + self.parameters['width'] / 2,
-            num = self.parameters['horizontal'])
+            self.parameters['Position'][0] - self.parameters['Dimensions'][0] / 2,
+            self.parameters['Position'][0] + self.parameters['Dimensions'][0] / 2,
+            num = self.parameters['Multiplicity'][0])
 
         y = np.linspace(
-            self.parameters['position'][1] - self.parameters['height'] / 2,
-            self.parameters['position'][1] + self.parameters['height'] / 2,
-            num = self.parameters['vertical'])
+            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 2,
+            self.parameters['Position'][1] + self.parameters['Dimensions'][1] / 2,
+            num = self.parameters['Multiplicity'][1])
 
         xx, yy = np.meshgrid(x,y)
         edges = []
@@ -144,23 +110,23 @@ class LinearComposition(MaskShape):
 
         for i in range(len(edges)):
             edges[i] = self.rotatePoint(
-                self.parameters['position'],
+                self.parameters['Position'],
                 edges[i],
-                self.parameters['angle'])
+                self.parameters['Angle'])
+
 
         self.children = []
-
         for edge in edges:
             element = copy.deepcopy(self.template)
-            if self.parameters['child type'] == 'rectangle' and self.parameters['close gap']:
-                    element.parameters['width']  = self.parameters['width'] / (self.parameters['horizontal'] - 1)
-                    element.parameters['height'] = self.parameters['height'] / (self.parameters['vertical'] - 1)
+            if self.parameters['child']['Name'] == 'Rectangle' and self.parameters['Close Gap']:
+                element.parameters['Dimensions'][0]  = self.parameters['Dimensions'][0] / (self.parameters['Multiplicity'][0] - 1)
+                element.parameters['Dimensions'][1] = self.parameters['Dimensions'][1] / (self.parameters['Multiplicity'][1] - 1)
             element.move(absolute = edge)
-            if not self.parameters['child type'] == 'rectangle' or not self.parameters['close gap']:
-                element.rotate(absolute = self.parameters['angle'])
-                element.rotate(relative = (self.template.parameters['angle']))
+            if not self.parameters['child']['Name'] == 'Rectangle' or not self.parameters['Close Gap']:
+                element.rotate(absolute = self.parameters['Angle'])
+                element.rotate(relative = (self.template.parameters['Angle']))
             else:
-                element.rotate(absolute = self.parameters['angle'])
+                element.rotate(absolute = self.parameters['Angle'])
             self.children.append(element)
 
     def generate(self, size_x, size_y):
@@ -168,38 +134,16 @@ class LinearComposition(MaskShape):
         Generate the mask element by calling the 
         setup and then patching the masks
         '''
-        if not self.parameters['processed']:
-            
-            self.setup()
-            self.mask = np.zeros((size_x, size_y), dtype=np.int16)
+        self.setup()
+        self.mask = np.zeros((size_x, size_y), dtype=np.int16)
 
-            for i, child in enumerate(self.children):
-                child.generate(size_x, size_y)
-                if self.parameters['increment']:
-                    self.mask += child.mask * (i+1)
-                    self.mask[self.mask > (i+1)] = (i+1)
-                else:
-                    self.mask += child.mask
-                    self.mask[self.mask >1] = 1
+        for i, child in enumerate(self.children):
+            child.generate(size_x, size_y)
+            if self.parameters['Increment']:
+                self.mask += child.mask * (i+1)
+                self.mask[self.mask > (i+1)] = (i+1)
+            else:
+                self.mask += child.mask
+                self.mask[self.mask >1] = 1
 
         return self.mask
-
-if __name__ == '__main__':
-
-    import matplotlib.pyplot as plt
-
-    comp = LinearComposition()
-    comp.parameters['horizontal']   = 6
-    comp.parameters['vertical']     = 6
-    comp.parameters['width']        = 100
-    comp.parameters['height']       = 100
-    comp.parameters['angle']        = 30
-    comp.parameters['increment']    = False
-    comp.setChildType('arc')
-    comp.template.parameters['angle_range']     = (0, 180)
-    comp.template.parameters['radius_range']    = (3, 8)
-    comp.move(absolute = [50,50])
-    comp.generate(128,128)
-
-    plt.pcolormesh(comp.mask)
-    plt.show()

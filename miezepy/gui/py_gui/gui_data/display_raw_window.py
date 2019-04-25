@@ -69,7 +69,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
             highlightthickness = 0)
 
         self.ax = self.my_canvas.getSubplot(0,0)
-        self.ax.pointer.setManually('Sticky', [3])
+        self.ax.pointer.pointer_handler['Sticky'] = 3
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
 
     def link(self, import_object):
@@ -119,9 +119,9 @@ class DisplayRawWindowLayout(Ui_raw_display):
             pass
 
         self.ax.addPlot(
-            'Bin', 
+            'Surface', 
             [ i for i in range(data.shape[0])], 
             [ i for i in range(data.shape[1])], 
-            data, Name = 'bin' )
+            data, Name = 'Surface' )
 
         self.ax.redraw()

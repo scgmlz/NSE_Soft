@@ -102,7 +102,7 @@ class PageDataWidget(Ui_data_import):
             highlightthickness = 0)
 
         self.ax = self.my_canvas.getSubplot(0,0)
-        self.ax.pointer.setManually('Sticky', [3])
+        self.ax.pointer.pointer_handler['Sticky'] = 3
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
 
     def link(self, io_core):
@@ -392,10 +392,10 @@ class PageDataWidget(Ui_data_import):
             pass
 
         self.ax.addPlot(
-            'Bin', 
-            [ i for i in range(self.file_handler.current_preview.shape[0])], 
-            [ i for i in range(self.file_handler.current_preview.shape[1])], 
-            self.file_handler.current_preview, Name = 'bin' )
+            'Surface', 
+            np.array([ i for i in range(self.file_handler.current_preview.shape[0])]), 
+            np.array([ i for i in range(self.file_handler.current_preview.shape[1])]), 
+            self.file_handler.current_preview, Name = 'Surface' )
 
         self.ax.redraw()
 

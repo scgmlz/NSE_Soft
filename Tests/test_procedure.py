@@ -93,24 +93,25 @@ def createHTO(proc):
     for meta_object in env.current_data.metadata_objects:
         meta_object.addMetadata('Wavelength', value = 8.e-10 , logical_type = 'float', unit = 'A')
 
-    env.mask.mask_dict["HTO_1"]= [[
-        "linear composition", 
-        [64, 64], 
-        0, 
-        16, 16, 
-        128, 128, 
-        [
-            "rectangle", 
-            [0, 0], 
-            0, 
-            0, 0, 
-            [True, True, False]]]]
+    env.mask.mask_dict["HTO_1"]= [{
+        'Name' : "Linear composition", 
+        "Position" :[64, 64], 
+        "Angle" : 0, 
+        "Multiplicity" : [16, 16], 
+        "Dimensions": [128, 128], 
+        "child" : {
+            'Name' :"rectangle", 
+            "Position" :[0, 0], 
+            "Angle" : 00, 
+            "Dimensions": [128, 128]},
+        "Close Gap" : True,
+        "Increment" : True}]
             
-    env.mask.mask_dict["HTO_2"] = [[
-        "rectangle", 
-        [64, 64], 
-        0, 
-        128, 128]]
+    env.mask.mask_dict["HTO_2"] = [{
+        "Name" :"Rectangle", 
+        "Position" : [64, 64], 
+        "Angle" : 0, 
+        "Dimensions" :[128, 128]}]
 
     foils_in_echo = []
     foils_in_echo.append([0, 0, 0, 0, 0, 0, 0, 1])
@@ -431,6 +432,7 @@ class Test_Phase_correction(unittest.TestCase):
             self.env.results)
 
         result = self.env.results.getLastResult('Corrected Phase')['Shift']
+        print(result)
         self.assertEqual(int(result['50K'][0][self.env.current_data.get_axis('Echo Time')[0]].sum()),4539)
 
         ######################################################
@@ -529,4 +531,4 @@ class Test_Phase_correction(unittest.TestCase):
 
 if __name__ == '__main__':
     ground_0 = Test_Phase_correction()
-    ground_0.test_multi_proc_exposure_data()
+    ground_0.phase_correction_mask_data(12)

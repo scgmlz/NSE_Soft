@@ -35,10 +35,12 @@ from .library_fit import multiAxis
 
 from ..module_result    import ResultStructure
 from .fit_worker        import WorkerPool
-from .library_iminuit    import ExpMinuit
+from .library_iminuit   import ExpMinuit
 
 class ContrastProcessing: 
-
+    para_dict = {}
+    log       = None
+    
     def calcContrastFit(self, select, data_input, target, mask, foil = None):
         '''
         This function proceeds to the contrast calculation 
@@ -166,7 +168,7 @@ class ContrastProcessing:
         contrast_result     = self.fitContrastSinus(combined_data, target, monitor)
         result_dict[idx]    = contrast_result
 
-    def combineData(self, data_input, target, mask_item, foils_in_echo, foil):
+    def combineData(self, data_input, target, mask_item, foils_in_echo, foil_in):
         '''
         This function proceeds to the contrast calculation 
         given a certain selected array to process
@@ -201,18 +203,17 @@ class ContrastProcessing:
         combined_data = np.zeros(target.get_axis_len(tcha_name))
 
         #check if we want only a specific foil
-        if not foil == None:
-            foil_elements = [foil]
+        if not foil_in == None:
+            foil_elements = [foil_in]
         else:
             foil_elements = target.get_axis(foil_name)
 
         #reduce the foils
-        for foil_idx, foil in enumerate(foil_elements):
-            #logical check
-            if foils_in_echo[foil_idx] == 1:
+        for foil in foil_elements:
+            if foils_in_echo[foil] == 1:
                 data_array = []
                 for tcha_idx in range(target.get_axis_len(tcha_name)):
-                    data_array.append((np.multiply(data_input[foil_idx,tcha_idx],mask_item)).sum())
+                    data_array.append((np.multiply(data_input[foil,tcha_idx],mask_item)).sum())
                 data = np.array(data_array)
                 combined_data += data
                 
@@ -240,15 +241,15 @@ class ContrastProcessing:
 
         #fit the data
         fitDataSinus(
-            results, 
-            data_input, 
+            results, data_input, 
             np.sqrt(data_input), 
-            Q_min = 0.,
-            time_chan = target.get_axis_len(tcha_name))
+            Q_min = 0.,time_chan = target.get_axis_len(tcha_name),
+            time_select = self.para_dict['time_channels'])
 
         result  = results.getLastResult('Fit Data Sinus')
         if result['amplitude'] == 0:
             result.log.dump_to_console()
+
         #process the result
         return [
             result['amplitude']/monitor,
@@ -319,10 +320,10 @@ class ContrastProcessing:
             The current active result structure
         '''
         #Initialize the output dictionary with all def.
-        local_results = results.generateResult( name =  'Contrast calculation')
+        local_results = results.generateResult(name =  'Contrast calculation')
 
         #extract the relevant parameters
-        data        = results.getLastResult( 'Corrected Phase', 'Shift')
+        data        = results.getLastResult('Corrected Phase', 'Shift')
         BG          = self.test_parameter('Background', target, mask, results)
         para_name   = self.test_parameter('para_name', target, mask, results)
 
@@ -339,7 +340,6 @@ class ContrastProcessing:
             BG_result = self.calcContrastFit(
                 [BG], data, target, mask)
 
-        print(select)
         #contrast calculation
         contrast_results = self.calcContrastFit(
             select, data, target, mask, foil)

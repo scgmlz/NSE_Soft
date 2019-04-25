@@ -94,7 +94,6 @@ class ScriptStructure:
                 text.split('##--PHASE--##')[1],
                 text.split('##--REDUCTION--##')[1],
                 text.split('##--POST--##')[1]]
-
         self.editable_scripts = list(strings)
 
     def saveScripts(self, path):
@@ -187,6 +186,7 @@ class ScriptStructure:
             if not element == '':
                 foil_check = eval('['+element.split('[')[1].split(']')[0]+']')
 
+        del text_array
         #----------------------------------------#
         text_array = self.editable_scripts[1].split("\n")
 
@@ -233,7 +233,7 @@ class ScriptStructure:
         instrument = None
         for element in filtered_text_array:
             if not element == '':
-                Background = eval(element.split('instrument = ' )[1])
+                instrument = eval(element.split('instrument = ' )[1])
 
         #detector
         filtered_text_array = [
@@ -242,7 +242,7 @@ class ScriptStructure:
         detector = None
         for element in filtered_text_array:
             if not element == '':
-                Background = eval(element.split('detector = ' )[1])
+                detector = eval(element.split('detector = ' )[1])
 
         #exposure
         filtered_text_array = [
@@ -251,7 +251,9 @@ class ScriptStructure:
         exposure = False
         for element in filtered_text_array:
             if not element == '':
-                Background = eval(element.split('exposure = ' )[1])
+                exposure = eval(element.split('exposure = ' )[1])
+
+        del text_array
         #----------------------------------------#
         text_array = self.editable_scripts[2].split("\n")
 
@@ -265,6 +267,7 @@ class ScriptStructure:
             if not element == '':
                 phase_mask = eval(element.split('(')[1].split(')')[0])
 
+        del text_array
         #----------------------------------------#
         text_array = self.editable_scripts[3].split("\n")
 
@@ -278,6 +281,7 @@ class ScriptStructure:
             if not element == '':
                 reduction_mask = eval(element.split('(')[1].split(')')[0])
 
+        del text_array
         container = {}
         container['foils_in_echo'] = foils_in_echo
         container['Selected']      = Selected
@@ -289,7 +293,7 @@ class ScriptStructure:
         container['instrument']    = instrument
         container['detector']      = detector
         container['exposure']      = exposure
-
+        print('back', container['Background'])
         return container
 
     def setEditable(self, index, code):
@@ -369,7 +373,6 @@ class ScriptStructure:
         text : string
             The text to be formater
         '''
-
         temp_code_array = []
         indentation     = False
         comment_bool    = False

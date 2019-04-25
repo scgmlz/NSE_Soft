@@ -52,7 +52,7 @@ def fitGoodness(chi2, N_dof):
 
     return Q
 
-def fitDataSinus(results, data, data_error, Q_min = 0, time_chan = 16):
+def fitDataSinus(results, data, data_error, Q_min = 0, time_chan = 16, time_select = []):
     '''
     This routine will fit the data sinus elements
 
@@ -89,11 +89,17 @@ def fitDataSinus(results, data, data_error, Q_min = 0, time_chan = 16):
     # Fit the data
     freq = (2.*np.pi ) / time_chan
     fit_structure = CosineMinuit()
-    fit = fit_structure.fitCosine(
-        data, 
-        np.arange( len(data), dtype=float ), 
-        freq, 
-        data_error)
+
+    if not len(time_select) == 0:
+        fit = fit_structure.fitCosine(
+            np.array(data)[np.array(time_select)], 
+            np.arange(len(data), dtype=float)[np.array(time_select)], 
+            freq, 
+            np.array(data_error)[np.array(time_select)])
+    else:
+        fit = fit_structure.fitCosine(
+            data,np.arange(len(data), dtype=float), 
+            freq, data_error)        
 
     # minuit failed
     if fit == None:
@@ -207,7 +213,10 @@ def phaseExposure(idx, data_input, index_map, loop, foil_axis, cha_axis, result_
 
     result_dict[idx] = temp_reorganized
 
-def phaseMaskFunction(idx, foil, result_dimension, loop, foil_axis,reference_meas, chan_num, premask, result_dict):
+def phaseMaskFunction(
+    idx, foil, result_dimension, loop, 
+    foil_axis,reference_meas, chan_num, premask, 
+    time_select,result_dict ):
     '''
     This function will manage the run over the echo 
     times for the set echo time. Note that the 
@@ -250,10 +259,13 @@ def phaseMaskFunction(idx, foil, result_dimension, loop, foil_axis,reference_mea
     for mask_num in loop:
         proc_mask   = premask == mask_num
         output[:, :] += phaseFit(
-            proc_mask, foil_idx, chan_num, reference_meas, results)
+            proc_mask, foil_idx, 
+            chan_num, reference_meas, 
+            results, time_select = time_select)
+
     result_dict[idx] = output
 
-def phaseFit(proc_mask, foil_idx, chan_num, reference_meas, results):
+def phaseFit(proc_mask, foil_idx, chan_num, reference_meas, results, time_select = []):
     '''
     Processing the phase
 
@@ -284,7 +296,8 @@ def phaseFit(proc_mask, foil_idx, chan_num, reference_meas, results):
         data        = counts, 
         data_error  = count_error, 
         Q_min       = 0.,
-        time_chan   = chan_num)
+        time_chan   = chan_num,
+        time_select = time_select)
 
     message = results.getLastResult('Fit Data Sinus').log.returnLastLog('error')
     if not success and message == 'cov_failed':
@@ -295,7 +308,8 @@ def phaseFit(proc_mask, foil_idx, chan_num, reference_meas, results):
             data        = counts, 
             data_error  = count_error, 
             Q_min        = 0.,
-            time_chan   = chan_num)
+            time_chan   = chan_num,
+            time_select = time_select)
 
         message = results.getLastResult('Fit Data Sinus').log.returnLastLog('error')
         if not success and message == 'cov_failed':
@@ -373,7 +387,7 @@ def correctPhaseParaMeas(index_array, idx,  data_meas, cha_num, echo_axis, foil_
             proc_mask       = premask == mask_num
             mask_sum        = np.sum(proc_mask)
             current_mask    = int(mask_num)
-
+        
         #select only one mask
         index = np.arange(
             int((

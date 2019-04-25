@@ -37,14 +37,15 @@ from ..gui_common.code_editor       import CodeEditor
 
 class PageScriptWidget(Ui_script_widget):
     
-    def __init__(self, stack, parent, mask_model):
+    def __init__(self, stack, parent, mask_interface):
         
         Ui_script_widget.__init__(self)
         self.parent         = parent
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
         self.env            = None
-        self.mask_model     = mask_model
+        self.mask_interface = mask_interface
+
         self._setup()
         self._connect()
         self.fadeActivity()
@@ -60,6 +61,12 @@ class PageScriptWidget(Ui_script_widget):
         '''
         self.setupUi(self.local_widget)
         self._setEditors()
+
+        self.process_box_mask_fit = self.mask_interface.getComboBox()
+        self.fit_select_layout.addWidget(self.process_box_mask_fit)
+
+        self.process_box_masks = self.mask_interface.getComboBox(connect = False)
+        self.phase_mask_layout.addWidget(self.process_box_masks)
 
         self.text_widgets = [
             self.script_text_import,
@@ -89,10 +96,11 @@ class PageScriptWidget(Ui_script_widget):
             self.script_button_phase_gui,
             self.script_button_reduction_gui]
 
-        self.tool = PanelPageMaskWidget(self, self.parent, self.mask_model)
+        self.tool = PanelPageMaskWidget(self, self.parent, self.mask_interface)
         self.tool.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
         self.panel_layout.addWidget(self.tool.local_widget)
+
         with open(os.path.realpath(os.path.sep.join(str(os.path.realpath(__file__)).split(os.path.sep)[0:-4] + ['ressources', 'default_post_path.txt'])),'r') as f:
             self.path = f.readline()
             self.script_line_def_save.setText(self.path)
@@ -238,6 +246,7 @@ class PageScriptWidget(Ui_script_widget):
         '''
         Connect all Qt slots to their respective methods.
         '''
+        
         self.button_widgets[0].clicked.connect(partial(self.run,0))
         self.button_widgets[2].clicked.connect(partial(self.run,0))
         self.button_widgets[2].clicked.connect(partial(self.run,1))
@@ -259,7 +268,6 @@ class PageScriptWidget(Ui_script_widget):
         self.text_widgets[3].textChanged.connect(partial(self._updateEditable, 3))
         self.text_widgets[4].textChanged.connect(partial(self._updateEditable, 4))
         
-        self.tabWidget.currentChanged.connect(self._mainTabChanged)
         self.script_save_def_save.clicked.connect(self._setNewDefaultSavePath)
 
     def _setNewDefaultSavePath(self):
@@ -276,14 +284,6 @@ class PageScriptWidget(Ui_script_widget):
             f.writelines([dir_path])
             self.path = dir_path
             self.script_line_def_save.setText(dir_path)
-        
-
-    def _mainTabChanged(self, idx):
-        '''
-        '''
-        if idx == 1 and self.env:
-            keys = [key for key in self.tool.mask_core.mask_dict.keys()]
-            self.tool.comboBox.setCurrentIndex(keys.index(self.tool.mask_core.current_mask))
 
     def link(self, env = None):
         '''
@@ -311,7 +311,6 @@ class PageScriptWidget(Ui_script_widget):
 
         self.container = self.env.scripts.readFromScripts()
         self._linkVisualData()
-        self._linkVisualPhase()
         self._linkVisualInstrument()
         self._linkVisualDetector()
         self._linkVisualFit()
@@ -394,13 +393,6 @@ class PageScriptWidget(Ui_script_widget):
 
     #######################################################################
     #######################################################################
-    def _linkVisualPhase(self):
-        '''
-        Link the phase component
-        '''
-        self.process_box_masks.clear()
-        self.process_box_masks.addItems(
-            [ key for key in self.env.mask.mask_dict.keys() ])
 
     def _setVisualPhase(self):
         '''
@@ -410,7 +402,7 @@ class PageScriptWidget(Ui_script_widget):
         if not self.container['phase_mask'] == None:
             try:
                 self.process_box_masks.setCurrentIndex(
-                    [ key for key in self.env.mask.mask_dict.keys() ].index(self.container['phase_mask']))
+                    [key for key in self.env.mask.mask_dict.keys()].index(self.container['phase_mask']))
             except:
                 pass
 
@@ -419,14 +411,14 @@ class PageScriptWidget(Ui_script_widget):
         Connect all the elements after the value has been
         set in the set routine.
         '''
-        self.process_box_masks.currentIndexChanged.connect(self._synthesizeFit)
+        self.process_box_masks.currentIndexChanged.connect(self._synthesizePhase)
 
     def _disconnectVisualPhase(self):
         '''
         Disconnect all the elements after the value has been
         set in the set routine.
         '''
-        self.process_box_masks.currentIndexChanged.disconnect(self._synthesizeFit)
+        self.process_box_masks.currentIndexChanged.disconnect(self._synthesizePhase)
 
     #######################################################################
     #######################################################################
@@ -528,18 +520,9 @@ class PageScriptWidget(Ui_script_widget):
         '''
         self._buildEchoFoils()
         self._buildSelectedItems()
-        self._linkVisualMaskSelect()
         self._linkVisualBackground()
         self._linkVisualReference()
         self._updateFoilTri()
-
-    def _linkVisualMaskSelect(self):
-        '''
-        Link the fit parameters component
-        '''
-        self.process_box_mask_fit.clear()
-        self.process_box_mask_fit.addItems(
-            [ key for key in self.env.mask.mask_dict.keys() ])
 
     def _linkVisualBackground(self):
         '''
@@ -566,18 +549,6 @@ class PageScriptWidget(Ui_script_widget):
         self._setVisualFitSelected()
         self._setVisualFitFoilsInEcho()
 
-    def _setReductionDrop(self):   
-        '''
-        Allow to set the reduction drop from the outside on the 
-        event of a change.
-        '''
-        self.process_box_mask_fit.blockSignals(True)
-        self.process_box_mask_fit.clear()
-        self.process_box_mask_fit.addItems([ key for key in self.env.mask.mask_dict.keys() ])
-        self.process_box_mask_fit.setCurrentIndex(
-            [ key for key in self.env.mask.mask_dict.keys() ].index(self.env.mask.current_mask))
-        self._synthesizeReduction()
-        self.process_box_mask_fit.blockSignals(False)
 
     def _setVisualFitDrops(self):   
         '''
@@ -589,8 +560,6 @@ class PageScriptWidget(Ui_script_widget):
             try:
                 self.process_box_mask_fit.setCurrentIndex(
                     [ key for key in self.env.mask.mask_dict.keys() ].index(self.container['reduction_mask']))
-                self.env.mask.setMask(self.process_box_mask_fit.currentText())
-                self.mask_model.setModel()
             except:
                 pass
 
@@ -636,20 +605,17 @@ class PageScriptWidget(Ui_script_widget):
         Set the widget values depending on the input of the 
         environnement
         '''
-        #set the default values from script
-        for idx, foil_select in enumerate(self.container['foils_in_echo']):
-            l = 0
-            for idx_2, element in enumerate(foil_select):
-                if not self.grid_checkboxes[idx + 1][idx_2+ l].isEnabled():
-                    found_enabled = False
-                    while not found_enabled:
-                        l += 1
-                        if self.grid_checkboxes[idx + 1][idx_2+ l].isEnabled():
-                            found_enabled = True
-                try:
-                    self.grid_checkboxes[idx + 1][idx_2 + l].setChecked(element == 1)
-                except:
-                    pass
+        try:
+            for idx, foil_select in enumerate(self.container['foils_in_echo']):
+                for idx_2, element in enumerate(foil_select):
+                    if self.grid_checkboxes[idx + 1][idx_2].isEnabled():
+                        found_enabled = True
+                    try:
+                        self.grid_checkboxes[idx + 1][idx_2].setChecked(element == 1)
+                    except:
+                        pass
+        except:
+            pass
 
     def _connectVisualFit(self):   
         '''
@@ -658,8 +624,7 @@ class PageScriptWidget(Ui_script_widget):
         '''
         self.process_box_back_fit.currentIndexChanged.connect(self._synthesizeFit)
         self.process_box_refs_fit.currentIndexChanged.connect(self._synthesizeFit)
-        self.process_box_mask_fit.currentIndexChanged.connect(self._synthesizeReduction)
-        self.mask_model.drop_updated.connect(self._setReductionDrop)
+        self.mask_interface.mask_updated.connect(self._synthesizeReduction)
 
         #link the boxes
         for check_row in self.grid_checkboxes:
@@ -674,8 +639,7 @@ class PageScriptWidget(Ui_script_widget):
         '''
         self.process_box_back_fit.currentIndexChanged.disconnect(self._synthesizeFit)
         self.process_box_refs_fit.currentIndexChanged.disconnect(self._synthesizeFit)
-        self.process_box_mask_fit.currentIndexChanged.disconnect(self._synthesizeReduction)
-        self.mask_model.drop_updated.disconnect(self._setReductionDrop)
+        self.mask_interface.mask_updated.disconnect(self._synthesizeReduction)
         
         #link the boxes
         for check_row in self.grid_checkboxes:
@@ -941,8 +905,7 @@ class PageScriptWidget(Ui_script_widget):
         manage the data parameter part
         '''
         container = {}
-        container['mask'] = str([ key for key in self.env.mask.mask_dict.keys() ][self.process_box_mask_fit.currentIndex()])
-        self.tool.comboBox.setCurrentIndex(self.process_box_mask_fit.currentIndex())
+        container['mask'] = str(self.process_box_mask_fit.currentText())
 
         #find strings
         self.env.scripts.synthesizeReductionScript(container)
@@ -1008,12 +971,12 @@ class PageScriptWidget(Ui_script_widget):
             mask_to_reset = self.env.mask.current_mask
             if index < 5:
                 if index == 0:
-                    self._runPythonCode(index, self.text_widgets[index].toPlainText())
-                    self._runPythonCode(index, self.text_widgets[index+1].toPlainText())
+                    self._runPythonCode(index)
+                    self._runPythonCode(index+1)
                 else:
-                    self._runPythonCode(index, self.text_widgets[index+1].toPlainText())
+                    self._runPythonCode(index+1)
             self.env.mask.setMask(mask_to_reset)
-            self.mask_model.setModel()
+            # self.mask_interface.setModel()
 
     def runAll(self):
         '''
@@ -1022,11 +985,11 @@ class PageScriptWidget(Ui_script_widget):
         for i in range(4):
             self.run(i)
 
-    def _runPythonCode(self, index, code):
+    def _runPythonCode(self, index):
         '''
         Parse and run python code. 
         '''
-        self.env.scripts.setEditable(index, code)
+        self._updateEditable(index)
         code_array, meta_array = self.env.scripts.preprocessScript(index)
 
         self.script_label_running.setText('Script running')
@@ -1038,7 +1001,6 @@ class PageScriptWidget(Ui_script_widget):
             self.setProgress(meta_array[i].strip('\n'), i)
             try:
                 exec(code_array[i])
-
             except Exception as e:
                 error = e
                 dialog(
@@ -1068,12 +1030,12 @@ class PageScriptWidget(Ui_script_widget):
         '''
         filters = "mieze_script_save.py"
 
-        file_path = QtWidgets.QFileDialog.getSaveFileName(
-                self.window, 
-                'Select file',
-                filters)[0]
-        self._updateAllEditable()
-        self.env.scripts.saveScripts(file_path)
+        # file_path = QtWidgets.QFileDialog.getSaveFileName(
+        #         self.window, 
+        #         'Select file',
+        #         filters)[0]
+        # self._updateAllEditable()
+        # self.env.scripts.saveScripts(file_path)
 
     def loadScripts(self):
         '''
@@ -1083,13 +1045,13 @@ class PageScriptWidget(Ui_script_widget):
         '''
         filters = "*.py"
 
-        file_path = QtWidgets.QFileDialog.getOpenFileName(
-                self.window, 
-                'Select file',
-                filters)[0]
+        # file_path = QtWidgets.QFileDialog.getOpenFileName(
+        #         self.window, 
+        #         'Select file',
+        #         filters)[0]
 
-        self.env.scripts.loadScripts(file_path)
-        self.refresh()
+        # self.env.scripts.loadScripts(file_path)
+        # self.refresh()
 
     def setActivity(self, min_val, max_val):
         '''

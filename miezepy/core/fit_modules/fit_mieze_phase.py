@@ -36,7 +36,9 @@ from .library_fit import reorganizeResult
 #functions to be used for processing the phase through foil corrections
 from .fit_worker import WorkerPool
 
-class PhaseProcessing(): 
+class PhaseProcessing():
+    para_dict = {}
+    log       = None
 
     def __init__(self):
         self.para_dict = {}
@@ -259,7 +261,7 @@ class PhaseProcessing():
                 phaseMaskFunction, idx, foil,
                 result_dimension, loop,
                 foil_axis,reference_meas[echo_axis.index(echo)],
-                chan_num, premask])
+                chan_num, premask, self.para_dict['time_channels']])
             idx += 1
         temp = worker_pool.startPool()
         for idx in range(len(index_array)):

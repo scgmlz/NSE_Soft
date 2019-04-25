@@ -78,8 +78,6 @@ class PageResultWidget(Ui_result_widget):
         self.process_button_plot_remove.clicked.connect(self.result_handler_ui.removePlotElement)
         self.process_button_plot_reset.clicked.connect(self.result_handler_ui.removeAllPlotElement)
         self.process_button_plot_plot.clicked.connect(self._updatePlot)
-        self.process_button_plot_hide_data.clicked.connect(self._hidePlotData)
-        self.process_button_plot_hide_plot_items.clicked.connect(self._hidePlotItems)
         self.process_button_echo_fit.clicked.connect(self._plotEcho)
         self.process_button_gamma.clicked.connect(self._plotGamma)
 
@@ -166,32 +164,6 @@ class PageResultWidget(Ui_result_widget):
         self.script_label_action_2.setText(label)
         self.parent.window_manager.app.processEvents()
 
-    def _hidePlotData(self):
-        '''
-        Hide the plot_manager to allow more space for the
-        plot view in the frame.
-        '''
-        self.data_group.setVisible(
-            not self.data_group.isVisible())
-
-        if self.data_group.isVisible():
-            self.process_button_plot_hide_data.setText('Hide Items')
-        else:
-            self.process_button_plot_hide_data.setText('Show Items')
-
-    def _hidePlotItems(self):
-        '''
-        Hide the plot_manager to allow more space for the
-        plot view in the frame.
-        '''
-        self.plot_items_group.setVisible(
-            not self.plot_items_group.isVisible())
-
-        if self.plot_items_group.isVisible():
-            self.process_button_plot_hide_plot_items.setText('Hide Data')
-        else:
-            self.process_button_plot_hide_plot_items.setText('Show Data')
-
     def _updatePlot(self):
         '''
 
@@ -212,7 +184,7 @@ class PageResultWidget(Ui_result_widget):
                 idx+=1
 
         for key in instructions.keys():
-            if not instructions[key]['link'] == None:
+            if not instructions[key]['link'] == None and instructions[key]['link'] in instructions.keys():
                 instructions[key]['offset'] = instructions[instructions[key]['link']]['offset']
 
         #plot all
@@ -228,7 +200,10 @@ class PageResultWidget(Ui_result_widget):
             elif 'x key' in instructions[key].keys() and 'e key' in instructions[key].keys():
                 self._plotTripleY(instructions[key])
 
+
+
         self.ax.redraw()
+        self.ax.axes.general_handler['Log'] = [self.process_check_log_x.isChecked(), self.process_check_log_y.isChecked()]
 
     def _plotSingleY(self, instruction):
         '''

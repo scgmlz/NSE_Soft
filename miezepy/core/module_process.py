@@ -195,6 +195,10 @@ class Process_MIEZE(Process_Handler):
         Calculate and process the contrast of one measurement.
         This function is used in the panel
         '''
+        self.env.mask.generateMask(
+            self.env.current_data.data_objects[0].dim[0],
+            self.env.current_data.data_objects[0].dim[1])
+
         #calculate the contrast
         self.env.fit.calcContrastMain(
             self.env.current_data, 

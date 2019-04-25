@@ -23,7 +23,7 @@ environnement.current_data.metadata_class.addMetadata('L_2', value = 3500 , logi
 environnement.current_data.metadata_class.addMetadata('Wavelength in', value = 6. , logical_type = 'float', unit = 'A')
 environnement.current_data.metadata_class.addMetadata('Pixel size', value = 1.5625 , logical_type = 'float', unit = 'mum')
 environnement.current_data.metadata_class.addMetadata('Qy', value = 0.035 , logical_type = 'float', unit = '-')
-environnement.current_data.metadata_class.addMetadata('Selected foils', value = '[1,1,1,0,0,1,1,1]' , logical_type = 'int_array', unit = '-')
+environnement.current_data.metadata_class.addMetadata('Selected foils', value = '[1,1,1,1,1,1,1,1]' , logical_type = 'int_array', unit = '-')
 
 print(environnement.current_data)
 

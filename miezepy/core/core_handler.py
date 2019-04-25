@@ -145,7 +145,7 @@ class CoreHandler:
 
                 else:
                     print("\nERROR: The key '"+str(key)+"' you have provided is not present as an environment...\n")
-
+                        
     def getEnv(self,key):
         '''
         This function will allow the user to request
@@ -217,10 +217,8 @@ class CoreHandler:
                 data_dir = os.path.join(env_dir,"script")
                 if not os.path.exists(data_dir):
                     os.makedirs(data_dir)
-                self.env_array[names.index(key)].process.saveScripts(
-                    os.path.join(data_dir,key+"_script.py"),
-                    self.env_array[names.index(key)].process.editable_scripts
-                )
+                self.env_array[names.index(key)].scripts.saveScripts(
+                    os.path.join(data_dir,key+"_script.py"))
     
     # TO-DO: test of load
     def prepSessionLoad(self, path, data_bool = True, mask_bool = True, script_bool = True, folder_list = []):

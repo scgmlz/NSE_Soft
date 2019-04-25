@@ -42,8 +42,8 @@ class MaskShape:
         self.parameters['increment']= True
         self.parameters['methods']  = []
 
-        self.parameters['angle']    = 0
-        self.parameters['position'] = [0, 0]
+        self.parameters['Angle']    = 0
+        self.parameters['Position'] = [0, 0]
 
     def move(self, relative = [None,None], absolute = [None,None]):
         '''
@@ -51,12 +51,12 @@ class MaskShape:
         in the inherited class allows flexibility
         '''
         if any([not element == None for element in absolute]):
-            self.parameters['position'] = list(absolute)
+            self.parameters['Position'] = list(absolute)
             self.parameters['processed'] = False
 
         elif any([not element == None for element in relative]):
-            self.parameters['position'][0] += relative[0]
-            self.parameters['position'][1] += relative[1]
+            self.parameters['Position'][0] += relative[0]
+            self.parameters['Position'][1] += relative[1]
             self.parameters['processed'] = False
         
     def rotate(self, relative = None, absolute = None):
@@ -65,11 +65,11 @@ class MaskShape:
         in the inherited class allows flexibility
         '''
         if not absolute == None:
-            self.parameters['angle'] = absolute
+            self.parameters['Angle'] = absolute
             self.parameters['processed'] = False
 
         elif not relative == None:
-            self.parameters['angle'] += relative
+            self.parameters['Angle'] += relative
             self.parameters['processed'] = False
                
     def processPolygon(self, edges, size_x, size_y):
@@ -94,7 +94,7 @@ class MaskShape:
         '''
         # -> Check whether sector is in image
         y, x        = np.ogrid[:size_x,:size_y]
-        cx,cy       = self.parameters['position']
+        cx,cy       = self.parameters['Position']
         t_min,t_max = np.deg2rad(angle_range)
 
         if t_max < t_min:

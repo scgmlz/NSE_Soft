@@ -50,7 +50,7 @@ class PanelWorker(QtCore.QObject):
         QtCore.QObject.__init__(self)
         self.method = method
         
-    def setParameters(self,data, para, foil, mask, results):
+    def setParameters(self,data, para, foil, mask, results, time_channels):
         '''
         Parameters
         ----------
@@ -77,6 +77,7 @@ class PanelWorker(QtCore.QObject):
         self.foil = foil
         self.mask = mask
         self.results = results
+        self.time_channels = time_channels
 
     @QtCore.pyqtSlot()
     def run(self): 
@@ -86,11 +87,13 @@ class PanelWorker(QtCore.QObject):
         self.counts = [
             np.sum(self.mask * self.data[timechannel]) 
             for timechannel in range(16)]
+        fitDataSinus(self.results,self.counts, np.sqrt(self.counts), time_select=self.time_channels)
         try:
-            fitDataSinus(self.results,self.counts, np.sqrt(self.counts))
+            fitDataSinus(self.results,self.counts, np.sqrt(self.counts), time_select=self.time_channels)
             self.fit = self.results.getLastResult('Fit Data Sinus')
         except:
             self.fit = None
+            
 
         try:
             self.method(self.para,self.foil)

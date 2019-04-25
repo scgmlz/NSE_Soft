@@ -55,6 +55,7 @@ class Fit_MIEZE(Fit_Handler,PhaseProcessing, ContrastProcessing):
         self.para_dict = {}
 
         self.para_dict['foils_in_echo'] = []
+        self.para_dict['time_channels'] = []
         self.para_dict['Background']    = []
         self.para_dict['Reference']     = None
         self.para_dict['Select']        = []
@@ -110,7 +111,6 @@ class Fit_MIEZE(Fit_Handler,PhaseProcessing, ContrastProcessing):
             #check the dimension of this list
             if not len(foils_in_echo) == target.axes.axes_len[2]:
                 print('Not enough foils_in_echo initialized. Error...')
-                print(len(foils_in_echo),' not equal to ',target.axes.axes_len[2])
                 return False
 
             elif not all([len(element) == target.axes.axes_len[3] for element in foils_in_echo ]):

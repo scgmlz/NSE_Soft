@@ -142,6 +142,9 @@ class PageEnvWidget(Ui_main_env_widget):
         self.parent.window.setWindowTitle('MIEZEPY ('+str(self.handler.current_env.name)+')')
         self.envs[index].widget.setFocus()
 
+
+        self.parent.mask_interface.link(self.handler.current_env.mask)
+
     def refreshData(self):
         '''
         refresh the current data text display

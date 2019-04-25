@@ -100,9 +100,7 @@ class ResultHandlerUI:
                     QtCore.Qt.ItemIsUserCheckable 
                     | QtCore.Qt.ItemIsEnabled)
                 check = QtCore.Qt.Checked if self.result_dict[key][1] else QtCore.Qt.Unchecked
-                item.setData(
-                    QtCore.QVariant(check), 
-                    QtCore.Qt.CheckStateRole)
+                item.setCheckState(check)
                 self.env_model.appendRow(item)
                 self.result_dict[key][0] = True
 
@@ -112,11 +110,12 @@ class ResultHandlerUI:
         set the result structure to load
         '''
         self.data_set = {}
-        for env in self.env_handler.env_array:
-            try:
-                self.data_set[env.name] = env.results.getLastResult(name = 'Contrast fit').result_dict
-            except:
-                pass
+        for i, env in enumerate(self.env_handler.env_array):
+            if self.env_model.item(i).checkState() == QtCore.Qt.Checked:
+                try:
+                    self.data_set[env.name] = env.results.getLastResult(name = 'Contrast fit').result_dict
+                except:
+                    pass
                 
         for tree in [self.process_tree_error, self.process_tree_x, self.process_tree_y]:
             try:
@@ -443,16 +442,14 @@ class ResultHandlerUI:
             if len(self.process_list_plot.selectedIndexes()) > 0:
                 self._grabPlotItem(self.process_list_plot.selectedIndexes()[0].row())
 
-
-
     def _processPlot(self):
         '''
         Plot the data from the plot elements
         '''
         plot_parameters = {}
-        for element in self.plot_list:
+        for i, element in enumerate(self.plot_list):
             element_dict  = element._getPlotDict()
-            if element_dict['actif']:
+            if self.plot_model.item(i).checkState() == QtCore.Qt.Checked:
                 plot_parameters[element.stdItem.text()] = element._getPlotDict()
 
         return plot_parameters
