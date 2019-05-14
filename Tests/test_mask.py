@@ -36,21 +36,17 @@ class Test_mask_system(unittest.TestCase):
         masks.mask_gen.generateMask(128,128)
         self.assertEqual(masks.mask_gen.mask[0,0],0)
         self.assertEqual(masks.mask_gen.mask[35,80],1)
-        self.assertEqual(masks.mask_gen.mask[34,104],2)
-        self.assertEqual(masks.mask_gen.mask[33,97],3)
+        self.assertEqual(masks.mask_gen.mask[34,104],0)
+        self.assertEqual(masks.mask_gen.mask[33,97],1)
 
         masks.removeElement(0)
         masks.sendToGenerator(True)
         masks.mask_gen.generateMask(128,128)
         self.assertEqual(masks.mask_gen.mask[0,0],0)
-        self.assertEqual(masks.mask_gen.mask[35,80],0)
-        self.assertEqual(masks.mask_gen.mask[34,104],1)
-        self.assertEqual(masks.mask_gen.mask[33,97],1)
+        self.assertEqual(masks.mask_gen.mask[80,35],0)
+        self.assertEqual(masks.mask_gen.mask[104,34],1)
+        self.assertEqual(masks.mask_gen.mask[97,33],1)
 
-        import matplotlib.pyplot as plt
-        plt.pcolormesh(masks.mask_gen.mask)
-        plt.show()
- 
 if __name__ == '__main__':
     print()
     mask = Test_mask_system()

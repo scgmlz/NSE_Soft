@@ -93,20 +93,20 @@ def createHTO(proc):
     for meta_object in env.current_data.metadata_objects:
         meta_object.addMetadata('Wavelength', value = 8.e-10 , logical_type = 'float', unit = 'A')
 
-    env.mask.mask_dict["HTO_1"]= [{
-        'Name' : "Linear composition", 
-        "Position" :[64, 64], 
-        "Angle" : 0, 
-        "Multiplicity" : [16, 16], 
-        "Dimensions": [128, 128], 
-        "child" : {
-            'Name' :"rectangle", 
-            "Position" :[0, 0], 
-            "Angle" : 00, 
-            "Dimensions": [128, 128]},
-        "Close Gap" : True,
-        "Increment" : True}]
-            
+    env.mask.mask_dict["HTO_1"]=     [{
+        "Name": "Linear composition", 
+        "Position": [64.0, 64.0], 
+        "Angle": 0.0, 
+        "Multiplicity": [16, 16], 
+        "Dimensions": [128.0, 128.0], 
+        "Increment": True, 
+        "Close Gap": True, 
+        "child": {
+            "Name": "Rectangle", 
+            "Position": [10.0, 10.0], 
+            "Angle": 0.0, 
+            "Dimensions": [10.0, 10.0]}}]  
+
     env.mask.mask_dict["HTO_2"] = [{
         "Name" :"Rectangle", 
         "Position" : [64, 64], 
@@ -284,16 +284,16 @@ class Test_Phase_correction(unittest.TestCase):
 
         environnement = self.env
         foils_in_echo = []
-        foils_in_echo.append([1, 1, 1, 1, 1, 1])
-        foils_in_echo.append([1, 1, 1, 1, 1, 1])
-        foils_in_echo.append([1, 1, 1, 1, 1, 1])
-        foils_in_echo.append([1, 1, 1, 1, 1, 1])
-        foils_in_echo.append([1, 1, 0, 1, 1, 1])
-        foils_in_echo.append([1, 1, 0, 1, 1, 1])
-        foils_in_echo.append([0, 0, 0, 0, 1, 0])
-        foils_in_echo.append([0, 0, 0, 0, 1, 0])
-        foils_in_echo.append([0, 0, 0, 0, 1, 0])
-        foils_in_echo.append([0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([1, 1, 1, 0, 0, 1, 1, 1])
+        foils_in_echo.append([1, 1, 1, 0, 0, 1, 1, 1])
+        foils_in_echo.append([1, 1, 1, 0, 0, 1, 1, 1])
+        foils_in_echo.append([1, 1, 1, 0, 0, 1, 1, 1])
+        foils_in_echo.append([1, 1, 0, 0, 0, 1, 1, 1])
+        foils_in_echo.append([1, 1, 0, 0, 0, 1, 1, 1])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
+        foils_in_echo.append([0, 0, 0, 0, 0, 0, 1, 0])
 
         #set the values to be processed as data
         Selected = [0,1,2,3,4,5,6,7,8,9]
@@ -432,7 +432,6 @@ class Test_Phase_correction(unittest.TestCase):
             self.env.results)
 
         result = self.env.results.getLastResult('Corrected Phase')['Shift']
-        print(result)
         self.assertEqual(int(result['50K'][0][self.env.current_data.get_axis('Echo Time')[0]].sum()),4539)
 
         ######################################################
