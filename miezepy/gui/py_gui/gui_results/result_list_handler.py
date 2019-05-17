@@ -315,7 +315,11 @@ class ResultHandlerUI:
                         self._setAllEndChildren(children, state)
 
         self._getPlotItems('')
-        color_list = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+        color_list = [
+            "#1f77b4", "#ff7f0e", "#2ca02c", 
+            "#d62728", "#9467bd", "#8c564b", 
+            "#e377c2", "#7f7f7f", "#bcbd22", 
+            "#17becf"]
 
         index = 0
         for j,root_key in enumerate([root_key for root_key in self.data_set.keys()]):

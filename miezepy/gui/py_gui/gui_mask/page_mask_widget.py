@@ -81,6 +81,8 @@ class PageMaskWidget(Ui_mask_editor):
         self.ax = self.my_canvas.getSubplot(0,0)
         self.ax.pointer.pointer_handler['Sticky'] = 3
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
+        self.mask_plot = self.ax.addPlot('Surface', Name = 'Surface' )
+        self.ax.draw()
 
     def _initialize(self):
         '''
@@ -139,17 +141,11 @@ class PageMaskWidget(Ui_mask_editor):
     def _updateGraph(self):
         '''
         '''
-        data = self.mask_core.mask_gen.mask
-        try:
-            self.ax.clear()
-        except:
-            pass
-        self.ax.addPlot(
-            'Surface', 
-            [ i for i in range(data.shape[0])], 
-            [ i for i in range(data.shape[1])], 
-            data, Name = 'Surface' )
-        self.ax.redraw()
+
+        self.mask_plot.setData(
+            x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
+            y = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[1])]), 
+            z = self.mask_core.mask_gen.mask)
         
     def saveSingle(self):
         '''
@@ -505,8 +501,8 @@ class PanelPageMaskWidget(PageMaskWidget):
 
         #set the main scatter plot of the counts
         self.sine_data_plot.setData(
-            x = [i for i in range(len(counts))],
-            y = counts,
+            x = np.array([i for i in range(len(counts))]),
+            y = np.array(counts),
             error = {
                 'bottom': np.sqrt(counts),
                 'top': np.sqrt(counts)})

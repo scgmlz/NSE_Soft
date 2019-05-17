@@ -27,6 +27,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import sys
 import os
 import copy
+import numpy as np
 
 #private dependencies
 from ...qt_gui.display_data_raw_ui import Ui_raw_display
@@ -70,7 +71,9 @@ class DisplayRawWindowLayout(Ui_raw_display):
 
         self.ax = self.my_canvas.getSubplot(0,0)
         self.ax.pointer.pointer_handler['Sticky'] = 3
-        self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
+        # self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
+        self.first_surface_plot = self.ax.addPlot('Surface', Name = 'Surface' )
+        self.ax.draw()
 
     def link(self, import_object):
         '''
@@ -113,15 +116,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
             self.foil_spin.value(),
             self.time_spin.value()])
 
-        try:
-            self.ax.clear()
-        except:
-            pass
-
-        self.ax.addPlot(
-            'Surface', 
-            [ i for i in range(data.shape[0])], 
-            [ i for i in range(data.shape[1])], 
-            data, Name = 'Surface' )
-
-        self.ax.redraw()
+        self.first_surface_plot.setData(
+            x = np.array([ i for i in range(data.shape[0])]), 
+            y = np.array([ i for i in range(data.shape[1])]), 
+            z = data)

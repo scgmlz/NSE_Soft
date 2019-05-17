@@ -45,7 +45,7 @@ class PhaseProcessing():
 
     def noCorrection(self, target, results):
         '''
-        The pahse correction can be turned off to 
+        The phase correction can be turned off to 
         allow for quick analysis of the data. This
         will simply fill the associated datafield.
 

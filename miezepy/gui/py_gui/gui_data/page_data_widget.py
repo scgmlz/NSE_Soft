@@ -27,6 +27,7 @@ import sys
 import os
 import copy
 import time
+import numpy as np
 
 #private dependencies
 from ...qt_gui.main_data_import_ui  import Ui_data_import
@@ -102,8 +103,10 @@ class PageDataWidget(Ui_data_import):
             highlightthickness = 0)
 
         self.ax = self.my_canvas.getSubplot(0,0)
+        self._prev_plot = self.ax.addPlot('Surface',Name = 'Surface')
         self.ax.pointer.pointer_handler['Sticky'] = 3
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
+        self.ax.draw()
 
     def link(self, io_core):
         '''
@@ -386,18 +389,10 @@ class PageDataWidget(Ui_data_import):
         This routine will display the preview of the
         selected dataset processed by setPrev.
         '''
-        try:
-            self.ax.clear()
-        except:
-            pass
-
-        self.ax.addPlot(
-            'Surface', 
-            np.array([ i for i in range(self.file_handler.current_preview.shape[0])]), 
-            np.array([ i for i in range(self.file_handler.current_preview.shape[1])]), 
-            self.file_handler.current_preview, Name = 'Surface' )
-
-        self.ax.redraw()
+        self._prev_plot.setData(
+            x = np.array([ i for i in range(self.file_handler.current_preview.shape[0])]), 
+            y = np.array([ i for i in range(self.file_handler.current_preview.shape[1])]), 
+            z = self.file_handler.current_preview )
 
     def populate(self, warning = True):
         '''
