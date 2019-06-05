@@ -200,8 +200,8 @@ class PageResultWidget(Ui_result_widget):
             elif 'x key' in instructions[key].keys() and 'e key' in instructions[key].keys():
                 self._plotTripleY(instructions[key])
 
-        self.ax.redraw()
-        self.ax.axes.general_handler['Log'] = [self.process_check_log_x.isChecked(), self.process_check_log_y.isChecked()]
+        self.ax.draw()
+        # self.ax.axes.general_handler['Log'] = [self.process_check_log_x.isChecked(), self.process_check_log_y.isChecked()]
 
     def _plotSingleY(self, instruction):
         '''

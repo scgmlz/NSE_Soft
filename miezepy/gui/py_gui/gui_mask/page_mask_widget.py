@@ -275,9 +275,8 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.cx = self.my_canvas.getSubplot(1,0)
         self.dx = self.my_canvas.getSubplot(1,1)
 
-        self.dx.zoomer.set_fixed(
-            fixed = [False,True], 
-            fixed_range = [ None,None,0,1])
+        self.dx.zoomer['Zoom fixed'] = [False,True]
+        self.dx.zoomer['Zoom fixed range'] = [0,1,0,1]
 
         #set the two bin
         self.first_surface_plot = self.ax.addPlot('Surface', Name = 'Surface' )
@@ -309,9 +308,6 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.ax.setHistogram('right', self.first_surface_plot)
         self.bx.pointer.pointer_handler['Sticky'] = 3
         self.bx.setHistogram('right', self.second_surface_plot)
-
-        # self.cx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
-        # self.dx.pointer['Label_Precision'] = ('.4','.4','.4','.4')
 
     def _populateSelectors(self):
         '''
