@@ -67,6 +67,11 @@ class PageResultWidget(Ui_result_widget):
 
     def _connect(self):
         '''
+        This is the initial setup method that will 
+        build the layout and introduce the graphics
+        area.
+        '''
+        '''
         Connect all Qt slots to their respective methods.
         '''
         self.process_tree_x.itemClicked.connect(self.result_handler_ui._getPlotItems)
@@ -80,6 +85,27 @@ class PageResultWidget(Ui_result_widget):
         self.process_button_plot_plot.clicked.connect(self._updatePlot)
         self.process_button_echo_fit.clicked.connect(self._plotEcho)
         self.process_button_gamma.clicked.connect(self._plotGamma)
+
+        self.process_check_log_x.clicked.connect(self.manageLog)
+        self.process_check_log_y.clicked.connect(self.manageLog)
+        self.my_canvas._model.dataChanged.connect(self.setLog)
+
+    def manageLog(self):
+        '''
+        process with the log
+        '''
+        self.my_canvas._model.dataChanged.disconnect(self.setLog)
+        self.ax.axes.general_handler['Log'] = [
+            self.process_check_log_x.isChecked(),
+            self.process_check_log_y.isChecked()
+        ]
+        self.my_canvas._model.dataChanged.connect(self.setLog)
+    def setLog(self):
+        '''
+        process with the log
+        '''
+        self.process_check_log_x.setChecked(self.ax.axes.general_handler['Log'][0])
+        self.process_check_log_y.setChecked(self.ax.axes.general_handler['Log'][1])
 
     def link(self, env_handler = None):
         '''
@@ -96,73 +122,6 @@ class PageResultWidget(Ui_result_widget):
             self.process_tree_y,
             self.process_list_plot,
             self.process_list_results)
-
-    def setActivity(self, min_val, max_val):
-        '''
-
-        '''
-        #make it visible in case it was hidden
-        self.script_label_running.show()
-        self.script_bar_running.show()
-        self.scrip_label_action.show()
-        self.script_label_action_2.show()
-
-        #in case it was faded
-        self._unfade(self.script_label_running)
-        self._unfade(self.script_bar_running)
-        self._unfade(self.scrip_label_action)
-        self._unfade(self.script_label_action_2)
-
-        self.script_bar_running.setMinimum(min_val)
-        self.script_bar_running.setMaximum(max_val)
-
-    def hideActivity(self):
-        '''
-
-        '''
-        self.script_label_running.hide()
-        self.script_bar_running.hide()
-        self.scrip_label_action.hide()
-        self.script_label_action_2.hide()
-
-    def fadeActivity(self):
-        '''
-
-        '''
-        self._fade(self.script_label_running)
-        self._fade(self.script_bar_running)
-        self._fade(self.scrip_label_action)
-        self._fade(self.script_label_action_2)
-
-    def _unfade(self, widget):
-        '''
-
-
-        '''
-        effect = QtWidgets.QGraphicsOpacityEffect()
-        effect.setOpacity(1)
-        widget.setGraphicsEffect(effect)
-
-    def _fade(self, widget):
-        '''
-
-        '''
-        widget.effect = QtWidgets.QGraphicsOpacityEffect()
-        widget.setGraphicsEffect(widget.effect)
-
-        widget.animation = QtCore.QPropertyAnimation(widget.effect, b"opacity")
-        widget.animation.setDuration(1000)
-        widget.animation.setStartValue(1)
-        widget.animation.setEndValue(0)
-        widget.animation.start()
-
-    def setProgress(self, label, val):
-        '''
-
-        '''
-        self.script_bar_running.setValue(val)
-        self.script_label_action_2.setText(label)
-        self.parent.window_manager.app.processEvents()
 
     def _updatePlot(self):
         '''
@@ -194,16 +153,16 @@ class PageResultWidget(Ui_result_widget):
             elif not 'y key' in instructions[key].keys():
                 pass
             elif not 'x key' in instructions[key].keys() and not 'e key' in instructions[key].keys():
-                self._plotSingleY(instructions[key])
+                self._plotSingleY(instructions[key], key)
             elif 'x key' in instructions[key].keys() and not 'e key' in instructions[key].keys():
-                self._plotDoubleY(instructions[key])
+                self._plotDoubleY(instructions[key], key)
             elif 'x key' in instructions[key].keys() and 'e key' in instructions[key].keys():
-                self._plotTripleY(instructions[key])
+                self._plotTripleY(instructions[key], key)
 
         self.ax.draw()
         # self.ax.axes.general_handler['Log'] = [self.process_check_log_x.isChecked(), self.process_check_log_y.isChecked()]
 
-    def _plotSingleY(self, instruction):
+    def _plotSingleY(self, instruction, key):
         '''
         Plot a curve where only the y axes is defined.
         '''
@@ -214,13 +173,12 @@ class PageResultWidget(Ui_result_widget):
             'Scatter', 
             x, 
             y+instruction['offset'], 
+            name        = key,
             Style       = instruction['style'], 
             Thickness   = instruction['thickness'],
-            Color       = instruction['color'],
-            Log         = [
-                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
+            Color       = instruction['color'])
 
-    def _plotDoubleY(self, instruction):
+    def _plotDoubleY(self, instruction, key):
         '''
         Plot a curve where only the y and x axes are defined.
         '''
@@ -232,13 +190,12 @@ class PageResultWidget(Ui_result_widget):
             'Scatter', 
             x[sort_idx], 
             y[sort_idx]+instruction['offset'],
+            name        = key,
             Style       = instruction['style'], 
             Thickness   = instruction['thickness'],
-            Color       = instruction['color'],
-            Log         = [
-                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
+            Color       = instruction['color'])
 
-    def _plotTripleY(self, instruction):
+    def _plotTripleY(self, instruction, key):
         '''
         Plot a curve where all axes are defined.
         '''
@@ -251,14 +208,13 @@ class PageResultWidget(Ui_result_widget):
             'Scatter', 
             x[sort_idx], 
             y[sort_idx]+instruction['offset'],
+            name        = key,
             Error       = {
                 'bottom':e[sort_idx],
                 'top':e[sort_idx]},
             Style       = instruction['style'], 
             Thickness   = instruction['thickness'],
-            Color       = instruction['color'],
-            Log         = [
-                self.process_check_log_x.isChecked(),self.process_check_log_y.isChecked()])
+            Color       = instruction['color'])
 
     def _plotGamma(self):
         '''
