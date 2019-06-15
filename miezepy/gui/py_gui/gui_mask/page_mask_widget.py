@@ -207,10 +207,10 @@ class PanelPageMaskWidget(PageMaskWidget):
 
     def __init__(self, stack, parent, mask_interface):
         PageMaskWidget.__init__(self, stack, parent, mask_interface)
-        # self.local_widget.setStyleSheet(
-        #     "#mask_editor{background:transparent;}")
-        self.thread = QtCore.QThread()
+        self.local_widget.setStyleSheet(
+            "#mask_editor{background:transparent;}")
         self.para_group = QtWidgets.QGroupBox(self.local_widget)
+        self._threads = []
 
     def link(self, mask_core, env):
         '''
@@ -448,17 +448,23 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not finished interupted to allow the UI to
         run smoothly
         '''
-        self.thread.terminate()
-        self.thread.wait()
+        for i in range(len(self._threads))[::-1]:
+            if self._threads[i][0].isFinished():
+                del self._threads[i]
 
         parameters = self._prepareThread()
-        self.worker = PanelWorker(self.env.process.calcContrastSingle)
-        self.worker.setParameters(*parameters)
-        self.thread = QtCore.QThread()
-        self.worker.moveToThread(self.thread)
-        self.worker.finished.connect(self._updateVisual)
-        self.thread.started.connect(self.worker.run)
-        self.thread.start()
+        worker = PanelWorker(self.env.process.calcContrastSingle)
+        worker.setParameters(*parameters)
+
+        thread = QtCore.QThread()
+        worker.moveToThread(thread)
+        worker.finished.connect(self._updateVisual)
+        worker.finished.connect(thread.quit)
+        thread.started.connect(worker.run)
+        thread.start()
+
+        self._threads.append([thread,worker])
+        print(self._threads)
 
     def _prepareThread(self):
         '''
@@ -509,7 +515,12 @@ class PanelPageMaskWidget(PageMaskWidget):
         '''
         Update the visual component from a thread
         '''
+        for i in range(len(self._threads))[::-1]:
+            if self._threads[i][1]._finished:
+                self.worker = self._threads[i][1]
+                break
         try:
+
             para    = self.worker.para
             data    = self.worker.data
             process = self.worker.process

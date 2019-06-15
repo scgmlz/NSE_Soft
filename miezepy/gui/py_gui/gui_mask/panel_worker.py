@@ -48,7 +48,8 @@ class PanelWorker(QtCore.QObject):
             The contrast calculation method
         '''
         QtCore.QObject.__init__(self)
-        self.method = method
+        self.method     = method
+        self._finished  = False
         
     def setParameters(self,data, para, foil, mask, results, time_channels):
         '''
@@ -100,5 +101,5 @@ class PanelWorker(QtCore.QObject):
             self.process = self.results.getLastResult('Contrast calculation')
         except:
             self.process = None
-
+        self._finished = True
         self.finished.emit()
