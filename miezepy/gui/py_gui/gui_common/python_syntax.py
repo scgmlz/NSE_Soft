@@ -26,10 +26,10 @@ STYLES = {
     'operator':     format('red'),
     'brace':        format('darkGray'),
     'defclass':     format('black', 'bold'),
-    'string':       format('magenta'),
+    'string':       format('darkMagenta'),
     'string2':      format('darkMagenta'),
     'comment':      format('darkGreen',   'bold'),
-    'self':         format('black', 'italic'),
+    'self':         format('darkBlue','bold'),
     'numbers':      format('brown'),
     'text'      :   format('black')
 }
