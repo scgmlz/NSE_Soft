@@ -251,6 +251,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         area
         '''
         #initialise the widgets
+        self._live = False
         self.tree = self.mask_interface.getTreeView()
         self.mask_tree_layout.addWidget(self.tree)
         self.mask_combo_box = self.mask_interface.getComboBox()
@@ -370,6 +371,15 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Foil') ])
         self.foil_drop = self.widget_list[-1][0]
 
+        self.widget_list.append([
+            QtWidgets.QPushButton('Compute', parent = self.para_group),
+            4, 0, 1, 1, None])
+        self.compute_button = self.widget_list[-1][0]
+        self.widget_list.append([
+            QtWidgets.QCheckBox('Live',parent = self.para_group),
+            4, 1, 1, 1, None])
+        self.widget_list[-1][0].setChecked(False)
+
         ##############################################
         #add the tabs
         for element in self.widget_list:
@@ -380,7 +390,7 @@ class PanelPageMaskWidget(PageMaskWidget):
                 element[3], 
                 element[4])
 
-            if not element[5] == None:
+            if not element[5] is None:
                 element[0].setAlignment(element[5])
 
     def _connectSelectors(self):
@@ -391,8 +401,31 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list[3][0].currentIndexChanged.connect(self._parseAndSend)
         self.widget_list[5][0].currentIndexChanged.connect(self._parseAndSend)
         self.widget_list[7][0].currentIndexChanged.connect(self._parseAndSend)
+        self.widget_list[8][0].clicked.connect(self._parseAndSendManual)
+        self.widget_list[9][0].stateChanged.connect(self._setLive)      
+
+    def _setLive(self, num):
+        '''
+        set the state of the live computation
+        '''
+        if num == 2:
+            self._live = True
+        else:
+            self._live = False
 
     def _parseAndSend(self):
+        '''
+        This routine will simply grab the parameters of each of the 
+        mask widgets and parse it to the linked mask class
+        '''
+        if not self.mask_core == None and self._live:
+            self.mask_core.sendToGenerator(recreate = True)
+            self.mask_core.generateMask(
+                int(self.mask_input_x.text()), 
+                int(self.mask_input_y.text()))
+            self._buildThread()
+
+    def _parseAndSendManual(self):
         '''
         This routine will simply grab the parameters of each of the 
         mask widgets and parse it to the linked mask class
