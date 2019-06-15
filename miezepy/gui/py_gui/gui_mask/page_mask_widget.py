@@ -207,8 +207,8 @@ class PanelPageMaskWidget(PageMaskWidget):
 
     def __init__(self, stack, parent, mask_interface):
         PageMaskWidget.__init__(self, stack, parent, mask_interface)
-        self.local_widget.setStyleSheet(
-            "#mask_editor{background:transparent;}")
+        # self.local_widget.setStyleSheet(
+        #     "#mask_editor{background:transparent;}")
         self.thread = QtCore.QThread()
         self.para_group = QtWidgets.QGroupBox(self.local_widget)
 
@@ -264,8 +264,8 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.my_canvas    = MultiCanvasItem(
             self.mask_widget_visual,
             grid        = [[True,True],[True,True]],
-            x_ratios    = [2,3],
-            y_ratios    = [2,2],
+            x_ratios    = [1,1],
+            y_ratios    = [1,1],
             background  = "w",
             highlightthickness = 0)
 
@@ -285,19 +285,15 @@ class PanelPageMaskWidget(PageMaskWidget):
         #set the main scatter plot of the counts
         self.sine_data_plot = self.cx.addPlot(
             'Scatter', 
-            Style   = ['s','10'], 
-            Log     = [False,False],
-            Error   = {})
+            Style   = ['s','10'])
 
         self.sine_fit_2_plot = self.cx.addPlot(
             'Scatter',
-            Style   = ['-'], 
-            Log     = [False,False])
+            Style   = ['-'])
 
         self.contrast_plot = self.dx.addPlot(
             'Scatter',
-            Style   = ['-','s','10'], 
-            Log     = [False,False])
+            Style   = ['-','s','10'])
 
         self.ax.draw()
         self.bx.draw()
@@ -305,9 +301,19 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.dx.draw()
 
         self.ax.pointer.pointer_handler['Sticky'] = 3
-        self.ax.setHistogram('right', self.first_surface_plot)
         self.bx.pointer.pointer_handler['Sticky'] = 3
-        self.bx.setHistogram('right', self.second_surface_plot)
+        self.cx.pointer.pointer_handler['Sticky'] = 3
+        self.dx.pointer.pointer_handler['Sticky'] = 3
+
+        self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
+        self.my_canvas.canvas_nodes[0][1][0].grid_layout.setMargin(0)
+        self.my_canvas.canvas_nodes[1][0][0].grid_layout.setMargin(0)
+        self.my_canvas.canvas_nodes[1][1][0].grid_layout.setMargin(0)
+
+        # self.ax.pointer.pointer_handler['Sticky'] = 3
+        # self.ax.setHistogram('right', self.first_surface_plot)
+        # self.bx.pointer.pointer_handler['Sticky'] = 3
+        # self.bx.setHistogram('right', self.second_surface_plot)
 
     def _populateSelectors(self):
         '''
