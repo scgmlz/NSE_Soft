@@ -47,7 +47,7 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
         self.lineNumberArea = LineNumberArea(self)
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
-        self.cursorPositionChanged.connect(self.highlightCurrentLine)
+        # self.cursorPositionChanged.connect(self.highlightCurrentLine)
         self.updateLineNumberAreaWidth(0)
         self.highlighter = PythonHighlighter(self.document())
 
@@ -109,7 +109,7 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
         extraSelections = []
         if not self.isReadOnly():
             selection = QtWidgets.QTextEdit.ExtraSelection()
-            lineColor = QtGui.QColor('grey')
+            lineColor = QtGui.QColor('darkYellow')
             selection.format.setBackground(lineColor)
             selection.format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
