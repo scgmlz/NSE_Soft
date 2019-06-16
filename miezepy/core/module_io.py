@@ -492,7 +492,7 @@ class FileHandler:
         del self.total_path_files[index]
         del self.nice_path_files[index]
 
-    def genPrev(self, index):
+    def genPrev(self, index, sum_axes = (0, 1), log = True):
         '''
         Generate a preview of a file
         '''
@@ -500,22 +500,26 @@ class FileHandler:
 
         with open(target) as f:
             loadeddata = np.fromfile(f, dtype=np.int32)[:8*16*128*128]
-            data = loadeddata.reshape(8*16,128,128)
-            data = np.sum(data, axis=0)
+            data = loadeddata.reshape(8,16,128,128)
+            for element in list(set(sum_axes))[::-1]:
+                data = np.sum(data, axis=element)
 
-        self.current_preview = np.log10(data+1)
+        if log:
+            self.current_preview = np.log10(data+1)
+        else:
+            self.current_preview = data
 
-    def getElement(self, index_array):
+    def getElement(self, index):
         '''
         Generate a preview of a file
         '''
-        target = self.total_path_files[index_array[0]]
+        target = self.total_path_files[index]
 
         with open(target) as f:
             loadeddata = np.fromfile(f, dtype=np.int32)[:8*16*128*128]
             data = loadeddata.reshape(8,16,128,128)
 
-        return np.log10(data[index_array[1], index_array[2]]+1)
+        return data
 
     def script(self, indent):
         '''

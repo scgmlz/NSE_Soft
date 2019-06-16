@@ -25,7 +25,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 import sys
 import os
-from scipy.ndimage import imread
+from imageio import imread 
 
 from ...qt_gui.metadata_window_ui import Ui_select_meta 
 

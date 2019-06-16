@@ -107,14 +107,33 @@ class DisplayRawWindowLayout(Ui_raw_display):
         self.foil_spin.valueChanged.connect(self.draw)
         self.time_spin.valueChanged.connect(self.draw)
         self.echo_drop.currentIndexChanged.connect(self.draw)
+        self.foil_check.stateChanged.connect(self.draw)
+        self.time_check.stateChanged.connect(self.draw)
+        self.log_check.stateChanged.connect(self.draw)
+        self.norm_check.stateChanged.connect(self.draw)
 
     def draw(self, stuff = None):
         '''
         '''
-        data = self.import_object.file_handler.getElement([
-            self.echo_drop.currentIndex(),
-            self.foil_spin.value(),
-            self.time_spin.value()])
+        data = self.import_object.file_handler.getElement(self.echo_drop.currentIndex())
+
+        if self.foil_check.isChecked():
+            data = np.sum(data, axis = 0)
+        else:
+            data = data[self.foil_spin.value()]
+
+        if self.time_check.isChecked():
+            data = np.sum(data, axis = 0)
+        else:
+            data = data[self.time_spin.value()]
+
+        if self.log_check.isChecked():
+            data = np.log10(data + 1)
+        
+        if self.norm_check.isChecked():
+            data_min = np.amin(data)
+            data_max = np.amax(data)
+            data = (data - data_min)/(data_max - data_min) * 10
 
         self.first_surface_plot.setData(
             x = np.array([ i for i in range(data.shape[0])]), 
