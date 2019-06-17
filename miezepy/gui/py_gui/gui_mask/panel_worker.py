@@ -88,7 +88,7 @@ class PanelWorker(QtCore.QObject):
         self.counts = [
             np.sum(self.mask * self.data[timechannel]) 
             for timechannel in range(16)]
-        fitDataSinus(self.results,self.counts, np.sqrt(self.counts), time_select=self.time_channels)
+            
         try:
             fitDataSinus(self.results,self.counts, np.sqrt(self.counts), time_select=self.time_channels)
             self.fit = self.results.getLastResult('Fit Data Sinus')

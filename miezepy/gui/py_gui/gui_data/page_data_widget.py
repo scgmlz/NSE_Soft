@@ -104,6 +104,8 @@ class PageDataWidget(Ui_data_import):
 
         self.ax = self.my_canvas.getSubplot(0,0)
         self._prev_plot = self.ax.addPlot('Surface',Name = 'Surface')
+
+        self.ax.axes.general_handler['Active'] = [False]*4
         self.ax.pointer.pointer_handler['Sticky'] = 3
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
         self.ax.draw()

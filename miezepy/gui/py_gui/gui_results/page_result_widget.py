@@ -128,10 +128,7 @@ class PageResultWidget(Ui_result_widget):
         '''
 
         '''
-        try:
-            self.ax.clear()
-        except:
-            pass
+        self.ax.clear()
 
         #get the instructions
         instructions = self.result_handler_ui._processPlot()

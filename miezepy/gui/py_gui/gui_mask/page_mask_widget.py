@@ -81,7 +81,7 @@ class PageMaskWidget(Ui_mask_editor):
         self.ax = self.my_canvas.getSubplot(0,0)
         self.ax.pointer.pointer_handler['Sticky'] = 3
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
-        self.mask_plot = self.ax.addPlot('Surface', Name = 'Surface' )
+        self.mask_plot = self.ax.addPlot('Surface', Name = 'Mask area' )
         self.ax.draw()
 
     def _initialize(self):
@@ -106,7 +106,6 @@ class PageMaskWidget(Ui_mask_editor):
         from the core. 
         '''
         self.mask_core = mask_core
-        # self.mask_interface.link(self.mask_core)
 
     def addItem(self):
         '''
@@ -223,7 +222,6 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.env        = env
         self.data       = self.env.current_data.returnAsNumpy()
         self.mask_core  = mask_core
-        # self.mask_interface.link(self.mask_core)
         
         self._populateSelectors()
         self._connectSelectors()
@@ -272,28 +270,43 @@ class PanelPageMaskWidget(PageMaskWidget):
 
         #set the subplots as local
         self.ax = self.my_canvas.getSubplot(0,0)
-        self.bx = self.my_canvas.getSubplot(0,1)
-        self.cx = self.my_canvas.getSubplot(1,0)
-        self.dx = self.my_canvas.getSubplot(1,1)
+        self.ax.axes.label_handler['Active']    = [True, True, True, True]
+        self.ax.axes.label_handler['Text']      = ['py', 'px', 'None', 'None']
 
-        self.dx.zoomer['Zoom fixed'] = [False,True]
-        self.dx.zoomer['Zoom fixed range'] = [0,1,0,1]
+        self.bx = self.my_canvas.getSubplot(0,1)
+        self.bx.axes.label_handler['Active']    = [True, True, True, True]
+        self.bx.axes.label_handler['Text']      = ['py', 'px', 'None', 'None']
+
+        self.cx = self.my_canvas.getSubplot(1,0)
+        self.cx.axes.label_handler['Active']    = [True, True, True, True]
+        self.cx.axes.label_handler['Text']      = ['Intensity', 'Time channel', 'None', 'None']
+
+        self.dx = self.my_canvas.getSubplot(1,1)
+        self.dx.axes.label_handler['Active']    = [True, True, True, True]
+        self.dx.axes.label_handler['Text']      = ['Contrast', 'Echo Time', 'None', 'None']
+        self.dx.axes.general_handler['Log']     = [True, False]
+
+        self.dx.zoomer['Zoom fixed']            = [False,True]
+        self.dx.zoomer['Zoom fixed range']      = [0,1,0,1]
 
         #set the two bin
-        self.first_surface_plot = self.ax.addPlot('Surface', Name = 'Surface' )
-        self.second_surface_plot = self.bx.addPlot('Surface',Name = 'Surface')
+        self.first_surface_plot = self.ax.addPlot('Surface', Name = 'Data area' )
+        self.second_surface_plot = self.bx.addPlot('Surface',Name = 'Mask and Data area')
 
         #set the main scatter plot of the counts
         self.sine_data_plot = self.cx.addPlot(
             'Scatter', 
+            Name    = 'Raw phase', 
             Style   = ['s','10'])
 
         self.sine_fit_2_plot = self.cx.addPlot(
             'Scatter',
+            Name    = 'Fitted phase', 
             Style   = ['-'])
 
         self.contrast_plot = self.dx.addPlot(
             'Scatter',
+            Name    = 'Contrast', 
             Style   = ['-','s','10'])
 
         self.ax.draw()
@@ -310,11 +323,6 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.my_canvas.canvas_nodes[0][1][0].grid_layout.setMargin(0)
         self.my_canvas.canvas_nodes[1][0][0].grid_layout.setMargin(0)
         self.my_canvas.canvas_nodes[1][1][0].grid_layout.setMargin(0)
-
-        # self.ax.pointer.pointer_handler['Sticky'] = 3
-        # self.ax.setHistogram('right', self.first_surface_plot)
-        # self.bx.pointer.pointer_handler['Sticky'] = 3
-        # self.bx.setHistogram('right', self.second_surface_plot)
 
     def _populateSelectors(self):
         '''
@@ -464,7 +472,6 @@ class PanelPageMaskWidget(PageMaskWidget):
         thread.start()
 
         self._threads.append([thread,worker])
-        print(self._threads)
 
     def _prepareThread(self):
         '''
@@ -550,6 +557,7 @@ class PanelPageMaskWidget(PageMaskWidget):
             x = np.array([i for i in range(len(counts))]),
             y = np.array(counts),
             error = {
+                'height':None,
                 'bottom': np.sqrt(counts),
                 'top': np.sqrt(counts)})
 
