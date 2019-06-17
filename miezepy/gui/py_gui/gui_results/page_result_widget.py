@@ -64,6 +64,7 @@ class PageResultWidget(Ui_result_widget):
         self.ax                 = self.my_canvas.getSubplot(0,0)
         # self.ax.pointer['Label_Precision'] = ('.4','.4','.4','.4')
         self.result_handler_ui  = ResultHandlerUI(self)
+        self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
 
     def _connect(self):
         '''
