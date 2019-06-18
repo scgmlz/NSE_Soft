@@ -146,8 +146,13 @@ class IOStructure:
         structure populate it and then send it's 
         content to the main environment handler.
         '''
-        self.env.data[0] = self.generator.generate(self.import_objects)
-        self.env.setCurrentData(0)
+        data, sanity = self.generator.generate(self.import_objects)
+        if not sanity[0] is None:
+            return sanity
+        else:
+            self.env.data[0] = data
+            self.env.setCurrentData(0)
+            return sanity
 
     def load_MIEZE_TOF(self,load_path):
         '''
@@ -179,12 +184,31 @@ class Generator:
         Main generator function that will manage the 
         import of all the required elements
         '''
-        axes,idx    = self.getAxes(import_objects)
-        data        = self.populateData(axes, idx, import_objects)
-        data        = self.setAxes(data,axes)
-        return data
+        axes,idx    = self._getAxes(import_objects)
+        data        = self._populateData(axes, idx, import_objects)
+        data        = self._setAxes(data,axes)
+        sanity      = self._axesSanityCheck(axes, import_objects)
+        return data, sanity
 
-    def getAxes(self, import_objects):
+    def _axesSanityCheck(self, axes, import_objects):
+        '''
+        Check the sanity of the axes and all definitions
+        '''
+        reference   = self._getReference(import_objects)
+        print(reference)
+        if reference is None:
+            return ['No reference',None]
+        
+        
+        reference_axis = import_objects[[import_object.data_handler.parameter for import_object in import_objects].index(reference)].getAxes()[2]
+        inside = [element in reference_axis for element in axes[2]]
+        if not all(inside):
+            out = (np.array(axes[2])[np.argwhere(np.array([inside]) == False)]).tolist()
+            return ['Echo issue', out ]
+
+        return [None, None]
+
+    def _getAxes(self, import_objects):
         '''
         compute the axes from all the import objects
         and then stick them together and finally 
@@ -213,7 +237,7 @@ class Generator:
 
         return axes,idx
 
-    def setAxes(self, data, axes):
+    def _setAxes(self, data, axes):
         '''
         This routine will grab the axes and put them
         into the datastructure.
@@ -240,7 +264,7 @@ class Generator:
 
         return data
 
-    def populateData(self, axes, idx, import_objects):
+    def _populateData(self, axes, idx, import_objects):
         '''
         compute the axes from all the import objects
         and then stick them together and finally 
@@ -250,7 +274,7 @@ class Generator:
 
         for i,import_object in enumerate(import_objects):
             for j,path in enumerate(import_object.file_handler.total_path_files):
-                data_structure.addMetadataObject(self.generateMetadata(import_object, j))
+                data_structure.addMetadataObject(self._generateMetadata(import_object, j))
 
                 f = open(path,'rb')
                 loadeddata = np.fromfile(f, dtype=np.int32)[:np.prod(import_object.data_handler.dimension)]
@@ -270,14 +294,14 @@ class Generator:
             logical_type = 'int_array', 
             unit = '-')
 
-        reference = self.getReference(import_objects)
+        reference = self._getReference(import_objects)
         data_structure.metadata_class.addMetadata(
             'Reference', 
             value = reference, 
             logical_type = 'float', 
             unit = 'K')
 
-        background = self.getBackground(import_objects)
+        background = self._getBackground(import_objects)
         data_structure.metadata_class.addMetadata(
             'Background', 
             value = str(background) , 
@@ -286,7 +310,7 @@ class Generator:
 
         return data_structure
 
-    def generateMetadata(self,import_object, index):
+    def _generateMetadata(self,import_object, index):
         '''
         Here is the routine managing the metadata 
         handling.
@@ -301,22 +325,22 @@ class Generator:
                 ]
         return metadata
                 
-    def getReference(self, import_objects):
+    def _getReference(self, import_objects):
         '''
         Grab the reference from the widgets if possible
         '''
         reference = None
-        for i,import_object in enumerate(import_objects):
+        for import_object in import_objects:
             if import_object.data_handler.reference:
                 reference = import_object.data_handler.parameter
         return reference
 
-    def getBackground(self, import_objects):
+    def _getBackground(self, import_objects):
         '''
         Grab the reference from the widgets if possible
         '''
         background = None
-        for i,import_object in enumerate(import_objects):
+        for import_object in import_objects:
             if import_object.data_handler.background:
                 background = import_object.data_handler.parameter
         return background

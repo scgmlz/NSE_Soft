@@ -28,7 +28,7 @@ import os
 
 from ...qt_gui.loaded_data_ui import Ui_dataset_widget
 
-class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
+class LoadedDataWidget(Ui_dataset_widget,QtWidgets.QListWidgetItem):
     '''
     This class will manage the raw import 
     machinery. the UI is inherited through 
@@ -36,15 +36,19 @@ class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
     converted through pyuic5
     '''
 
-    def __init__(self, data_handler):
-        QtCore.QObject.__init__(self)
+    def __init__(self, data_handler, parent = None):
+        QtWidgets.QListWidgetItem.__init__(self, parent = parent)
         Ui_dataset_widget.__init__(self)
+        self.parent = parent
         self.widget = QtWidgets.QWidget()
         self.setupUi(self.widget)
         self.meta_table.resizeColumnsToContents()
         self.data_handler = data_handler
         self.initialize()
-        self.connect()
+
+        self.parent.setItemWidget(self, self.widget)
+        self.setSizeHint(self.widget.size())
+        
 
     def initialize(self):
         '''

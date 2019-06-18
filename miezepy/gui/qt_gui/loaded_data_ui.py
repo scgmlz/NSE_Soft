@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'loaded_data.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_dataset_widget(object):
     def setupUi(self, dataset_widget):
@@ -36,7 +37,7 @@ class Ui_dataset_widget(object):
         self.para_label.setObjectName("para_label")
         self.verticalLayout.addWidget(self.para_label)
         self.para_input = QtWidgets.QLineEdit(dataset_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.para_input.sizePolicy().hasHeightForWidth())
@@ -44,7 +45,7 @@ class Ui_dataset_widget(object):
         self.para_input.setObjectName("para_input")
         self.verticalLayout.addWidget(self.para_input)
         self.meas_label = QtWidgets.QLabel(dataset_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.meas_label.sizePolicy().hasHeightForWidth())
@@ -85,4 +86,5 @@ class Ui_dataset_widget(object):
         self.back_radio.setText(_translate("dataset_widget", "Background"))
         self.vis_button.setToolTip(_translate("dataset_widget", "Visualize the current element (Echo can be computed)"))
         self.vis_button.setText(_translate("dataset_widget", "Visualize"))
+
 

@@ -89,6 +89,7 @@ class PageDataWidget(Ui_data_import):
         self.data_list_loaded.setStyleSheet(
             "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
             "QListWidget::item:selected { background-color: palette(Mid)  }")
+        self.data_list_loaded.setSizeAdjustPolicy(QtWidgets.QListWidget.AdjustToContents)
         self.data_list_meta.setStyleSheet(
             "QListWidget::item { border: 2px solid black ;background-color: palette(Midlight) }"
             "QListWidget::item:selected { background-color: palette(Mid)  }")
@@ -140,7 +141,7 @@ class PageDataWidget(Ui_data_import):
         #connect lists
         self.data_list_files.clicked.connect(self.setPrev)
         self.data_list_files.drop_success.connect(self.addFiles)
-        self.data_list_loaded.currentItemChanged.connect(self.setCurrentElement)
+        self.data_list_loaded.clicked.connect(self.setCurrentElement)
 
         #the dimension fields
         self.data_input_foils.textChanged.connect(self.dimChanged)
@@ -215,13 +216,13 @@ class PageDataWidget(Ui_data_import):
             self.file_handler       = self.io_core.import_objects[index].file_handler
             self.meta_handler       = self.io_core.import_objects[index].meta_handler
             self.data_handler       = self.io_core.import_objects[index].data_handler
-            self.current_element    = self.elements[index][1]
+            self.current_element    = self.elements[index]
 
             self.setFileList()
             self.setMetaList()
             self.setDimInputs()
 
-            self.elements[index][1].widget.setFocus()
+            self.elements[index].widget.setFocus()
 
     def addElement(self):
         '''
@@ -230,17 +231,10 @@ class PageDataWidget(Ui_data_import):
         '''
         self.io_core.addObject()
 
-        self.elements.append([
-            QtWidgets.QListWidgetItem(self.data_list_loaded),
-            LoadedDataWidget(self.io_core.import_objects[-1].data_handler) 
-            ])
-
-        self.elements[-1][0].setSizeHint(self.elements[-1][1].widget.size())
-        self.elements[-1][1].vis_button.clicked.connect(self.openVisualWindow)
-
-        self.data_list_loaded.setItemWidget(
-            self.elements[-1][0],
-            self.elements[-1][1].widget)
+        self.elements.append(LoadedDataWidget(
+            self.io_core.import_objects[-1].data_handler,
+            parent = self.data_list_loaded))
+        self.elements[-1].vis_button.clicked.connect(self.openVisualWindow)
 
         self.setCurrentElement(len(self.io_core.import_objects)-1)
 
@@ -249,18 +243,10 @@ class PageDataWidget(Ui_data_import):
         Add an element into the list which is loaded 
         from a custom widget.
         '''
-
-        self.elements.append([
-            QtWidgets.QListWidgetItem(self.data_list_loaded),
-            LoadedDataWidget(self.io_core.import_objects[i].data_handler) 
-            ])
-
-        self.elements[-1][0].setSizeHint(self.elements[-1][1].widget.size())
-        self.elements[-1][1].vis_button.clicked.connect(self.openVisualWindow)
-
-        self.data_list_loaded.setItemWidget(
-            self.elements[-1][0],
-            self.elements[-1][1].widget)
+        self.elements.append(LoadedDataWidget(
+            self.io_core.import_objects[i].data_handler,
+            parent = self.data_list_loaded))
+        self.elements[-1].vis_button.clicked.connect(self.openVisualWindow)
 
         self.setCurrentElement(i)
 
@@ -441,9 +427,27 @@ class PageDataWidget(Ui_data_import):
         This routine will call the generator for the 
         currently active object.
         '''
-        self.io_core.generate()
-        self.parent.widgetClasses[0].refreshData()
-        self.parent.widgetClasses[3].link(self.parent.handler.current_env)
+        sanity = self.io_core.generate()
+        print(sanity)
+
+        if sanity[0] is None:
+            self.parent.widgetClasses[0].refreshData()
+            self.parent.widgetClasses[3].link(self.parent.handler.current_env)
+        elif sanity[0] == 'Echo issue':
+                dialog(
+                    parent      = self.local_widget,
+                    icon        = 'error', 
+                    title       = 'Data echo time point has no reference. ',
+                    message     = 'Some echo time values could not be found in the reference:\n'+str(sanity[1][0]),
+                    add_message = 'The reference measurment is important to process the contrast value. There should be one measuremnt for every echo time of the dataset. You can specify which measurement should be the reference by checking the reference checkbox within the widget.')
+        elif sanity[0] == 'No reference':
+                dialog(
+                    parent      = self.local_widget,
+                    icon        = 'error', 
+                    title       = 'No reference set',
+                    message     = 'You did not specify which one of the measurements should be set as reference. See details...',
+                    add_message = 'The reference measurment is important to process the contrast value. There should be one measuremnt for every echo time of the dataset. You can specify which measurement should be the reference by checking the reference checkbox within the widget.')
+
 
     def save(self):
         '''
