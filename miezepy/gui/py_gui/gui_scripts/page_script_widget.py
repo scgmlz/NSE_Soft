@@ -747,14 +747,15 @@ class PageScriptWidget(Ui_script_widget):
         Update the states of the list widgets depending on 
         the state of the data selected foils.
         '''
-        self.synthesize_scripts = False
-        for check_row in self.grid_checkboxes:
-            for i, parent in enumerate(self.foil_check):
-                check_row[i].setEnabled(parent.isChecked())
-        self.synthesize_scripts = True
+        pass
+        # self.synthesize_scripts = False
+        # for check_row in self.grid_checkboxes:
+        #     for i, parent in enumerate(self.foil_check):
+        #         check_row[i].setEnabled(parent.isChecked())
+        # self.synthesize_scripts = True
 
-        if synthesize:
-            self._synthesize()
+        # if synthesize:
+        #     self._synthesize()
 
     def _updateFoilTri(self):
         '''
@@ -855,7 +856,10 @@ class PageScriptWidget(Ui_script_widget):
         for i, item in enumerate(self.selected_items):
             if item.checkState() == QtCore.Qt.Checked:
                 selected.append(self.env.current_data.get_axis('Parameter')[i])
-        container['selected'] = sorted(selected)
+        try:
+            container['selected'] = sorted(selected)
+        except:
+            container['selected'] = selected
 
         #get the background
         array = [ str(val) for val in self.env.current_data.get_axis('Parameter') ]
