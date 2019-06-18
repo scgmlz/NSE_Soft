@@ -101,7 +101,7 @@ class CosineMinuit:
 
 class ExpMinuit:
 
-    def fitExp(self,contrast, SpinEchoTime, contrastError):
+    def fitExp(self,contrast, SpinEchoTime, contrastError, x_display_axis):
         '''
         Creates the minuit fit function and runs 
         leastsquarefit.
@@ -140,12 +140,10 @@ class ExpMinuit:
         Gamma   = fit.values['Gamma']
         Gammaerr = np.sqrt(Cov[0][0])
 
-        x = np.linspace(0.01,3,1000)
-
         return {'Gamma': Gamma,
                 'Gamma_error': Gammaerr,
-                'Curve':np.exp(-Gamma*1e-6*co.e*x*1e-9/co.hbar),
-                'Curve Axis':x}
+                'Curve':np.exp(-Gamma*1e-6*co.e*x_display_axis*1e-9/co.hbar),
+                'Curve Axis':x_display_axis}
 
     def exp(self,Gamma):
         '''

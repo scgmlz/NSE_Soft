@@ -164,14 +164,14 @@ class PageResultWidget(Ui_result_widget):
         '''
         Plot a curve where only the y axes is defined.
         '''
-        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
-        x = np.asarray([i for i in range(len(y))])
+        y = np.array(self.result_handler_ui.getDataFromKey(instruction['y key']))
+        x = np.array([i for i in range(len(y))])
 
         self.ax.addPlot(
             'Scatter', 
-            x, 
-            y+instruction['offset'], 
             name        = key,
+            x           = x, 
+            y           = y+instruction['offset'],
             Style       = instruction['style'], 
             Thickness   = instruction['thickness'],
             Color       = instruction['color'])
@@ -180,15 +180,15 @@ class PageResultWidget(Ui_result_widget):
         '''
         Plot a curve where only the y and x axes are defined.
         '''
-        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
-        x = np.asarray(self.result_handler_ui.getDataFromKey(instruction['x key']))
+        y = np.array(self.result_handler_ui.getDataFromKey(instruction['y key']))
+        x = np.array(self.result_handler_ui.getDataFromKey(instruction['x key']))
         sort_idx = x.argsort()
 
         self.ax.addPlot(
             'Scatter', 
-            x[sort_idx], 
-            y[sort_idx]+instruction['offset'],
             name        = key,
+            x           = x[sort_idx], 
+            y           = y[sort_idx]+instruction['offset'],
             Style       = instruction['style'], 
             Thickness   = instruction['thickness'],
             Color       = instruction['color'])
@@ -197,19 +197,22 @@ class PageResultWidget(Ui_result_widget):
         '''
         Plot a curve where all axes are defined.
         '''
-        y = np.asarray(self.result_handler_ui.getDataFromKey(instruction['y key']))
-        x = np.asarray(self.result_handler_ui.getDataFromKey(instruction['x key']))
-        e = np.asarray(self.result_handler_ui.getDataFromKey(instruction['e key']))
+        y = np.array(self.result_handler_ui.getDataFromKey(instruction['y key']))
+        x = np.array(self.result_handler_ui.getDataFromKey(instruction['x key']))
+        e = np.array(self.result_handler_ui.getDataFromKey(instruction['e key']))
         sort_idx = x.argsort()
+        error = {
+                'height':None,
+                'width' : None,
+                'bottom':e[sort_idx],
+                'top'   :e[sort_idx]}
 
         self.ax.addPlot(
             'Scatter', 
-            x[sort_idx], 
-            y[sort_idx]+instruction['offset'],
             name        = key,
-            Error       = {
-                'bottom':e[sort_idx],
-                'top':e[sort_idx]},
+            x           = x[sort_idx], 
+            y           = y[sort_idx]+instruction['offset'],
+            error       = error,
             Style       = instruction['style'], 
             Thickness   = instruction['thickness'],
             Color       = instruction['color'])

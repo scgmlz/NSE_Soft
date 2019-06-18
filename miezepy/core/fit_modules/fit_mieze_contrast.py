@@ -430,6 +430,10 @@ class ContrastProcessing:
         axis_unit   = target.axes.units[0]
         x_unit      = target.axes.units[0]
 
+        echo_name   = self.para_dict['echo_name']
+        echo_time   = np.array(target.get_axis(echo_name))
+        x_display_axis = 10**np.linspace(np.log10(np.amin(echo_time)),np.log10(np.amax(echo_time)),100)
+
         #initialize the output
         Output                  = {}
         Output['Gamma']         = {}
@@ -459,7 +463,7 @@ class ContrastProcessing:
                 y_error = data_error
 
             #fit the data
-            fit = fitter.fitExp(y, x, y_error)
+            fit = fitter.fitExp(y, x, y_error, x_display_axis)
 
             #prepare the result
             Output['Parameters'][key]  = {
