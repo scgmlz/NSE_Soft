@@ -145,7 +145,18 @@ class CoreHandler:
 
                 else:
                     print("\nERROR: The key '"+str(key)+"' you have provided is not present as an environment...\n")
-                        
+
+    def getIdx(self, name):
+        '''
+        Return the current index of the environnement
+
+        Parameters
+        ----------
+        name : str
+            The string we are trying to set
+        '''
+        return [env.name for env in self.env_array].index(name)
+
     def getEnv(self,key):
         '''
         This function will allow the user to request

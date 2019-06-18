@@ -137,12 +137,9 @@ class PageEnvWidget(Ui_main_env_widget):
         else:
             index = self.main_widget_env.currentRow()
 
-        # self.main_widget_env.itemWidget(self.main_widget_env.item(index)).setFocus()
         self.handler.setCurrentEnv(idx = index)
         self.parent.window.setWindowTitle('MIEZEPY ('+str(self.handler.current_env.name)+')')
         self.envs[index].widget.setFocus()
-
-
         self.parent.mask_interface.link(self.handler.current_env.mask)
 
     def refreshData(self):
@@ -157,10 +154,7 @@ class PageEnvWidget(Ui_main_env_widget):
         open the load window through the current 
         button system
         '''
-        for element in self.handler.env_array:
-            if element.name == env.name:
-                self.handler.setCurrentEnv(element.name)
-
+        self.main_widget_env.setCurrentRow(self.handler.getIdx(env.name))
         self.parent.actionDispatcher(1)
 
     def openMask(self, env):
@@ -168,10 +162,7 @@ class PageEnvWidget(Ui_main_env_widget):
         open the load window through the current 
         button system
         '''
-        for element in self.handler.env_array:
-            if element.name == env.name:
-                self.handler.setCurrentEnv(element.name)
-                
+        self.main_widget_env.setCurrentRow(self.handler.getIdx(env.name))
         self.parent.actionDispatcher(2)
 
     def openScript(self, env):
@@ -179,8 +170,5 @@ class PageEnvWidget(Ui_main_env_widget):
         open the load window through the current 
         button system
         '''
-        for element in self.handler.env_array:
-            if element.name == env.name:
-                self.handler.setCurrentEnv(element.name)
-                
+        self.main_widget_env.setCurrentRow(self.handler.getIdx(env.name))
         self.parent.actionDispatcher(3)
