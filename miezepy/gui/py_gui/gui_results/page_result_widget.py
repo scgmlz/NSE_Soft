@@ -169,7 +169,7 @@ class PageResultWidget(Ui_result_widget):
 
         self.ax.addPlot(
             'Scatter', 
-            name        = key,
+            Name        = key,
             x           = x, 
             y           = y+instruction['offset'],
             Style       = instruction['style'], 
@@ -186,7 +186,7 @@ class PageResultWidget(Ui_result_widget):
 
         self.ax.addPlot(
             'Scatter', 
-            name        = key,
+            Name        = key,
             x           = x[sort_idx], 
             y           = y[sort_idx]+instruction['offset'],
             Style       = instruction['style'], 
@@ -209,7 +209,7 @@ class PageResultWidget(Ui_result_widget):
 
         self.ax.addPlot(
             'Scatter', 
-            name        = key,
+            Name        = key,
             x           = x[sort_idx], 
             y           = y[sort_idx]+instruction['offset'],
             error       = error,
