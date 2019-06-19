@@ -68,6 +68,22 @@ class MaskStructure:
         output += '############################\n'
         return output
 
+    def grabFromOther(self, other):
+        '''
+        This method is to allow cross 
+        environnement transfer of the 
+        elements.
+
+        Parameters
+        ----------
+        other : ScriptStructure
+            The script structure to use
+        '''
+        self.mask_dict.update(other.mask_dict)
+        for key in other.mask_dict.keys():
+            if key not in self.mask_dict.keys():
+                self.mask_dict[key] = list(other.mask_dict[key])
+
     def setMask(self, name):
         '''
         Set the mask present in the dictionary

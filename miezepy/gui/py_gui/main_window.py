@@ -60,11 +60,31 @@ class MainWindowLayout(Ui_MIEZETool):
         self.selectButton(0)
         self.hideActivity()
 
+    def initialize(self):
+        '''
+        This method checks if the data has been set
+        in a previous instance.
+        '''
+        self.label.setText('v. '+miezepy.__version__)
+        self.stack = QtWidgets.QStackedWidget()
+
+        self.widgetClasses = [
+            PageEnvWidget(self.stack, self),
+            PageDataWidget(self.stack, self),
+            PageMaskWidget(self.stack, self, self.mask_interface),
+            PageScriptWidget(self.stack, self, self.mask_interface),
+            PageResultWidget(self.stack, self),
+            PageIOWidget(self.stack, self)]
+
+        for element in self.widgetClasses:
+            self.stack.addWidget(element.local_widget)
+
+        self.main_layout.addWidget(self.stack)
+
     def connect(self):
         '''
         connect the actions to their respective buttons
         '''
-
         #button actions
         self.env_button.clicked.connect(
             partial(self.actionDispatcher, 0, None))
@@ -246,27 +266,6 @@ class MainWindowLayout(Ui_MIEZETool):
 
         self.fadeActivity()
         
-    def initialize(self):
-        '''
-        This method checks if the data has been set
-        in a previous instance.
-        '''
-        self.label.setText('v. '+miezepy.__version__)
-        self.stack = QtWidgets.QStackedWidget()
-
-        self.widgetClasses = [
-            PageEnvWidget(self.stack, self),
-            PageDataWidget(self.stack, self),
-            PageMaskWidget(self.stack, self, self.mask_interface),
-            PageScriptWidget(self.stack, self, self.mask_interface),
-            PageResultWidget(self.stack, self),
-            PageIOWidget(self.stack, self)]
-
-        for element in self.widgetClasses:
-            self.stack.addWidget(element.local_widget)
-
-        self.main_layout.addWidget(self.stack)
-
     def refreshChecked(self, index = None):
         '''
         This method will determine the button that the

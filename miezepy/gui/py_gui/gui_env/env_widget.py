@@ -27,6 +27,7 @@ import sys
 import os
 
 from ...qt_gui.env_widget_ui import Ui_env_widget
+from .drag_env_items import DraggableButton, DropLabel, DropWidget
 
 class EnvWidget(Ui_env_widget,QtCore.QObject):
     '''
@@ -35,12 +36,12 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
     Ui_main_window from the Qt designer anf then
     converted through pyuic5
     '''
-    #set up the edit signal
     edited          = QtCore.pyqtSignal(list)
     load_clicked    = QtCore.pyqtSignal(str)
     mask_clicked    = QtCore.pyqtSignal(str)
     script_clicked  = QtCore.pyqtSignal(str)
     results_clicked = QtCore.pyqtSignal(str)
+    dropAccepted    = QtCore.pyqtSignal(str)
 
     def __init__(self, env, parent = None):
         QtCore.QObject.__init__(self)
@@ -48,14 +49,37 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
 
         self.parent = parent
         self.item   = QtWidgets.QListWidgetItem(parent)
-        self.widget = QtWidgets.QWidget()
+        self.widget = DropWidget()
 
         self.setupUi(self.widget)
-        self.env = env
+        self.setUpMore()
+
+        self.env    = env
         self.initialize()
 
         self.parent.setItemWidget(self.item, self.widget)
         self.item.setSizeHint(self.widget.size())
+
+    def setUpMore(self):
+        '''
+        Manage the local buttons
+        '''
+        self.env_button_load = DraggableButton(self.env_frame)
+        self.env_button_load.setText('Data')        
+        self.env_button_load.setObjectName("env_button_load")
+        self.verticalLayout.addWidget(self.env_button_load)
+        self.env_button_mask = DraggableButton(self.env_frame)
+        self.env_button_mask.setText('Masks')        
+        self.env_button_mask.setObjectName("env_button_mask")
+        self.verticalLayout.addWidget(self.env_button_mask)
+        self.env_button_scripts = DraggableButton(self.env_frame)
+        self.env_button_scripts.setText('Process')
+        self.env_button_scripts.setObjectName("env_button_scripts")
+        self.verticalLayout.addWidget(self.env_button_scripts)
+        self.env_button_results = DraggableButton(self.env_frame)
+        self.env_button_results.setText('Results')
+        self.env_button_results.setObjectName("env_button_results")
+        self.verticalLayout.addWidget(self.env_button_results)
 
     def initialize(self):
         '''
@@ -79,6 +103,8 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
         self.env_button_mask.installEventFilter(self)
         self.env_button_scripts.installEventFilter(self)
         self.env_text_data_print.installEventFilter(self)
+        
+        self.widget.dropAccepted.connect(self.dropAccepted.emit)
 
     def loadClicked(self):
         '''
@@ -117,3 +143,4 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
         if event.type() == QtCore.QEvent.MouseButtonPress:
             self.item.setSelected(True)
         return in_object.eventFilter(in_object, event)
+

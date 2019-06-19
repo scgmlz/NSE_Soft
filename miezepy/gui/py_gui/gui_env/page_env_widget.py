@@ -89,6 +89,7 @@ class PageEnvWidget(Ui_main_env_widget):
                 partial(self.openMask, self.envs[-1].env))
             self.envs[-1].script_clicked.connect(
                 partial(self.openScript, self.envs[-1].env))
+            self.envs[-1].dropAccepted.connect(self.processDrop)
 
         if len(self.envs) > 0:
             self.setCurrentElement(len(self.envs)-1)
@@ -173,3 +174,21 @@ class PageEnvWidget(Ui_main_env_widget):
         '''
         self.main_widget_env.setCurrentRow(self.handler.getIdx(env.name))
         self.parent.actionDispatcher(3)
+
+    def processDrop(self, drop_intructions):
+        '''
+        This method is here to allow transfer of items
+        from one environnement to another
+
+        Parameters
+        ----------
+        from_env : Environnement
+            The source environnement
+        to_env : Environnement
+            The source environnement
+            
+        '''
+        self.handler.processOperation(*drop_intructions.split('|'))
+        self.main_widget_env.setCurrentRow(self.handler.getIdx(
+                self.handler.getEnv(drop_intructions.split('|')[-1]).name))
+        

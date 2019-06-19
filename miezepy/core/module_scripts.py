@@ -56,6 +56,19 @@ class ScriptStructure:
 
         self.editable_scripts = list(self.default_scripts)
 
+    def grabFromOther(self, other):
+        '''
+        This method is to allow cross 
+        environnement transfer of the 
+        elements.
+
+        Parameters
+        ----------
+        other : ScriptStructure
+            The script structure to use
+        '''
+        self.editable_scripts = list(other.editable_scripts)
+
     def loadScripts(self, path):
         '''
         Initialize the default python scipts so that 
@@ -293,7 +306,7 @@ class ScriptStructure:
         container['instrument']    = instrument
         container['detector']      = detector
         container['exposure']      = exposure
-        print('back', container['Background'])
+        
         return container
 
     def setEditable(self, index, code):

@@ -47,6 +47,19 @@ class IOStructure:
         self.import_objects = []
         self.extra_folders  = []
     
+    def grabFromOther(self, other):
+        '''
+        This method is to allow cross 
+        environnement transfer of the 
+        elements.
+
+        Parameters
+        ----------
+        other : ScriptStructure
+            The script structure to use
+        '''
+        self.import_objects = list(other.import_objects)
+
     def addObject(self):
         self.import_objects.append(ImportObject(self))
 

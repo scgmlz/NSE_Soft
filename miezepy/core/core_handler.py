@@ -181,6 +181,34 @@ class CoreHandler:
             else:
                 print('This env does not exist')
 
+    def processOperation(self, from_env, perform, to_env):
+        '''
+        This method is here to allow transfer of items
+        from one environnement to another
+
+        Parameters
+        ----------
+        from_env : Environnement
+            The source environnement
+        to_env : Environnement
+            The source environnement
+        perform : str
+            The identifier of the action to perform
+        '''
+        from_env    = self.getEnv(from_env)
+        to_env      = self.getEnv(to_env)
+        perform     = perform
+
+        if perform == 'data':
+            to_env.io.grabFromOther(from_env.io)
+        elif perform == 'mask':
+            to_env.mask.grabFromOther(from_env.mask)
+        elif perform == 'scripts':
+            to_env.scripts.grabFromOther(from_env.scripts)
+        else:
+            print('Not implemented')
+
+
     # TO-DO: test of save
     def saveSession(self, path, data_bool = True, mask_bool = False, script_bool = False):
         '''
