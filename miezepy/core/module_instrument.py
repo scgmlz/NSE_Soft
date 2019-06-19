@@ -27,7 +27,6 @@ import numpy as np
 import sys
 import inspect
 
-
 class InstrumentStructure:
     '''
     This module will contain the instruments
@@ -38,7 +37,7 @@ class InstrumentStructure:
 
         '''
         self._getDetectors()
-        self.setDetector('Reseda')
+        self.detector = MIEZEReseda()
         self.success    = True
 
     def _getDetectors(self):

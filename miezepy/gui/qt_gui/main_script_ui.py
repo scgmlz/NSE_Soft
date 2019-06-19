@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_script_widget(object):
     def setupUi(self, script_widget):
         script_widget.setObjectName("script_widget")
-        script_widget.resize(1395, 757)
+        script_widget.resize(1087, 716)
         script_widget.setStyleSheet("#script_widget{background-color: rgb(179, 179, 179);}\n"
 "QGroupBox::title{color:rgb(0, 0, 0)}\n"
 "QLabel{color:rgb(0, 0, 0)}\n"
@@ -101,6 +101,17 @@ class Ui_script_widget(object):
         self.process_list_selected.setSizePolicy(sizePolicy)
         self.process_list_selected.setObjectName("process_list_selected")
         self.verticalLayout_19.addWidget(self.process_list_selected)
+        self.label_10 = QtWidgets.QLabel(self.groupBox_2)
+        self.label_10.setObjectName("label_10")
+        self.verticalLayout_19.addWidget(self.label_10)
+        self.time_channel_selected = QtWidgets.QListView(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.time_channel_selected.sizePolicy().hasHeightForWidth())
+        self.time_channel_selected.setSizePolicy(sizePolicy)
+        self.time_channel_selected.setObjectName("time_channel_selected")
+        self.verticalLayout_19.addWidget(self.time_channel_selected)
         self.horizontalLayout_15.addLayout(self.verticalLayout_19)
         self.verticalLayout_18 = QtWidgets.QVBoxLayout()
         self.verticalLayout_18.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
@@ -375,6 +386,7 @@ class Ui_script_widget(object):
         self.label.setText(_translate("script_widget", "Foils to be considerd: "))
         self.label_7.setText(_translate("script_widget", "Select the foils to consider for each echo time:"))
         self.label_9.setText(_translate("script_widget", "Selected measurements:"))
+        self.label_10.setText(_translate("script_widget", "Selected time channels:"))
         self.groupBox.setTitle(_translate("script_widget", "Phase settings"))
         self.process_radio_mask.setText(_translate("script_widget", "Use mas&k method"))
         self.process_radio_exposure.setText(_translate("script_widget", "&Use high exposure"))

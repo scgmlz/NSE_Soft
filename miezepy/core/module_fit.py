@@ -25,13 +25,9 @@
 #import general components
 import iminuit
 import numpy as np
-import scipy
 import warnings
 import copy
 import math
-import timeit
- 
-
 #############################
 #import child components
 from .fit_modules.fit_mieze import Fit_MIEZE

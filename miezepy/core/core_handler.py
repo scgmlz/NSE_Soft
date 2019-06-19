@@ -34,7 +34,7 @@ from .module_environment    import Environment
 from .library_logic         import generateSingleName
 
 def setEnv(handler):
-    return None
+    return Environment(handler,'None')
 
 class CoreHandler:
     '''
