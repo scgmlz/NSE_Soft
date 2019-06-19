@@ -81,20 +81,14 @@ class PageEnvWidget(Ui_main_env_widget):
         self.initialize()
 
         for element in self.handler.env_array:
-
-            self.envs.append(EnvWidget(element))
-            self.envs_widgets.append(QtWidgets.QListWidgetItem(self.main_widget_env))
-
-        for env, env_widget in zip(self.envs, self.envs_widgets):
-            env_widget.setSizeHint(env.widget.size())
-            self.main_widget_env.addItem(env_widget)
-            self.main_widget_env.setItemWidget(
-                env_widget,
-                env.widget)
-
-            env.load_clicked.connect(partial(self.openLoad, env.env))
-            env.mask_clicked.connect(partial(self.openMask, env.env))
-            env.script_clicked.connect(partial(self.openScript, env.env))
+            self.envs.append(
+                EnvWidget(element, self.main_widget_env))
+            self.envs[-1].load_clicked.connect(
+                partial(self.openLoad, self.envs[-1].env))
+            self.envs[-1].mask_clicked.connect(
+                partial(self.openMask, self.envs[-1].env))
+            self.envs[-1].script_clicked.connect(
+                partial(self.openScript, self.envs[-1].env))
 
         if len(self.envs) > 0:
             self.setCurrentElement(len(self.envs)-1)
@@ -103,7 +97,7 @@ class PageEnvWidget(Ui_main_env_widget):
         '''
         Add an environment to the system
         '''
-        env = self.handler.addEnv()
+        self.handler.addEnv()
         self.refreshList()
 
     def deleteEnvironment(self):
@@ -119,13 +113,12 @@ class PageEnvWidget(Ui_main_env_widget):
                     index_to_delete = names.index(element.name)
                     break
 
+            self.main_widget_env.takeItem(index)
+            del self.envs[index]
             del self.handler.env_array[index_to_delete]
-            try: 
-                del self.handler.current_env
-            except:
-                pass
+            del self.handler.current_env
 
-            self.refreshList()
+            self.setCurrentElement(index - 1)
 
     def setCurrentElement(self, row = None):
         '''
@@ -136,6 +129,14 @@ class PageEnvWidget(Ui_main_env_widget):
             index = row
         else:
             index = self.main_widget_env.currentRow()
+
+        if index == len(self.envs):
+            index -=1
+        elif index == -1 and not len(self.envs) == 0:
+            index =0
+        elif len(self.envs) == 0:
+            self.parent.window.setWindowTitle('MIEZEPY')
+            return
 
         self.handler.setCurrentEnv(idx = index)
         self.parent.window.setWindowTitle('MIEZEPY ('+str(self.handler.current_env.name)+')')

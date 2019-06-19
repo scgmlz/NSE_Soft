@@ -142,6 +142,7 @@ class PageDataWidget(Ui_data_import):
         self.data_list_files.clicked.connect(self.setPrev)
         self.data_list_files.drop_success.connect(self.addFiles)
         self.data_list_loaded.clicked.connect(self.setCurrentElement)
+        self.data_list_loaded.itemSelectionChanged.connect(self.setCurrentElementSilent)
 
         #the dimension fields
         self.data_input_foils.textChanged.connect(self.dimChanged)
@@ -201,6 +202,19 @@ class PageDataWidget(Ui_data_import):
         for element in self.io_core.import_objects:
             element.meta_handler = copy.deepcopy(self.meta_handler)
 
+    def _setCurrentObject(self, index):
+        '''
+        '''
+        self.import_object      = self.io_core.import_objects[index]
+        self.file_handler       = self.io_core.import_objects[index].file_handler
+        self.meta_handler       = self.io_core.import_objects[index].meta_handler
+        self.data_handler       = self.io_core.import_objects[index].data_handler
+        self.current_element    = self.elements[index]
+
+        self.setFileList()
+        self.setMetaList()
+        self.setDimInputs()
+
     def setCurrentElement(self, row = None):
         '''
         On clicking an element the system will set the
@@ -212,17 +226,21 @@ class PageDataWidget(Ui_data_import):
             index = self.data_list_loaded.currentRow()
 
         if not self.io_core == None:
-            self.import_object      = self.io_core.import_objects[index]
-            self.file_handler       = self.io_core.import_objects[index].file_handler
-            self.meta_handler       = self.io_core.import_objects[index].meta_handler
-            self.data_handler       = self.io_core.import_objects[index].data_handler
-            self.current_element    = self.elements[index]
-
-            self.setFileList()
-            self.setMetaList()
-            self.setDimInputs()
-
+            self._setCurrentObject(index)
             self.elements[index].widget.setFocus()
+
+    def setCurrentElementSilent(self, row = None):
+        '''
+        On clicking an element the system will set the
+        classes linked to the current element 
+        '''
+        if isinstance(row, int):
+            index = row
+        else:
+            index = self.data_list_loaded.currentRow()
+
+        if not self.io_core == None:
+            self._setCurrentObject(index)
 
     def addElement(self):
         '''
@@ -235,7 +253,6 @@ class PageDataWidget(Ui_data_import):
             self.io_core.import_objects[-1].data_handler,
             parent = self.data_list_loaded))
         self.elements[-1].vis_button.clicked.connect(self.openVisualWindow)
-
         self.setCurrentElement(len(self.io_core.import_objects)-1)
 
     def addElementSilent(self,i):
@@ -247,7 +264,6 @@ class PageDataWidget(Ui_data_import):
             self.io_core.import_objects[i].data_handler,
             parent = self.data_list_loaded))
         self.elements[-1].vis_button.clicked.connect(self.openVisualWindow)
-
         self.setCurrentElement(i)
 
     def removeElement(self):
@@ -255,8 +271,8 @@ class PageDataWidget(Ui_data_import):
         Remove an element from the current dataset
         '''
         row = self.data_list_loaded.currentRow()
-        item = self.data_list_loaded.takeItem(self.data_list_loaded.currentRow())
-        item = None
+        self.data_list_loaded.takeItem(row)
+        del self.elements[row]
         del self.io_core.import_objects[row]
 
     def clear(self):
@@ -276,24 +292,16 @@ class PageDataWidget(Ui_data_import):
 
         for i in range(len(self.meta_handler.selected_meta)):
             self.addMetaElement()
-            self.meta_elements[-1][1].setParentList(
+            self.meta_elements[-1].setParentList(
                 self.meta_handler.selected_meta[i])
-            self.meta_elements[-1][1].edited.connect(self.meta_handler.editValue)
+            self.meta_elements[-1].edited.connect(
+                self.meta_handler.editValue)
             
     def addMetaElement(self):
         '''
 
         '''
-        self.meta_elements.append([
-            QtWidgets.QListWidgetItem(self.data_list_meta),
-            MetaWidget()
-            ])
-
-        self.meta_elements[-1][0].setSizeHint(self.meta_elements[-1][1].widget.size())
-
-        self.data_list_meta.setItemWidget(
-            self.meta_elements[-1][0],
-            self.meta_elements[-1][1].widget)
+        self.meta_elements.append(MetaWidget(self.data_list_meta))
 
     def clearMeta(self):
         '''
@@ -311,7 +319,7 @@ class PageDataWidget(Ui_data_import):
                 parent = self.local_widget,
                 icon = 'error', 
                 title= 'No data element set',
-                message = 'No data element initialised. Add one first...',
+                message = 'No data element initialized. Add one first...',
                 add_message='You can add a dataset by going to File>add element.')
 
         else:

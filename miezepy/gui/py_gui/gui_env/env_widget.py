@@ -42,15 +42,20 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
     script_clicked  = QtCore.pyqtSignal(str)
     results_clicked = QtCore.pyqtSignal(str)
 
-    def __init__(self, env):
-
+    def __init__(self, env, parent = None):
         QtCore.QObject.__init__(self)
         Ui_env_widget.__init__(self)
+
+        self.parent = parent
+        self.item   = QtWidgets.QListWidgetItem(parent)
         self.widget = QtWidgets.QWidget()
+
         self.setupUi(self.widget)
         self.env = env
         self.initialize()
-        self.connect()
+
+        self.parent.setItemWidget(self.item, self.widget)
+        self.item.setSizeHint(self.widget.size())
 
     def initialize(self):
         '''
@@ -58,6 +63,7 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
         '''
         self.env_input_name.setText(self.env.name)
         self.refreshData()
+        self.connect()
 
     def connect(self):
         '''
@@ -67,6 +73,12 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
         self.env_button_load.clicked.connect(self.loadClicked)
         self.env_button_mask.clicked.connect(self.maskClicked)
         self.env_button_scripts.clicked.connect(self.scriptClicked)
+
+        self.env_input_name.installEventFilter(self)
+        self.env_button_load.installEventFilter(self)
+        self.env_button_mask.installEventFilter(self)
+        self.env_button_scripts.installEventFilter(self)
+        self.env_text_data_print.installEventFilter(self)
 
     def loadClicked(self):
         '''
@@ -97,3 +109,11 @@ class EnvWidget(Ui_env_widget,QtCore.QObject):
         connect
         '''
         self.env.name = self.env_input_name.text()
+
+    def eventFilter(self, in_object, event):
+        '''
+        The event filter to manage clicks on all 
+        '''
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            self.item.setSelected(True)
+        return in_object.eventFilter(in_object, event)

@@ -2,17 +2,16 @@
 
 # Form implementation generated from reading ui file 'meta_widget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.1
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_meta_widget(object):
     def setupUi(self, meta_widget):
         meta_widget.setObjectName("meta_widget")
-        meta_widget.resize(239, 93)
+        meta_widget.resize(284, 104)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -22,7 +21,7 @@ class Ui_meta_widget(object):
         meta_widget.setMaximumSize(QtCore.QSize(16777215, 16777215))
         meta_widget.setSizeIncrement(QtCore.QSize(0, 0))
         meta_widget.setBaseSize(QtCore.QSize(0, 0))
-        meta_widget.setStyleSheet("\n"
+        meta_widget.setStyleSheet("QLabel{color: rgb(255, 255, 255);}\n"
 "")
         self.verticalLayout = QtWidgets.QVBoxLayout(meta_widget)
         self.verticalLayout.setContentsMargins(2, 2, 2, 2)
@@ -33,16 +32,13 @@ class Ui_meta_widget(object):
         self.horizontalLayout_4.setSpacing(2)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.meta_label_name = QtWidgets.QLabel(meta_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.meta_label_name.sizePolicy().hasHeightForWidth())
-        self.meta_label_name.setSizePolicy(sizePolicy)
         self.meta_label_name.setMinimumSize(QtCore.QSize(0, 0))
         self.meta_label_name.setMaximumSize(QtCore.QSize(1000, 16777215))
         self.meta_label_name.setBaseSize(QtCore.QSize(0, 0))
         font = QtGui.QFont()
-        font.setPointSize(13)
+        font.setBold(True)
+        font.setItalic(False)
+        font.setWeight(75)
         self.meta_label_name.setFont(font)
         self.meta_label_name.setText("TextLabel")
         self.meta_label_name.setScaledContents(True)
@@ -57,16 +53,11 @@ class Ui_meta_widget(object):
         self.horizontalLayout.setSpacing(2)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.meta_drop_equivalence = QtWidgets.QComboBox(meta_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.meta_drop_equivalence.sizePolicy().hasHeightForWidth())
         self.meta_drop_equivalence.setSizePolicy(sizePolicy)
-        self.meta_drop_equivalence.setMinimumSize(QtCore.QSize(0, 0))
-        self.meta_drop_equivalence.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        font = QtGui.QFont()
-        font.setPointSize(13)
-        self.meta_drop_equivalence.setFont(font)
         self.meta_drop_equivalence.setCurrentText("")
         self.meta_drop_equivalence.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContents)
         self.meta_drop_equivalence.setFrame(True)
@@ -74,17 +65,9 @@ class Ui_meta_widget(object):
         self.horizontalLayout.addWidget(self.meta_drop_equivalence)
         self.meta_input_fact = QtWidgets.QLineEdit(meta_widget)
         self.meta_input_fact.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.meta_input_fact.sizePolicy().hasHeightForWidth())
-        self.meta_input_fact.setSizePolicy(sizePolicy)
         self.meta_input_fact.setMinimumSize(QtCore.QSize(0, 0))
         self.meta_input_fact.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.meta_input_fact.setBaseSize(QtCore.QSize(0, 0))
-        font = QtGui.QFont()
-        font.setPointSize(13)
-        self.meta_input_fact.setFont(font)
         self.meta_input_fact.setAcceptDrops(False)
         self.meta_input_fact.setText("")
         self.meta_input_fact.setFrame(True)
@@ -96,18 +79,9 @@ class Ui_meta_widget(object):
         self.horizontalLayout_2.setSpacing(2)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.meta_label_manual = QtWidgets.QLabel(meta_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.meta_label_manual.sizePolicy().hasHeightForWidth())
-        self.meta_label_manual.setSizePolicy(sizePolicy)
         self.meta_label_manual.setMinimumSize(QtCore.QSize(0, 0))
         self.meta_label_manual.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.meta_label_manual.setBaseSize(QtCore.QSize(0, 0))
-        font = QtGui.QFont()
-        font.setPointSize(13)
-        font.setKerning(False)
-        self.meta_label_manual.setFont(font)
         self.meta_label_manual.setText("Edit:")
         self.meta_label_manual.setScaledContents(True)
         self.meta_label_manual.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
@@ -117,17 +91,9 @@ class Ui_meta_widget(object):
         self.horizontalLayout_2.addWidget(self.meta_label_manual)
         self.meta_input_manual = QtWidgets.QLineEdit(meta_widget)
         self.meta_input_manual.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.meta_input_manual.sizePolicy().hasHeightForWidth())
-        self.meta_input_manual.setSizePolicy(sizePolicy)
         self.meta_input_manual.setMinimumSize(QtCore.QSize(0, 0))
         self.meta_input_manual.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.meta_input_manual.setBaseSize(QtCore.QSize(0, 0))
-        font = QtGui.QFont()
-        font.setPointSize(13)
-        self.meta_input_manual.setFont(font)
         self.meta_input_manual.setAcceptDrops(False)
         self.meta_input_manual.setText("")
         self.meta_input_manual.setFrame(True)
@@ -141,5 +107,4 @@ class Ui_meta_widget(object):
     def retranslateUi(self, meta_widget):
         _translate = QtCore.QCoreApplication.translate
         meta_widget.setWindowTitle(_translate("meta_widget", "Form"))
-
 

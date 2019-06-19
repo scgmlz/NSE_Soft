@@ -28,7 +28,7 @@ import os
 
 from ...qt_gui.loaded_data_ui import Ui_dataset_widget
 
-class LoadedDataWidget(Ui_dataset_widget,QtWidgets.QListWidgetItem):
+class LoadedDataWidget(Ui_dataset_widget,QtCore.QObject):
     '''
     This class will manage the raw import 
     machinery. the UI is inherited through 
@@ -37,18 +37,20 @@ class LoadedDataWidget(Ui_dataset_widget,QtWidgets.QListWidgetItem):
     '''
 
     def __init__(self, data_handler, parent = None):
-        QtWidgets.QListWidgetItem.__init__(self, parent = parent)
+        QtCore.QObject.__init__(self)
         Ui_dataset_widget.__init__(self)
+
         self.parent = parent
+        self.item   = QtWidgets.QListWidgetItem(parent)
         self.widget = QtWidgets.QWidget()
+
         self.setupUi(self.widget)
         self.meta_table.resizeColumnsToContents()
         self.data_handler = data_handler
         self.initialize()
 
-        self.parent.setItemWidget(self, self.widget)
-        self.setSizeHint(self.widget.size())
-        
+        self.parent.setItemWidget(self.item, self.widget)
+        self.item.setSizeHint(self.widget.size())
 
     def initialize(self):
         '''
@@ -71,7 +73,6 @@ class LoadedDataWidget(Ui_dataset_widget,QtWidgets.QListWidgetItem):
         Process an array of values to set the 
         parameters in the design
         '''
-
         new_val_dict = dict(val_dict)
         try:
             del new_val_dict['Parameter']
@@ -81,10 +82,7 @@ class LoadedDataWidget(Ui_dataset_widget,QtWidgets.QListWidgetItem):
             del new_val_dict['Measurement']
         except:
             pass
-        
-        self.clearTable()
         self.setTable(new_val_dict, file_list)
-
 
     def clearTable(self):
         '''
@@ -97,7 +95,6 @@ class LoadedDataWidget(Ui_dataset_widget,QtWidgets.QListWidgetItem):
         '''
         Put the elements into the table widget
         '''
-        self.clearTable()
         data_list = [[val_dict[key][i] for key in val_dict.keys()] for i in range(len(file_list))]
         self.header = [key for key in val_dict.keys()]
         self.model = MyTableModel(
@@ -108,6 +105,14 @@ class LoadedDataWidget(Ui_dataset_widget,QtWidgets.QListWidgetItem):
 
         self.meta_table.setModel(self.model)
 
+    def eventFilter(self, in_object, event):
+        '''
+        The event filter to manage clicks on all 
+        '''
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            self.item.setSelected(True)
+        return in_object.eventFilter(in_object, event)
+
     def connect(self):
         '''
         connect
@@ -117,20 +122,35 @@ class LoadedDataWidget(Ui_dataset_widget,QtWidgets.QListWidgetItem):
         self.ref_radio.toggled.connect(self.getValues)
         self.back_radio.toggled.connect(self.getValues)
 
+        self.para_input.installEventFilter(self)
+        self.meas_input.installEventFilter(self)
+        self.ref_radio.installEventFilter(self)
+        self.back_radio.installEventFilter(self)
+        self.vis_button.installEventFilter(self)
+        self.meta_table.installEventFilter(self)
+
+
     def disconnect(self):
         '''
         disconnect
         '''
-        self.para_input.textChanged.disconnect()
-        self.meas_input.valueChanged.disconnect()
-        self.ref_radio.toggled.disconnect()
-        self.back_radio.toggled.disconnect()
+        self.para_input.textChanged.disconnect(self.getValues)
+        self.meas_input.valueChanged.disconnect(self.getValues)
+        self.ref_radio.toggled.disconnect(self.getValues)
+        self.back_radio.toggled.disconnect(self.getValues)
+
+        # self.para_input.selectionChanged.disconnect(self.setSelected)
+        # self.meas_input.clicked.disconnect(self.setSelected)
+        # self.ref_radio.clicked.disconnect(self.setSelected)
+        # self.back_radio.clicked.disconnect(self.setSelected)
+        # self.vis_button.clicked.disconnect(self.setSelected)
+        # self.meta_table.clicked.disconnect(self.setSelected)
+
 
     def getValues(self, index = None):
         '''
         initialize the widget and set the stage
         '''
-
         self.data_handler.parameter = self.para_input.text()
         self.data_handler.meas      = str(self.meas_input.value())
         self.data_handler.reference = self.ref_radio.isChecked()

@@ -38,12 +38,19 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
     #set up the edit signal
     edited = QtCore.pyqtSignal(list)
 
-    def __init__(self):
+    def __init__(self, parent = None):
         QtCore.QObject.__init__(self)
         Ui_meta_widget.__init__(self)
+
+        self.parent = parent
         self.widget = QtWidgets.QWidget()
+        self.item   = QtWidgets.QListWidgetItem(parent)
+
         self.setupUi(self.widget)
         self.initialize()
+
+        self.parent.setItemWidget(self.item, self.widget)
+        self.item.setSizeHint(self.widget.size())
 
     def initialize(self):
         '''
@@ -64,6 +71,14 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
         self.meta_input_fact.setText('1')
         self.meta_label_name.setText('No Name')
 
+    def eventFilter(self, in_object, event):
+        '''
+        The event filter to manage clicks on all 
+        '''
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            self.item.setSelected(True)
+        return in_object.eventFilter(in_object, event)
+
     def connect(self):
         '''
         connect
@@ -71,6 +86,10 @@ class MetaWidget(Ui_meta_widget,QtCore.QObject):
         self.meta_input_fact.textChanged.connect(self.getValues)
         self.meta_drop_equivalence.currentIndexChanged.connect(self.getValues)
         self.meta_input_manual.textChanged.connect(self.getValues)
+
+        self.meta_input_fact.installEventFilter(self)
+        self.meta_drop_equivalence.installEventFilter(self)
+        self.meta_input_manual.installEventFilter(self)
 
     def setParentList(self, parent_list):
         '''
