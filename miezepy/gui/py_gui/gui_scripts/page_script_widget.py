@@ -357,13 +357,10 @@ class PageScriptWidget(Ui_script_widget):
         self._reset()
 
         self.container = self.env.scripts.readFromScripts()
-        self._linkVisualData()
         self._linkVisualInstrument()
         self._linkVisualDetector()
         self._linkVisualFit()
-
-        self._setVisualData()
-        self._updateFoilEnabled()
+        
         self._setVisualFit()
         self._updateFoilTri()
         self._setVisualPhase()
@@ -375,7 +372,6 @@ class PageScriptWidget(Ui_script_widget):
         self.foil_elements_active   = True
         self.synthesize_scripts     = True
         
-        self._connectVisualData()
         self._connectVisualFit()
         self._connectVisualPhase()
         self._connectVisualInstrument()
@@ -387,56 +383,6 @@ class PageScriptWidget(Ui_script_widget):
         '''
         pass
 
-
-    #######################################################################
-    #######################################################################
-    def _linkVisualData(self):
-        '''
-        Create the widgets associated to the 
-        present linked structure
-        '''
-        for i in reversed(range(self.process_layout_foil_check.count())): 
-            self.process_layout_foil_check.itemAt(i).widget().deleteLater()
-
-        self.foil_check = []
-        for i in range(self.env.current_data.get_axis_len('Foil')):
-            self.foil_check.append(
-                QtWidgets.QCheckBox(str(i),parent = self.local_widget))
-            self.process_layout_foil_check.addWidget(self.foil_check[-1])
-
-    def _setVisualData(self):
-        '''
-        Set the widget values depending on the input of the 
-        environnement
-        '''
-        for i, checkbox in enumerate(self.foil_check):
-            if self.container['foil_check'] == None:
-                try:
-                    checkbox.setChecked(bool(
-                        self.env.current_data.metadata_class['Selected foils'][i]))
-                except:
-                    pass
-            else:
-                try:
-                    checkbox.setChecked(bool(self.container['foil_check'][i]))
-                except:
-                    pass   
-
-    def _connectVisualData(self):
-        '''
-        Connect all the elements after the value has been
-        set in the set routine.
-        '''
-        for i in range(self.env.current_data.get_axis_len('Foil')):
-            self.foil_check[i].stateChanged.connect(self._updateFoilEnabled)
-
-    def _disconnectVisualData(self):
-        '''
-        Disconnect all the elements after the value has been
-        set in the set routine.
-        '''
-        for i in range(self.env.current_data.get_axis_len('Foil')):
-            self.foil_check[i].stateChanged.disconnect(self._updateFoilEnabled)
 
     #######################################################################
     #######################################################################
@@ -780,7 +726,6 @@ class PageScriptWidget(Ui_script_widget):
 
         for name in names:
             self._addEchoWidget(name)
-        self._updateFoilEnabled(synthesize = False)
 
     def _addEchoWidget(self,name, tri = False):
         '''
@@ -821,21 +766,6 @@ class PageScriptWidget(Ui_script_widget):
         self.process_list_echo_times.setItemWidget(
             self.echo_widgets[-1],
             self.echo_foil_widgets[-1])
-
-    def _updateFoilEnabled(self, synthesize = True):
-        '''
-        Update the states of the list widgets depending on 
-        the state of the data selected foils.
-        '''
-        pass
-        # self.synthesize_scripts = False
-        # for check_row in self.grid_checkboxes:
-        #     for i, parent in enumerate(self.foil_check):
-        #         check_row[i].setEnabled(parent.isChecked())
-        # self.synthesize_scripts = True
-
-        # if synthesize:
-        #     self._synthesize()
 
     def _updateFoilTri(self):
         '''
@@ -890,25 +820,9 @@ class PageScriptWidget(Ui_script_widget):
         if not self.synthesize_scripts:
             return None
 
-        self._synthesizeData()
         self._synthesizeFit()
         self._synthesizePhase()
         self._synthesizeReduction()
-
-    def _synthesizeData(self):
-        '''
-        prepare the python script part that will
-        manage the data parameter part
-        '''
-        container = {}
-
-        #Foils to consider
-        container['checked'] = []
-        for i, checkbox in enumerate(self.foil_check):
-            container['checked'].append(int(checkbox.isChecked()))
-
-        self.env.scripts.synthesizeDataScript(container)
-        self._refresh()
 
     def _synthesizeFit(self):
         '''
