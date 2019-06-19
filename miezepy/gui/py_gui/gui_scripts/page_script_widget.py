@@ -134,6 +134,10 @@ class PageScriptWidget(Ui_script_widget):
         self.verticalLayout_2.addWidget(self.script_text_import)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.import_gui_reset = QtWidgets.QPushButton(
+            'Reset', self.script_tab_import)
+        self.import_gui_reset.setObjectName("import_gui_reset")
+        self.horizontalLayout_2.addWidget(self.import_gui_reset)
         spacerItem6 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem6)
         self.script_button_import_gui = QtWidgets.QPushButton('GUI', self.script_tab_import)
@@ -161,6 +165,10 @@ class PageScriptWidget(Ui_script_widget):
         self.verticalLayout_20.addWidget(self.script_text_set_fit)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.set_fit_gui_reset = QtWidgets.QPushButton(
+            'Reset', self.script_tab_set_fit)
+        self.set_fit_gui_reset.setObjectName("set_fit_gui_reset")
+        self.horizontalLayout_3.addWidget(self.set_fit_gui_reset)
         spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem7)
         self.script_button_set_fit_gui = QtWidgets.QPushButton('GUI', self.script_tab_set_fit)
@@ -183,6 +191,10 @@ class PageScriptWidget(Ui_script_widget):
         self.verticalLayout_3.addWidget(self.script_text_phase)
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.phase_gui_reset = QtWidgets.QPushButton(
+            'Reset', self.script_tab_phase)
+        self.phase_gui_reset.setObjectName("phase_gui_reset")
+        self.horizontalLayout_5.addWidget(self.phase_gui_reset)
         spacerItem8 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem8)
         self.script_button_phase_gui = QtWidgets.QPushButton('GUI', self.script_tab_phase)
@@ -205,6 +217,10 @@ class PageScriptWidget(Ui_script_widget):
         self.verticalLayout_4.addWidget(self.script_text_reduction)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.reduction_gui_reset = QtWidgets.QPushButton(
+            'Reset', self.script_tab_reduction)
+        self.reduction_gui_reset.setObjectName("reduction_gui_reset")
+        self.horizontalLayout_6.addWidget(self.reduction_gui_reset)
         spacerItem9 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_6.addItem(spacerItem9)
         self.script_button_reduction_gui = QtWidgets.QPushButton('GUI', self.script_tab_reduction)
@@ -246,7 +262,6 @@ class PageScriptWidget(Ui_script_widget):
         '''
         Connect all Qt slots to their respective methods.
         '''
-        
         self.button_widgets[0].clicked.connect(partial(self.run,0))
         self.button_widgets[2].clicked.connect(partial(self.run,0))
         self.button_widgets[2].clicked.connect(partial(self.run,1))
@@ -278,6 +293,29 @@ class PageScriptWidget(Ui_script_widget):
         
         self.script_save_def_save.clicked.connect(
             self._setNewDefaultSavePath)
+
+        self.import_gui_reset.clicked.connect(
+            partial(self._resetScript, 0))
+        self.set_fit_gui_reset.clicked.connect(
+            partial(self._resetScript, 1))
+        self.phase_gui_reset.clicked.connect(
+            partial(self._resetScript, 2))
+        self.reduction_gui_reset.clicked.connect(
+            partial(self._resetScript, 3))
+
+    def _resetScript(self, idx):
+        '''
+        Reset a script given by his index 
+        value as integer.
+
+        Parameters
+        ----------
+        idx : int
+            The index of the script to reset
+        '''
+        self.env.scripts.resetScript(idx)
+        self._synthesize()
+
 
     def _setNewDefaultSavePath(self):
         '''

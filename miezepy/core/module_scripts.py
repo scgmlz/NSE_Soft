@@ -56,6 +56,18 @@ class ScriptStructure:
 
         self.editable_scripts = list(self.default_scripts)
 
+    def resetScript(self,idx):
+        '''
+        Reset a script given by his index 
+        value as integer.
+
+        Parameters
+        ----------
+        idx : int
+            The index of the script to reset
+        '''
+        self.editable_scripts[idx] = self.default_scripts[idx]
+
     def grabFromOther(self, other):
         '''
         This method is to allow cross 
