@@ -610,8 +610,6 @@ class PageScriptWidget(Ui_script_widget):
         try:
             for idx, foil_select in enumerate(self.container['foils_in_echo']):
                 for idx_2, element in enumerate(foil_select):
-                    if self.grid_checkboxes[idx + 1][idx_2].isEnabled():
-                        found_enabled = True
                     try:
                         self.grid_checkboxes[idx + 1][idx_2].setChecked(element == 1)
                     except:
@@ -772,18 +770,18 @@ class PageScriptWidget(Ui_script_widget):
         The first row in are tristate checkboxes who need to
         be set depending on the state of the column
         '''
-        self.foil_header_active = False
         for i, parent in enumerate(self.grid_checkboxes[0]):
             active = []
             for row in self.grid_checkboxes[1:]:
                 active.append(row[i].isChecked())
+            parent.blockSignals(True)
             if all(active):
-                parent.setCheckState(2)            
+                parent.setCheckState(2)        
             elif not any(active):
                 parent.setCheckState(0)
             else:
                 parent.setCheckState(1)
-        self.foil_header_active = True
+            parent.blockSignals(False)    
 
         self._synthesize()
 
@@ -792,23 +790,19 @@ class PageScriptWidget(Ui_script_widget):
         The first row in are tristate checkboxes who need to
         be set depending on the state of the column
         '''
-        if self.foil_header_active:
-            self.synthesize_scripts = False
-            for i, element in enumerate(self.grid_checkboxes[0]):
-                if element.checkState() == 1:
-                    element.setCheckState(2)
-                self.foil_elements_active = False
-                self._setFoilCol(i, element.checkState())
-                self.foil_elements_active = True
-            self.synthesize_scripts = True
-            self._synthesize()
+        for i, element in enumerate(self.grid_checkboxes[0]):
+            self._setFoilCol(i, element.checkState())
+
+        self._synthesize()
 
     def _setFoilCol(self, col, state):
         '''
         set the state of the element in a column
         '''
         for check_row in self.grid_checkboxes[1:]:
-            check_row[col].setChecked(state == 2)
+            check_row[col].blockSignals(True)
+            check_row[col].setChecked(state == 2 or state == 1)
+            check_row[col].blockSignals(False)
 
     #######################################################################
     #######################################################################
