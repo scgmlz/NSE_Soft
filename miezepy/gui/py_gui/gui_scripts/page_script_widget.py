@@ -258,17 +258,26 @@ class PageScriptWidget(Ui_script_widget):
         self.button_widgets[7].clicked.connect(partial(self.run,2))
         self.button_widgets[8].clicked.connect(partial(self.run,3))
 
-        self.button_widgets[13].clicked.connect(partial(self.link, None))
-        self.button_widgets[14].clicked.connect(partial(self.link, None))
-        self.button_widgets[15].clicked.connect(partial(self.link, None))
+        self.button_widgets[13].clicked.connect(
+            partial(self.link, None))
+        self.button_widgets[14].clicked.connect(
+            partial(self.link, None))
+        self.button_widgets[15].clicked.connect(
+            partial(self.link, None))
 
-        self.text_widgets[0].textChanged.connect(partial(self._updateEditable, 0))
-        self.text_widgets[1].textChanged.connect(partial(self._updateEditable, 1))
-        self.text_widgets[2].textChanged.connect(partial(self._updateEditable, 2))
-        self.text_widgets[3].textChanged.connect(partial(self._updateEditable, 3))
-        self.text_widgets[4].textChanged.connect(partial(self._updateEditable, 4))
+        self.text_widgets[0].textChanged.connect(
+            partial(self._updateEditable, 0))
+        self.text_widgets[1].textChanged.connect(
+            partial(self._updateEditable, 1))
+        self.text_widgets[2].textChanged.connect(
+            partial(self._updateEditable, 2))
+        self.text_widgets[3].textChanged.connect(
+            partial(self._updateEditable, 3))
+        self.text_widgets[4].textChanged.connect(
+            partial(self._updateEditable, 4))
         
-        self.script_save_def_save.clicked.connect(self._setNewDefaultSavePath)
+        self.script_save_def_save.clicked.connect(
+            self._setNewDefaultSavePath)
 
     def _setNewDefaultSavePath(self):
         '''
@@ -520,6 +529,7 @@ class PageScriptWidget(Ui_script_widget):
         '''
         self._buildEchoFoils()
         self._buildSelectedItems()
+        self._buildTimeChannelItems()
         self._linkVisualBackground()
         self._linkVisualReference()
         self._updateFoilTri()
@@ -548,7 +558,6 @@ class PageScriptWidget(Ui_script_widget):
         self._setVisualFitDrops()
         self._setVisualFitSelected()
         self._setVisualFitFoilsInEcho()
-
 
     def _setVisualFitDrops(self):   
         '''
@@ -594,10 +603,19 @@ class PageScriptWidget(Ui_script_widget):
         Set the widget values depending on the input of the 
         environnement
         '''
-        #Selected
         if not self.container['Selected'] == None:
-            for i, item in enumerate(self.selected_items):
+            for item in self.selected_items:
                 checked = QtCore.Qt.Checked if str(item.text()) in [str(element) for element in self.container['Selected']] else QtCore.Qt.Unchecked
+                item.setCheckState(checked)
+
+    def _setVisualTimeChannel(self):   
+        '''
+        Set the widget values depending on the input of the 
+        environnement
+        '''
+        if not self.container['time_channels'] == None:
+            for i, item in enumerate(self.selected_items):
+                checked = QtCore.Qt.Checked if i in self.container['time_channels'] else QtCore.Qt.Unchecked
                 item.setCheckState(checked)
 
     def _setVisualFitFoilsInEcho(self):   
@@ -674,6 +692,30 @@ class PageScriptWidget(Ui_script_widget):
         self.selected_items[-1].setCheckState(checked)
         self.selected_items[-1].setCheckable(True)
         self.selected_model.appendRow(self.selected_items[-1])
+
+    def _buildTimeChannelItems(self):
+        '''
+        Build the list that will contain the standart 
+        items of the measurements selected.
+        '''
+        self.time_channel_model = QtGui.QStandardItemModel()
+        self.time_channel_model.itemChanged.connect(self._synthesize)
+        self.time_channel_items = []
+        
+        for i in range(self.env.current_data.get_axis_len('Time Channel')):
+            self._addTimeChannelItem(str(i))
+
+        self.time_channel_selected.setModel(self.time_channel_model)
+
+    def _addTimeChannelItem(self,name, check = True):
+        '''
+        Add an echo type widget to the widget view
+        '''
+        self.time_channel_items.append(QtGui.QStandardItem(name))
+        checked = QtCore.Qt.Checked if check else QtCore.Qt.Unchecked
+        self.time_channel_items[-1].setCheckState(checked)
+        self.time_channel_items[-1].setCheckable(True)
+        self.time_channel_model.appendRow(self.time_channel_items[-1])
 
     def _buildEchoFoils(self):
         '''
@@ -887,6 +929,12 @@ class PageScriptWidget(Ui_script_widget):
 
         #get the exposure
         container['exposure'] = str(self.process_radio_exposure.isChecked())
+
+        time_channels = []
+        for i, item in enumerate(self.time_channel_items):
+            if item.checkState() == QtCore.Qt.Checked:
+                time_channels.append(int(i))
+        container['time_channels'] = sorted(time_channels)
 
         self.env.scripts.synthesizeFitScript(container)
         self._refresh()

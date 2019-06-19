@@ -17,26 +17,32 @@ foils_in_echo.append([1, 1, 0, 1, 1, 1])
 foils_in_echo.append([0, 0, 0, 0, 1, 0])
 foils_in_echo.append([0, 0, 0, 0, 1, 0])
 
-#set the values to be processed as data
-Selected = [ 28.6, 29.0, 29.1, 29.2, 29.4, 29.6, 29.8, 30.0]
+#Set the selected (edit in GUI)
+Selected = [ 278.0, 288.0, 300.0, 313.0, 328.0]
 
-#set the reference value
-Reference = [28.6,0]
+#Set the time channels to use(edit in GUI)
+TimeChannels = []
 
-#set the background
-Background = 68.0
+#Set the background (edit in GUI)
+Background = None
 
+#Set the reference (edit in GUI)
+Reference = ['Reso',0]
+
+#Instrument (edit in GUI)
 instrument = 'Reseda'
 
-detector = None
+#Detector(edit in GUI)
+detector = 14032019
 
+#Use the high exposure setting (edit in GUI)
 exposure = False
 
 environnement.fit.set_parameter( name = 'Select',        value = Selected     )
 environnement.fit.set_parameter( name = 'Reference',     value = Reference    )
 environnement.fit.set_parameter( name = 'Background',    value = Background   )
 environnement.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)
-environnement.fit.set_parameter( name = 'processors', value = 1)
-environnement.fit.set_parameter( name = 'exposure', value = exposure)
-environnement.fit.set_parameter( name = 'time_channels', value = [])
+environnement.fit.set_parameter( name = 'processors',    value = 1)
+environnement.fit.set_parameter( name = 'exposure',      value = exposure)
+environnement.fit.set_parameter( name = 'time_channels', value = TimeChannels)
 environnement.instrument.setDetector(instrument, detector)

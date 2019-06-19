@@ -266,6 +266,15 @@ class ScriptStructure:
             if not element == '':
                 exposure = eval(element.split('exposure = ' )[1])
 
+        #time_channels
+        filtered_text_array = [
+            element if 'TimeChannels = ' in element else '' 
+            for element in text_array]
+        time_channels = False
+        for element in filtered_text_array:
+            if not element == '':
+                time_channels = eval(element.split('TimeChannels = ' )[1])
+
         del text_array
         #----------------------------------------#
         text_array = self.editable_scripts[2].split("\n")
@@ -306,6 +315,7 @@ class ScriptStructure:
         container['instrument']    = instrument
         container['detector']      = detector
         container['exposure']      = exposure
+        container['time_channels'] = time_channels
         
         return container
 
@@ -482,15 +492,22 @@ class ScriptStructure:
 
         #set the selected
         python_string_init += "\n#Set the selected (edit in GUI)\n"
-        python_string_init += "Selected = [ "
-        for i, item in enumerate(container['selected']):
-            try:
-                python_string_init += str(float(item))+ ", "
-            except:
-                python_string_init += "'"+str(item)+ "', "
+        if not len(container['selected']) == 0:
+            python_string_init += "Selected = [ "
+            for i, item in enumerate(container['selected']):
+                try:
+                    python_string_init += str(float(item))+ ", "
+                except:
+                    python_string_init += "'"+str(item)+ "', "
 
-        python_string_init = python_string_init[:-2]
-        python_string_init += "]\n"
+            python_string_init = python_string_init[:-2]
+            python_string_init += "]\n"
+        else:
+            python_string_init += "Selected = []\n"
+
+        #set the time channels
+        python_string_init += "\n#Set the time channels to use(edit in GUI)\n"
+        python_string_init += "TimeChannels = "+str(container['time_channels'])+"\n"
 
         #set the background
         python_string_init += "\n#Set the background (edit in GUI)\n"
