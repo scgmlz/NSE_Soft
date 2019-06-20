@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'main_script.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_script_widget(object):
     def setupUi(self, script_widget):
@@ -60,7 +61,7 @@ class Ui_script_widget(object):
         self.label_7 = QtWidgets.QLabel(self.frame_2)
         self.label_7.setObjectName("label_7")
         self.verticalLayout_17.addWidget(self.label_7)
-        self.process_list_echo_times = QtWidgets.QListWidget(self.frame_2)
+        self.process_list_echo_times = QtWidgets.QTableView(self.frame_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -389,4 +390,5 @@ class Ui_script_widget(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.process_tab), _translate("script_widget", "Process"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.panel_tab), _translate("script_widget", "Panel"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.script_tab), _translate("script_widget", "Scripts"))
+
 

@@ -35,6 +35,8 @@ from ..gui_mask.page_mask_widget    import PanelPageMaskWidget
 from ..gui_common.dialog            import dialog 
 from ..gui_common.code_editor       import CodeEditor
 
+from .foil_delegate import FoilDelegate
+
 class PageScriptWidget(Ui_script_widget):
     
     def __init__(self, stack, parent, mask_interface):
@@ -362,7 +364,6 @@ class PageScriptWidget(Ui_script_widget):
         self._linkVisualFit()
         
         self._setVisualFit()
-        self._updateFoilTri()
         self._setVisualPhase()
         self._setVisualExposure()
         self._setVisualInstrument()
@@ -516,7 +517,6 @@ class PageScriptWidget(Ui_script_widget):
         self._buildTimeChannelItems()
         self._linkVisualBackground()
         self._linkVisualReference()
-        self._updateFoilTri()
 
     def _linkVisualBackground(self):
         '''
@@ -607,15 +607,15 @@ class PageScriptWidget(Ui_script_widget):
         Set the widget values depending on the input of the 
         environnement
         '''
-        try:
-            for idx, foil_select in enumerate(self.container['foils_in_echo']):
-                for idx_2, element in enumerate(foil_select):
-                    try:
-                        self.grid_checkboxes[idx + 1][idx_2].setChecked(element == 1)
-                    except:
-                        pass
-        except:
-            pass
+        for i, foil_select in enumerate(self.container['foils_in_echo']):
+            for j, element in enumerate(foil_select):
+                try:
+                    self._foil_model.item(i+1,j).setCheckState(QtCore.Qt.Checked if element == 1 else QtCore.Qt.Unchecked)
+                except:
+                    pass
+
+        for i in range(self.env.current_data.get_axis_len('Foil')):
+            self._foil_model.item(0, i).setCheckState(self._allInCol(i))
 
     def _connectVisualFit(self):   
         '''
@@ -626,12 +626,6 @@ class PageScriptWidget(Ui_script_widget):
         self.process_box_refs_fit.currentIndexChanged.connect(self._synthesizeFit)
         self.mask_interface.mask_updated.connect(self._synthesizeReduction)
 
-        #link the boxes
-        for check_row in self.grid_checkboxes:
-            for checkbox in check_row:
-                if not checkbox.isTristate():
-                    checkbox.stateChanged.connect(self._updateFoilTri)
-
     def _disconnectVisualFit(self):   
         '''
         Disconnect all the elements after the value has been
@@ -640,12 +634,6 @@ class PageScriptWidget(Ui_script_widget):
         self.process_box_back_fit.currentIndexChanged.disconnect(self._synthesizeFit)
         self.process_box_refs_fit.currentIndexChanged.disconnect(self._synthesizeFit)
         self.mask_interface.mask_updated.disconnect(self._synthesizeReduction)
-        
-        #link the boxes
-        for check_row in self.grid_checkboxes:
-            for checkbox in check_row:
-                if not checkbox.isTristate():
-                    checkbox.stateChanged.disconnect(self._updateFoilTri)
 
     #######################################################################
     #######################################################################
@@ -705,104 +693,74 @@ class PageScriptWidget(Ui_script_widget):
         all the foils that will or will not be active at
         different echo times.
         '''
-        self.echo_foil_widgets = []
-        self.grid_checkboxes   = []
-        self.echo_widgets      = []
-        self.process_list_echo_times.clear()
-
-        #create the elements
-        self._addEchoWidget('All times', tri = True)
-        for element in self.grid_checkboxes[0]:
-            element.stateChanged.connect(self._updateFoilCol)
+        num_foils = self.env.current_data.get_axis_len('Foil')
+        self._foil_model = QtGui.QStandardItemModel()
+        self._foil_delegate = FoilDelegate()
 
         try:
-            names = [
-                '{:0.5e}'.format(x) for x in self.env.current_data.get_axis('Echo Time').sort()]
+            self.names = ['{:0.5e}'.format(x) for x in self.env.current_data.get_axis('Echo Time').sort()]
         except:
-            names = [
-                '{:0.5e}'.format(x) for x in self.env.current_data.get_axis('Echo Time')]
+            self.names = ['{:0.5e}'.format(x) for x in self.env.current_data.get_axis('Echo Time')]
 
-        for name in names:
-            self._addEchoWidget(name)
+        for j in range(num_foils):
+            item = QtGui.QStandardItem()
+            item.setCheckable(True)
+            item.setEditable(False)
+            self._foil_model.setItem(0,j,item)
 
-    def _addEchoWidget(self,name, tri = False):
-        '''
-        Add an echo type widget to the widget view
-        '''
-        self.echo_foil_widgets.append(
-            QtWidgets.QWidget(parent = self.local_widget))
-        layout      = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        for i in range(len(self.names)):
+            for j in range(num_foils):
+                item = QtGui.QStandardItem()
+                item.setCheckable(True)
+                item.setEditable(False)
+                self._foil_model.setItem(i+1,j,item)
 
-        label       = QtWidgets.QLabel(name,parent = self.echo_foil_widgets[-1])
-        sizePolicy  = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, 
-            QtWidgets.QSizePolicy.Expanding)
-        label.setSizePolicy(sizePolicy)
-        label.setMinimumSize(QtCore.QSize(50, 0))
-        label.setMaximumSize(QtCore.QSize(100, 16777215))
-        label.setBaseSize(QtCore.QSize(50, 0))
-        label.setAlignment(
-            QtCore.Qt.AlignLeading|
-            QtCore.Qt.AlignHCenter|
-            QtCore.Qt.AlignVCenter)
-        layout.addWidget(label)
+        self.process_list_echo_times.setModel(self._foil_model)
+        self.process_list_echo_times.setItemDelegate(self._foil_delegate)
+        self._foil_model.setVerticalHeaderLabels(['All']+self.names)
+        for j in range(num_foils):
+            self.process_list_echo_times.resizeColumnsToContents()
+        
+        self.process_list_echo_times.clicked.connect(self._updateFoil)
 
-        checkboxes = []
-
-        for i in range(self.env.current_data.get_axis_len('Foil')):
-            checkboxes.append(QtWidgets.QCheckBox(
-                str(i),parent = self.local_widget))
-            checkboxes[-1].setTristate(tri)
-            layout.addWidget(checkboxes[-1])
-        self.grid_checkboxes.append(checkboxes)
-        self.echo_foil_widgets[-1].setLayout(layout)
-        self.echo_widgets.append(
-            QtWidgets.QListWidgetItem(self.process_list_echo_times))
-        self.echo_widgets[-1].setSizeHint(self.echo_foil_widgets[-1].size())
-        self.process_list_echo_times.addItem(self.echo_widgets[-1])
-        self.process_list_echo_times.setItemWidget(
-            self.echo_widgets[-1],
-            self.echo_foil_widgets[-1])
-
-    def _updateFoilTri(self):
+    def _updateFoil(self, index):
         '''
         The first row in are tristate checkboxes who need to
         be set depending on the state of the column
         '''
-        for i, parent in enumerate(self.grid_checkboxes[0]):
-            active = []
-            for row in self.grid_checkboxes[1:]:
-                active.append(row[i].isChecked())
-            parent.blockSignals(True)
-            if all(active):
-                parent.setCheckState(2)        
-            elif not any(active):
-                parent.setCheckState(0)
-            else:
-                parent.setCheckState(1)
-            parent.blockSignals(False)    
+        item = self._foil_model.item(index.row(), index.column())
 
-        self._synthesize()
+        if index.row() == 0:
+            self._setFoilCol(index.column(), item.checkState())
+        else:
+            self._foil_model.item(0, index.column()).setCheckState(self._allInCol(index.column()))
 
-    def _updateFoilCol(self):
+        self._synthesizeFit()
+
+    def _allInCol(self, col):
         '''
-        The first row in are tristate checkboxes who need to
-        be set depending on the state of the column
+        check if the elements in a colum are either
+        all selected or all unselected
         '''
-        for i, element in enumerate(self.grid_checkboxes[0]):
-            self._setFoilCol(i, element.checkState())
+        selected = []
+        for i in range(len(self.names)):
+            selected.append(self._foil_model.item(i+1, col).checkState() == QtCore.Qt.Checked)
 
-        self._synthesize()
+        if all(selected):
+            return QtCore.Qt.Checked
+        elif not any(selected):
+            return QtCore.Qt.Unchecked
+        else:
+            return QtCore.Qt.PartiallyChecked
+
 
     def _setFoilCol(self, col, state):
         '''
         set the state of the element in a column
         '''
-        for check_row in self.grid_checkboxes[1:]:
-            check_row[col].blockSignals(True)
-            check_row[col].setChecked(state == 2 or state == 1)
-            check_row[col].blockSignals(False)
+        for i in range(len(self.names)):
+            self._foil_model.item(i+1, col).setCheckState(state)
+
 
     #######################################################################
     #######################################################################
@@ -829,10 +787,12 @@ class PageScriptWidget(Ui_script_widget):
 
         #get the foils
         foils_in_echo = []
-        for i,row in enumerate(self.grid_checkboxes[1:]):
+        echo_len = self.env.current_data.get_axis_len('Echo Time')
+        foil_len = self.env.current_data.get_axis_len('Foil')
+        for i in range(echo_len):
             items = []
-            for j,element in enumerate(row): 
-                if element.checkState() and element.isEnabled():
+            for j in range(foil_len): 
+                if self._foil_model.item(i+1,j).checkState() == QtCore.Qt.Checked:
                     items.append(1)
                 else:
                     items.append(0)
