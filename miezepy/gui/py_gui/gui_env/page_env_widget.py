@@ -191,4 +191,7 @@ class PageEnvWidget(Ui_main_env_widget):
         self.handler.processOperation(*drop_intructions.split('|'))
         self.main_widget_env.setCurrentRow(self.handler.getIdx(
                 self.handler.getEnv(drop_intructions.split('|')[-1]).name))
+
+        for i in range(3):
+            self.parent.widgetClasses[i+1].unlink()
         

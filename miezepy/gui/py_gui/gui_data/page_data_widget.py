@@ -120,6 +120,12 @@ class PageDataWidget(Ui_data_import):
         self.io_core = io_core
         self.populateAll()
 
+    def unlink(self):
+        '''
+        To remove the item
+        '''
+        self.io_core = None
+
     def connect(self):
         '''
         This routine will link to the io manager class

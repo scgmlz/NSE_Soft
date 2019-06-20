@@ -350,6 +350,12 @@ class PageScriptWidget(Ui_script_widget):
         self.script_tabs.setCurrentIndex(0)
         self.run(0)
 
+    def unlink(self):
+        '''
+        To remove the item
+        '''
+        self.env = None
+
     def _linkVisualComponents(self):
         '''
         Once the link is done the system can inject the attributes

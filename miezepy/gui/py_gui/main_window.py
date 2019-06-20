@@ -218,6 +218,7 @@ class MainWindowLayout(Ui_MIEZETool):
 
             if index == 2:
                 if not self.widgetClasses[2].mask_core == self.handler.current_env.mask:
+                    self.mask_interface.link(self.handler.current_env.mask)
                     self.widgetClasses[2].link(self.handler.current_env.mask)
                 self.refreshChecked(2)
 
@@ -305,8 +306,7 @@ class MainWindowLayout(Ui_MIEZETool):
             self.mask_button,
             self.script_button,
             self.result_button,
-            self.save_button
-        ]
+            self.save_button]
 
         for element in pointers:
             element.setChecked(False)
@@ -326,9 +326,7 @@ class MainWindowLayout(Ui_MIEZETool):
             self.mask_button,
             self.script_button,
             self.result_button,
-            self.save_button
-        ]
-
+            self.save_button]
 
         pointers[i].setChecked(True)
         self.checked = [element.isChecked() for element in pointers]

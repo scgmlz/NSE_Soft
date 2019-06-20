@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'meta_widget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_meta_widget(object):
     def setupUi(self, meta_widget):
@@ -21,7 +22,7 @@ class Ui_meta_widget(object):
         meta_widget.setMaximumSize(QtCore.QSize(16777215, 16777215))
         meta_widget.setSizeIncrement(QtCore.QSize(0, 0))
         meta_widget.setBaseSize(QtCore.QSize(0, 0))
-        meta_widget.setStyleSheet("QLabel{color: rgb(255, 255, 255);}\n"
+        meta_widget.setStyleSheet("\n"
 "")
         self.verticalLayout = QtWidgets.QVBoxLayout(meta_widget)
         self.verticalLayout.setContentsMargins(2, 2, 2, 2)
@@ -107,4 +108,5 @@ class Ui_meta_widget(object):
     def retranslateUi(self, meta_widget):
         _translate = QtCore.QCoreApplication.translate
         meta_widget.setWindowTitle(_translate("meta_widget", "Form"))
+
 

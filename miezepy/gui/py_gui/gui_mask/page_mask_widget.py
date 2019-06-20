@@ -107,6 +107,12 @@ class PageMaskWidget(Ui_mask_editor):
         '''
         self.mask_core = mask_core
 
+    def unlink(self):
+        '''
+        To remove the item
+        '''
+        self.mask_core = None
+
     def addItem(self):
         '''
         Add an element into the list which is loaded 
@@ -185,7 +191,6 @@ class PageMaskWidget(Ui_mask_editor):
 
         if not file_path == '':
             self.mask_core.loadSingleMask(os.path.abspath(file_path))
-            self.updateSelector(self.mask_core.current_mask)
 
     def loadMultiple(self):
         '''
@@ -200,7 +205,6 @@ class PageMaskWidget(Ui_mask_editor):
 
         if not file_path == '':
             self.mask_core.loadAllMasks(os.path.abspath(file_path))
-            self.updateSelector(self.mask_core.current_mask)
 
 class PanelPageMaskWidget(PageMaskWidget):
 
