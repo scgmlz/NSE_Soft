@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'main_result.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_result_widget(object):
     def setupUi(self, result_widget):
@@ -105,7 +106,7 @@ class Ui_result_widget(object):
         self.offset_label.setObjectName("offset_label")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.offset_label)
         self.offset_spin = QtWidgets.QDoubleSpinBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.offset_spin.sizePolicy().hasHeightForWidth())
@@ -115,10 +116,15 @@ class Ui_result_widget(object):
         self.offset_spin.setObjectName("offset_spin")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.offset_spin)
         self.line_check = QtWidgets.QCheckBox(self.tab)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.line_check.sizePolicy().hasHeightForWidth())
+        self.line_check.setSizePolicy(sizePolicy)
         self.line_check.setObjectName("line_check")
         self.formLayout.setWidget(10, QtWidgets.QFormLayout.LabelRole, self.line_check)
         self.line_type_combo = QtWidgets.QComboBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.line_type_combo.sizePolicy().hasHeightForWidth())
@@ -130,7 +136,7 @@ class Ui_result_widget(object):
         self.line_thickness_label.setObjectName("line_thickness_label")
         self.formLayout.setWidget(11, QtWidgets.QFormLayout.LabelRole, self.line_thickness_label)
         self.line_thickness_spin = QtWidgets.QSpinBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.line_thickness_spin.sizePolicy().hasHeightForWidth())
@@ -142,7 +148,7 @@ class Ui_result_widget(object):
         self.line_type_label_2.setObjectName("line_type_label_2")
         self.formLayout.setWidget(12, QtWidgets.QFormLayout.LabelRole, self.line_type_label_2)
         self.color_button = QtWidgets.QPushButton(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.color_button.sizePolicy().hasHeightForWidth())
@@ -162,7 +168,7 @@ class Ui_result_widget(object):
         self.color_button.setObjectName("color_button")
         self.formLayout.setWidget(12, QtWidgets.QFormLayout.FieldRole, self.color_button)
         self.scatter_check = QtWidgets.QCheckBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scatter_check.sizePolicy().hasHeightForWidth())
@@ -170,7 +176,7 @@ class Ui_result_widget(object):
         self.scatter_check.setObjectName("scatter_check")
         self.formLayout.setWidget(14, QtWidgets.QFormLayout.LabelRole, self.scatter_check)
         self.scatter_type_combo = QtWidgets.QComboBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scatter_type_combo.sizePolicy().hasHeightForWidth())
@@ -196,7 +202,7 @@ class Ui_result_widget(object):
         self.link_label.setObjectName("link_label")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.link_label)
         self.link_input = QtWidgets.QComboBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.link_input.sizePolicy().hasHeightForWidth())
@@ -204,7 +210,7 @@ class Ui_result_widget(object):
         self.link_input.setObjectName("link_input")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.link_input)
         self.raw_check = QtWidgets.QCheckBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.raw_check.sizePolicy().hasHeightForWidth())
@@ -221,7 +227,7 @@ class Ui_result_widget(object):
         self.scatter_size_label.setObjectName("scatter_size_label")
         self.formLayout.setWidget(16, QtWidgets.QFormLayout.LabelRole, self.scatter_size_label)
         self.scatter_size_spin = QtWidgets.QSpinBox(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scatter_size_spin.sizePolicy().hasHeightForWidth())
@@ -377,4 +383,5 @@ class Ui_result_widget(object):
         self.process_check_log_y.setText(_translate("result_widget", "Log y"))
         self.set_rainbow.setText(_translate("result_widget", "Set rainbow"))
         self.process_button_plot_plot.setText(_translate("result_widget", "Plot"))
+
 

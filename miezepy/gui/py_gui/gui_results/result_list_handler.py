@@ -205,6 +205,23 @@ class ResultHandlerUI:
         '''
         self.plot_model.removeRows(0, len(self._other_root._children), self._other_root)
 
+    def setRainbow(self):
+        '''
+        Remove all plot elements
+        '''
+        color_list = [
+            "#1f77b4", "#ff7f0e", "#2ca02c", 
+            "#d62728", "#9467bd", "#8c564b", 
+            "#e377c2", "#7f7f7f", "#bcbd22", 
+            "#17becf"]
+
+        for i,item in enumerate(self._echo_root._children):
+            item.setColor(color_list[i%9])
+        for i,item in enumerate(self._gamma_root._children):
+            item.setColor(color_list[i%9])
+        for i,item in enumerate(self._fit_root._children):
+            item.setColor(color_list[i%9])
+
     def _processPlot(self):
         '''
         Plot the data from the plot elements

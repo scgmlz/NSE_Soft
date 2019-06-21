@@ -105,6 +105,8 @@ class PageResultWidget(Ui_result_widget):
 
         self.process_button_plot_plot.clicked.connect(
             self._updatePlot)
+        self.set_rainbow.clicked.connect(
+            self.result_handler_ui.setRainbow)
             
         self.process_check_log_x.clicked.connect(
             self.manageLog)

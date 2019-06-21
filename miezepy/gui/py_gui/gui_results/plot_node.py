@@ -32,15 +32,11 @@ class PlotNode(SessionNode):
         self.link = link
         self._initialize()
 
-        # self.setCheckable(True)
-        # self.setCheckState(QtCore.Qt.Checked)
-
     def _initialize(self):
         '''
         set up all the plot related data
         '''
         self._active         = True
-        self._expanded       = False
         self._link           = 'None'
         self._offset         = 0
         self._raw            = False
@@ -53,6 +49,12 @@ class PlotNode(SessionNode):
 
         self._line           = True
         self._line_thickness = 2
+
+        if 'data' in self._name:
+            self._line = False
+
+        elif 'fit' in self._name:
+            self.scatter = False
 
     def connectToWidget(self, widget):
         self.widget = widget
@@ -124,24 +126,21 @@ class PlotNode(SessionNode):
         self.widget.process_table_data.setModel(self.model)
 
     def _updateLink(self):
-
-        pass
-        # names   = []
-        # for i in range(self.stdItem.model().rowCount()):
-        #     names.append(self.stdItem.model().item(i).text())
-        # self.link_keys = ['None'] + names
+        self.widget.link_input.clear()
+        names   = []
+        for child in self.widget.result_handler_ui._echo_root._children:
+            names.append(child._name)
+        self._link_keys = ['None'] + names
+        self.widget.link_input.addItems(self._link_keys)
+        self.widget.link_input.setCurrentIndex(self._link_keys.index(self._link))
 
     def setLink(self, value = None):
-
-        pass
-        # if not value in self.link_keys:
-        #     value = 'None'
-        # self.link = value
+        if not value in self._link_keys:
+            value = 'None'
+        self._link = value
 
     def _getLink(self):
-
-        pass
-        # self.link   = self.link_keys[self.parent.link_input.currentIndex()]
+        self._link   = self.widget.link_input.currentText()
 
 
     def _colorSelect(self):
@@ -152,7 +151,7 @@ class PlotNode(SessionNode):
     def setColor(self, hex = None):
         if not hex == None:
             col = tuple(int(hex.lstrip('#')[i:i+2], 16) for i in (0, 2 ,4))
-            self.color = QtGui.QColor(
+            self._color = QtGui.QColor(
                 col[0],
                 col[1],
                 col[2])
