@@ -51,7 +51,7 @@ class DraggableButton(QtWidgets.QPushButton):
 
         self.drag = QtGui.QDrag(self)
         self.drag.setMimeData(self.mimedata)
-        self.drag.setDragCursor(self.pixmap, QtCore.Qt.DropAction.MoveAction)
+        # self.drag.setDragCursor(self.pixmap, QtCore.Qt.DropAction.MoveAction)
         self.drag.setDragCursor(self.pixmap, QtCore.Qt.DropAction.CopyAction)
 
     def mouseReleaseEvent(self, event):

@@ -23,14 +23,13 @@
 
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
-import traceback
-from functools import partial
 import numpy as np
 
 #private dependencies
 from ...qt_gui.main_result_ui   import Ui_result_widget
 from ..gui_common.dialog        import dialog 
 from .result_list_handler       import ResultHandlerUI
+from .drag_drop_trees           import ResultTree, PlotTree
 
 #private plotting library
 from simpleplot.canvas.multi_canvas import MultiCanvasItem
@@ -54,42 +53,71 @@ class PageResultWidget(Ui_result_widget):
         area.
         '''
         self.setupUi(self.local_widget)
-        self.my_canvas          = MultiCanvasItem(
+        self.process_tree = ResultTree(self.data_group)
+        self.verticalLayout_4.addWidget(self.process_tree)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.process_refresh_button = QtWidgets.QPushButton('Refresh', self.data_group)
+        self.process_refresh_button.setObjectName("process_refresh_button")
+        self.horizontalLayout.addWidget(self.process_refresh_button)
+        self.verticalLayout_4.addLayout(self.horizontalLayout)
+
+        self.process_list_plot = PlotTree(self.plot_items_group)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.process_list_plot.sizePolicy().hasHeightForWidth())
+        self.verticalLayout_2.addWidget(self.process_list_plot)
+
+        self.my_canvas = MultiCanvasItem(
             self.process_widget_plot,
             grid        = [[True]],
             x_ratios    = [1],
             y_ratios    = [1],
             background  = "w",
             highlightthickness = 0)
-        self.ax                 = self.my_canvas.getSubplot(0,0)
-        # self.ax.pointer['Label_Precision'] = ('.4','.4','.4','.4')
-        self.result_handler_ui  = ResultHandlerUI(self)
+        self.ax = self.my_canvas.getSubplot(0,0)
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
+
+        self.result_handler_ui  = ResultHandlerUI(
+            self, 
+            self.process_tree,
+            self.process_list_plot)
 
     def _connect(self):
         '''
-        This is the initial setup method that will 
-        build the layout and introduce the graphics
-        area.
-        '''
-        '''
         Connect all Qt slots to their respective methods.
         '''
-        self.process_tree_x.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_tree_y.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_button_refresh.clicked.connect(self.result_handler_ui.refreshDict)
-        self.process_button_set.clicked.connect(self.result_handler_ui._processPartResults)
-        self.process_tree_error.itemClicked.connect(self.result_handler_ui._getPlotItems)
-        self.process_button_plot_add.clicked.connect(self.result_handler_ui.addPlotElement)
-        self.process_button_plot_remove.clicked.connect(self.result_handler_ui.removePlotElement)
-        self.process_button_plot_reset.clicked.connect(self.result_handler_ui.removeAllPlotElement)
-        self.process_button_plot_plot.clicked.connect(self._updatePlot)
-        self.process_button_echo_fit.clicked.connect(self._plotEcho)
-        self.process_button_gamma.clicked.connect(self._plotGamma)
+        self.result_handler_ui.result_model.dataChanged.connect(
+            self._resize_tree)
+        self.process_refresh_button.clicked.connect(
+            self.result_handler_ui.refreshDict)
+        self.process_list_plot.dropAccepted.connect(
+            self.result_handler_ui.processDrop)
+        self.process_list_plot.clicked.connect(
+            self.result_handler_ui.setPlotItem)
 
-        self.process_check_log_x.clicked.connect(self.manageLog)
-        self.process_check_log_y.clicked.connect(self.manageLog)
-        self.my_canvas._model.dataChanged.connect(self.setLog)
+        self.remove_plot.clicked.connect(
+            self.result_handler_ui.removePlotElements)
+        self.reset_intern.clicked.connect(
+            self.result_handler_ui.removeAllIntElement)
+        self.reset_external.clicked.connect(
+            self.result_handler_ui.removeAllExtElement)
+
+        self.process_button_plot_plot.clicked.connect(
+            self._updatePlot)
+            
+        self.process_check_log_x.clicked.connect(
+            self.manageLog)
+        self.process_check_log_y.clicked.connect(
+            self.manageLog)
+        self.my_canvas._model.dataChanged.connect(
+            self.setLog)
+
+    def _resize_tree(self):
+        '''
+        process with the log
+        '''
+        self.process_tree.resizeColumnToContents(0)
 
     def manageLog(self):
         '''
@@ -98,15 +126,17 @@ class PageResultWidget(Ui_result_widget):
         self.my_canvas._model.dataChanged.disconnect(self.setLog)
         self.ax.axes.general_handler['Log'] = [
             self.process_check_log_x.isChecked(),
-            self.process_check_log_y.isChecked()
-        ]
+            self.process_check_log_y.isChecked()]
         self.my_canvas._model.dataChanged.connect(self.setLog)
+        
     def setLog(self):
         '''
         process with the log
         '''
-        self.process_check_log_x.setChecked(self.ax.axes.general_handler['Log'][0])
-        self.process_check_log_y.setChecked(self.ax.axes.general_handler['Log'][1])
+        self.process_check_log_x.setChecked(
+            self.ax.axes.general_handler['Log'][0])
+        self.process_check_log_y.setChecked(
+            self.ax.axes.general_handler['Log'][1])
 
     def link(self, env_handler = None):
         '''
@@ -115,14 +145,8 @@ class PageResultWidget(Ui_result_widget):
         '''
         if not env_handler == None:
             self.env_handler = env_handler
-
-        self.result_handler_ui._fillAllResults(
-            self.env_handler,
-            self.process_tree_error,
-            self.process_tree_x,
-            self.process_tree_y,
-            self.process_list_plot,
-            self.process_list_results)
+        
+        self.result_handler_ui.link(env_handler)
 
     def _updatePlot(self):
         '''
@@ -148,23 +172,22 @@ class PageResultWidget(Ui_result_widget):
         for key in instructions.keys():
             if len(instructions[key]['style']) == 0:
                 pass
-            elif not 'y key' in instructions[key].keys():
+            elif not 'y' in instructions[key].keys():
                 pass
-            elif not 'x key' in instructions[key].keys() and not 'e key' in instructions[key].keys():
+            elif not 'x' in instructions[key].keys() and not 'e' in instructions[key].keys():
                 self._plotSingleY(instructions[key], key)
-            elif 'x key' in instructions[key].keys() and not 'e key' in instructions[key].keys():
+            elif 'x' in instructions[key].keys() and not 'e' in instructions[key].keys():
                 self._plotDoubleY(instructions[key], key)
-            elif 'x key' in instructions[key].keys() and 'e key' in instructions[key].keys():
+            elif 'x' in instructions[key].keys() and 'e' in instructions[key].keys():
                 self._plotTripleY(instructions[key], key)
 
         self.ax.draw()
-        # self.ax.axes.general_handler['Log'] = [self.process_check_log_x.isChecked(), self.process_check_log_y.isChecked()]
 
     def _plotSingleY(self, instruction, key):
         '''
         Plot a curve where only the y axes is defined.
         '''
-        y = np.array(self.result_handler_ui.getDataFromKey(instruction['y key']))
+        y = instruction['y']
         x = np.array([i for i in range(len(y))])
 
         self.ax.addPlot(
@@ -180,8 +203,8 @@ class PageResultWidget(Ui_result_widget):
         '''
         Plot a curve where only the y and x axes are defined.
         '''
-        y = np.array(self.result_handler_ui.getDataFromKey(instruction['y key']))
-        x = np.array(self.result_handler_ui.getDataFromKey(instruction['x key']))
+        y = instruction['y']
+        x = instruction['x']
         sort_idx = x.argsort()
 
         self.ax.addPlot(
@@ -197,9 +220,9 @@ class PageResultWidget(Ui_result_widget):
         '''
         Plot a curve where all axes are defined.
         '''
-        y = np.array(self.result_handler_ui.getDataFromKey(instruction['y key']))
-        x = np.array(self.result_handler_ui.getDataFromKey(instruction['x key']))
-        e = np.array(self.result_handler_ui.getDataFromKey(instruction['e key']))
+        y = instruction['y']
+        x = instruction['x']
+        e = instruction['e']
         sort_idx = x.argsort()
         error = {
                 'height':None,
@@ -217,18 +240,3 @@ class PageResultWidget(Ui_result_widget):
             Thickness   = instruction['thickness'],
             Color       = instruction['color'])
 
-    def _plotGamma(self):
-        '''
-        Plot gamma in a way that all is done
-        automatically
-        '''
-        self.result_handler_ui.quickGammaSet()
-        self._updatePlot()
-
-    def _plotEcho(self):
-        '''
-        Plot gamma in a way that all is done
-        automatically
-        '''
-        self.result_handler_ui.quickEchoSet()
-        self._updatePlot()

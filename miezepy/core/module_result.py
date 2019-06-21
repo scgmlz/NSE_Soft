@@ -88,6 +88,8 @@ class ResultStructure:
         ##############################################
         #dictionary mode
         if self.mode == 'Dict':
+            if name not in self.results.keys():
+                return None
             if key == None:
                 #log it
                 self.log.addLog(
