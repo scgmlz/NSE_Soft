@@ -188,7 +188,16 @@ class PageDataWidget(Ui_data_import):
         This routine will launch the metadat window.
         '''
         self.parent.window_manager.newWindow('RawVisual')
-        self.parent.window_manager.active_windows['RawVisual'].target.link(self.import_object)
+        self.parent.window_manager.active_windows['RawVisual'].target.link(
+            self.import_object)
+
+    def openVisualWindow4D(self):
+        '''
+        This routine will launch the metadat window.
+        '''
+        self.parent.window_manager.newWindow('RawVisual')
+        self.parent.window_manager.active_windows['RawVisual'].target.link(
+            self.import_object, mode = '4D')
 
     def removeMeta(self):
         '''
@@ -259,6 +268,7 @@ class PageDataWidget(Ui_data_import):
             self.io_core.import_objects[-1].data_handler,
             parent = self.data_list_loaded))
         self.elements[-1].vis_button.clicked.connect(self.openVisualWindow)
+        self.elements[-1].vis_button_2.clicked.connect(self.openVisualWindow4D)
         self.setCurrentElement(len(self.io_core.import_objects)-1)
 
     def addElementSilent(self,i):
@@ -270,6 +280,7 @@ class PageDataWidget(Ui_data_import):
             self.io_core.import_objects[i].data_handler,
             parent = self.data_list_loaded))
         self.elements[-1].vis_button.clicked.connect(self.openVisualWindow)
+        self.elements[-1].vis_button_2.clicked.connect(self.openVisualWindow4D)
         self.setCurrentElement(i)
 
     def removeElement(self):

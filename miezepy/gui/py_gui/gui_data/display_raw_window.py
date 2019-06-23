@@ -51,7 +51,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
         self.window_manager = window_manager
         self.window         = window
         self.setup()
-        self.connect()
+        
 
     def setup(self):
         '''
@@ -69,19 +69,20 @@ class DisplayRawWindowLayout(Ui_raw_display):
             background  = "w",
             highlightthickness = 0)
 
-        self.ax = self.my_canvas.getSubplot(0,0)
-        self.ax.pointer.pointer_handler['Sticky'] = 3
+        # self.ax = self.my_canvas.getSubplot(0,0)
+        # self.ax.pointer.pointer_handler['Sticky'] = 3
         # self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
-        self.first_surface_plot = self.ax.addPlot('Surface', Name = 'Surface' )
-        self.ax.draw()
+        
 
-    def link(self, import_object):
+    def link(self, import_object, mode = '3D'):
         '''
         This routine will link to the io manager class
         from the core. 
         '''
+        self._mode = mode
         self.import_object = import_object
         self.initialize()
+        self.connect()
 
     def initialize(self):
         '''
@@ -96,7 +97,22 @@ class DisplayRawWindowLayout(Ui_raw_display):
         self.time_spin.setMinimum(0)
         self.time_spin.setMaximum(
             self.import_object.data_handler.dimension[1] - 1)
-        
+
+        if self._mode == '3D':
+            self.time_spin.show()
+            self.time_check.show()
+            self.ax = self.my_canvas.getSubplot(0,0)
+            self.plot = self.ax.addPlot('Surface', Name = 'Surface' )
+            
+        elif self._mode == '4D':
+            self.time_spin.hide()
+            self.time_check.hide()
+            self.my_canvas.canvas_nodes[0][0][0].handler['Type'] = '3D'
+            self.ax = self.my_canvas.getSubplot(0,0)
+            self.plot = self.ax.addPlot('Volume', Name = 'Volume' )
+
+        self.ax.draw()
+        self.draw()
         self.connect()
 
     def connect(self):
@@ -124,6 +140,8 @@ class DisplayRawWindowLayout(Ui_raw_display):
 
         if self.time_check.isChecked():
             data = np.sum(data, axis = 0)
+        elif self._mode == '4D':
+            data = data
         else:
             data = data[self.time_spin.value()]
 
@@ -133,9 +151,16 @@ class DisplayRawWindowLayout(Ui_raw_display):
         if self.norm_check.isChecked():
             data_min = np.amin(data)
             data_max = np.amax(data)
-            data = (data - data_min)/(data_max - data_min) * 10
+            data = (data - data_min)/(data_max - data_min) * 10.
 
-        self.first_surface_plot.setData(
-            x = np.array([ i for i in range(data.shape[0])]), 
-            y = np.array([ i for i in range(data.shape[1])]), 
-            z = data)
+        if self._mode == '3D':
+            self.plot.setData(
+                x = np.array([ i for i in range(data.shape[0])]), 
+                y = np.array([ i for i in range(data.shape[1])]), 
+                z = data)
+        elif self._mode == '4D':
+            self.plot.setData(
+                x = np.array([ i for i in range(data.shape[0])], dtype = np.float)/5, 
+                y = np.array([ j for j in range(data.shape[1])], dtype = np.float)/10., 
+                z = np.array([ k for k in range(data.shape[2])], dtype = np.float)/10,
+                data = np.array(data, dtype=np.float64))
