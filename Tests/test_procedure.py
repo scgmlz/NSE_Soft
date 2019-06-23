@@ -281,6 +281,7 @@ class Test_Phase_correction(unittest.TestCase):
         self.env.data[0].axes.set_name(3, 'Foil')
         self.env.data[0].axes.set_name(4, 'Time Channel')
         self.env.setCurrentData()
+        self.env.instrument.setDetector('Reseda', 14032019)
 
         environnement = self.env
         foils_in_echo = []
@@ -470,6 +471,7 @@ class Test_Phase_correction(unittest.TestCase):
         ######################################################
         #test the dataset
         self.env = createHTO(proc)
+        self.env.instrument.setDetector('Reseda', 14032019)
         data_sum = 0
         for data_object in self.env.current_data.data_objects:
             data_sum += data_object.data.sum()

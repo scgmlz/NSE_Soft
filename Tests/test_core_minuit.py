@@ -39,6 +39,6 @@ class Test_minuit_system(unittest.TestCase):
         for i in range(0, 10):
             x           = np.linspace(0.05, 2., 5)
             y           = np.exp(-float(i)/10.*0.15*1e-6*co.e*x*1e-9/co.hbar)
-            fit         = self.expStructure.fitExp(y, x, np.sqrt(y))
+            fit         = self.expStructure.fitExp(y, x, np.sqrt(y), np.arange(100))
 
             self.assertAlmostEqual(fit['Gamma'], float(i)/10.*0.15, 2)
