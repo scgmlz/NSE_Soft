@@ -31,7 +31,7 @@ class Triangle(MaskShape):
     def __init__(self):
         '''
         This class will contain all the
-        informations and routines to build
+        information and routines to build
         a square over a certain 2D grid.
         '''
         MaskShape.__init__(self)
@@ -42,65 +42,41 @@ class Triangle(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']     = 'triangle'
-        self.parameters['base']     = 10
-        self.parameters['height']   = 10
+        self.parameters['Name']         = 'Triangle'
+        self.parameters['Dimensions']   = [10.,10.]
 
-    def testIfEdited(self, parameters):
-        '''
-        test if the parameters of this in particular has been
-        edited
-        '''
-        test = [
-            self.parameters['position']     == parameters[1],
-            self.parameters['angle']        == parameters[2],
-            self.parameters['base']         == parameters[3],
-            self.parameters['height']       == parameters[4]]
-
-        if not all(test): 
-            return True
-        else:
-            return False
-
-    def setDirectly(self, parameters):
+    def setDirectly(self, **kwargs):
         '''
         The mask generator favours the direct
         input of the values onto the mask
         and will therefore send it to the mask
         element to be anaged.
         '''
-        if self.testIfEdited(parameters):
-            self.parameters['position'] = list(parameters[1])
-            self.parameters['angle']    = float(parameters[2])
-            self.parameters['base']     = float(parameters[3])
-            self.parameters['height']   = float(parameters[4])
-            self.parameters['processed']= False
+        self.parameters = kwargs
 
     def generate(self, size_x, size_y):
         '''
         This will generate the mask element 
         onto a canvas of a given dimension
         '''
-        if not self.parameters['processed']:
 
-            polygon_edges = []
-            polygon_edges.append([
-                self.parameters['position'][0] - self.parameters['base'] / 2.,
-                self.parameters['position'][1] - self.parameters['height'] / 3.])
-            polygon_edges.append([
-                self.parameters['position'][0] + self.parameters['base'] / 2.,
-                self.parameters['position'][1] - self.parameters['height'] / 3.])
-            polygon_edges.append([
-                self.parameters['position'][0] ,
-                self.parameters['position'][1] + self.parameters['height'] * 2 / 3.])
+        polygon_edges = []
+        polygon_edges.append([
+            self.parameters['Position'][0] - self.parameters['Dimensions'][0] / 2.,
+            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 3.])
+        polygon_edges.append([
+            self.parameters['Position'][0] + self.parameters['Dimensions'][0] / 2.,
+            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 3.])
+        polygon_edges.append([
+            self.parameters['Position'][0] ,
+            self.parameters['Position'][1] + self.parameters['Dimensions'][1] * 2 / 3.])
 
-            for i, element in enumerate(polygon_edges):
-                polygon_edges[i] = self.rotatePoint(
-                    self.parameters['position'],
-                    polygon_edges[i] , 
-                    self.parameters['angle'])
+        for i, element in enumerate(polygon_edges):
+            polygon_edges[i] = self.rotatePoint(
+                self.parameters['Position'],
+                polygon_edges[i] , 
+                self.parameters['Angle'])
 
-            self.mask = self.processPolygon(polygon_edges, size_x, size_y)
-            self.parameters['processed'] = True
+        self.mask = self.processPolygon(polygon_edges, size_x, size_y)
 
         return self.mask

@@ -1,4 +1,5 @@
 sudo: required
+dist: trusty
 matrix:
     include:
       - os: linux
@@ -7,6 +8,9 @@ matrix:
       - os: osx
         language: generic
         env: PYTHON=3.6
+      - os: osx
+        language: generic
+        env: PYTHON=3.7
 cache: pip
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
@@ -30,7 +34,15 @@ before_install: |
     # A manual check that the correct version of Python is running.
     python --version
   fi
+  if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    # Workaround for a permissions issue with Travis virtual machine images
+    # that breaks Python's multiprocessing:
+    # https://github.com/travis-ci/travis-cookbooks/issues/155
+    sudo rm -rf /dev/shm
+    sudo ln -s /run/shm /dev/shm
+  fi
 install:
+
   - pip3 install --upgrade pip
   - pip3 install -r requirements.txt
   - pip3 install git+git://github.com/pyqtgraph/pyqtgraph.git
