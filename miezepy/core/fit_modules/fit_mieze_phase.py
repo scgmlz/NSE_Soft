@@ -17,424 +17,367 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Alexander Schober <alexander.schober@mac.com>
+#   Alexander Schober <alex.schober@mac.com>
 #
 # *****************************************************************************
 
 import iminuit
 import numpy as np
 import copy
+import os
 
-from scipy import constants as co
-from scipy import optimize as op
-from scipy import stats as st
+#functions for processing the phase through pregroup masks
+from .library_fit import phaseMaskFunction
+from .library_fit import correctPhaseParaMeas
+from .library_fit import loopLibrary
+from .library_fit import phaseExposure
+from .library_fit import reorganizeResult
 
+#functions to be used for processing the phase through foil corrections
+from .fit_worker import WorkerPool
 
-from .fit_mieze_minuit  import Fit_MIEZE_Minuit
-
-class Fit_MIEZE_Phase(Fit_MIEZE_Minuit): 
+class PhaseProcessing():
+    para_dict = {}
+    log       = None
 
     def __init__(self):
-        Fit_MIEZE_Minuit.__init__(self)
+        self.para_dict = {}
 
-
-    def mieze_tau(self, metadata_object, target):
+    def noCorrection(self, target, results):
         '''
-        Processes the MIEZE time
+        The phase correction can be turned off to 
+        allow for quick analysis of the data. This
+        will simply fill the associated datafield.
+
+        Parameters
+        ----------
+        target : DataStructure
+            The current active datastructure
+
+        results : ResultStructure
+            The current active result structure
         '''
-        ############################################
-        #unpack the container
-        wavelength  = metadata_object['Wavelength']
-        freq_0      = metadata_object['Freq. first']
-        freq_1      = metadata_object['Freq. second']
-        lsd         = metadata_object['lsd']
-        wavelength_error    = target.metadata_class['Wavelength error'] 
-        lsd_error           = target.metadata_class['Distance error']
-
-        ############################################
-        #process tau and the error of tau
-        tau, tau_error = self.mieze_tau_calc(
-            wavelength,
-            freq_0,
-            freq_1,
-            lsd,
-            wavelength_error = wavelength_error,
-            lsd_error = lsd_error)
-
-        ############################################
-        #send it out to the metadata class
-        metadata_object.add_metadata('tau', value = tau)
-        metadata_object.add_metadata('tau_error', value = tau_error)
-
-        return [
-            tau, 
-            {
-                'tau_error': tau_error, 
-                'wavelength': wavelength, 
-                'wavelength_error': wavelength_error,
-                'freq_0': freq_0, 
-                'freq_1': freq_1, 
-                'lsd' :lsd,
-                'lsd_error': lsd_error}]
-
-    def mieze_tau_calc(self, wavelength, freq_0, freq_1, lsd, wavelength_error = 0 ,lsd_error = 0):
-        '''
-        Processes the MIEZE time
-        '''
-        delta_freq = freq_1 - freq_0
-        para = ( 2. * co.m_n ** 2 ) / (co.h ** 2) 
-
-        tau         = para * wavelength ** 3 * delta_freq * lsd 
-        tau_error   = para * ( 
-            ( 
-                wavelength_error 
-                * wavelength * 3 
-                * wavelength ** 2 
-                * delta_freq * lsd )
-
-            + ( 
-                lsd_error 
-                * lsd 
-                *  wavelength ** 3 
-                * delta_freq )
-            )
-
-        return tau, tau_error
-
-    def fake_calc_shift(self,target, mask, results):
-        '''
-        Calculates the shift
-        Input: 
-        - MIEZE data object
-        - mask object
-        '''
-
-        ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result( name = 'Shift calculation')
+        local_results = results.generateResult( name = 'Corrected Phase')
+        data_meas   = target.bufferedData
+        data_map    = target.map
+        para_name   = self.para_dict['para_name']
+        echo_name   = self.para_dict['echo_name']
+        meas_name   = self.para_dict['meas_name']
 
-        ############################################
-        #cycle over and fit
-        #set up the parameter names
-        para_name = self.para_dict['para_name']
-        echo_name = self.para_dict['echo_name']
-        meas_name = self.para_dict['meas_name']
-        foil_name = self.para_dict['foil_name']
-        tcha_name = self.para_dict['tcha_name']
+        para_axis   = target.get_axis(para_name) 
+        meas_axis   = target.get_axis(meas_name) 
+        echo_axis   = target.get_axis(echo_name)
 
-        ############################################
-        #loop over elements
-        print(target)
-        print(para_name)
-        print(target.get_axis(para_name))
-        loop = [
-            (e1, e2) 
-            for e1 in target.get_axis(para_name) 
-            for e2 in target.get_axis(meas_name)]
-
-        #current values comparators
-        temp    = {}
-        c_key   = None
-        c_meas  = None
+        loop = loopLibrary(self, target, 'loop_main')
+        index_array = []
+        for key, meas, echo in loop:
+            index_array.append([key,meas, echo])
 
         #loop
-        for key, meas in loop:
+        idx = 0
+        temp = {}
+        for key, meas, echo in loop:
             #grab the data slice
-            new_target = target.get_slice([key, meas])
+            if not data_map[para_axis.index(index_array[idx][0]), 
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2]), 0, 0] == -1:
 
-            #check if we switched the key
-            if not c_key == key:
-                #initialise the dictionary
-                temp[key] = {}
-                #set the current keys
-                c_key   = key
-                c_meas  = None
+                temp[idx] = data_meas[
+                        para_axis.index(index_array[idx][0]), 
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2])]
 
-            #check if we switched the measurement
-            if not c_meas == meas and not new_target == False:
-                #initialise the dictionary
-                temp[key][meas] = {}
-                #set the current keys
-                c_meas  = meas
+            idx += 1
 
-            #check if the data is right
-            if not new_target == False:
-                #prepare
-                data        = new_target.return_as_np()
-                time_int    = new_target.get_axis_len(tcha_name)
-                time_float  = float(time_int)
-
-                #print the processing step
-                print(
-                    'Processing fake shift for '
-                    +str(key)
-                    +' '
-                    +str(target.get_axis_unit(para_name)))
-
-                for echo in new_target.get_axis(echo_name):
-                    echo_idx = new_target.get_axis_idx(echo_name, echo)
-                    shifted_element = data[echo_idx, :, :,:,:]
-                    temp[key][meas][echo] = copy.deepcopy(shifted_element)
+        temp_reorganized = reorganizeResult(temp, index_array, loop)
 
         ##############################################
         #finalize result and send it out
-        local_results['Shift']        = temp
+        local_results['Shift'] = temp_reorganized
 
         #write the dictionary entries
-        local_results.add_log('info', 'Computation of the shift was a success')
-        local_results.set_complete()
+        local_results.addLog('info', 'Computation of the shift was a success')
+        local_results.setComplete()
         
         #tell fit handler what happened
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Computation of the shift was a success')
 
-    def calc_shift(self,target, mask, results):
+    def correctPhase(self,target, mask, results):
         '''
-        Calculates the shift
-        Input: 
-        - MIEZE data object
-        - mask object
+        This function is the main callable
+        to process with the change of the phase. 
+        note that this method uses the pregroup
+        mask method.
+
+        Parameters
+        ----------
+        target : DataStructure
+            The current active datastructure
+
+        mask : MaskStructure
+            The current active mask structure
+
+        results : ResultStructure
+            The current active result structure
         '''
 
-        ##############################################
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result( name = 'Shift calculation')
+        local_results = results.generateResult( name = 'Corrected Phase')
 
-        ############################################
         #extract the relevant parameters
         premask     = mask.mask
-        phase       = results.get_last_result('Phase calculation', 'Phase')
+        phase       = results.getLastResult('Phase calculation', 'Phase')
+        data_meas   = target.bufferedData
+        data_map    = target.map
+        para_name   = self.para_dict['para_name']
+        echo_name   = self.para_dict['echo_name']
+        meas_name   = self.para_dict['meas_name']
+        foil_name   = self.para_dict['foil_name']
+        tcha_name   = self.para_dict['tcha_name']
+        cha_num     = target.get_axis_len(tcha_name)
 
-        ############################################
-        #cycle over and fit
-        #set up the parameter names
-        para_name = self.para_dict['para_name']
-        echo_name = self.para_dict['echo_name']
-        meas_name = self.para_dict['meas_name']
-        foil_name = self.para_dict['foil_name']
-        tcha_name = self.para_dict['tcha_name']
+        para_axis   = target.get_axis(para_name) 
+        meas_axis   = target.get_axis(meas_name) 
+        echo_axis   = target.get_axis(echo_name) 
+        foil_axis   = target.get_axis(foil_name) 
 
-        ############################################
-        #loop over elements
-        loop = [
-            (e1, e2) 
-            for e1 in target.get_axis(para_name) 
-            for e2 in target.get_axis(meas_name)]
+        loop = loopLibrary(self, target, 'loop_main')
 
-        #current values comparators
-        temp    = {}
-        c_key   = None
-        c_meas  = None
+        loop_2 = [
+            (m1, m2)
+            for m1 in range(1,premask.max()+1)
+            for m2 in range(target.get_axis_len(foil_name))] 
+
+        worker_pool = WorkerPool(self.para_dict['processors'])
+        index_array = []
+        for key, meas, echo in loop:
+            index_array.append([key,meas, echo])
 
         #loop
-        for key, meas in loop:
+        idx = 0
+        for key, meas, echo in loop:
             #grab the data slice
-            new_target = target.get_slice([key, meas])
+            if data_map[para_axis.index(index_array[idx][0]), 
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2]), 0, 0] == -1:
+                pass
+            else:
+                worker_pool.addWorker([
+                    correctPhaseParaMeas,
+                    index_array[idx], idx,
+                    data_meas[
+                        para_axis.index(index_array[idx][0]), 
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2])],
+                    cha_num, echo_axis, foil_axis,
+                    premask, loop_2, phase[echo]])
+            idx += 1
 
-            #check if we switched the key
-            if not c_key == key:
-                #initialise the dictionary
-                temp[key] = {}
-                #set the current keys
-                c_key   = key
-                c_meas  = None
-
-            #check if we switched the measurement
-            if not c_meas == meas and not new_target == False:
-                #initialise the dictionary
-                temp[key][meas] = {}
-                #set the current keys
-                c_meas  = meas
-
-            #check if the data is right
-            if not new_target == False:
-                #prepare
-                data        = new_target.return_as_np()
-                time_int    = new_target.get_axis_len(tcha_name)
-                time_float  = float(time_int)
-
-                #print the processing step
-                print(
-                    'Processing shift for '
-                    +str(key)
-                    +' '
-                    +str(target.get_axis_unit(para_name)))
-
-                for echo in new_target.get_axis(echo_name):
-                    #grab the idx for the echo
-                    echo_idx = new_target.get_axis_idx(echo_name, echo)
-
-                    #set the ranges
-                    loop_2 = [
-                        (m1, m2)
-                        for m1 in range(1,premask.max()+1)
-                        for m2 in range(new_target.get_axis_len(foil_name))] 
-
-                    #initialise variables
-                    shifted_element = np.zeros((
-                        new_target.get_axis_len(foil_name),
-                        new_target.get_axis_len(tcha_name), 
-                        new_target.data_objects[0].dim[0], 
-                        new_target.data_objects[0].dim[1]))    
-
-                    current_mask = None
-                    #cycle over the elements
-                    for mask_num, foil in loop_2:
-                        if not mask_num == current_mask:
-                            #select only one mask
-                            proc_mask       = premask == mask_num
-                            mask_sum        = np.sum(proc_mask)
-                            current_mask    = int(mask_num)
-
-                        #select only one mask
-                        index = np.arange(
-                            int(round((
-                                2*np.pi-np.sum(phase[echo][foil]*proc_mask)/mask_sum)
-                                /(2*np.pi/time_float)+np.pi/2.)),
-                            int(round((
-                                2*np.pi-np.sum(phase[echo][foil]*proc_mask)/mask_sum)
-                                /(2*np.pi/time_float)+np.pi/2.)+time_float)
-                            ,1)
-                        index = np.asarray(
-                            [index[i]%time_int 
-                            for i in range(time_int)])
-                        shifted_element[foil,:, :, :] += data[echo_idx, foil, index,:,:]*proc_mask
-
-                    temp[key][meas][echo] = copy.deepcopy(shifted_element)
+        temp = worker_pool.startPool()
+        temp_reorganized = reorganizeResult(temp, index_array, loop)
 
         ##############################################
         #finalize result and send it out
-        local_results['Shift']        = temp
+        local_results['Shift'] = temp_reorganized
 
         #write the dictionary entries
-        local_results.add_log('info', 'Computation of the shift was a success')
-        local_results.set_complete()
+        local_results.addLog('info', 'Computation of the shift was a success')
+        local_results.setComplete()
         
         #tell fit handler what happened
-        self.log.add_log(
+        self.log.addLog(
             'info', 
             'Computation of the shift was a success')
-
-    def extract_phase(self, target, mask, results):
+                
+    def extractPhaseMask(self, target, mask, results):
         '''
-        Calculate the phase of the mieze data 
+        This part will try to correct the phase anomalies through the 
+        fit of each mask region an then fit it the sinus form. After
+        which a map will be generated to which the entire dataset will
+        be corrected.
+
+        Parameters
+        ----------
+        target : DataStructure
+            The current active datastructure
+
+        mask : MaskStructure
+            The current active mask structure
+
+        results : ResultStructure
+            The current active result structure
         '''
         #Initialize the output dictionary with all def.
-        local_results = results.generate_result( name = 'Phase calculation')
-
-        #extract the relevant parameters
+        local_results   = results.generateResult( name = 'Phase calculation')
         selected_ref    = self.para_dict['Reference']
-        reso_target     = target.get_slice(selected_ref)
+
+        para_name       = self.para_dict['para_name']
+        meas_name       = self.para_dict['meas_name']
+        echo_name       = self.para_dict['echo_name']
+        foil_name       = self.para_dict['foil_name']
+        tcha_name       = self.para_dict['tcha_name']
+
+        echo_axis = target.get_axis(echo_name)
+        foil_axis = target.get_axis(foil_name)
+        chan_num  = target.get_axis_len(tcha_name)
+        
+        ref_index       = [
+            target.get_axis_idx(para_name, selected_ref[0]),
+            target.get_axis_idx(meas_name, selected_ref[1])]
+        reference_meas  = target.bufferedData.__getitem__(tuple(ref_index))
         premask         = mask.mask
 
-        #initialise variables
-        phase = {}
+        #set result dimensions
+        result_dimension = (
+            target.data_objects[0].dim[0],
+            target.data_objects[0].dim[1])   
 
-        #set up the parameter names
-        para_name = self.para_dict['para_name']
-        echo_name = self.para_dict['echo_name']
-        meas_name = self.para_dict['meas_name']
-        foil_name = self.para_dict['foil_name']
-        tcha_name = self.para_dict['tcha_name']
+        loop = [e1 for e1 in range(1,premask.max()+1)]
 
-        #initialize
-        for echo in reso_target.get_axis(echo_name):
-            phase[echo] = np.zeros((
-                reso_target.get_axis_len(foil_name),
-                reso_target.data_objects[0].dim[0],
-                reso_target.data_objects[0].dim[1]
-                ))
+        loop_2 = [
+            (e1, e2)
+            for e1 in target.get_axis(echo_name)
+            for e2 in target.get_axis(foil_name)]
 
-        #loop over elements
-        loop = [
-            (e1, e2, e3)
-            for e1 in range(1,premask.max()+1)
-            for e2 in reso_target.get_axis(echo_name)
-            for e3 in reso_target.get_axis(foil_name)
-        ]
+        phase_shift = {}
+        for echo in target.get_axis(echo_name):
+            phase_shift[echo] = np.zeros((
+                target.get_axis_len(foil_name),
+                target.data_objects[0].dim[0],
+                target.data_objects[0].dim[1]))
 
-        for mask_num, echo, foil in loop:
-            #select only one mask
-            proc_mask = premask == mask_num
-            
-            #grab the idx for the echo
-            echo_idx = reso_target.get_axis_idx(echo_name, echo)
-            foil_idx = reso_target.get_axis_idx(foil_name, foil)
+        worker_pool = WorkerPool(self.para_dict['processors'])
+        index_array = []
+        for echo, foil in loop_2:
+            index_array.append([echo, foil])
 
-            #prepare the data
-            counts = [
-                (np.multiply(reso_target[echo_idx, foil_idx, timechannel],proc_mask)).sum()
-                for timechannel in range(reso_target.get_axis_len(tcha_name))
-                ]
-            
-            #process the errors
-            count_error = np.sqrt([float(count) for count in counts])
-
-            #Generate the fit description
-            position = [
-                selected_ref[0],
-                echo,
-                foil
-            ]
-
-            fit_des = 'At a position'
-
-            #fit the data
-            success = self.fit_data_cov(
-                results,
-                data        = counts, 
-                data_error  = count_error, 
-                Qmin        = 0.,
-                time_chan   = reso_target.get_axis_len(tcha_name),
-                position    = position,
-                fit_des     = fit_des)
-
-            if not success and results.get_last_result('Fit data covariance').log.return_last_log('error') == 'cov_failed':
-
-                print ('covariance failed in echo %d on foil %d' %(echo, foil))
-
-                counts = counts[1:]
-                count_error = np.sqrt([float(count) for count in counts])
-
-                success = self.fit_data_cov(
-                    results,
-                    data        = counts, 
-                    data_error  = count_error, 
-                    Qmin        = 0.,
-                    time_chan   = reso_target.get_axis_len(tcha_name),
-                    position    = position,
-                    fit_des     = fit_des)
-
-                if not success and results.get_last_result('Fit data covariance').log.return_last_log('error') == 'cov_failed':
-
-                    print ('covariance failed AGAIN (15 instead of 16 points were fitted) in echo %d on foil %d' %(echo, foil))
-                    phase[echo][foil_idx, :, :] +=  -1*proc_mask
-
-                else:
-
-                    phase[echo][foil_idx, :, :] += ((
-                        results.get_last_result('Fit data covariance')['phase'] 
-                        + (np.pi if results.get_last_result('Fit data covariance')['ampl'] < 0 else 0
-                        )) % (2. * np.pi))*proc_mask
-
-            else:
-
-                phase[echo][foil_idx, :, :] += ((
-                    results.get_last_result('Fit data covariance')['phase'] 
-                    + (np.pi if results.get_last_result('Fit data covariance')['ampl'] < 0 else 0
-                    ))% (2. * np.pi))*proc_mask
+        #initialise the output
+        idx = 0
+        for echo, foil in loop_2:
+            worker_pool.addWorker([
+                phaseMaskFunction, idx, foil,
+                result_dimension, loop,
+                foil_axis,reference_meas[echo_axis.index(echo)],
+                chan_num, premask, self.para_dict['time_channels']])
+            idx += 1
+        temp = worker_pool.startPool()
+        for idx in range(len(index_array)):
+            phase_shift[index_array[idx][0]][index_array[idx][1],:,:] = temp[idx][:,:]
 
         ############################################
         #send out the result to the handler
-        local_results['Phase']        = phase
+        local_results['Phase']        = phase_shift
         local_results['Reference']    = selected_ref
 
         #write the dictionary entries
-        local_results.add_log('info', 'Fit of the phase was a success')
-        local_results.set_complete()
+        local_results.addLog('info', 'Fit of the phase was a success')
+        local_results.setComplete()
 
         #tell fit handler what happened
-        self.log.add_log(
+        self.log.addLog(
             'Info', 
             'Fit of the phase was a success')
+
+    def correctPhaseExposure(self, target, mask, instrument, results):
+        '''
+        This function is the main callable
+        to process with the change of the phase. 
+        note that this method uses the pregroup
+        mask method.
+
+        Parameters
+        ----------
+        target : DataStructure
+            The current active datastructure
+
+        mask : MaskStructure
+            The current active mask structure
+
+        results : ResultStructure
+            The current active result structure
+        '''
+
+        #Initialize the output dictionary with all def.
+        local_results = results.generateResult( name = 'Corrected Phase')
+
+        #extract the relevant parameters
+        echo_source     = results.getLastResult('Echo Sources', 'Echo Dict')
+        data_meas       = target.bufferedData
+        data_map        = target.map
+
+        para_name   = self.para_dict['para_name']
+        meas_name   = self.para_dict['meas_name']
+        echo_name   = self.para_dict['echo_name']
+        foil_name   = self.para_dict['foil_name']
+        tcha_name   = self.para_dict['tcha_name']
+
+        para_axis   = target.get_axis(para_name) 
+        meas_axis   = target.get_axis(meas_name) 
+        echo_axis   = target.get_axis(echo_name) 
+        foil_axis   = target.get_axis(foil_name) 
+        cha_axis    = target.get_axis(tcha_name)
+
+        loop_main   = loopLibrary(self, target, 'loop_main')
+        loop_para   = loopLibrary(self, target, 'loop_para')
+        loop_pixel  = loopLibrary(self, target, 'loop_pixel')
+        loop_final  = loopLibrary(self, target, 'loop_final')
+
+        #other constants
+        m_n             = 1.674927471e-27 # kg
+        h_J             = 6.626070040e-34 # J*s
+
+        #neutron velocities
+        velocities  = {}
+        d_sam_det   = {}
+        freq        = {}
+        for key in echo_source.keys():
+            velocities[key] = h_J/(m_n*echo_source[key]['wavelength'])
+            d_sam_det[key]  = echo_source[key]['lsd']*1e-9
+            freq[key]       = echo_source[key]['freq_1'] - echo_source[key]['freq_0']
+
+        index_map = instrument.detector.processPhaseShift(
+            echo_axis,velocities,
+            d_sam_det,freq)
+
+        worker_pool = WorkerPool(self.para_dict['processors'])
+        index_array = []
+        for key, meas, echo in loop_main:
+            index_array.append([key,meas, echo])
+
+        #loop
+        idx = 0
+        for key, meas, echo in loop_main:
+            #grab the data slice
+            if data_map[para_axis.index(index_array[idx][0]), 
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2]), 0, 0] == -1:
+                pass
+            else:
+                worker_pool.addWorker([
+                    phaseExposure, idx,
+                    data_meas[
+                        para_axis.index(index_array[idx][0]), 
+                        meas_axis.index(index_array[idx][1]), 
+                        echo_axis.index(index_array[idx][2])],
+                    index_map[echo_axis.index(index_array[idx][2])],
+                    loop_final, foil_axis, cha_axis])
+            idx += 1
+
+        temp = worker_pool.startPool()
+        temp_reorganized = reorganizeResult(temp, index_array, loop_main)
+
+        ##############################################
+        #finalize result and send it out
+        local_results['Shift']        = temp_reorganized
+
+        #write the dictionary entries
+        local_results.addLog('info', 'Computation of the shift was a success')
+        local_results.setComplete()
+        
+        #tell fit handler what happened
+        self.log.addLog(
+            'info', 
+            'Computation of the shift was a success')

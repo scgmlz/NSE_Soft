@@ -23,7 +23,7 @@
 
 #############################
 #import general components
-from ..log import Log_Handler
+from ..module_log import LogHandler
 
 class Fit_Handler():
     
@@ -36,7 +36,7 @@ class Fit_Handler():
         self.fun_dict   = {}
         self.ptr_dict   = {}
         self.para_dict  = {}
-        self.log        = Log_Handler()
+        self.log        = LogHandler()
         self.verbose    = False
 
     def __getitem__(self, key):

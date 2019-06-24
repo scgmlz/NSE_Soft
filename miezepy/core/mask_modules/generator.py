@@ -63,22 +63,21 @@ class MaskGenerator:
         class system.
         '''
         self.current_dialogue = mask_dialogue
-        if recreate:
-            self.resetElementClasses()
-            for element in self.current_dialogue:
-                self.populateElement(element)
+        self.resetElementClasses()
+        for element in self.current_dialogue:
+            self.populateElement(element)
 
         for i, element in enumerate(self.current_dialogue):
             self.setParameters(i, element)
 
-    def populateElement(self, mask_parameters):
+    def populateElement(self, mask_dict):
         '''
         This method will tell the machinery to
         grab the right class and initialise
         it depending on its type.
         '''
         for element in self.dummies:
-            if element.parameters['type'] == mask_parameters[0]:
+            if element.parameters['Name'] == mask_dict['Name']:
                 self.element_classes.append(copy.deepcopy(element))
                 break
 
@@ -88,7 +87,7 @@ class MaskGenerator:
         grab the right class and initialise
         it depending on its type.
         '''
-        self.element_classes[idx].setDirectly(mask_parameters)
+        self.element_classes[idx].setDirectly(**mask_parameters)
 
     def generateMask(self, size_x, size_y):
         '''
@@ -107,6 +106,4 @@ class MaskGenerator:
                 self.mask[self.mask < i] += 1
         
         self.mask == np.amin(self.mask)
-
-
-
+        self.mask = self.mask.transpose()

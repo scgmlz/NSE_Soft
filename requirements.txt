@@ -2,8 +2,8 @@ Pillow
 numpy
 cython
 iminuit
-seaborn
 matplotlib
 scipy
 pyqt5
 pyopengl 
+imageio

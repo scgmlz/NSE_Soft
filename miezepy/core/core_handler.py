@@ -25,27 +25,36 @@
 #############################
 #import general components
 import sys  
-import numpy as np
 import os
-import logging
 import glob
 
 #############################
 #import child components
-from .io            import IO_Manager
-from .environment   import Environment 
+from .module_environment    import Environment 
+from .library_logic         import generateSingleName
 
 def setEnv(handler):
-    return None
+    return Environment(handler,'None')
 
+class CoreHandler:
+    '''
+    In version 0.1.1 it became evident, that the core needs a
+    major rework to allow a cleaner interfacing and functionality
+    This will include more interfacing with Qt signaling as well
+    ass clearer separation of both worker classes and the function
+    libraries which are at the present point non existent.
 
-class Handler:
+    Furthermore a lot more testing coverage is required as well 
+    as the possibility to manage environnement on different
+    threads.
+    '''
 
-    def __init__(self, parent = None):
-        self.parent = parent
+    def __init__(self):
+        '''
+        Initializing the core handler class without 
+        any link to the the main objects. 
+        '''
         self.reset()
-        self.info_string = ''
-        self.info_val    = 0
 
     def reset(self):
         '''
@@ -54,28 +63,72 @@ class Handler:
         '''
         self.env_array  = []
 
-    def new_environment(self, title = 'No_Name', select = 'MIEZE'):
+    def addEnv(self, title = 'No_Name', select = 'MIEZE'):
         '''
         This function will automise the environment
         creation for the user.
-        '''
-        title_present = True
-        names = [env.name for env in self.env_array]
-        while title_present:
-            if title in names:
-                title = title + "_bis"
-            else:
-                title_present = False
 
-        self.env_array.append(Environment(title = title, select = select))
-        self.set_current_env(title)
+        Parameters
+        ----------
+        title : str
+            The string we are trying to set
+
+        select: str
+            The type of measurement the user whished to load
+
+        Returns
+        -------
+        Environnement : python class
+            Returns the environnement
+        '''
+        title_list  = [env.name for env in self.env_array]
+        title       = generateSingleName(title, title_list)
+        
+        self.env_array.append(Environment(self, title, select = select))
+        self.setCurrentEnv(title)
 
         return self.env_array[-1]
 
-    def set_current_env(self, key = None, idx = None):
+    def delEnv(self, key = None, idx = None):
+        '''
+        This function deletes the chosen environnement either
+        through the key or through the idx (int)
+
+        Parameters
+        ----------
+        key (optional) : str
+            The string we are trying to set
+
+        idx (optional): int
+            Index of the environnement in the array
+        '''
+        if not idx == None:
+            del self.env_array[idx]
+            self.setCurrentEnv(idx = idx - 1)
+
+        elif not key == None:
+            names = [env.name for env in self.env_array]
+
+            if key in names:
+                idx = names.index(key)
+                del self.env_array[idx]
+                self.setCurrentEnv(idx = idx - 1)
+
+            else:
+                print("\nERROR: The key '"+str(key)+"' you have provided is not present as an environment...\n")
+        
+    def setCurrentEnv(self, key = None, idx = None):
         '''
         This function sets the current data
         with the right key
+
+        Parameters
+        ----------
+        key (optional) : str
+            The string we are trying to set
+
+        idx (optional): int
+            Index of the environnement in the array
         '''
         if not idx == None:
             self.current_env        = self.env_array[idx]
@@ -93,9 +146,88 @@ class Handler:
                 else:
                     print("\nERROR: The key '"+str(key)+"' you have provided is not present as an environment...\n")
 
+    def getIdx(self, name):
+        '''
+        Return the current index of the environnement
+
+        Parameters
+        ----------
+        name : str
+            The string we are trying to set
+        '''
+        return [env.name for env in self.env_array].index(name)
+
+    def getEnv(self,key):
+        '''
+        This function will allow the user to request
+        an environnement specified by its key. Similar
+        to the setCurrentEnv method and might be 
+        refactored.
+
+        Parameters
+        ----------
+        key : str
+            The string we are trying to set
+
+        Returns
+        -------
+        Environnement : python class
+            Returns the environnement
+        '''
+        names = [env.name for env in self.env_array]
+        if not key == None:
+            if key in names:
+                return self.env_array[names.index(key)]
+            else:
+                print('This env does not exist')
+
+    def processOperation(self, from_env, perform, to_env):
+        '''
+        This method is here to allow transfer of items
+        from one environnement to another
+
+        Parameters
+        ----------
+        from_env : Environnement
+            The source environnement
+        to_env : Environnement
+            The source environnement
+        perform : str
+            The identifier of the action to perform
+        '''
+        from_env    = self.getEnv(from_env)
+        to_env      = self.getEnv(to_env)
+        perform     = perform
+
+        if perform == 'data':
+            to_env.io.grabFromOther(from_env.io)
+        elif perform == 'mask':
+            to_env.mask.grabFromOther(from_env.mask)
+        elif perform == 'scripts':
+            to_env.scripts.grabFromOther(from_env.scripts)
+        else:
+            print('Not implemented')
+
+
+    # TO-DO: test of save
     def saveSession(self, path, data_bool = True, mask_bool = False, script_bool = False):
         '''
-        Save the session to be loaded again later on
+        This is the general session saver that tells all
+        savers to launch and perform their task.
+
+        Parameters
+        ----------
+        path : str
+            The path in which all will be saved
+
+        data_bool (optional): bool
+            Shall we save the data
+
+        mask_bool (optional): bool
+            Shall we save the masks
+
+        script_bool (optional): bool
+            Shall we save the scripts
         '''
         names = [env.name for env in self.env_array]
         for key in names:
@@ -124,14 +256,31 @@ class Handler:
                 data_dir = os.path.join(env_dir,"script")
                 if not os.path.exists(data_dir):
                     os.makedirs(data_dir)
-                self.env_array[names.index(key)].process.saveScripts(
-                    os.path.join(data_dir,key+"_script.py"),
-                    self.env_array[names.index(key)].process.editable_scripts
-                )
+                self.env_array[names.index(key)].scripts.saveScripts(
+                    os.path.join(data_dir,key+"_script.py"))
     
+    # TO-DO: test of load
     def prepSessionLoad(self, path, data_bool = True, mask_bool = True, script_bool = True, folder_list = []):
         '''
-        Prepare the eventual load of a session.
+        In this routine we will prepare the load of a session. This is the
+        work that has to be prepared before: sessionLoad
+
+        Parameters
+        ----------
+        path : str
+            The path in which all will be saved
+
+        data_bool (optional): bool
+            Shall we save the data
+
+        mask_bool (optional): bool
+            Shall we save the masks
+
+        script_bool (optional): bool
+            Shall we save the scripts
+
+        folder_list : [str]
+            List of strings that will contain additional folders
         '''
         env_file_list = [
             element for element in glob.iglob(os.path.join(
@@ -168,9 +317,25 @@ class Handler:
 
         return self.prep_load_list
 
+    # TO-DO: test of load
     def sessionLoad(self, add_bool, main_window = None):
         '''
-        Prepare the eventual load of a session.
+        Proceed with the load after the parameters have been set
+        in self.prep_load_list through the prepSessionLoad()
+        method
+
+        Parameters
+        ----------
+        add_bool : bool
+            Shall we reset the env_array
+
+        main_window (optional): QMainWindow
+            The mainwindow for reporting
+
+        Returns
+        -------
+        outputs : misc.
+            ist of the load failures encountered
         '''
         data_load_output    = []
         script_load_output  = []
@@ -184,16 +349,16 @@ class Handler:
                 main_window.setProgress('Setting env '+str(i),i)
 
             with open(path) as f:
-                code = compile(f.read(), path, 'exec')
+                temp = f.read()
+                temp = temp.replace('.new_environment(', '.addEnv(')
+                code = compile(temp, path, 'exec')
                 exec(code,globals())
 
+            #the setEnv method is overwritten in the load file
             env = setEnv(self)
-
             if not self.prep_load_list[1][i] == None:
                 if not main_window == None:
-                    main_window.setProgress(
-                        'Loading data '+str(i),
-                        i)
+                    main_window.setProgress('Loading data '+str(i),i)
                 data_load_output.append([
                     env.io.loadFromPython(
                         self.prep_load_list[1][i],
@@ -202,16 +367,12 @@ class Handler:
             
             if not self.prep_load_list[2][i] == None:
                 if not main_window == None:
-                    main_window.setProgress(
-                        'Setting mask '+str(i),
-                        i)
+                    main_window.setProgress('Setting mask '+str(i),i)
                 env.mask.loadAllMasks(self.prep_load_list[2][i])
 
             if not self.prep_load_list[3][i] == None:
                 if not main_window == None:
-                    main_window.setProgress(
-                        'Setting script '+str(i),
-                        i)
-                env.process.loadScripts(self.prep_load_list[3][i])
+                    main_window.setProgress('Setting script '+str(i),i)
+                env.scripts.loadScripts(self.prep_load_list[3][i])
 
         return [data_load_output, mask_load_output, script_load_output]

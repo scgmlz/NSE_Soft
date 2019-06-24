@@ -29,7 +29,7 @@ class CircleArc(MaskShape):
     def __init__(self):
         '''
         This class will contain all the
-        informations and routines to build
+        information and routines to build
         a square over a certain 2D grid.
         '''
         MaskShape.__init__(self)
@@ -40,59 +40,32 @@ class CircleArc(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']         = 'arc'
-        self.parameters['radius_range'] = (10,15)
-        self.parameters['angle_range']  = (0, 350)
+        self.parameters['Name']             = 'Arc'
+        self.parameters['Radial range']     = (10,15)
+        self.parameters['Angular range']    = (0, 350)
 
-    def testIfEdited(self, parameters):
-        '''
-        test if the parameters of this in particular has been
-        edited
-        '''
-        test = [
-            self.parameters['position']     == parameters[1],
-            self.parameters['angle']        == parameters[2],
-            self.parameters['radius_range'] == parameters[3],
-            self.parameters['angle_range']  == parameters[4]]
-
-        if not all(test): 
-            return True
-        else:
-            return False
-
-    def setDirectly(self, parameters):
+    def setDirectly(self, **kwargs):
         '''
         The mask generator favours the direct
         input of the values onto the mask
         and will therefore send it to the mask
         element to be anaged.
         '''
-        if self.testIfEdited(parameters):
-            self.parameters['position']     = list(parameters[1])
-            self.parameters['angle']        = float(parameters[2])
-            self.parameters['radius_range'] = list(parameters[3])
-            self.parameters['angle_range']  = list(parameters[4])
-            self.parameters['processed']    = False
-
-        #print('I an circle after and ', self.parameters['processed'])
+        self.parameters = kwargs
 
     def generate(self, size_x, size_y):
         '''
         This will generate the mask element 
         onto a canvas of a given dimension
         '''
+        angle_range = [
+            angle + self.parameters['Angle'] 
+            for angle in self.parameters['Angular range']]
 
-        if not self.parameters['processed']:
-            angle_range = [
-                angle + self.parameters['angle'] 
-                for angle in self.parameters['angle_range']]
-
-            self.mask = self.processSector(
-                self.parameters['radius_range'],
-                angle_range,
-                size_x,
-                size_y)
-
-            self.parameters['processed'] = True
+        self.mask = self.processSector(
+            self.parameters['Radial range'],
+            angle_range,
+            size_x,
+            size_y)
         
         return self.mask

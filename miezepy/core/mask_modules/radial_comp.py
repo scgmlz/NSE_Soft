@@ -47,76 +47,40 @@ class RadialComposition(LinearComposition):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['type']         = 'radial composition'
-        self.parameters['child type']   = 'arc'
-        self.parameters['horizontal']   = 1
-        self.parameters['vertical']     = 1
-        self.parameters['angle_range']  = [0, 360]
-        self.parameters['radius_range'] = [30, 60]
-        self.parameters['close gap']    = True
-        self.parameters['increment']    = True
+        self.parameters['Name']                 = 'Radial composition'
+        self.parameters['child']                = {'Name':'Arc'}
+        self.parameters['Multiplicity']         = [1,1]
+        self.parameters['Angular range']        = [0, 360]
+        self.parameters['Radial range']         = [30, 60]
+        self.parameters['Close Gap']            = True
+        self.parameters['Increment']            = True
         
         self.children = []
+        self.setChildType('Arc')
 
-        self.setChildType(self.parameters['child type'])
-
-    def testIfEdited(self, parameters):
-        '''
-        test if the parameters of this in particular has been
-        edited
-        '''
-        test = [
-            self.parameters['position']     == parameters[1],
-            self.parameters['angle']        == parameters[2],
-            self.parameters['horizontal']   == parameters[3],
-            self.parameters['vertical']     == parameters[4],
-            self.parameters['angle_range']  == parameters[5],
-            self.parameters['radius_range'] == parameters[6],
-            self.parameters['close gap']    == parameters[7][-1][0],
-            self.parameters['increment']    == parameters[7][-1][1],
-            self.parameters['exclude']      == parameters[7][-1][2]]
-
-        if not all(test): 
-            return True
-        else:
-            return False
-
-    def setDirectly(self, parameters):
+    def setDirectly(self, **kwargs):
         '''
         The mask generator favours the direct
         input of the values onto the mask
         and will therefore send it to the mask
         element to be anaged.
         '''
-
-        if self.testIfEdited(parameters) or self.template.testIfEdited(parameters[7]) or not self.template.parameters['type'] == parameters[7][0]:
-            self.parameters['position']     = list(parameters[1])
-            self.parameters['angle']        = float(parameters[2])
-            self.parameters['horizontal']   = int(parameters[3])
-            self.parameters['vertical']     = int(parameters[4])
-            self.parameters['angle_range']  = list(parameters[5])
-            self.parameters['radius_range'] = list(parameters[6])
-            self.parameters['close gap']    = bool(parameters[7][-1][0])
-            self.parameters['increment']    = bool(parameters[7][-1][1])
-            self.parameters['exclude']      = bool(parameters[7][-1][2])
-            self.parameters['processed']    = False
-
-            self.setChildType(parameters[7][0])
-            self.template.setDirectly(parameters[7])
+        self.parameters = kwargs
+        self.setChildType(self.parameters['child']['Name'], self.parameters['child'])
 
     def setup(self):
         '''
         Setup the grid with the elements within
         '''
         t = np.deg2rad(np.linspace(
-            self.parameters['angle_range'][0],
-            self.parameters['angle_range'][1],
-            num = self.parameters['horizontal']))
+            self.parameters['Angular range'][0],
+            self.parameters['Angular range'][1],
+            num = self.parameters['Multiplicity'][0]))
 
         r = np.linspace(
-            self.parameters['radius_range'][0],
-            self.parameters['radius_range'][1],
-            num = self.parameters['vertical'])
+            self.parameters['Radial range'][0],
+            self.parameters['Radial range'][1],
+            num = self.parameters['Multiplicity'][1]) 
 
         rr, tt = np.meshgrid(r, t)
         
@@ -126,62 +90,38 @@ class RadialComposition(LinearComposition):
         for i in range(tt.shape[0]):
             for j in range(tt.shape[1]):
                 edges.append([
-                    rr[i,j] * np.cos(tt[i,j]) + self.parameters['position'][0], 
-                    rr[i,j] * np.sin(tt[i,j]) + self.parameters['position'][1]])
+                    rr[i,j] * np.cos(tt[i,j]) + self.parameters['Position'][0], 
+                    rr[i,j] * np.sin(tt[i,j]) + self.parameters['Position'][1]])
 
                 angles.append(tt[i,j])
 
         for i in range(len(edges)):
             edges[i] = self.rotatePoint(
-                self.parameters['position'],
+                self.parameters['Position'],
                 edges[i],
-                self.parameters['angle'])
+                self.parameters['Angle'])
 
         self.children = []
 
         for i, edge in enumerate(edges):
             element = copy.deepcopy(self.template)
-            if self.parameters['child type'] == 'arc' and self.parameters['close gap']:
-                element.move(absolute = self.parameters['position'])
-                element.parameters['angle_range'] = [
+            if self.parameters['child']['Name'] == 'Arc' and self.parameters['Close Gap']:
+                element.move(absolute = self.parameters['Position'])
+                element.parameters['Angular range'] = [
                     np.rad2deg(angles[i] - np.abs(t[1]-t[0])/2),
                     np.rad2deg(angles[i] + np.abs(t[1]-t[0])/2)]
-                element.parameters['radius_range'] = [
+                element.parameters['Radial range'] = [
                     np.linalg.norm(
                         np.array(edge) 
-                        - np.array(self.parameters['position'])) 
+                        - np.array(self.parameters['Position'])) 
                     - np.abs(r[1]-r[0])/2,
                     np.linalg.norm(
                         np.array(edge) 
-                        - np.array(self.parameters['position'])) 
+                        - np.array(self.parameters['Position'])) 
                     + np.abs(r[1]-r[0])/2]
-                element.rotate(absolute = self.parameters['angle'])
+                element.rotate(absolute = self.parameters['Angle'])
             else:
                 element.move(absolute = edge)
-                element.rotate(absolute = self.parameters['angle'])
+                element.rotate(absolute = self.parameters['Angle'])
                 element.rotate(relative = np.rad2deg(angles[i]))
             self.children.append(element)
-
-if __name__ == '__main__':
-    
-    import matplotlib.pyplot as plt
-
-    comp = RadialComposition()
-    comp.parameters['horizontal']   = 6
-    comp.parameters['vertical']     = 2
-    comp.parameters['angle']        = 45
-    comp.parameters['increment']    = False
-    comp.setChildType('arc')
-    comp.move(absolute = [100,100])
-    comp.template.parameters['angle_range']     = (-90, 90)
-    comp.template.parameters['radius_range']    = (10, 13)
-    comp.generate(250,250)
-    buff = np.array(comp.mask)
-    comp.setChildType('rectangle')
-    comp.generate(250,250)
-    buff_2 = np.array(comp.mask)
-    comp.parameters['angle']  = 0
-    comp.setChildType('triangle')
-    comp.generate(250,250)
-    plt.pcolormesh(comp.mask + buff + buff_2)
-    plt.show()

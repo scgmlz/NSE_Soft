@@ -27,16 +27,15 @@ import sys
 import optparse
 from functools import partial
 
-from ..qt_gui.mainwindow_ui         import Ui_MIEZETool 
-
-from ..py_gui.page_data_widget      import PageDataWidget
-from ..py_gui.page_mask_widget      import PageMaskWidget
-from ..py_gui.page_env_widget       import PageEnvWidget
-from ..py_gui.page_script_widget    import PageScriptWidget
-from ..py_gui.page_result_widget    import PageResultWidget
-from ..py_gui.page_io_widget        import PageIOWidget
-from ..py_gui.dialog                import dialog
-from ..py_gui.mask_visual_handler   import MaskVisualHandler
+from ..qt_gui.mainwindow_ui                     import Ui_MIEZETool 
+from ..py_gui.gui_data.page_data_widget         import PageDataWidget
+from ..py_gui.gui_mask.page_mask_widget         import PageMaskWidget
+from ..py_gui.gui_env.page_env_widget           import PageEnvWidget
+from ..py_gui.gui_scripts.page_script_widget    import PageScriptWidget
+from ..py_gui.gui_results.page_result_widget    import PageResultWidget
+from ..py_gui.gui_io.page_io_widget             import PageIOWidget
+from ..py_gui.gui_common.dialog                 import dialog
+from ..py_gui.gui_mask.mask_interface           import MaskInterface
 
 import miezepy
 
@@ -53,7 +52,7 @@ class MainWindowLayout(Ui_MIEZETool):
         Ui_MIEZETool.__init__(self)
         self.window = window
         self.window_manager = window_manager
-        self.mask_model     = MaskVisualHandler()
+        self.mask_interface = MaskInterface()
         self.setupUi(window)
         self.initialize()
         self.connect()
@@ -61,11 +60,31 @@ class MainWindowLayout(Ui_MIEZETool):
         self.selectButton(0)
         self.hideActivity()
 
+    def initialize(self):
+        '''
+        This method checks if the data has been set
+        in a previous instance.
+        '''
+        self.label.setText('v. '+miezepy.__version__)
+        self.stack = QtWidgets.QStackedWidget()
+
+        self.widgetClasses = [
+            PageEnvWidget(self.stack, self),
+            PageDataWidget(self.stack, self),
+            PageMaskWidget(self.stack, self, self.mask_interface),
+            PageScriptWidget(self.stack, self, self.mask_interface),
+            PageResultWidget(self.stack, self),
+            PageIOWidget(self.stack, self)]
+
+        for element in self.widgetClasses:
+            self.stack.addWidget(element.local_widget)
+
+        self.main_layout.addWidget(self.stack)
+
     def connect(self):
         '''
         connect the actions to their respective buttons
         '''
-
         #button actions
         self.env_button.clicked.connect(
             partial(self.actionDispatcher, 0, None))
@@ -199,6 +218,7 @@ class MainWindowLayout(Ui_MIEZETool):
 
             if index == 2:
                 if not self.widgetClasses[2].mask_core == self.handler.current_env.mask:
+                    self.mask_interface.link(self.handler.current_env.mask)
                     self.widgetClasses[2].link(self.handler.current_env.mask)
                 self.refreshChecked(2)
 
@@ -247,27 +267,6 @@ class MainWindowLayout(Ui_MIEZETool):
 
         self.fadeActivity()
         
-    def initialize(self):
-        '''
-        This method checks if the data has been set
-        in a previous instance.
-        '''
-        self.label.setText('v. '+miezepy.__version__)
-        self.stack = QtWidgets.QStackedWidget()
-
-        self.widgetClasses = [
-            PageEnvWidget(self.stack, self),
-            PageDataWidget(self.stack, self),
-            PageMaskWidget(self.stack, self, self.mask_model),
-            PageScriptWidget(self.stack, self, self.mask_model),
-            PageResultWidget(self.stack, self),
-            PageIOWidget(self.stack, self)]
-
-        for element in self.widgetClasses:
-            self.stack.addWidget(element.local_widget)
-
-        self.main_layout.addWidget(self.stack)
-
     def refreshChecked(self, index = None):
         '''
         This method will determine the button that the
@@ -307,8 +306,7 @@ class MainWindowLayout(Ui_MIEZETool):
             self.mask_button,
             self.script_button,
             self.result_button,
-            self.save_button
-        ]
+            self.save_button]
 
         for element in pointers:
             element.setChecked(False)
@@ -328,9 +326,7 @@ class MainWindowLayout(Ui_MIEZETool):
             self.mask_button,
             self.script_button,
             self.result_button,
-            self.save_button
-        ]
-
+            self.save_button]
 
         pointers[i].setChecked(True)
         self.checked = [element.isChecked() for element in pointers]
