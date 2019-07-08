@@ -138,15 +138,15 @@ class DisplayRawWindowLayout(Ui_raw_display):
         else:
             data = data[self.foil_spin.value()]
 
-        if self.time_check.isChecked():
-            data = np.sum(data, axis = 0)
-        elif self._mode == '4D':
+        if self._mode == '4D':
             data = data
+        elif self.time_check.isChecked():
+            data = np.sum(data, axis = 0)
         else:
             data = data[self.time_spin.value()]
 
         if self.log_check.isChecked():
-            data = np.log10(data + 1)
+            data = np.log10(data)
         
         if self.norm_check.isChecked():
             data_min = np.amin(data)
