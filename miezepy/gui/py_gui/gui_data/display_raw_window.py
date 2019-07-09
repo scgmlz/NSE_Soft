@@ -146,7 +146,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
             data = data[self.time_spin.value()]
 
         if self.log_check.isChecked():
-            data = np.log10(data)
+            data = np.log10(data+1)
         
         if self.norm_check.isChecked():
             data_min = np.amin(data)
