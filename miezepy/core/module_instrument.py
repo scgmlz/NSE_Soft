@@ -82,6 +82,7 @@ class DetectorStructure:
 
         '''
         self.identifier         = 'Default'
+        self.current_date       = 'None'
         self.num_foils          = 0
         self.size_foil          = [0, 0]
         self.num_foil_pixels    = [0, 0]
@@ -111,6 +112,7 @@ class DetectorStructure:
         This is the routine that will load the foils as such 
         into a numpy array
         '''
+        self.current_date = foil_info[1]
         self.foil_array = np.load(foil_info[-1])
 
     def _initFoilList(self):

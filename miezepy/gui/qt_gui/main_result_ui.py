@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'main_result.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.1
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_result_widget(object):
     def setupUi(self, result_widget):
@@ -383,5 +382,4 @@ class Ui_result_widget(object):
         self.process_check_log_y.setText(_translate("result_widget", "Log y"))
         self.set_rainbow.setText(_translate("result_widget", "Set rainbow"))
         self.process_button_plot_plot.setText(_translate("result_widget", "Plot"))
-
 
