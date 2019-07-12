@@ -91,7 +91,8 @@ class DisplayFoilWindowLayout(Ui_foil_display):
 
         self.ax = self.my_canvas.getSubplot(0,0)
         self.plot = self.ax.addPlot('Surface', Name = 'Surface' )
-
+        histogram = self.plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
+        self.ax.addItem('right', histogram)
         self.ax.draw()
         self.draw()
         self.connect()

@@ -71,7 +71,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
 
         ax = self.my_canvas.getSubplot(0,0)
         ax.pointer.pointer_handler['Sticky'] = 3
-        # self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
+
         
 
     def link(self, import_object, mode = '3D'):
@@ -103,6 +103,8 @@ class DisplayRawWindowLayout(Ui_raw_display):
             self.time_check.show()
             self.ax = self.my_canvas.getSubplot(0,0)
             self.plot = self.ax.addPlot('Surface', Name = 'Surface' )
+            histogram = self.plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
+            self.ax.addItem('right', histogram)
             
         elif self._mode == '4D':
             self.time_spin.hide()
@@ -110,6 +112,8 @@ class DisplayRawWindowLayout(Ui_raw_display):
             self.my_canvas.canvas_nodes[0][0][0].handler['Type'] = '3D'
             self.ax = self.my_canvas.getSubplot(0,0)
             self.plot = self.ax.addPlot('Volume', Name = 'Volume' )
+            histogram = self.plot.childFromName('Volume').childFromName('Shader').getHistogramItem()
+            self.ax.addItem('right', histogram)
 
         self.ax.draw()
         self.draw()

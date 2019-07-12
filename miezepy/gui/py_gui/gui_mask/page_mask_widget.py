@@ -296,6 +296,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         #set the two bin
         self.first_surface_plot = self.ax.addPlot('Surface', Name = 'Data area' )
         self.second_surface_plot = self.bx.addPlot('Surface',Name = 'Mask and Data area')
+        histogram_0 = self.first_surface_plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
+        self.ax.addItem('right', histogram_0)
+        histogram_1 = self.second_surface_plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
+        self.bx.addItem('right', histogram_1)
 
         #set the main scatter plot of the counts
         self.sine_data_plot = self.cx.addPlot(
