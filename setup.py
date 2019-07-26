@@ -34,7 +34,10 @@ setup(
     author_email = 'alex.schober@mac.com',
     description = 'Mieze analysis package',
     packages = find_packages(exclude=['doc','test']),
-    package_data = {'miezepy': ['RELEASE-VERSION'],'miezepy.core.process_modules.defaults': ['*.txt']},
+    package_data = {
+        'miezepy': ['RELEASE-VERSION'],
+        'miezepy.core.process_modules.defaults': ['*.txt'],
+        'miezepy.core.instrument_modules.Reseda': ['*.npy']},
     
     classifiers = [
         'Development Status :: 5 - Production/Stable',

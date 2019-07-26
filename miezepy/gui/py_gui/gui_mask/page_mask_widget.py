@@ -79,7 +79,7 @@ class PageMaskWidget(Ui_mask_editor):
             background  = "w",
             highlightthickness = 0)
         self.ax = self.my_canvas.getSubplot(0,0)
-        self.ax.pointer.pointer_handler['Sticky'] = 3
+        self.ax.pointer.pointer_handler['Sticky'] = 2
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
         self.mask_plot = self.ax.addPlot('Surface', Name = 'Mask area' )
         self.ax.draw()
@@ -322,10 +322,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.cx.draw()
         self.dx.draw()
 
-        self.ax.pointer.pointer_handler['Sticky'] = 3
-        self.bx.pointer.pointer_handler['Sticky'] = 3
-        self.cx.pointer.pointer_handler['Sticky'] = 0
-        self.dx.pointer.pointer_handler['Sticky'] = 0
+        self.ax.pointer.pointer_handler['Sticky'] = 2
+        self.bx.pointer.pointer_handler['Sticky'] = 2
+        self.cx.pointer.pointer_handler['Sticky'] = 3
+        self.dx.pointer.pointer_handler['Sticky'] = 3
 
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
         self.my_canvas.canvas_nodes[0][1][0].grid_layout.setMargin(0)

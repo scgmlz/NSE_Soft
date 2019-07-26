@@ -70,7 +70,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
             highlightthickness = 0)
 
         ax = self.my_canvas.getSubplot(0,0)
-        ax.pointer.pointer_handler['Sticky'] = 3
+        ax.pointer.pointer_handler['Sticky'] = 2
 
         
 

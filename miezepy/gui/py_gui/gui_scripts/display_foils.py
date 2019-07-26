@@ -66,7 +66,7 @@ class DisplayFoilWindowLayout(Ui_foil_display):
             highlightthickness = 0)
 
         ax = self.my_canvas.getSubplot(0,0)
-        ax.pointer.pointer_handler['Sticky'] = 3
+        ax.pointer.pointer_handler['Sticky'] = 2
 
     def link(self, instrument):
         '''
@@ -89,9 +89,9 @@ class DisplayFoilWindowLayout(Ui_foil_display):
         self.foil_spin.setMinimum(0)
         self.foil_spin.setMaximum(self._instrument.detector.foil_array.shape[0]-1)
 
-        self.ax = self.my_canvas.getSubplot(0,0)
-        self.plot = self.ax.addPlot('Surface', Name = 'Surface' )
-        histogram = self.plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
+        self.ax     = self.my_canvas.getSubplot(0,0)
+        self.plot   = self.ax.addPlot('Surface', Name = 'Surface' )
+        histogram   = self.plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
         self.ax.addItem('right', histogram)
         self.ax.draw()
         self.draw()
