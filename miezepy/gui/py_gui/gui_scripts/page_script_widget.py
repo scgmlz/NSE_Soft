@@ -305,6 +305,8 @@ class PageScriptWidget(Ui_script_widget):
         self.reduction_gui_reset.clicked.connect(
             partial(self._resetScript, 3))
 
+        self.process_button_foils.clicked.connect(self._openFoilView)
+
     def _resetScript(self, idx):
         '''
         Reset a script given by his index 
@@ -318,6 +320,16 @@ class PageScriptWidget(Ui_script_widget):
         self.env.scripts.resetScript(idx)
         self._synthesize()
 
+    def _openFoilView(self):
+        '''
+        This routine will launch the metadat window.
+        '''
+        self.env.instrument.setDetector(
+            self.process_box_detector.currentText(), 
+            self.process_box_detector.currentText())
+
+        self.parent.window_manager.newWindow('FoilVisual')
+        self.parent.window_manager.active_windows['FoilVisual'].target.link(self.env.instrument)
 
     def _setNewDefaultSavePath(self):
         '''

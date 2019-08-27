@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'main_script.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.1
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_script_widget(object):
     def setupUi(self, script_widget):
@@ -140,6 +139,9 @@ class Ui_script_widget(object):
         self.process_box_detector.setSizePolicy(sizePolicy)
         self.process_box_detector.setObjectName("process_box_detector")
         self.verticalLayout_12.addWidget(self.process_box_detector)
+        self.process_button_foils = QtWidgets.QPushButton(self.groupBox)
+        self.process_button_foils.setObjectName("process_button_foils")
+        self.verticalLayout_12.addWidget(self.process_button_foils)
         self.verticalLayout_9.addLayout(self.verticalLayout_12)
         self.verticalLayout_18.addWidget(self.groupBox)
         self.groupBox_3 = QtWidgets.QGroupBox(self.frame_2)
@@ -376,6 +378,7 @@ class Ui_script_widget(object):
         self.process_radio_exposure.setText(_translate("script_widget", "&Use high exposure"))
         self.process_box_instrument.setStatusTip(_translate("script_widget", "Select an Instrument"))
         self.process_box_detector.setStatusTip(_translate("script_widget", "Select a correction data"))
+        self.process_button_foils.setText(_translate("script_widget", "View Foils"))
         self.groupBox_3.setTitle(_translate("script_widget", "Reduction settings"))
         self.label_2.setText(_translate("script_widget", "Reference measurement: "))
         self.label_3.setText(_translate("script_widget", "Background measurement:"))
@@ -390,5 +393,4 @@ class Ui_script_widget(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.process_tab), _translate("script_widget", "Process"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.panel_tab), _translate("script_widget", "Panel"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.script_tab), _translate("script_widget", "Scripts"))
-
 

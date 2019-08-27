@@ -82,6 +82,7 @@ class DetectorStructure:
 
         '''
         self.identifier         = 'Default'
+        self.current_date       = 'None'
         self.num_foils          = 0
         self.size_foil          = [0, 0]
         self.num_foil_pixels    = [0, 0]
@@ -111,6 +112,7 @@ class DetectorStructure:
         This is the routine that will load the foils as such 
         into a numpy array
         '''
+        self.current_date = foil_info[1]
         self.foil_array = np.load(foil_info[-1])
 
     def _initFoilList(self):
@@ -125,7 +127,7 @@ class DetectorStructure:
         formated_file_list = []
         for file_name in file_list:
             file_path = os.path.join(folder, file_name)
-            if os.path.isfile(file_path):
+            if os.path.isfile(file_path) and not '__init__' in file_path:
                 num     = file_name.split('_')[1].split('.npy')[0]
                 date    = num[0:2] + '.' + num[2:4] + '.' +num[4:] 
                 text    = 'Reseda at ' + date
