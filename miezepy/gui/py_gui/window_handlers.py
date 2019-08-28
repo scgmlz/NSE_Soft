@@ -25,9 +25,10 @@
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 
-from .main_window           import MainWindowLayout
-from .gui_data.meta_window           import MetadataWindowLayout
-from .gui_data.display_raw_window    import DisplayRawWindowLayout
+from .main_window                   import MainWindowLayout
+from .gui_data.meta_window          import MetadataWindowLayout
+from .gui_data.display_raw_window   import DisplayRawWindowLayout
+from .gui_scripts.display_foils     import DisplayFoilWindowLayout
 
 from ...gui.qt_gui import images_rcc
 
@@ -55,6 +56,7 @@ class WindowHandler:
         self.window_dictionary['MainWindow']    = [MainWindowLayout, None]
         self.window_dictionary['MetaWindow']    = [MetadataWindowLayout, 'MainWindow']
         self.window_dictionary['RawVisual']     = [DisplayRawWindowLayout, 'MainWindow']
+        self.window_dictionary['FoilVisual']    = [DisplayFoilWindowLayout, 'MainWindow']
 
         self.active_windows = {}
 

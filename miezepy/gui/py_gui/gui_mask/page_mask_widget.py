@@ -79,7 +79,7 @@ class PageMaskWidget(Ui_mask_editor):
             background  = "w",
             highlightthickness = 0)
         self.ax = self.my_canvas.getSubplot(0,0)
-        self.ax.pointer.pointer_handler['Sticky'] = 3
+        self.ax.pointer.pointer_handler['Sticky'] = 2
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
         self.mask_plot = self.ax.addPlot('Surface', Name = 'Mask area' )
         self.ax.draw()
@@ -296,6 +296,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         #set the two bin
         self.first_surface_plot = self.ax.addPlot('Surface', Name = 'Data area' )
         self.second_surface_plot = self.bx.addPlot('Surface',Name = 'Mask and Data area')
+        histogram_0 = self.first_surface_plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
+        self.ax.addItem('right', histogram_0)
+        histogram_1 = self.second_surface_plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
+        self.bx.addItem('right', histogram_1)
 
         #set the main scatter plot of the counts
         self.sine_data_plot = self.cx.addPlot(
@@ -318,10 +322,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.cx.draw()
         self.dx.draw()
 
-        self.ax.pointer.pointer_handler['Sticky'] = 3
-        self.bx.pointer.pointer_handler['Sticky'] = 3
-        self.cx.pointer.pointer_handler['Sticky'] = 0
-        self.dx.pointer.pointer_handler['Sticky'] = 0
+        self.ax.pointer.pointer_handler['Sticky'] = 2
+        self.bx.pointer.pointer_handler['Sticky'] = 2
+        self.cx.pointer.pointer_handler['Sticky'] = 3
+        self.dx.pointer.pointer_handler['Sticky'] = 3
 
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
         self.my_canvas.canvas_nodes[0][1][0].grid_layout.setMargin(0)
