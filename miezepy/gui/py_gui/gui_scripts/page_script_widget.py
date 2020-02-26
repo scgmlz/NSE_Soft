@@ -736,6 +736,8 @@ class PageScriptWidget(Ui_script_widget):
         self.process_list_echo_times.setModel(self._foil_model)
         self.process_list_echo_times.setItemDelegate(self._foil_delegate)
         self._foil_model.setVerticalHeaderLabels(['All']+self.names)
+        self._foil_model.setHorizontalHeaderLabels([ 
+            str(val) for val in self.env.current_data.get_axis('Foil') ])
         for j in range(num_foils):
             self.process_list_echo_times.resizeColumnsToContents()
         

@@ -354,7 +354,8 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list.append([
             QtWidgets.QComboBox( parent = self.para_group),
             0, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Parameter') ])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Parameter') ])
         self.para_drop = self.widget_list[-1][0]
 
         #---
@@ -364,7 +365,8 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list.append([
             QtWidgets.QComboBox( parent = self.para_group),
             1, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Measurement') ])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Measurement') ])
         self.meas_drop = self.widget_list[-1][0]
 
         #---
@@ -374,7 +376,8 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list.append([
             QtWidgets.QComboBox( parent = self.para_group),
             2, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Echo Time') ])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Echo Time') ])
         self.echo_drop = self.widget_list[-1][0]
 
         #---
@@ -384,7 +387,8 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list.append([
             QtWidgets.QComboBox( parent = self.para_group),
             3, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Foil') ])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Foil') ])
         self.foil_drop = self.widget_list[-1][0]
 
         self.widget_list.append([
