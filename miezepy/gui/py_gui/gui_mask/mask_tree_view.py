@@ -23,8 +23,8 @@
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from simpleplot.model.delegates import ParameterDelegate
-from simpleplot.model.node import SessionNode
+from simpleplot.models.delegates import ParameterDelegate
+from simpleplot.models.session_node import SessionNode
 from .mask_model   import MaskModel
 
 class MaskTreeView(QtWidgets.QTreeView):

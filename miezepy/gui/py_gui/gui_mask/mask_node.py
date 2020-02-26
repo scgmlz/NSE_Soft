@@ -23,18 +23,15 @@
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from simpleplot.model.node              import SessionNode
-from simpleplot.model.parameter_class   import ParameterHandler
-from simpleplot.model.widget_constructors import comboBoxConstructor
+from simpleplot.models.session_node         import SessionNode
+from simpleplot.models.parameter_class      import ParameterHandler
+from simpleplot.models.widget_constructors  import comboBoxConstructor
 
 from .parameter_handlers import RectangleHandler
 from .parameter_handlers import TriangleHandler
 from .parameter_handlers import ArcHandler
 from .parameter_handlers import RadialHandler
 from .parameter_handlers import LinearHandler
-
-from simpleplot.model.node import SessionNode
-from PyQt5 import QtWidgets, QtGui, QtCore
  
 class MaskNode(SessionNode):
     def __init__(self, name = 'None', parent = None, value = 'arc'):

@@ -23,10 +23,10 @@
 
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
-from simpleplot.model.models    import SessionModel
-from simpleplot.model.node      import SessionNode
+from simpleplot.models.plot_model   import PlotModel
+from simpleplot.models.session_node import SessionNode
 
-class DragModel(SessionModel):
+class DragModel(PlotModel):
     '''
     This is an adaptation for the drag and drop model
     that we designed for SImpleplot
@@ -66,7 +66,7 @@ class DragModel(SessionModel):
         mimedata.setData('text', bytes(link,'utf-8'))
         return mimedata
         
-class DropModel(SessionModel):
+class DropModel(PlotModel):
     '''
     This is an adaptation for the drag and drop model
     that we designed for SImpleplot

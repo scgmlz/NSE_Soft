@@ -23,10 +23,10 @@
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from simpleplot.model.node                  import SessionNode
-from simpleplot.model.parameter_class       import ParameterHandler
-from simpleplot.model.delegates             import ParameterDelegate
-from simpleplot.model.widget_constructors   import comboBoxConstructor
+from simpleplot.models.session_node          import SessionNode
+from simpleplot.models.parameter_class       import ParameterHandler
+from simpleplot.models.delegates             import ParameterDelegate
+from simpleplot.models.widget_constructors   import comboBoxConstructor
 
 from .parameter_handlers import RectangleHandler
 from .parameter_handlers import TriangleHandler

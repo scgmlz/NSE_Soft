@@ -23,7 +23,7 @@
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from simpleplot.model.parameter_class   import ParameterHandler
+from simpleplot.models.parameter_class   import ParameterHandler
 
 class DefaultHandler(ParameterHandler):
     def __init__(self):
