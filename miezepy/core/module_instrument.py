@@ -114,6 +114,7 @@ class DetectorStructure:
         '''
         self.current_date = foil_info[1]
         self.foil_array = np.load(foil_info[-1])
+        self.foil_array = np.transpose(self.foil_array,(0,2,1))
 
     def _initFoilList(self):
         '''

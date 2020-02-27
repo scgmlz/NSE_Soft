@@ -238,12 +238,9 @@ class PanelPageMaskWidget(PageMaskWidget):
 
         self.para_group = QtWidgets.QGroupBox(self.local_widget)
         sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, 
-            QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+            QtWidgets.QSizePolicy.Expanding, 
+            QtWidgets.QSizePolicy.Fixed)
         self.para_group.setSizePolicy(sizePolicy)
-        self.para_group.setMaximumHeight(200)
         self.mask_layout_control.addWidget(self.para_group)
 
     def _setup(self):
