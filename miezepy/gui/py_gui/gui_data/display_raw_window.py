@@ -104,7 +104,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
             self.ax = self.my_canvas.getSubplot(0,0)
             self.plot = self.ax.addPlot('Surface', Name = 'Surface' )
             histogram = self.plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
-            self.ax.addItem('right', histogram)
+            self.ax.addHistogramItem('right', histogram)
             
         elif self._mode == '4D':
             self.time_spin.hide()
@@ -113,7 +113,7 @@ class DisplayRawWindowLayout(Ui_raw_display):
             self.ax = self.my_canvas.getSubplot(0,0)
             self.plot = self.ax.addPlot('Volume', Name = 'Volume' )
             histogram = self.plot.childFromName('Volume').childFromName('Shader').getHistogramItem()
-            self.ax.addItem('right', histogram)
+            self.ax.addHistogramItem('right', histogram)
 
         self.ax.draw()
         self.draw()
