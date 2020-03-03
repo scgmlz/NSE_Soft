@@ -38,11 +38,35 @@ class RectangleHandler(RectangleItem):
         '''
         pass
 
+    def resetSubdivision(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def draw(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def drawGL(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
 class TriangleHandler(TriangleItem):
     def __init__(self):
         super().__init__('Triangle')
 
     def refresh(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def resetSubdivision(self):
         '''
         Overwrite the refresh
         '''
@@ -70,6 +94,12 @@ class PieHandler(PieItem):
         '''
         pass
 
+    def resetSubdivision(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
     def draw(self):
         '''
         Overwrite the refresh
@@ -87,6 +117,12 @@ class EllipseHandler(EllipseItem):
         super().__init__('Ellipse')
 
     def refresh(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def resetSubdivision(self):
         '''
         Overwrite the refresh
         '''
