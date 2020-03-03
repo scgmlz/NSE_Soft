@@ -81,18 +81,3 @@ class Rectangle(MaskShape):
 
 
         return self.mask
-
-if __name__ == '__main__':
-    
-    import matplotlib.pyplot as plt
-
-    square = Square()
-    square.parameters['Dimensions'][0]   = 10
-    square.parameters['Dimensions'][1]  = 10
-    square.move(absolute = [50,50])
-    square.rotate(absolute = 20)
-    square.generate(128,128)
-
-    plt.pcolormesh(square.mask)
-
-    plt.show()

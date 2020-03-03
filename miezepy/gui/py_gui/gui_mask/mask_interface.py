@@ -28,17 +28,9 @@ from simpleplot.models.parameter_class       import ParameterHandler
 from simpleplot.models.delegates             import ParameterDelegate
 from simpleplot.models.widget_constructors   import comboBoxConstructor
 
-from .parameter_handlers import RectangleHandler
-from .parameter_handlers import TriangleHandler
-from .parameter_handlers import ArcHandler
-from .parameter_handlers import RadialHandler
-from .parameter_handlers import LinearHandler
-
 from .mask_tree_view    import MaskTreeView
-from .mask_node         import MaskMajorNode
 from .mask_model        import MaskModel
-
-from ...qt_gui.new_mask_ui  import Ui_new_msk
+from .mask_node         import MaskNode
 
 import sys
 
@@ -165,14 +157,14 @@ class MaskInterface(QtCore.QObject):
                 0, self._rootNode.childCount(),
                 self._rootNode)
 
-        mask_list = self._mask_core.mask_dict[key]
-        for mask_item in mask_list:
-            model_item = MaskMajorNode()
-            self._mask_model.insertRows(0,1,[model_item], self._rootNode)
-            self._mask_model.referenceModel()
-            model_item._value = mask_item['Name']
-            model_item.typeChanged()
-            model_item.setParameters(mask_item)
+        # mask_list = self._mask_core.mask_dict[key]
+        # for mask_item in mask_list:
+        #     model_item = MaskMajorNode()
+        #     self._mask_model.insertRows(0,1,[model_item], self._rootNode)
+        #     self._mask_model.referenceModel()
+        #     model_item._value = mask_item['Name']
+        #     model_item.typeChanged()
+        #     model_item.setParameters(mask_item)
 
         self.finished_modifications.emit()
         # self._mask_model.blockSignals(False)
@@ -261,9 +253,10 @@ class MaskInterface(QtCore.QObject):
         '''
         self.about_to_add.emit()
 
-        model_item = MaskMajorNode()
+        model_item = MaskNode()
         self._mask_model.insertRows(0,1,[model_item], self._rootNode)
         self._mask_model.referenceModel()
+        model_item.typeChanged()
 
         self._generateMaskDict()
         self.finished_modifications.emit()

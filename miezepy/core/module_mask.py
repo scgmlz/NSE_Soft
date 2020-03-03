@@ -49,13 +49,11 @@ class MaskStructure:
         self.commands   = []
         self.mask_gen   = MaskGenerator()
         self.mask_dict  = self.generateDefaults()
-        # self.defaults   = [key for key in self.mask_dict.keys()]
         self.mask_types = [
             'Rectangle',
-            'Arc',
+            'Pie',
             'Triangle',
-            'Linear composition',
-            'Radial composition']
+            'Ellipse']
         self.setMask('DB_5')
 
     def __str__(self):
@@ -172,7 +170,6 @@ class MaskStructure:
         f = open(path, 'r')
         self.mask_dict[self.current_mask] = json.load(f)
         f.close()
-        self.checkMasks()
         
     def loadAllMasks(self, path):
         '''
@@ -181,26 +178,6 @@ class MaskStructure:
         f = open(path, 'r')
         self.mask_dict = json.load(f)
         f.close()
-        self.checkMasks()
-
-    def checkMasks(self):
-        '''
-        The nomenclature has changed slightly and
-        a small fix is implemented here
-        '''
-        pass
-        # for key in self.mask_dict.keys():
-        #     for element in self.mask_dict[key]:
-        #         if element[0] == 'radial_comp' or element[0] == 'radial composition':
-        #             element[0] = 'Radial composition'
-        #             if element[7][0] == 'square':
-        #                 element[7][0] = 'rectangle'    
-        #         elif element[0] == 'linear_comp':
-        #             element[0] = 'linear composition'
-        #             if element[7][0] == 'square':
-        #                 element[7][0] = 'rectangle'  
-        #         elif element[0] == 'square':
-        #             element[0] = 'rectangle'
 
     def generateDefaults(self):
         '''
@@ -208,7 +185,7 @@ class MaskStructure:
         '''
         mask_dict = {
             'DB_5': [{
-                'Name':'Arc',
+                'Name':'Pie',
                 'Position' :[31,35],
                 'Angle':0,
                 'Radial range': [0,5], 
@@ -223,140 +200,7 @@ class MaskStructure:
                 'Position' :[31,35],
                 'Angle':0,
                 'Radial range': [0,5], 
-                'Angular range': [0,360]}]}#,
-            # '10x10_tile': [{
-            #     'rectangle',
-            #     (100,100),
-            #     0,
-            #     10,10]],
-            # 'SkX_peak': [{
-            #     'Name': 'Arc',
-            #     (31,35),
-            #     0, 
-            #     (55,100), 
-            #     (8,46)]],
-            # 'SkX_peak_circ': [{
-            #     'Name': 'Arc',
-            #     (100,70),
-            #     0, 
-            #     (0,20), 
-            #     (0,360)]],
-            # 'SkX_peak_small': [{
-            #     'Name': 'Arc',
-            #     (31,35),
-            #     0, 
-            #     (72,82), 
-            #     (22,32)]],
-            # 'SkX_between_peaks': [{
-            #     'Name': 'Arc',
-            #     (31,35),
-            #     0, 
-            #     (55,100), 
-            #     (46,70)]],
-            # 'noDB': [[
-            #     'Name': 'Arc',
-            #     (31,35),
-            #     0, 
-            #     (55,100), 
-            #     (0,360)]],
-            # 'DB_sixfold': [{
-            #     'Name': 'Arc',
-            #     (27,33),
-            #     0, 
-            #     (0,5), 
-            #     (0,360)]],
-            # 'SkX_peak_Sixfold': [{
-            #     'Name': 'Arc',
-            #     (27,33),
-            #     0, 
-            #     (47,90), 
-            #     (15,52)]],
-            # 'SkX_between_peaks_Sixfold': [{
-            #     'Name': 'Arc',
-            #     (27,33),
-            #     0,
-            #     (47,90), 
-            #     (52,80)]],
-            # 'noDB_Sixfold': [{
-            #     'Name': 'Arc',
-            #     (31,35),
-            #     0, 
-            #     (42,100), 
-            #     (0,360)]],
-            # 'SkX_peak_circ_Sixfold': [[
-            #     'Name': 'Arc',
-            #     (84,69),
-            #     0, 
-            #     (0,20), 
-            #     (0,360)]],
-            # 'SkX_peak_SkXCon': [[
-            #     'Name': 'Arc',
-            #     (28,34),
-            #     0, 
-            #     (65,85), 
-            #     (82,100)]],
-            # 'Pre_SkX_peak': [[
-            #     'radial composition',
-            #     (31,31),
-            #     0,
-            #     15,13,
-            #     [57, 102], 
-            #     [11, 50], 
-            #     [
-            #         'Name': 'Arc', 
-            #         [0,0],
-            #         0,
-            #         [0,10],
-            #         [0,10], 
-            #         [True, True, False]
-            #     ]]],
-
-            # 'Pre_SkX_peak_Sixfold': [[
-            #     'radial composition',
-            #     (43,40),
-            #     -21,
-            #     3,3,
-            #     [45, 69], 
-            #     [39, 58], 
-            #     [
-            #         'Name': 'Arc', 
-            #         [0,0],
-            #         0,
-            #         [0,10],
-            #         [0,10], 
-            #         [True, True, False]
-            #     ]]],
-
-            # 'Pre_SkX_peak_SkXCon': [[
-            #     'radial composition',
-            #     (28,34),
-            #     0,
-            #     10,11,
-            #     [65, 85], 
-            #     [80, 104], 
-            #     [
-            #         'Name': 'Arc', 
-            #         [0,0],
-            #         0,
-            #         [0,10],
-            #         [0,10], 
-            #         [True, True, False]
-            #     ]]],
-
-            # 'Pre_tile': [[
-            #     'linear composition',
-            #     (0,0),
-            #     0, 
-            #     5,5,
-            #     128,128,
-            #     [
-            #         'rectangle', 
-            #         [0,0],
-            #         0,
-            #         10,10,
-            #         [True, True, False]
-            #     ]]],
-            # }
+                'Angular range': [0,360]}]}
 
         return mask_dict
 

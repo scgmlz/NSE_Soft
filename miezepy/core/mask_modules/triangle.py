@@ -63,13 +63,13 @@ class Triangle(MaskShape):
         polygon_edges = []
         polygon_edges.append([
             self.parameters['Position'][0] - self.parameters['Dimensions'][0] / 2.,
-            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 3.])
+            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 2.])
         polygon_edges.append([
             self.parameters['Position'][0] + self.parameters['Dimensions'][0] / 2.,
-            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 3.])
+            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 2.])
         polygon_edges.append([
             self.parameters['Position'][0] ,
-            self.parameters['Position'][1] + self.parameters['Dimensions'][1] * 2 / 3.])
+            self.parameters['Position'][1] + self.parameters['Dimensions'][1] / 2.])
 
         for i, element in enumerate(polygon_edges):
             polygon_edges[i] = self.rotatePoint(

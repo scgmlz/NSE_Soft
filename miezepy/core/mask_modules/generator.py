@@ -44,9 +44,7 @@ class MaskGenerator:
         self.dummies = [
             Rectangle(),
             Triangle(),
-            CircleArc(),
-            LinearComposition(),
-            RadialComposition()]
+            CircleArc()]
 
     def resetElementClasses(self):
         '''
@@ -87,7 +85,7 @@ class MaskGenerator:
         grab the right class and initialise
         it depending on its type.
         '''
-        self.element_classes[idx].setDirectly(**mask_parameters)
+        # self.element_classes[idx].setDirectly(**mask_parameters)
 
     def generateMask(self, size_x, size_y):
         '''

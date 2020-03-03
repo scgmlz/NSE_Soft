@@ -35,6 +35,10 @@ from .panel_worker                  import PanelWorker
 
 #private plotting library
 from simpleplot.canvas.multi_canvas import MultiCanvasItem
+from simpleplot.ploting.graph_items.pie_item import PieItem
+from simpleplot.ploting.graph_items.rectangle_item import RectangleItem
+from simpleplot.ploting.graph_items.triangle_item import TriangleItem
+from simpleplot.ploting.graph_items.ellipse_item import EllipseItem
 
 class PageMaskWidget(Ui_mask_editor):
     
@@ -79,9 +83,9 @@ class PageMaskWidget(Ui_mask_editor):
             background  = "w",
             highlightthickness = 0)
         self.ax = self.my_canvas.getSubplot(0,0)
+        self.ax.axes.general_handler['Aspect ratio'] = [True, 1.]
         self.ax.pointer.pointer_handler['Sticky'] = 2
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
-        self.mask_plot = self.ax.addPlot('Surface', Name = 'Mask area' )
         self.ax.draw()
 
     def _initialize(self):
@@ -89,7 +93,8 @@ class PageMaskWidget(Ui_mask_editor):
         Reset all the inputs and all the fields
         present in the current view.
         '''
-        self.mask_core      = None
+        self.mask_core = None
+        self._plot_item = []
 
     def _connect(self):
         '''
@@ -140,12 +145,34 @@ class PageMaskWidget(Ui_mask_editor):
             self.mask_core.sendToGenerator(recreate = True)
             self.mask_core.generateMask(
                 int(self.mask_input_x.text()), 
-                int(self.mask_input_y.text()))
+                int(self.mask_input_y.text())) 
             self._updateGraph()
+
+    def _checkUpdateNeed(self):
+        '''
+        Check what has to be actually updated
+        '''
+        if len(self._plot_item) != self.tree.model().root()._children:
+            self.ax.clear()
+            self.mask_plot = self.ax.addPlot('Surface', Name = 'Mask area')
+            self._plot_item = []
+            for child in self.tree.model().root()._children:
+                self._plot_item.append(self.ax.addItem(child._value))
+            self.ax.draw()
+
+        else:
+            for i,child in enumerate(self.tree.model().root()._children):
+                if child._value != self._plot_item[i]._name:
+                    self.ax.removeItem(self._plot_item[i])
+                    self._plot_item[i] = self.ax.addItem(child._value)
 
     def _updateGraph(self):
         '''
         '''
+        self._checkUpdateNeed()
+
+        for i,child in enumerate(self.tree.model().root()._children):
+            self._plot_item[i].load(child.save())
 
         self.mask_plot.setData(
             x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
