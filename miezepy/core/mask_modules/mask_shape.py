@@ -79,11 +79,11 @@ class MaskShape:
         a point is situated within a polygon 
         defined by the the edges.
         '''
-        path = QtGui.QPainterPath()
-        path.moveTo(*edges[0])
+        path_2 = QtGui.QPainterPath()
+        path_2.moveTo(edges[0][0]+1,edges[0][1]+1)
         for i in range(1,len(edges)):
-            path.lineTo(*edges[i])
-        path.closeSubpath()
+            path_2.lineTo(edges[i][0]+1,edges[i][1]+1)
+        path_2.closeSubpath()
 
         pixmap = QtGui.QPixmap(size_x, size_y)
         pixmap.fill(QtGui.QColor(0,0,0))
@@ -94,7 +94,7 @@ class MaskShape:
         pen.setWidthF(0.1)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setBrush(QtGui.QColor(0,0,1))
-        painter.drawPath(path)
+        painter.drawPath(path_2)
         painter.end()
 
         image = pixmap.toImage()

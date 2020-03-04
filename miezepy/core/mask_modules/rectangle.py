@@ -84,7 +84,6 @@ class Rectangle(MaskShape):
                     +(j+0.5)*self.parameters['Dimensions'][1]
                     /self.parameters['Subdivisions'][1]]
 
-
                 temp = []
                 if not self.parameters['Subdivision dimensions'][0]:
                     temp.append(self.rotatePoint(
