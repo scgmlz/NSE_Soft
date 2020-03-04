@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 import numpy as np
+from PyQt5 import QtCore, QtGui
 from PIL import Image, ImageDraw
 
 
@@ -78,13 +79,30 @@ class MaskShape:
         a point is situated within a polygon 
         defined by the the edges.
         '''
+        path = QtGui.QPainterPath()
+        path.moveTo(*edges[0])
+        for i in range(1,len(edges)):
+            path.lineTo(*edges[i])
+        path.closeSubpath()
 
-        temp_image = Image.new('1', (size_x, size_y))
-        temp_draw = ImageDraw.Draw(temp_image)
-        
-        temp_draw.polygon(tuple([tuple(edge) for edge in edges]), fill = 1)
+        pixmap = QtGui.QPixmap(size_x, size_y)
+        pixmap.fill(QtGui.QColor(0,0,0))
+        painter = QtGui.QPainter(pixmap)
+        painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+        pen = QtGui.QPen()
+        pen.setColor(QtGui.QColor(0,0,1))
+        pen.setWidthF(0.1)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(QtGui.QColor(0,0,1))
+        painter.drawPath(path)
+        painter.end()
 
-        return np.array(temp_image).astype(np.int16)
+        image = pixmap.toImage()
+        b = image.bits()
+        b.setsize(size_x * size_y * 4)
+        arr = np.frombuffer(b, np.uint8).reshape((size_x, size_y, 4)).astype(np.int16)
+
+        return arr[:,:,0]
 
     def processSector(self, radius_range, angle_range, size_x, size_y):
         '''

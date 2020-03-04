@@ -21,16 +21,21 @@
 #
 # *****************************************************************************
 
+#############################
+#import general components
 import numpy as np
+import copy
+
 from .mask_shape import MaskShape
 
 class Rectangle(MaskShape):
 
     def __init__(self):
         '''
-        This class will contain all the
-        information and routines to build
-        a square over a certain 2D grid.
+        This is the grid mode of the element. 
+        Note that this composition can only 
+        be set to close gaps if the subelement
+        is of rectangular shape.
         '''
         MaskShape.__init__(self)
         self.initialize()
@@ -40,8 +45,11 @@ class Rectangle(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['Name']         = 'Rectangle'
+        self.parameters['Type']         = 'Rectangle'
         self.parameters['Dimensions']   = [10.,10.]
+        self.parameters['Subdivisions'] = [1,1]
+        self.parameters['Subdivision dimensions'] = [True, 1.,1.]
+        self.parameters['Increment']    = True
 
     def setDirectly(self, **kwargs):
         '''
@@ -50,34 +58,126 @@ class Rectangle(MaskShape):
         and will therefore send it to the mask
         element to be anaged.
         '''
-        self.parameters = kwargs
+        for key in kwargs.keys():
+            if key in ['Type', 'Name']:
+                continue
+            elif key in self.parameters.keys():
+                if isinstance(kwargs[key], list):
+                    self.parameters[key] = kwargs[key][-1]
+                else:
+                    self.parameters[key] = [
+                        kwargs[key][subkey][-1] for subkey in kwargs[key].keys()]
+        self.parameters['Position'] = self.parameters['Position'][0:2]
+
+    def setup(self):
+        '''
+        Setup the grid with the elements within
+        '''
+        self.polygons = []
+        for i in range(self.parameters['Subdivisions'][0]):
+            for j in range(self.parameters['Subdivisions'][1]):
+                edge = [
+                    self.parameters['Position'][0]-self.parameters['Dimensions'][0]/2.
+                    +(i+0.5)*self.parameters['Dimensions'][0]
+                    /self.parameters['Subdivisions'][0],
+                    self.parameters['Position'][1]-self.parameters['Dimensions'][1]/2.
+                    +(j+0.5)*self.parameters['Dimensions'][1]
+                    /self.parameters['Subdivisions'][1]]
+
+
+                temp = []
+                if not self.parameters['Subdivision dimensions'][0]:
+                    temp.append(self.rotatePoint(
+                        self.parameters['Position'],
+                        [
+                            edge[0]-self.parameters['Subdivision dimensions'][1]/2.,
+                            edge[1]-self.parameters['Subdivision dimensions'][2]/2.
+                        ],
+                        self.parameters['Angle'])
+                    )
+                    temp.append(self.rotatePoint(
+                        self.parameters['Position'],
+                        [
+                            edge[0]+self.parameters['Subdivision dimensions'][1]/2.,
+                            edge[1]-self.parameters['Subdivision dimensions'][2]/2.
+                        ],
+                        self.parameters['Angle'])
+                    )
+                    temp.append(self.rotatePoint(
+                        self.parameters['Position'],
+                        [
+                            edge[0]+self.parameters['Subdivision dimensions'][1]/2.,
+                            edge[1]+self.parameters['Subdivision dimensions'][2]/2.
+                        ],
+                        self.parameters['Angle'])
+                    )
+                    temp.append(self.rotatePoint(
+                        self.parameters['Position'],
+                        [
+                            edge[0]-self.parameters['Subdivision dimensions'][1]/2.,
+                            edge[1]+self.parameters['Subdivision dimensions'][2]/2.
+                        ],
+                        self.parameters['Angle'])
+                    )
+                else:
+                    temp.append(self.rotatePoint(
+                        self.parameters['Position'],
+                        [
+                            (edge[0]-self.parameters['Dimensions'][0]
+                            /(2*self.parameters['Subdivisions'][0])),
+                            (edge[1]-self.parameters['Dimensions'][1]
+                            /(2*self.parameters['Subdivisions'][1]))
+                        ],
+                        self.parameters['Angle'])
+                    )
+                    temp.append(self.rotatePoint(
+                        self.parameters['Position'],
+                        [
+                            (edge[0]+self.parameters['Dimensions'][0]
+                            /(2*self.parameters['Subdivisions'][0])),
+                            (edge[1]-self.parameters['Dimensions'][1]
+                            /(2*self.parameters['Subdivisions'][1]))
+                        ],
+                        self.parameters['Angle'])
+                    )
+                    temp.append(self.rotatePoint(
+                        self.parameters['Position'],
+                        [
+                            (edge[0]+self.parameters['Dimensions'][0]
+                            /(2*self.parameters['Subdivisions'][0])),
+                            (edge[1]+self.parameters['Dimensions'][1]
+                            /(2*self.parameters['Subdivisions'][1]))
+                        ],
+                        self.parameters['Angle'])
+                    )
+                    temp.append(self.rotatePoint(
+                        self.parameters['Position'],
+                        [
+                            (edge[0]-self.parameters['Dimensions'][0]
+                            /(2*self.parameters['Subdivisions'][0])),
+                            (edge[1]+self.parameters['Dimensions'][1]
+                            /(2*self.parameters['Subdivisions'][1]))
+                        ],
+                        self.parameters['Angle'])
+                    )
+
+                self.polygons.append(temp)
 
     def generate(self, size_x, size_y):
         '''
-        This will generate the mask element 
-        onto a canvas of a given dimension
+        Generate the mask element by calling the 
+        setup and then patching the masks
         '''
-        polygon_edges = []
-        polygon_edges.append([
-            self.parameters['Position'][0] - self.parameters['Dimensions'][0] / 2.,
-            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 2.])
-        polygon_edges.append([
-            self.parameters['Position'][0] + self.parameters['Dimensions'][0] / 2.,
-            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 2.])
-        polygon_edges.append([
-            self.parameters['Position'][0] + self.parameters['Dimensions'][0] / 2.,
-            self.parameters['Position'][1] + self.parameters['Dimensions'][1] / 2.])
-        polygon_edges.append([
-            self.parameters['Position'][0] - self.parameters['Dimensions'][0] / 2.,
-            self.parameters['Position'][1] + self.parameters['Dimensions'][1] / 2.])
+        self.setup()
+        self.mask = np.zeros((size_x, size_y), dtype=np.int16)
 
-        for i, element in enumerate(polygon_edges):
-            polygon_edges[i] = self.rotatePoint(
-                self.parameters['Position'],
-                polygon_edges[i] , 
-                self.parameters['Angle'])
-
-        self.mask = self.processPolygon(polygon_edges, size_x, size_y)
-
+        for i,polygon in enumerate(self.polygons):
+            temp_map = self.processPolygon(polygon, size_x, size_y)
+            if self.parameters['Increment']:
+                self.mask += temp_map * (i+1)
+                self.mask[self.mask > (i+1)] = (i+1)
+            else:
+                self.mask += temp_map
+                self.mask[self.mask >1] = 1
 
         return self.mask

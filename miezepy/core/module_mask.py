@@ -54,7 +54,7 @@ class MaskStructure:
             'Pie',
             'Triangle',
             'Ellipse']
-        self.setMask('DB_5')
+        self.current_mask = None
 
     def __str__(self):
         '''
@@ -183,24 +183,24 @@ class MaskStructure:
         '''
         Will load all the mask templates locally
         '''
-        mask_dict = {
-            'DB_5': [{
-                'Name':'Pie',
-                'Position' :[31,35],
-                'Angle':0,
-                'Radial range': [0,5], 
-                'Angular range': [0,360]}],
-            'Tile': [{
-                'Name':'Rectangle',
-                'Position' :[31,35],
-                'Angle':0,
-                'Dimensions': [10,10]},
-                {
-                'Name':'Arc',
-                'Position' :[31,35],
-                'Angle':0,
-                'Radial range': [0,5], 
-                'Angular range': [0,360]}]}
+        mask_dict = {}
+            # 'DB_5': [{
+            #     'Name':'Pie',
+            #     'Position' :[31,35],
+            #     'Angle':0,
+            #     'Radial range': [0,5], 
+            #     'Angular range': [0,360]}],
+            # 'Tile': [{
+            #     'Name':'Rectangle',
+            #     'Position' :[31,35],
+            #     'Angle':0,
+            #     'Dimensions': [10,10]},
+            #     {
+            #     'Name':'Arc',
+            #     'Position' :[31,35],
+            #     'Angle':0,
+            #     'Radial range': [0,5], 
+            #     'Angular range': [0,360]}]}
 
         return mask_dict
 

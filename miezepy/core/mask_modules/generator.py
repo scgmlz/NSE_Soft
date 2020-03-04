@@ -25,11 +25,7 @@ import copy
 
 import numpy as np
 
-from .linear_comp   import LinearComposition
-from .radial_comp   import RadialComposition
 from .rectangle     import Rectangle
-from .triangle      import Triangle
-from .circle_arc    import CircleArc
 
 class MaskGenerator:
     
@@ -42,9 +38,7 @@ class MaskGenerator:
         '''
         self.resetElementClasses()
         self.dummies = [
-            Rectangle(),
-            Triangle(),
-            CircleArc()]
+            Rectangle()]
 
     def resetElementClasses(self):
         '''
@@ -75,7 +69,7 @@ class MaskGenerator:
         it depending on its type.
         '''
         for element in self.dummies:
-            if element.parameters['Name'] == mask_dict['Name']:
+            if element.parameters['Type'] == mask_dict['Type']:
                 self.element_classes.append(copy.deepcopy(element))
                 break
 
@@ -85,7 +79,7 @@ class MaskGenerator:
         grab the right class and initialise
         it depending on its type.
         '''
-        # self.element_classes[idx].setDirectly(**mask_parameters)
+        self.element_classes[idx].setDirectly(**mask_parameters)
 
     def generateMask(self, size_x, size_y):
         '''
