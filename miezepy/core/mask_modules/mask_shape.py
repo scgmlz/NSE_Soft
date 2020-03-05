@@ -79,11 +79,29 @@ class MaskShape:
         a point is situated within a polygon 
         defined by the the edges.
         '''
-        path_2 = QtGui.QPainterPath()
-        path_2.moveTo(edges[0][0]+1,edges[0][1]+1)
+        path_1 = QtGui.QPainterPath()
+        path_1.moveTo(edges[0][0],edges[0][1])
         for i in range(1,len(edges)):
-            path_2.lineTo(edges[i][0]+1,edges[i][1]+1)
+            path_1.lineTo(edges[i][0],edges[i][1])
+        path_1.closeSubpath()
+
+        path_2 = QtGui.QPainterPath()
+        path_2.moveTo(edges[0][0]+1,edges[0][1])
+        for i in range(1,len(edges)):
+            path_2.lineTo(edges[i][0]+1,edges[i][1])
         path_2.closeSubpath()
+
+        path_3 = QtGui.QPainterPath()
+        path_3.moveTo(edges[0][0],edges[0][1]+1)
+        for i in range(1,len(edges)):
+            path_3.lineTo(edges[i][0],edges[i][1]+1)
+        path_3.closeSubpath()
+
+        path_4 = QtGui.QPainterPath()
+        path_4.moveTo(edges[0][0]+1,edges[0][1]+1)
+        for i in range(1,len(edges)):
+            path_4.lineTo(edges[i][0]+1,edges[i][1]+1)
+        path_4.closeSubpath()
 
         pixmap = QtGui.QPixmap(size_x, size_y)
         pixmap.fill(QtGui.QColor(0,0,0))
@@ -92,9 +110,12 @@ class MaskShape:
         pen = QtGui.QPen()
         pen.setColor(QtGui.QColor(0,0,1))
         pen.setWidthF(0.1)
-        painter.setPen(QtCore.Qt.NoPen)
+        painter.setPen(pen)
         painter.setBrush(QtGui.QColor(0,0,1))
+        painter.drawPath(path_1)
         painter.drawPath(path_2)
+        painter.drawPath(path_3)
+        painter.drawPath(path_4)
         painter.end()
 
         image = pixmap.toImage()

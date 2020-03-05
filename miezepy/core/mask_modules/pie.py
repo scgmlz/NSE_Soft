@@ -24,7 +24,6 @@
 #############################
 #import general components
 import numpy as np
-import copy
 
 from .mask_shape import MaskShape
 

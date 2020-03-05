@@ -42,7 +42,7 @@ class Triangle(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['Name']         = 'Triangle'
+        self.parameters['Type']         = 'Triangle'
         self.parameters['Dimensions']   = [10.,10.]
 
     def setDirectly(self, **kwargs):
@@ -52,14 +52,22 @@ class Triangle(MaskShape):
         and will therefore send it to the mask
         element to be anaged.
         '''
-        self.parameters = kwargs
+        for key in kwargs.keys():
+            if key in ['Type', 'Name']:
+                continue
+            elif key in self.parameters.keys():
+                if isinstance(kwargs[key], list):
+                    self.parameters[key] = kwargs[key][-1]
+                else:
+                    self.parameters[key] = [
+                        kwargs[key][subkey][-1] for subkey in kwargs[key].keys()]
+        self.parameters['Position'] = self.parameters['Position'][0:2]
 
     def generate(self, size_x, size_y):
         '''
         This will generate the mask element 
         onto a canvas of a given dimension
         '''
-
         polygon_edges = []
         polygon_edges.append([
             self.parameters['Position'][0] - self.parameters['Dimensions'][0] / 2.,

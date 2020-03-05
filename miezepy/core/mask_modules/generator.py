@@ -22,11 +22,11 @@
 # *****************************************************************************
 
 import copy
-
 import numpy as np
 
 from .rectangle import Rectangle
 from .pie import Pie
+from .triangle import Triangle
 
 class MaskGenerator:
     
@@ -40,7 +40,8 @@ class MaskGenerator:
         self.resetElementClasses()
         self.dummies = [
             Rectangle(),
-            Pie()]
+            Pie(),
+            Triangle()]
 
     def resetElementClasses(self):
         '''
