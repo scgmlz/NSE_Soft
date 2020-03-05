@@ -92,40 +92,6 @@ class PageMaskWidget(Ui_mask_editor):
         self.combo_layout.addWidget(self.add_mask_button)
         self.combo_layout.addWidget(self.remove_mask_button)
 
-        #Visual selector
-        self._visual_mask_pixel     = QtWidgets.QRadioButton("View pixel mask")
-        self._visual_mask_data      = QtWidgets.QRadioButton("View data")
-        self._visual_button_group   = QtWidgets.QButtonGroup(self.widget)
-        self._visual_button_group.addButton(self._visual_mask_pixel)
-        self._visual_button_group.addButton(self._visual_mask_data)
-
-        self._visual_meas_para  = QtWidgets.QComboBox()
-        self._visual_meas_num   = QtWidgets.QSpinBox()
-        self._visual_meas_echo  = QtWidgets.QSpinBox()
-        self._visual_meas_foil  = QtWidgets.QSpinBox()
-        self._visual_meas_chan  = QtWidgets.QSpinBox()
-        self._visual_sum_echo   = QtWidgets.QCheckBox("Sum")
-        self._visual_sum_foil   = QtWidgets.QCheckBox("Sum")
-        self._visual_sum_chan   = QtWidgets.QCheckBox("Sum")
-
-        self.visual_select = QtWidgets.QHBoxLayout()
-        self.visual_select.addWidget(self._visual_mask_pixel)
-        self.visual_select.addWidget(self._visual_mask_data)
-        self.visual_select.addWidget(QtWidgets.QLabel("Parameter:"))
-        self.visual_select.addWidget(self._visual_meas_para)
-        self.visual_select.addWidget(QtWidgets.QLabel("Measurement:"))
-        self.visual_select.addWidget(self._visual_meas_num)
-        self.visual_select.addWidget(QtWidgets.QLabel("Echo:"))
-        self.visual_select.addWidget(self._visual_meas_echo)
-        self.visual_select.addWidget(self._visual_sum_echo)
-        self.visual_select.addWidget(QtWidgets.QLabel("Foil:"))
-        self.visual_select.addWidget(self._visual_meas_foil)
-        self.visual_select.addWidget(self._visual_sum_foil)
-        self.visual_select.addWidget(QtWidgets.QLabel("Time channel:"))
-        self.visual_select.addWidget(self._visual_meas_chan)
-        self.visual_select.addWidget(self._visual_sum_chan)
-        self.mask_group_visual.layout().addLayout(self.visual_select)
-
         #initialise the graphs
         self.my_canvas    = MultiCanvasItem(
             self.mask_widget_visual,
@@ -167,8 +133,20 @@ class PageMaskWidget(Ui_mask_editor):
         input of this method and all elements will be 
         placed accordingly.
         '''
+        #Visual selector
+        self._visual_mask_pixel     = QtWidgets.QRadioButton("View pixel mask")
+        self._visual_mask_data      = QtWidgets.QRadioButton("View data")
+        self._visual_button_group   = QtWidgets.QButtonGroup(self.widget)
+        self._visual_button_group.addButton(self._visual_mask_pixel, 0)
+        self._visual_button_group.addButton(self._visual_mask_data, 1)
+
+        self.visual_select = QtWidgets.QHBoxLayout()
+        self.visual_select.addWidget(self._visual_mask_pixel)
+        self.visual_select.addWidget(self._visual_mask_data)
+
         self.para_vbox  = QtWidgets.QVBoxLayout()
         self.para_grid  = QtWidgets.QGridLayout()
+        self.para_vbox.addLayout(self.visual_select)
         self.para_vbox.addLayout(self.para_grid)
         self.para_vbox.addStretch(1)
         self.para_group.setLayout(self.para_vbox)
@@ -220,15 +198,6 @@ class PageMaskWidget(Ui_mask_editor):
             str(val) for val in self.env.current_data.get_axis('Foil') ])
         self.foil_drop = self.widget_list[-1][0]
 
-        self.widget_list.append([
-            QtWidgets.QPushButton('Compute', parent = self.para_group),
-            4, 0, 1, 1, None])
-        self.compute_button = self.widget_list[-1][0]
-        self.widget_list.append([
-            QtWidgets.QCheckBox('Live',parent = self.para_group),
-            4, 1, 1, 1, None])
-        self.widget_list[-1][0].setChecked(False)
-
         ##############################################
         #add the tabs
         for element in self.widget_list:
@@ -246,12 +215,29 @@ class PageMaskWidget(Ui_mask_editor):
         '''
         Set the selectors to their methods
         '''
-        self.widget_list[1][0].currentIndexChanged.connect(self._prepare_data)
-        self.widget_list[3][0].currentIndexChanged.connect(self._prepare_data)
-        self.widget_list[5][0].currentIndexChanged.connect(self._prepare_data)
-        self.widget_list[7][0].currentIndexChanged.connect(self._prepare_data)
+        self.widget_list[1][0].currentIndexChanged.connect(self._prepareData)
+        self.widget_list[3][0].currentIndexChanged.connect(self._prepareData)
+        self.widget_list[5][0].currentIndexChanged.connect(self._prepareData)
+        self.widget_list[7][0].currentIndexChanged.connect(self._prepareData)
+        self._visual_mask_pixel.clicked.connect(self._handleVis)
+        self._visual_mask_data.clicked.connect(self._handleVis)
 
-    def _prepare_data(self):
+    def _handleVis(self):
+        '''
+        the computation will be done in a thread and 
+        if not finished interupted to allow the UI to
+        run smoothly
+        '''
+        if self._visual_button_group.checkedId() == 0:
+            for child in self.widget_list:
+                child[0].setVisible(False)
+            self._updateGraph()
+        else:
+            for child in self.widget_list:
+                child[0].setVisible(True)
+            self._prepareData()
+
+    def _prepareData(self):
         '''
         the computation will be done in a thread and 
         if not finished interupted to allow the UI to
