@@ -73,7 +73,7 @@ class MaskInterface(QtCore.QObject):
         
         string_items = [
             key for key in 
-            self._mask_core.mask_dict.keys()] + ['New ...']
+            self._mask_core.mask_dict.keys()]
 
         for i,string in enumerate(string_items):
             self._item_model.insertRow(
@@ -89,12 +89,7 @@ class MaskInterface(QtCore.QObject):
         '''
         filter actions on combobox press
         '''
-        if idx == self._item_model.rowCount()-1:
-            self._disconnectCombos()
-            for combo in self.combo_ptrs_signal:
-                combo.setEditable(True)
-            self._connectCombosEdit()
-        elif idx >= 0 and idx <= self._item_model.rowCount()-1:
+        if idx >= 0 and idx <= self._item_model.rowCount()-1:
             self._refreshMaskModel([
             key for key in 
             self._mask_core.mask_dict.keys()][idx])
@@ -103,44 +98,18 @@ class MaskInterface(QtCore.QObject):
             key for key in 
             self._mask_core.mask_dict.keys()][0])
 
-    def _comboEditManager(self, key):
+    def insertNewMask(self, key):
         '''
         Upon completion the combobox
         will return the text as a key to 
         create a new mask
         '''
-        self._disconnectCombosEdit()
-        for combo in self.combo_ptrs_signal:
-            combo.setEditable(False)
-            combo.setCurrentText('')
         if not key == '':
             name = self._mask_core.addMask(key)
             self._refreshItemModel()
             self._refreshMaskModel(key)
             idx = [key for key in self._mask_core.mask_dict.keys()].index(name)
             self._comboboxSet(idx)
-        else:
-            self._comboAbortManager()
-        self._connectCombos()
-
-    def _comboAbortManager(self, index = None):
-        '''
-        This is the default reset and will proceed
-        with puting back the pre-edit state
-        '''
-        self._disconnectCombosEdit()
-        for combo in self.combo_ptrs_signal:
-            combo.setEditable(False)
-        self._refreshItemModel()
-        if not index == None and index < self._item_model.rowCount()-1 and index >= 0:
-            idx = index
-        else:
-            idx = [key for key in self._mask_core.mask_dict.keys()
-                ].index(self._mask_core.current_mask)
-        self._comboboxSet(idx)
-        for combo in self.combo_ptrs_signal:
-            combo.setEditable(False)
-        self._connectCombos()
 
     def _refreshMaskModel(self, key):
         '''
@@ -274,9 +243,18 @@ class MaskInterface(QtCore.QObject):
 
         self._mask_model.removeRows(row, 1, self._rootNode)
         self._generateMaskDict()
-        
+
         self.finished_modifications.emit()
         
+    def removeCurrentMask(self):
+        '''
+        Add a major node item representing the
+        mask elements
+        '''
+        self._mask_core.removeMask(self._mask_core.current_mask)
+        self._refreshItemModel()
+        self._comboboxSet(0)
+
     def getTreeView(self):
         '''
         return a predefined and connected

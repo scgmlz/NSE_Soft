@@ -109,6 +109,12 @@ class MaskStructure:
         self.setMask(name)
         return name
 
+    def removeMask(self, name):
+        '''
+        Add a mask to the dictionary
+        '''
+        del self.mask_dict[name]
+
     def addElement(self, values, name = None):
         '''
         Add a mask element to the mask

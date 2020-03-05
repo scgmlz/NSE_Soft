@@ -23,7 +23,6 @@
 
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QInputDialog
 import numpy as np
 import os
 
@@ -65,14 +64,19 @@ class PageMaskWidget(Ui_mask_editor):
         area
         '''
         #initialise the widgets
-        self.tree = self.mask_interface.getTreeView()
+        self.tree               = self.mask_interface.getTreeView()
+        self.mask_combo_box     = self.mask_interface.getComboBox()
+        self.add_mask_button    = QtWidgets.QPushButton("+")
+        self.remove_mask_button = QtWidgets.QPushButton("-")
+
         self.mask_tree_layout.addWidget(self.tree)
-        self.mask_combo_box = self.mask_interface.getComboBox()
         size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
             QtWidgets.QSizePolicy.Fixed)
         self.mask_combo_box.setSizePolicy(size_policy)
         self.combo_layout.addWidget(self.mask_combo_box)
+        self.combo_layout.addWidget(self.add_mask_button)
+        self.combo_layout.addWidget(self.remove_mask_button)
 
         #initialise the graphs
         self.my_canvas    = MultiCanvasItem(
@@ -104,6 +108,19 @@ class PageMaskWidget(Ui_mask_editor):
         self.mask_button_add.clicked.connect(self.addItem)
         self.mask_button_remove.clicked.connect(self.removeItem)
         self.mask_interface.mask_updated.connect(self._parseAndSend)
+
+        self.add_mask_button.clicked.connect(self.newMask)
+        self.remove_mask_button.clicked.connect(self.mask_interface.removeCurrentMask)
+
+    def newMask(self):
+        '''
+        This routine will create an input dialog
+        and then get it
+        '''
+        text, ok = QtWidgets.QInputDialog.getText(
+            self.widget, 'New mask name', 'Name of the new mask:')
+        if ok:
+            self.mask_interface.insertNewMask(text)
 
     def link(self, mask_core):
         '''
@@ -277,14 +294,20 @@ class PanelPageMaskWidget(PageMaskWidget):
         '''
         #initialise the widgets
         self._live = False
-        self.tree = self.mask_interface.getTreeView()
+
+        self.tree               = self.mask_interface.getTreeView()
+        self.mask_combo_box     = self.mask_interface.getComboBox()
+        self.add_mask_button    = QtWidgets.QPushButton("+")
+        self.remove_mask_button = QtWidgets.QPushButton("-")
+
         self.mask_tree_layout.addWidget(self.tree)
-        self.mask_combo_box = self.mask_interface.getComboBox()
         size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
             QtWidgets.QSizePolicy.Fixed)
         self.mask_combo_box.setSizePolicy(size_policy)
         self.combo_layout.addWidget(self.mask_combo_box)
+        self.combo_layout.addWidget(self.add_mask_button)
+        self.combo_layout.addWidget(self.remove_mask_button)
 
         #initialise the graphs
         self.my_canvas    = MultiCanvasItem(
