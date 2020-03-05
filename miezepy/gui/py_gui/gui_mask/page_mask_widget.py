@@ -132,9 +132,8 @@ class PageMaskWidget(Ui_mask_editor):
         Add an element into the list which is loaded 
         from a custom widget.
         '''
-        rows = self.tree.selectedIndexes()
-        if not rows == 0:
-            self.mask_interface.removeItem(rows[0].row())
+        index = self.tree.selectionModel().currentIndex()
+        self.mask_interface.removeItem(index.row())
 
     def _parseAndSend(self):
         '''

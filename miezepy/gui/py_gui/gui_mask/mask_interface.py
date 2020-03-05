@@ -271,8 +271,10 @@ class MaskInterface(QtCore.QObject):
         mask element
         '''
         self.about_to_remove.emit()
+
         self._mask_model.removeRows(row, 1, self._rootNode)
         self._generateMaskDict()
+        
         self.finished_modifications.emit()
         
     def getTreeView(self):

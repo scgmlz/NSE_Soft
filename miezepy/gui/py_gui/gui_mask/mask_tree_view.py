@@ -61,6 +61,13 @@ class MaskTreeView(QtWidgets.QTreeView):
         self.setModel(self._model)
         self._connect()
 
+        self.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectRows
+        )
+        self.setSelectionMode(
+            QtWidgets.QAbstractItemView.ExtendedSelection
+        )
+
     def setModel(self, model):
         '''
         override the setModel of the default

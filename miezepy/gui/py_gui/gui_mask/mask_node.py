@@ -57,9 +57,9 @@ class MaskElementNode(ParameterHandler):
         
     def flags(self, index):
         if index.column() in [0,1]: 
-            return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable
+            return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable
         else:
-            return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+            return QtCore.Qt.ItemIsEnabled
 
     def createWidget(self, parent, index):
         '''
