@@ -148,26 +148,28 @@ class MaskInterface(QtCore.QObject):
         comboboxes.
         '''
         self.about_to_add.emit()
-        # self._mask_model.blockSignals(True)
         self._setAllCombos(key)
         self._mask_core.setMask(key)
         
-        if not  self._rootNode.childCount() == 0:
+        if not self._rootNode.childCount() == 0:
             self._mask_model.removeRows(
                 0, self._rootNode.childCount(),
                 self._rootNode)
 
-        # mask_list = self._mask_core.mask_dict[key]
-        # for mask_item in mask_list:
-        #     model_item = MaskMajorNode()
-        #     self._mask_model.insertRows(0,1,[model_item], self._rootNode)
-        #     self._mask_model.referenceModel()
-        #     model_item._value = mask_item['Name']
-        #     model_item.typeChanged()
-        #     model_item.setParameters(mask_item)
+        if key is None:
+            self.finished_modifications.emit()
+            self._generateMaskDict()
+
+        mask_list = self._mask_core.mask_dict[key]
+        for mask_item in mask_list:
+            model_item = MaskNode()
+            self._mask_model.insertRows(0,1,[model_item], self._rootNode)
+            self._mask_model.referenceModel()
+            model_item._value = mask_item['Type']
+            model_item.typeChanged()
+            model_item.setParameters(mask_item)
 
         self.finished_modifications.emit()
-        # self._mask_model.blockSignals(False)
         self._generateMaskDict()
 
     def _connect(self):

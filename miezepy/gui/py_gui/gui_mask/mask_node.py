@@ -93,12 +93,16 @@ class MaskElementNode(ParameterHandler):
         the interfaces
         '''
         handler = self.handlers[self._value]
-        for key in parameter_dict.keys():
-            if key != 'Name' and key != 'child':
-                handler[key] = parameter_dict[key]
-
-        if 'composition' in self._value and 'child' in parameter_dict.keys():
-            self._motif.setParameters(parameter_dict['child'])
+        self.load(parameter_dict)
+        # for key in parameter_dict.keys():
+        #     self.load(parameter_dict[key])
+        #     if key != 'Type' and key != 'Name':
+        #         if isinstance(parameter_dict[key], list):
+        #             handler[key] = parameter_dict[key][-1]
+        #         else:
+        #             handler[key] = [
+        #                 parameter_dict[key][subkey][-1] 
+        #                 for subkey in parameter_dict[key].keys()]
 
     def synthesize(self):
         '''
