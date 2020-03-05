@@ -125,6 +125,89 @@ class MaskShape:
 
         return arr[:,:,0]
 
+    def processEllipse(self, dimensions, size_x, size_y):
+        '''
+        This method is universal and will check if 
+        a point is situated within a polygon 
+        defined by the the edges.
+        '''
+        pixmap = QtGui.QPixmap(size_x, size_y)
+        pixmap.fill(QtGui.QColor(0,0,0))
+        painter = QtGui.QPainter(pixmap)
+
+        painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+        pen = QtGui.QPen()
+        pen.setColor(QtGui.QColor(0,0,1))
+        pen.setWidthF(0.1)
+        painter.setPen(pen)
+        painter.setBrush(QtGui.QColor(0,0,1))
+
+        painter.translate(
+            self.parameters['Position'][0], 
+            self.parameters['Position'][1])
+        painter.rotate(
+            self.parameters['Angle'])
+        painter.drawEllipse(
+            QtCore.QPointF(0.,0.), 
+            dimensions[0], 
+            dimensions[1])
+        painter.rotate(
+            -self.parameters['Angle'])
+        painter.translate(
+            -self.parameters['Position'][0], 
+            -self.parameters['Position'][1])
+        painter.translate(
+            self.parameters['Position'][0]+1, 
+            self.parameters['Position'][1])
+        painter.rotate(
+            self.parameters['Angle'])
+        painter.drawEllipse(
+            QtCore.QPointF(0.,0.), 
+            dimensions[0], 
+            dimensions[1])
+        painter.rotate(
+            -self.parameters['Angle'])
+        painter.translate(
+            -self.parameters['Position'][0]-1, 
+            -self.parameters['Position'][1])
+        painter.translate(
+            self.parameters['Position'][0], 
+            self.parameters['Position'][1]+1)
+        painter.rotate(
+            self.parameters['Angle'])
+        painter.drawEllipse(
+            QtCore.QPointF(0.,0.), 
+            dimensions[0], 
+            dimensions[1])
+        painter.rotate(
+            -self.parameters['Angle'])
+        painter.translate(
+            -self.parameters['Position'][0], 
+            -self.parameters['Position'][1]-1)
+        painter.translate(
+            self.parameters['Position'][0]+1, 
+            self.parameters['Position'][1]+1)
+        painter.rotate(
+            self.parameters['Angle'])
+        painter.drawEllipse(
+            QtCore.QPointF(0.,0.), 
+            dimensions[0], 
+            dimensions[1])
+        painter.rotate(
+            -self.parameters['Angle'])
+        painter.translate(
+            -self.parameters['Position'][0]-1, 
+            -self.parameters['Position'][1]-1)
+
+        painter.end()
+
+        image = pixmap.toImage()
+        b = image.bits()
+        b.setsize(size_x * size_y * 4)
+        arr = np.frombuffer(b, np.uint8).reshape((size_x, size_y, 4)).astype(np.int16)
+
+        return arr[:,:,0]
+
     def processSector(self, radius_range, angle_range, size_x, size_y):
         '''
         This part will process a circular region of the 

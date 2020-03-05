@@ -27,6 +27,7 @@ import numpy as np
 from .rectangle import Rectangle
 from .pie import Pie
 from .triangle import Triangle
+from .ellipse import Ellipse
 
 class MaskGenerator:
     
@@ -41,7 +42,8 @@ class MaskGenerator:
         self.dummies = [
             Rectangle(),
             Pie(),
-            Triangle()]
+            Triangle(),
+            Ellipse()]
 
     def resetElementClasses(self):
         '''
