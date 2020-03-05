@@ -92,17 +92,7 @@ class MaskElementNode(ParameterHandler):
         Set the parameters of the node through 
         the interfaces
         '''
-        handler = self.handlers[self._value]
         self.load(parameter_dict)
-        # for key in parameter_dict.keys():
-        #     self.load(parameter_dict[key])
-        #     if key != 'Type' and key != 'Name':
-        #         if isinstance(parameter_dict[key], list):
-        #             handler[key] = parameter_dict[key][-1]
-        #         else:
-        #             handler[key] = [
-        #                 parameter_dict[key][subkey][-1] 
-        #                 for subkey in parameter_dict[key].keys()]
 
     def synthesize(self):
         '''
@@ -114,7 +104,6 @@ class MaskElementNode(ParameterHandler):
         output['Type'] = self._value
 
         return output
-
 
 class MaskNode(MaskElementNode):
     def __init__(self,name ='Mask Element', parent = None):

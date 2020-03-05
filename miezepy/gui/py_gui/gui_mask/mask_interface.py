@@ -274,7 +274,7 @@ class MaskInterface(QtCore.QObject):
         return a predefined and connected
         custom treeview
         '''
-        combobox = MaskComboBox()
+        combobox = QtWidgets.QComboBox()
         combobox.setModel(self._item_model)
 
         if not self._mask_core == None and connect:
@@ -303,32 +303,6 @@ class MaskInterface(QtCore.QObject):
                 masks_dictionaries.append(child.synthesize())
             self._mask_core.mask_dict[self._mask_core.current_mask] = masks_dictionaries
             self.mask_updated.emit()
-
-class MaskComboBox(QtWidgets.QComboBox):
-    '''
-    This is our own combobox method
-    '''
-    editing_finished = QtCore.pyqtSignal(str)
-    editing_aborted = QtCore.pyqtSignal()
-
-    def __init__(self,parent = None):
-        super().__init__(parent = parent)
-
-    def keyPressEvent(self, QKeyEvent):
-        if QKeyEvent.key() == QtCore.Qt.Key_Enter or QKeyEvent.key() == QtCore.Qt.Key_Return:
-            self.editing_finished.emit(self.currentText())
-        elif QKeyEvent.key() == QtCore.Qt.Key_Escape:
-            self.editing_aborted.emit()
-        elif QKeyEvent.key() == QtCore.Qt.Key_Up:
-            self.editing_aborted.emit()
-        elif QKeyEvent.key() == QtCore.Qt.Key_Down:
-            self.editing_aborted.emit()
-        elif QKeyEvent.key() == QtCore.Qt.Key_Left:
-            self.editing_aborted.emit()
-        elif QKeyEvent.key() == QtCore.Qt.Key_Right:
-            self.editing_aborted.emit()
-        else:
-            super().keyPressEvent(QKeyEvent)
 
 if __name__ == '__main__':
     from ....core.module_mask import MaskStructure
