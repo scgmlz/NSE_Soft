@@ -217,9 +217,17 @@ class MainWindowLayout(Ui_MIEZETool):
                 self.refreshChecked(1)
 
             if index == 2:
+                if not self.handler.current_env.current_data.generated:
+                    dialog(
+                        parent = self.window,
+                        icon = 'error', 
+                        title= 'Dataset not generated',
+                        message = 'The dataset belonging to these scripts has not yet been generated. Please enter the data editing system and load the data.')
+                    return
                 if not self.widgetClasses[2].mask_core == self.handler.current_env.mask:
                     self.mask_interface.link(self.handler.current_env.mask)
-                    self.widgetClasses[2].link(self.handler.current_env.mask)
+                    self.widgetClasses[2].link(
+                        self.handler.current_env.mask,self.handler.current_env)
                 self.refreshChecked(2)
 
             elif index == 3:
@@ -229,6 +237,7 @@ class MainWindowLayout(Ui_MIEZETool):
                         icon = 'error', 
                         title= 'Dataset not generated',
                         message = 'The dataset belonging to these scripts has not yet been generated. Please enter the data editing system and load the data.')
+                    return
                 else:
                     if not self.widgetClasses[3].env == self.handler.current_env:
                         self.widgetClasses[3].link(self.handler.current_env)

@@ -49,13 +49,27 @@ class PageMaskWidget(Ui_mask_editor):
         self.parent         = parent
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
-        self.mask_interface = mask_interface
+        self.mask_interface = mask_interface 
 
         #build GUI
         self.setupUi(self.local_widget)
+        self.para_group = QtWidgets.QGroupBox(self.local_widget)
         self._setup()
         self._initialize()
         self._connect()
+
+    def _resetPara(self):
+        try:
+            self.para_group.deleteLater()
+        except:
+            pass
+
+        self.para_group = QtWidgets.QGroupBox(self.local_widget)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, 
+            QtWidgets.QSizePolicy.Fixed)
+        self.para_group.setSizePolicy(sizePolicy)
+        self.mask_layout_control.addWidget(self.para_group)
 
     def _setup(self):
         '''
@@ -78,6 +92,40 @@ class PageMaskWidget(Ui_mask_editor):
         self.combo_layout.addWidget(self.add_mask_button)
         self.combo_layout.addWidget(self.remove_mask_button)
 
+        #Visual selector
+        self._visual_mask_pixel     = QtWidgets.QRadioButton("View pixel mask")
+        self._visual_mask_data      = QtWidgets.QRadioButton("View data")
+        self._visual_button_group   = QtWidgets.QButtonGroup(self.widget)
+        self._visual_button_group.addButton(self._visual_mask_pixel)
+        self._visual_button_group.addButton(self._visual_mask_data)
+
+        self._visual_meas_para  = QtWidgets.QComboBox()
+        self._visual_meas_num   = QtWidgets.QSpinBox()
+        self._visual_meas_echo  = QtWidgets.QSpinBox()
+        self._visual_meas_foil  = QtWidgets.QSpinBox()
+        self._visual_meas_chan  = QtWidgets.QSpinBox()
+        self._visual_sum_echo   = QtWidgets.QCheckBox("Sum")
+        self._visual_sum_foil   = QtWidgets.QCheckBox("Sum")
+        self._visual_sum_chan   = QtWidgets.QCheckBox("Sum")
+
+        self.visual_select = QtWidgets.QHBoxLayout()
+        self.visual_select.addWidget(self._visual_mask_pixel)
+        self.visual_select.addWidget(self._visual_mask_data)
+        self.visual_select.addWidget(QtWidgets.QLabel("Parameter:"))
+        self.visual_select.addWidget(self._visual_meas_para)
+        self.visual_select.addWidget(QtWidgets.QLabel("Measurement:"))
+        self.visual_select.addWidget(self._visual_meas_num)
+        self.visual_select.addWidget(QtWidgets.QLabel("Echo:"))
+        self.visual_select.addWidget(self._visual_meas_echo)
+        self.visual_select.addWidget(self._visual_sum_echo)
+        self.visual_select.addWidget(QtWidgets.QLabel("Foil:"))
+        self.visual_select.addWidget(self._visual_meas_foil)
+        self.visual_select.addWidget(self._visual_sum_foil)
+        self.visual_select.addWidget(QtWidgets.QLabel("Time channel:"))
+        self.visual_select.addWidget(self._visual_meas_chan)
+        self.visual_select.addWidget(self._visual_sum_chan)
+        self.mask_group_visual.layout().addLayout(self.visual_select)
+
         #initialise the graphs
         self.my_canvas    = MultiCanvasItem(
             self.mask_widget_visual,
@@ -99,6 +147,7 @@ class PageMaskWidget(Ui_mask_editor):
         '''
         self.mask_core = None
         self._plot_item = []
+        self.current_data = None
 
     def _connect(self):
         '''
@@ -112,6 +161,135 @@ class PageMaskWidget(Ui_mask_editor):
         self.add_mask_button.clicked.connect(self.newMask)
         self.remove_mask_button.clicked.connect(self.mask_interface.removeCurrentMask)
 
+    def _populateSelectors(self):
+        '''
+        populate the window layout. The grid is the main
+        input of this method and all elements will be 
+        placed accordingly.
+        '''
+        self.para_vbox  = QtWidgets.QVBoxLayout()
+        self.para_grid  = QtWidgets.QGridLayout()
+        self.para_vbox.addLayout(self.para_grid)
+        self.para_vbox.addStretch(1)
+        self.para_group.setLayout(self.para_vbox)
+
+        #initialise the tab
+        self.widget_list    = []
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QLabel('Parameter:', parent = self.para_group),
+            0, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
+        self.widget_list.append([
+            QtWidgets.QComboBox( parent = self.para_group),
+            0, 1, 1, 1, None])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Parameter') ])
+        self.para_drop = self.widget_list[-1][0]
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QLabel('Measurement:', parent = self.para_group),
+            1, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
+        self.widget_list.append([
+            QtWidgets.QComboBox( parent = self.para_group),
+            1, 1, 1, 1, None])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Measurement') ])
+        self.meas_drop = self.widget_list[-1][0]
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QLabel('Echo time:', parent = self.para_group),
+            2, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
+        self.widget_list.append([
+            QtWidgets.QComboBox( parent = self.para_group),
+            2, 1, 1, 1, None])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Echo Time') ])
+        self.echo_drop = self.widget_list[-1][0]
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QLabel('Foil:'),
+            3, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
+        self.widget_list.append([
+            QtWidgets.QComboBox( parent = self.para_group),
+            3, 1, 1, 1, None])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Foil') ])
+        self.foil_drop = self.widget_list[-1][0]
+
+        self.widget_list.append([
+            QtWidgets.QPushButton('Compute', parent = self.para_group),
+            4, 0, 1, 1, None])
+        self.compute_button = self.widget_list[-1][0]
+        self.widget_list.append([
+            QtWidgets.QCheckBox('Live',parent = self.para_group),
+            4, 1, 1, 1, None])
+        self.widget_list[-1][0].setChecked(False)
+
+        ##############################################
+        #add the tabs
+        for element in self.widget_list:
+            self.para_grid.addWidget(
+                element[0], 
+                element[1], 
+                element[2], 
+                element[3], 
+                element[4])
+
+            if not element[5] is None:
+                element[0].setAlignment(element[5])
+
+    def _connectSelectors(self):
+        '''
+        Set the selectors to their methods
+        '''
+        self.widget_list[1][0].currentIndexChanged.connect(self._prepare_data)
+        self.widget_list[3][0].currentIndexChanged.connect(self._prepare_data)
+        self.widget_list[5][0].currentIndexChanged.connect(self._prepare_data)
+        self.widget_list[7][0].currentIndexChanged.connect(self._prepare_data)
+
+    def _prepare_data(self):
+        '''
+        the computation will be done in a thread and 
+        if not finished interupted to allow the UI to
+        run smoothly
+        '''
+
+        ##############################################
+        #grab the parameters from the UI
+        para    = self.env.current_data.get_axis(
+            self.env.current_data.axes.names[0])[
+                self.widget_list[1][0].currentIndex()]
+        meas    = self.env.current_data.get_axis(
+            self.env.current_data.axes.names[1])[
+                self.widget_list[3][0].currentIndex()]
+        echo    = self.env.current_data.get_axis(
+            self.env.current_data.axes.names[2])[
+                self.widget_list[5][0].currentIndex()]
+        foil    = self.env.current_data.get_axis(
+            self.env.current_data.axes.names[3])[
+                self.widget_list[7][0].currentIndex()]
+
+        ##############################################
+        #process index
+        para_idx = self.env.current_data.get_axis_idx(
+            self.env.current_data.axes.names[0], para)
+        meas_idx = self.env.current_data.get_axis_idx(
+            self.env.current_data.axes.names[1], meas)
+        echo_idx = self.env.current_data.get_axis_idx(
+            self.env.current_data.axes.names[2], echo)
+        foil_idx = self.env.current_data.get_axis_idx(
+            self.env.current_data.axes.names[3], foil)
+
+        data = self.data[para_idx,meas_idx,echo_idx,foil_idx,:]
+        data = np.sum(data,axis=(0))
+
+        self.current_data = data
+        self._updateGraph()
+
     def newMask(self):
         '''
         This routine will create an input dialog
@@ -122,12 +300,20 @@ class PageMaskWidget(Ui_mask_editor):
         if ok:
             self.mask_interface.insertNewMask(text)
 
-    def link(self, mask_core):
+    def link(self, mask_core, env):
         '''
         This routine will link to the io manager class
         from the core. 
         '''
-        self.mask_core = mask_core
+        self._resetPara()
+        self._initialize()
+
+        self.env        = env
+        self.data       = self.env.current_data.returnAsNumpy()
+        self.mask_core  = mask_core
+        
+        self._populateSelectors()
+        self._connectSelectors()
 
     def unlink(self):
         '''
@@ -190,10 +376,16 @@ class PageMaskWidget(Ui_mask_editor):
         for i,child in enumerate(self.tree.model().root()._children):
             self._plot_item[i].load(child.save())
 
-        self.mask_plot.setData(
-            x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
-            y = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[1])]), 
-            z = self.mask_core.mask_gen.mask)
+        if self._visual_button_group.checkedId() == 0:
+            self.mask_plot.setData(
+                x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
+                y = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[1])]), 
+                z = self.mask_core.mask_gen.mask)
+        elif not self.current_data is None:
+            self.mask_plot.setData(
+                x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
+                y = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[1])]), 
+                z = np.log10(self.current_data+1))
         
     def saveSingle(self):
         '''
