@@ -1006,7 +1006,7 @@ class PageScriptWidget(Ui_script_widget):
         through a QFileDialog and then saves the file as
         a script.
         '''
-        filters = "mieze_script_save.py"
+        # filters = "mieze_script_save.py"
 
         # file_path = QtWidgets.QFileDialog.getSaveFileName(
         #         self.window, 
@@ -1021,7 +1021,7 @@ class PageScriptWidget(Ui_script_widget):
         a QFileDialog. Specify a file formated in the right
         way or saved through miezepy.
         '''
-        filters = "*.py"
+        # filters = "*.py"
 
         # file_path = QtWidgets.QFileDialog.getOpenFileName(
         #         self.window, 

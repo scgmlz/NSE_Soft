@@ -38,6 +38,7 @@ from simpleplot.ploting.graph_items.pie_item import PieItem
 from simpleplot.ploting.graph_items.rectangle_item import RectangleItem
 from simpleplot.ploting.graph_items.triangle_item import TriangleItem
 from simpleplot.ploting.graph_items.ellipse_item import EllipseItem
+from simpleplot.gui_main.widgets.scientific_combobox import ScientificComboBox
 
 class PageMaskWidget(Ui_mask_editor):
     
@@ -181,10 +182,9 @@ class PageMaskWidget(Ui_mask_editor):
             QtWidgets.QLabel('Echo time:', parent = self.para_group),
             2, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.para_group),
+            ScientificComboBox( parent = self.para_group),
             2, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ 
-            str(val) for val in self.env.current_data.get_axis('Echo Time') ])
+        self.widget_list[-1][0].addItems(self.env.current_data.get_axis('Echo Time'))
         self.echo_drop = self.widget_list[-1][0]
 
         #---
@@ -197,6 +197,12 @@ class PageMaskWidget(Ui_mask_editor):
         self.widget_list[-1][0].addItems([ 
             str(val) for val in self.env.current_data.get_axis('Foil') ])
         self.foil_drop = self.widget_list[-1][0]
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QCheckBox('Log view:'),
+            4, 1, 1, 1, None])
+        self.log_view = self.widget_list[-1][0]
 
         ##############################################
         #add the tabs
@@ -219,6 +225,7 @@ class PageMaskWidget(Ui_mask_editor):
         self.widget_list[3][0].currentIndexChanged.connect(self._prepareData)
         self.widget_list[5][0].currentIndexChanged.connect(self._prepareData)
         self.widget_list[7][0].currentIndexChanged.connect(self._prepareData)
+        self.widget_list[8][0].clicked.connect(self._prepareData)
         self._visual_mask_pixel.clicked.connect(self._handleVis)
         self._visual_mask_data.clicked.connect(self._handleVis)
 
@@ -272,6 +279,9 @@ class PageMaskWidget(Ui_mask_editor):
 
         data = self.data[para_idx,meas_idx,echo_idx,foil_idx,:]
         data = np.sum(data,axis=(0))
+
+        if self.log_view.isChecked():
+            data = np.log10(data+1)
 
         self.current_data = data
         self._updateGraph()
@@ -371,7 +381,7 @@ class PageMaskWidget(Ui_mask_editor):
             self.mask_plot.setData(
                 x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
                 y = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[1])]), 
-                z = np.log10(self.current_data+1))
+                z = self.current_data)
         
     def saveSingle(self):
         '''
@@ -598,10 +608,9 @@ class PanelPageMaskWidget(PageMaskWidget):
             QtWidgets.QLabel('Echo time:', parent = self.para_group),
             2, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.para_group),
+            ScientificComboBox( parent = self.para_group),
             2, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ 
-            str(val) for val in self.env.current_data.get_axis('Echo Time') ])
+        self.widget_list[-1][0].addItems(self.env.current_data.get_axis('Echo Time'))
         self.echo_drop = self.widget_list[-1][0]
 
         #---
