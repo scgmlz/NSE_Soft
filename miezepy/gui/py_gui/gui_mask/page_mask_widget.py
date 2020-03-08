@@ -556,10 +556,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.cx.draw()
         self.dx.draw()
 
-        self.ax.pointer.pointer_handler['Sticky'] = 2
-        self.bx.pointer.pointer_handler['Sticky'] = 2
-        self.cx.pointer.pointer_handler['Sticky'] = 3
-        self.dx.pointer.pointer_handler['Sticky'] = 3
+        self.ax.pointer.pointer_handler['Sticky'] = '2'
+        self.bx.pointer.pointer_handler['Sticky'] = '2'
+        self.cx.pointer.pointer_handler['Sticky'] = '3'
+        self.dx.pointer.pointer_handler['Sticky'] = '3'
 
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
         self.my_canvas.canvas_nodes[0][1][0].grid_layout.setMargin(0)
