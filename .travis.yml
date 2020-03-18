@@ -40,6 +40,7 @@ before_install: |
     # https://github.com/travis-ci/travis-cookbooks/issues/155
     sudo rm -rf /dev/shm
     sudo ln -s /run/shm /dev/shm
+    QT_QPA_PLATFORM=minimal
   fi
 install:
 
