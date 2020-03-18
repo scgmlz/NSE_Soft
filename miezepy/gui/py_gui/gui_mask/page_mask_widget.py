@@ -60,6 +60,9 @@ class PageMaskWidget(Ui_mask_editor):
         self._connect()
 
     def _resetPara(self):
+        '''
+        Reset the parameter setting group
+        '''
         try:
             self.para_group.deleteLater()
         except:
@@ -443,7 +446,6 @@ class PanelPageMaskWidget(PageMaskWidget):
         PageMaskWidget.__init__(self, stack, parent, mask_interface)
         self.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
-        self.para_group = QtWidgets.QGroupBox(self.local_widget)
         self._threads = []
 
     def link(self, mask_core, env):
@@ -462,6 +464,9 @@ class PanelPageMaskWidget(PageMaskWidget):
         self._connectSelectors()
 
     def _resetPara(self):
+        '''
+        Reset the parameter setting group
+        '''
         try:
             self.para_group.deleteLater()
         except:
@@ -572,8 +577,20 @@ class PanelPageMaskWidget(PageMaskWidget):
         input of this method and all elements will be 
         placed accordingly.
         '''
+        #Visual selector
+        self._visual_data_raw       = QtWidgets.QRadioButton("Raw data")
+        self._visual_data_corrected = QtWidgets.QRadioButton("Corrected data")
+        self._visual_button_group   = QtWidgets.QButtonGroup(self.widget)
+        self._visual_button_group.addButton(self._visual_data_raw, 0)
+        self._visual_button_group.addButton(self._visual_data_corrected, 1)
+
+        self.visual_select = QtWidgets.QHBoxLayout()
+        self.visual_select.addWidget(self._visual_data_raw)
+        self.visual_select.addWidget(self._visual_data_corrected)
+
         self.para_vbox  = QtWidgets.QVBoxLayout()
         self.para_grid  = QtWidgets.QGridLayout()
+        self.para_vbox.addLayout(self.visual_select)
         self.para_vbox.addLayout(self.para_grid)
         self.para_vbox.addStretch(1)
         self.para_group.setLayout(self.para_vbox)
@@ -624,14 +641,21 @@ class PanelPageMaskWidget(PageMaskWidget):
             str(val) for val in self.env.current_data.get_axis('Foil') ])
         self.foil_drop = self.widget_list[-1][0]
 
+       #---
         self.widget_list.append([
-            QtWidgets.QPushButton('Compute', parent = self.para_group),
+            QtWidgets.QCheckBox('Log view:'),
             4, 0, 1, 1, None])
-        self.compute_button = self.widget_list[-1][0]
+        self.log_view = self.widget_list[-1][0]
+
         self.widget_list.append([
-            QtWidgets.QCheckBox('Live',parent = self.para_group),
+            QtWidgets.QCheckBox('Live refresh',parent = self.para_group),
             4, 1, 1, 1, None])
         self.widget_list[-1][0].setChecked(False)
+
+        self.widget_list.append([
+            QtWidgets.QPushButton('Compute', parent = self.para_group),
+            5, 1, 1, 1, None])
+        self.compute_button = self.widget_list[-1][0]
 
         ##############################################
         #add the tabs
@@ -650,11 +674,13 @@ class PanelPageMaskWidget(PageMaskWidget):
         '''
         Set the selectors to their methods
         '''
+        self._visual_data_raw.clicked.connect(self._parseAndSend)
+        self._visual_data_corrected.clicked.connect(self._parseAndSend)
         self.widget_list[1][0].currentIndexChanged.connect(self._parseAndSend)
         self.widget_list[3][0].currentIndexChanged.connect(self._parseAndSend)
         self.widget_list[5][0].currentIndexChanged.connect(self._parseAndSend)
         self.widget_list[7][0].currentIndexChanged.connect(self._parseAndSend)
-        self.widget_list[8][0].clicked.connect(self._parseAndSendManual)
+        self.widget_list[10][0].clicked.connect(self._parseAndSendManual)
         self.widget_list[9][0].stateChanged.connect(self._setLive)      
 
     def _setLive(self, num):
@@ -724,44 +750,23 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not finished interupted to allow the UI to
         run smoothly
         '''
-        try:
-            self.env.results.getLastResult('Corrected Phase')
-        except:
+        results = self.env.results.generateResult(name = 'Contrast mode')
+        if self._visual_button_group.checkedId() == 0:
             self.env.process.calculateEcho()
-            self.env.fit.noCorrection(
-                self.env.current_data,
-                self.env.results)
-            
-        ##############################################
-        #grab the parameters from the UI
-        para    = self.env.current_data.get_axis(
-            self.env.current_data.axes.names[0])[
-                self.widget_list[1][0].currentIndex()]
-        meas    = self.env.current_data.get_axis(
-            self.env.current_data.axes.names[1])[
-                self.widget_list[3][0].currentIndex()]
-        echo    = self.env.current_data.get_axis(
-            self.env.current_data.axes.names[2])[
-                self.widget_list[5][0].currentIndex()]
-        foil    = self.env.current_data.get_axis(
-            self.env.current_data.axes.names[3])[
-                self.widget_list[7][0].currentIndex()]
-
-        ##############################################
-        #process index
-        para_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[0], para)
-        meas_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[1], meas)
-        echo_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[2], echo)
-        foil_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[3], foil)
-        self.mask = self.env.mask.mask
+            self.env.fit.noCorrection(self.env.current_data,self.env.results)
+            self.data = self.env.results.getLastResult('Uncorrected Phase', 'Shift')
+            results['Mode'] = 'Uncorrected'
+        else:
+            self.data = self.env.results.getLastResult('Corrected Phase', 'Shift')
+            results['Mode'] = 'Corrected'
+        results.setComplete()
 
         return [
-            self.data[para_idx,meas_idx,echo_idx,foil_idx,:],
-            para,foil,self.mask,self.env.results, self.env.fit.para_dict['time_channels']]
+            self.data[self.widget_list[1][0].currentText()][int(float(self.widget_list[3][0].currentText()))][float(self.widget_list[5][0].currentData())][int(self.widget_list[7][0].currentText())],
+            self.widget_list[1][0].currentText(),
+            int(self.widget_list[7][0].currentText()),
+            self.env.mask.mask,self.env.results, 
+            self.env.fit.para_dict['time_channels']]
 
     def _updateVisual(self):
         '''
@@ -795,7 +800,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.second_surface_plot.setData(
             x = x,
             y = y, 
-            z = np.log10(self.mask * np.sum(data, axis=(0))+1 ))
+            z = np.log10(self.env.mask.mask * np.sum(data, axis=(0))+1 ))
 
         #set the main scatter plot of the counts
         self.sine_data_plot.setData(

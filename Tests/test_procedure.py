@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import time
 import os
-
+from miezepy.mieze import Mieze
 from miezepy.core.module_data import DataStructure
 from miezepy.core.module_environment import Environment
 
@@ -79,6 +79,7 @@ def generateMap(input):
         dtype=int)
 
 def createHTO(proc):
+    
     env  = Environment(None, 'test_phase')
     dir_path = os.path.dirname(os.path.realpath(__file__))
     env.io.load_MIEZE_TOF(os.path.join(dir_path, 'ressources','LoadTest.txt' ))
@@ -93,25 +94,9 @@ def createHTO(proc):
     for meta_object in env.current_data.metadata_objects:
         meta_object.addMetadata('Wavelength', value = 8.e-10 , logical_type = 'float', unit = 'A')
 
-    env.mask.mask_dict["HTO_1"]=     [{
-        "Name": "Linear composition", 
-        "Position": [64.0, 64.0], 
-        "Angle": 0.0, 
-        "Multiplicity": [16, 16], 
-        "Dimensions": [128.0, 128.0], 
-        "Increment": True, 
-        "Close Gap": True, 
-        "child": {
-            "Name": "Rectangle", 
-            "Position": [10.0, 10.0], 
-            "Angle": 0.0, 
-            "Dimensions": [10.0, 10.0]}}]  
+    env.mask.mask_dict["HTO_1"]=[{"Visible": ["Visible", "bool", True], "Position": {"x": ["x", "float", 63.5], "y": ["y", "float", 63.5], "z": ["z", "float", 0.0]}, "Movable": ["Movable", "bool", False], "Angle": ["Angle", "float", 0.0], "Z": ["Z", "int", 0], "Dimensions": {"x": ["x", "float", 128.0], "y": ["y", "float", 128.0]}, "Subdivisions": {"x": ["x", "int", 16], "y": ["y", "int", 16]}, "Subdivision dimensions": {"Fill": ["Fill", "bool", True], "x": ["x", "float", 2.0], "y": ["y", "float", 2.0]}, "Fill": {"0": ["0", "bool", True], "1": ["1", "color", [0, 0, 255, 255]]}, "Line": {"Visible": ["Visible", "bool", True], "Thickness": ["Thickness", "float", 0.05], "Color": ["Color", "color", [0, 0, 0, 255]]}, "Draw faces": ["Draw faces", "bool", True], "Draw edges": ["Draw edges", "bool", False], "Draw smooth": ["Draw smooth", "bool", True], "OpenGl mode": ["OpenGl mode", "str", "opaque"], "Name": "Mask Element", "Type": "Rectangle"}]  
 
-    env.mask.mask_dict["HTO_2"] = [{
-        "Name" :"Rectangle", 
-        "Position" : [64, 64], 
-        "Angle" : 0, 
-        "Dimensions" :[128, 128]}]
+    env.mask.mask_dict["HTO_2"] = [{"Visible": ["Visible", "bool", True], "Position": {"x": ["x", "float", 63.5], "y": ["y", "float", 63.5], "z": ["z", "float", 0.0]}, "Movable": ["Movable", "bool", False], "Angle": ["Angle", "float", 0.0], "Z": ["Z", "int", 0], "Dimensions": {"x": ["x", "float", 128.0], "y": ["y", "float", 128.0]}, "Subdivisions": {"x": ["x", "int", 1], "y": ["y", "int", 1]}, "Subdivision dimensions": {"Fill": ["Fill", "bool", True], "x": ["x", "float", 2.0], "y": ["y", "float", 2.0]}, "Fill": {"0": ["0", "bool", True], "1": ["1", "color", [0, 0, 255, 255]]}, "Line": {"Visible": ["Visible", "bool", True], "Thickness": ["Thickness", "float", 0.05], "Color": ["Color", "color", [0, 0, 0, 255]]}, "Draw faces": ["Draw faces", "bool", True], "Draw edges": ["Draw edges", "bool", False], "Draw smooth": ["Draw smooth", "bool", True], "OpenGl mode": ["OpenGl mode", "str", "opaque"], "Name": "Mask Element", "Type": "Rectangle"}]
 
     foils_in_echo = []
     foils_in_echo.append([0, 0, 0, 0, 0, 0, 0, 1])
@@ -196,7 +181,7 @@ class Test_Phase_correction(unittest.TestCase):
 
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
-        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "True") ,  "Skipping this test on CI.")
     def test_phase_correction_mask(self):
         self.env  = Environment(None, 'test_phase')
         self.env.data[0] = createFakeDataset()
@@ -241,7 +226,7 @@ class Test_Phase_correction(unittest.TestCase):
 
         #process the echos
         self.env.process.calculateEcho()
-        self.assertEqual(self.env.current_data.metadata_objects[0]['tau'], 0.09937249965868485)
+        self.assertEqual(self.env.current_data.metadata_objects[0]['tau'], 0.09937249956783661)
 
         #proceed with the buffering
         self.env.process.prepareBuffer()
@@ -270,7 +255,7 @@ class Test_Phase_correction(unittest.TestCase):
 
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
-        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "True") ,  "Skipping this test on CI.")
     def test_phase_correction_exposure(self):
         self.env  = Environment(None, 'test_phase')
         self.env.data[0] = createFakeDataset()
@@ -336,7 +321,7 @@ class Test_Phase_correction(unittest.TestCase):
 
         #process the echos
         self.env.process.calculateEcho()
-        self.assertEqual(self.env.current_data.metadata_objects[0]['tau'], 0.09937249965868485)
+        self.assertEqual(self.env.current_data.metadata_objects[0]['tau'], 0.09937249956783661)
 
         #proceed with the buffering
         self.env.process.prepareBuffer()
@@ -383,7 +368,7 @@ class Test_Phase_correction(unittest.TestCase):
         
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
-        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "True") ,  "Skipping this test on CI.")
     def test_multi_proc_mask_data(self):
         self.phase_correction_mask_data(12)
 
@@ -392,11 +377,12 @@ class Test_Phase_correction(unittest.TestCase):
         
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
-        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "True") ,  "Skipping this test on CI.")
     def test_multi_proc_exposure_data(self):
         self.phase_correction_exposure_data(12)
 
     def phase_correction_mask_data(self, proc):
+        self.app = Mieze(GUI = True)
         ######################################################
         #test the dataset
         self.env = createHTO(proc)
@@ -461,12 +447,13 @@ class Test_Phase_correction(unittest.TestCase):
         self.assertEqual(self.result['reso']['y'].tolist(), [1,1,1])
         self.assertEqual(
             [round(e, 4) for e in self.result['5K']['y'].tolist()], 
-            [round(e, 4) for e in [0.8325509860263258, 0.7773302578953385, 0.7119443607471796]])
+            [round(e, 4) for e in [0.8326, 0.7797, 0.6768]])
         self.assertEqual(
             [round(e, 4) for e in self.result['50K']['y'].tolist()], 
-            [round(e, 4) for e in [0.8442781271626505, 0.5113068154251951, 0.28264047696266037]])
+            [round(e, 4) for e in [0.8443, 0.5087, 0.3239]])
 
     def phase_correction_exposure_data(self, proc):
+        self.app = Mieze(GUI = True)
 
         ######################################################
         #test the dataset
