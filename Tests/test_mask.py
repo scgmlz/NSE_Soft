@@ -1,6 +1,7 @@
 import unittest
 import miezepy
-from miezepy.mieze import Mieze
+import sys
+from PyQt5 import QtGui, QtCore, QtWidgets
 from miezepy.core.module_mask import MaskStructure
 
 class Test_mask_system(unittest.TestCase):
@@ -11,7 +12,7 @@ class Test_mask_system(unittest.TestCase):
         self.assertEqual(len(keys), 0)
 
     def test_add_mask(self):
-        app = Mieze(GUI = True)
+        self.app = QtWidgets.QApplication(sys.argv)
         masks = MaskStructure()
         masks.addMask('circular at 50 50')
         self.assertIn('circular at 50 50', masks.mask_dict.keys())

@@ -2,7 +2,8 @@ import unittest
 import numpy as np
 import time
 import os
-from miezepy.mieze import Mieze
+import sys
+from PyQt5 import QtGui, QtCore, QtWidgets
 from miezepy.core.module_data import DataStructure
 from miezepy.core.module_environment import Environment
 
@@ -181,7 +182,7 @@ class Test_Phase_correction(unittest.TestCase):
 
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
-        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "True") ,  "Skipping this test on CI.")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def test_phase_correction_mask(self):
         self.env  = Environment(None, 'test_phase')
         self.env.data[0] = createFakeDataset()
@@ -255,7 +256,7 @@ class Test_Phase_correction(unittest.TestCase):
 
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
-        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "True") ,  "Skipping this test on CI.")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def test_phase_correction_exposure(self):
         self.env  = Environment(None, 'test_phase')
         self.env.data[0] = createFakeDataset()
@@ -362,27 +363,35 @@ class Test_Phase_correction(unittest.TestCase):
 
         self.result = self.env.results.getLastResult('Contrast fit')['Parameters']
 
-
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def test_single_proc_mask_data(self):
         self.phase_correction_mask_data(1)
         
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
-        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "True") ,  "Skipping this test on CI.")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def test_multi_proc_mask_data(self):
         self.phase_correction_mask_data(12)
 
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def test_single_proc_exposure_data(self):
         self.phase_correction_exposure_data(1)
         
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
-        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "True") ,  "Skipping this test on CI.")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def test_multi_proc_exposure_data(self):
         self.phase_correction_exposure_data(12)
 
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def phase_correction_mask_data(self, proc):
-        self.app = Mieze(GUI = True)
+        self.app = QtWidgets.QApplication(sys.argv)
         ######################################################
         #test the dataset
         self.env = createHTO(proc)
@@ -452,8 +461,11 @@ class Test_Phase_correction(unittest.TestCase):
             [round(e, 4) for e in self.result['50K']['y'].tolist()], 
             [round(e, 4) for e in [0.8443, 0.5087, 0.3239]])
 
+    @unittest.skipIf(
+        ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
+        or ("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true") ,  "Skipping this test on CI.")
     def phase_correction_exposure_data(self, proc):
-        self.app = Mieze(GUI = True)
+        self.app = QtWidgets.QApplication(sys.argv)
 
         ######################################################
         #test the dataset
@@ -516,7 +528,3 @@ class Test_Phase_correction(unittest.TestCase):
         self.assertEqual(
             [round(e, 4) for e in self.result['50K']['y'].tolist()], 
             [round(e, 4) for e in [0.7607151726522323, 0.5407819350675142, 0.13512816355553667]])
-
-if __name__ == '__main__':
-    ground_0 = Test_Phase_correction()
-    ground_0.phase_correction_mask_data(12)
