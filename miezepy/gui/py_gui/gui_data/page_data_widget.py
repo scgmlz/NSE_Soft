@@ -145,7 +145,6 @@ class PageDataWidget(Ui_data_import):
         self.data_button_remove_object.clicked.connect(self.removeElement)
 
         #connect lists
-        self.data_list_files.clicked.connect(self.setPrev)
         self.data_list_files.drop_success.connect(self.addFiles)
         self.data_list_loaded.clicked.connect(self.setCurrentElement)
         self.data_list_loaded.itemSelectionChanged.connect(self.setCurrentElementSilent)
@@ -371,6 +370,7 @@ class PageDataWidget(Ui_data_import):
             self.file_model.appendRow(item)
     
         self.data_list_files.setModel(self.file_model)
+        self.data_list_files.selectionModel().selectionChanged.connect(self.setPrev)
 
     def removeFile(self):
         '''
@@ -388,13 +388,13 @@ class PageDataWidget(Ui_data_import):
         self.file_handler.initialize()
         self.setFileList()
 
-    def setPrev(self, index):
+    def setPrev(self, item_selection):
         '''
         This will generate the preview of the dataset
         selected in the current file view.
         '''
         if not len(self.file_handler.total_path_files) == 0:
-            self.file_handler.genPrev(index.row())
+            self.file_handler.genPrev(item_selection.indexes()[0].row())
             self.displayPrev()
 
     def displayPrev(self):
