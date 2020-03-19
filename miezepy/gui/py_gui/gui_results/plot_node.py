@@ -23,7 +23,7 @@
 
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
-from simpleplot.model.node import SessionNode
+from simpleplot.models.session_node import SessionNode
 import numpy as np
 
 class PlotNode(SessionNode):

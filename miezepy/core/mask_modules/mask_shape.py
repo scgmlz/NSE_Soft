@@ -22,6 +22,7 @@
 # *****************************************************************************
 
 import numpy as np
+from PyQt5 import QtCore, QtGui
 from PIL import Image, ImageDraw
 
 
@@ -78,13 +79,134 @@ class MaskShape:
         a point is situated within a polygon 
         defined by the the edges.
         '''
+        path_1 = QtGui.QPainterPath()
+        path_1.moveTo(edges[0][0],edges[0][1])
+        for i in range(1,len(edges)):
+            path_1.lineTo(edges[i][0],edges[i][1])
+        path_1.closeSubpath()
 
-        temp_image = Image.new('1', (size_x, size_y))
-        temp_draw = ImageDraw.Draw(temp_image)
-        
-        temp_draw.polygon(tuple([tuple(edge) for edge in edges]), fill = 1)
+        path_2 = QtGui.QPainterPath()
+        path_2.moveTo(edges[0][0]+1,edges[0][1])
+        for i in range(1,len(edges)):
+            path_2.lineTo(edges[i][0]+1,edges[i][1])
+        path_2.closeSubpath()
 
-        return np.array(temp_image).astype(np.int16)
+        path_3 = QtGui.QPainterPath()
+        path_3.moveTo(edges[0][0],edges[0][1]+1)
+        for i in range(1,len(edges)):
+            path_3.lineTo(edges[i][0],edges[i][1]+1)
+        path_3.closeSubpath()
+
+        path_4 = QtGui.QPainterPath()
+        path_4.moveTo(edges[0][0]+1,edges[0][1]+1)
+        for i in range(1,len(edges)):
+            path_4.lineTo(edges[i][0]+1,edges[i][1]+1)
+        path_4.closeSubpath()
+
+        pixmap = QtGui.QPixmap(size_x, size_y)
+        pixmap.fill(QtGui.QColor(0,0,0))
+        painter = QtGui.QPainter(pixmap)
+        painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+        pen = QtGui.QPen()
+        pen.setColor(QtGui.QColor(0,0,1))
+        pen.setWidthF(0.1)
+        painter.setPen(pen)
+        painter.setBrush(QtGui.QColor(0,0,1))
+        painter.drawPath(path_1)
+        painter.drawPath(path_2)
+        painter.drawPath(path_3)
+        painter.drawPath(path_4)
+        painter.end()
+
+        image = pixmap.toImage()
+        b = image.bits()
+        b.setsize(size_x * size_y * 4)
+        arr = np.frombuffer(b, np.uint8).reshape((size_x, size_y, 4)).astype(np.int16)
+
+        return arr[:,:,0]
+
+    def processEllipse(self, dimensions, size_x, size_y):
+        '''
+        This method is universal and will check if 
+        a point is situated within a polygon 
+        defined by the the edges.
+        '''
+        pixmap = QtGui.QPixmap(size_x, size_y)
+        pixmap.fill(QtGui.QColor(0,0,0))
+        painter = QtGui.QPainter(pixmap)
+
+        painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+        pen = QtGui.QPen()
+        pen.setColor(QtGui.QColor(0,0,1))
+        pen.setWidthF(0.1)
+        painter.setPen(pen)
+        painter.setBrush(QtGui.QColor(0,0,1))
+
+        painter.translate(
+            self.parameters['Position'][0], 
+            self.parameters['Position'][1])
+        painter.rotate(
+            self.parameters['Angle'])
+        painter.drawEllipse(
+            QtCore.QPointF(0.,0.), 
+            dimensions[0], 
+            dimensions[1])
+        painter.rotate(
+            -self.parameters['Angle'])
+        painter.translate(
+            -self.parameters['Position'][0], 
+            -self.parameters['Position'][1])
+        painter.translate(
+            self.parameters['Position'][0]+1, 
+            self.parameters['Position'][1])
+        painter.rotate(
+            self.parameters['Angle'])
+        painter.drawEllipse(
+            QtCore.QPointF(0.,0.), 
+            dimensions[0], 
+            dimensions[1])
+        painter.rotate(
+            -self.parameters['Angle'])
+        painter.translate(
+            -self.parameters['Position'][0]-1, 
+            -self.parameters['Position'][1])
+        painter.translate(
+            self.parameters['Position'][0], 
+            self.parameters['Position'][1]+1)
+        painter.rotate(
+            self.parameters['Angle'])
+        painter.drawEllipse(
+            QtCore.QPointF(0.,0.), 
+            dimensions[0], 
+            dimensions[1])
+        painter.rotate(
+            -self.parameters['Angle'])
+        painter.translate(
+            -self.parameters['Position'][0], 
+            -self.parameters['Position'][1]-1)
+        painter.translate(
+            self.parameters['Position'][0]+1, 
+            self.parameters['Position'][1]+1)
+        painter.rotate(
+            self.parameters['Angle'])
+        painter.drawEllipse(
+            QtCore.QPointF(0.,0.), 
+            dimensions[0], 
+            dimensions[1])
+        painter.rotate(
+            -self.parameters['Angle'])
+        painter.translate(
+            -self.parameters['Position'][0]-1, 
+            -self.parameters['Position'][1]-1)
+
+        painter.end()
+
+        image = pixmap.toImage()
+        b = image.bits()
+        b.setsize(size_x * size_y * 4)
+        arr = np.frombuffer(b, np.uint8).reshape((size_x, size_y, 4)).astype(np.int16)
+
+        return arr[:,:,0]
 
     def processSector(self, radius_range, angle_range, size_x, size_y):
         '''

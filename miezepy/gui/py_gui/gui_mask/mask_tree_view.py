@@ -23,8 +23,8 @@
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from simpleplot.model.delegates import ParameterDelegate
-from simpleplot.model.node import SessionNode
+from simpleplot.models.delegates import ParameterDelegate
+from simpleplot.models.session_node import SessionNode
 from .mask_model   import MaskModel
 
 class MaskTreeView(QtWidgets.QTreeView):
@@ -60,6 +60,13 @@ class MaskTreeView(QtWidgets.QTreeView):
         self._model = MaskModel(self._rootNode)
         self.setModel(self._model)
         self._connect()
+
+        self.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectRows
+        )
+        self.setSelectionMode(
+            QtWidgets.QAbstractItemView.ExtendedSelection
+        )
 
     def setModel(self, model):
         '''

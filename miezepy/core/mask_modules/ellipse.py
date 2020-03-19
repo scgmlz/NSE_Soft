@@ -24,15 +24,18 @@
 #############################
 #import general components
 import numpy as np
+import copy
+
 from .mask_shape import MaskShape
 
-class Triangle(MaskShape):
+class Ellipse(MaskShape):
 
     def __init__(self):
         '''
-        This class will contain all the
-        information and routines to build
-        a square over a certain 2D grid.
+        This is the grid mode of the element. 
+        Note that this composition can only 
+        be set to close gaps if the subelement
+        is of rectangular shape.
         '''
         MaskShape.__init__(self)
         self.initialize()
@@ -42,8 +45,9 @@ class Triangle(MaskShape):
         This routine will edit the inherited 
         dictionary of parameters.
         '''
-        self.parameters['Type']         = 'Triangle'
-        self.parameters['Dimensions']   = [10.,10.]
+        self.parameters['Type']         = 'Ellipse'
+        self.parameters['Diameters']   = [10.,10.]
+        self.parameters['Increment']    = True
 
     def setDirectly(self, **kwargs):
         '''
@@ -65,26 +69,8 @@ class Triangle(MaskShape):
 
     def generate(self, size_x, size_y):
         '''
-        This will generate the mask element 
-        onto a canvas of a given dimension
+        Generate the mask element by calling the 
+        setup and then patching the masks
         '''
-        polygon_edges = []
-        polygon_edges.append([
-            self.parameters['Position'][0] - self.parameters['Dimensions'][0] / 2.,
-            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 2.])
-        polygon_edges.append([
-            self.parameters['Position'][0] + self.parameters['Dimensions'][0] / 2.,
-            self.parameters['Position'][1] - self.parameters['Dimensions'][1] / 2.])
-        polygon_edges.append([
-            self.parameters['Position'][0] ,
-            self.parameters['Position'][1] + self.parameters['Dimensions'][1] / 2.])
-
-        for i, element in enumerate(polygon_edges):
-            polygon_edges[i] = self.rotatePoint(
-                self.parameters['Position'],
-                polygon_edges[i] , 
-                self.parameters['Angle'])
-
-        self.mask = self.processPolygon(polygon_edges, size_x, size_y)
-
+        self.mask = self.processEllipse(self.parameters['Diameters'], size_x, size_y)
         return self.mask

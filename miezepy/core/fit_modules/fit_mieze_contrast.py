@@ -199,24 +199,21 @@ class ContrastProcessing:
         foil_name = self.para_dict['foil_name']
         tcha_name = self.para_dict['tcha_name']
 
-        #initialise data
-        combined_data = np.zeros(target.get_axis_len(tcha_name))
-
         #check if we want only a specific foil
         if not foil_in == None:
             foil_elements = [foil_in]
         else:
             foil_elements = target.get_axis(foil_name)
 
+        combined_data = np.zeros(target.get_axis_len(tcha_name)) 
         #reduce the foils
         for foil in foil_elements:
             if foils_in_echo[foil] == 1:
-                data_array = []
-                for tcha_idx in range(target.get_axis_len(tcha_name)):
-                    data_array.append((np.multiply(data_input[foil,tcha_idx],mask_item)).sum())
-                data = np.array(data_array)
-                combined_data += data
-                
+                data_array = [
+                    np.multiply(data_input[foil,timechannel], mask_item).sum() 
+                    for timechannel in range(target.get_axis_len(tcha_name))]
+                combined_data += np.array(data_array)
+   
         return combined_data
 
     def fitContrastSinus(self, data_input, target, monitor):
@@ -323,9 +320,16 @@ class ContrastProcessing:
         local_results = results.generateResult(name =  'Contrast calculation')
 
         #extract the relevant parameters
-        data        = results.getLastResult('Corrected Phase', 'Shift')
-        BG          = self.test_parameter('Background', target, mask, results)
-        para_name   = self.test_parameter('para_name', target, mask, results)
+        mode = results.getLastResult('Contrast mode', 'Mode')
+        if mode == 'Uncorrected':
+            print('Uncorrected data used')
+            data = results.getLastResult('Uncorrected Phase', 'Shift')
+        else:
+            print('Corrected data used')
+            data = results.getLastResult('Corrected Phase', 'Shift')
+
+        BG = self.test_parameter('Background', target, mask, results)
+        para_name  = self.test_parameter('para_name', target, mask, results)
 
         if select == False:
             select = self.test_parameter('Select', target, mask, results)
@@ -346,7 +350,7 @@ class ContrastProcessing:
 
         #now process the data on the axis
         axis, positions = multiAxis(select, target)
-
+        
         #initialise the contrast result
         contrast            = {}
         contrast_error      = {}

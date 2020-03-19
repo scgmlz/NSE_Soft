@@ -90,10 +90,13 @@ class WindowHandler:
                     self.window_dictionary[name][0],
                     self))
             if saved:
-                self.active_windows[name].restoreGeometry(
-                    settings.value("geometry"))
-                self.active_windows[name].restoreState(settings.value(
-                    "windowState"))
+                try:
+                    self.active_windows[name].restoreGeometry(
+                        settings.value("geometry"))
+                    self.active_windows[name].restoreState(settings.value(
+                        "windowState"))
+                except:
+                    print("Could not restore geometry")
 
             self.active_windows[name].show()
         

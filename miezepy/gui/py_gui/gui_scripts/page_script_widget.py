@@ -478,7 +478,7 @@ class PageScriptWidget(Ui_script_widget):
         Set the widget values depending on the input of the 
         environnement
         '''
-        array = [text[0] for text in self.env.instrument.detector.foil_file_list] + ['None']
+        array = [text[0] for text in self.env.instrument.detector.foil_file_list]
         try:
             self.process_box_detector.setCurrentIndex(
                 array.index(self.container['detector']))
@@ -517,11 +517,11 @@ class PageScriptWidget(Ui_script_widget):
         self.env.instrument.setDetector(
             new, None if element == 'None' else int(element))
 
+        self._synthesizeFit()
         self._linkVisualDetector()
         self._setVisualInstrument()
         self._setVisualDetector()
-        self._synthesizeFit()
-        self._connectVisualInstrument()
+        self._linkVisualComponents()
 
     #######################################################################
     #######################################################################
@@ -736,6 +736,8 @@ class PageScriptWidget(Ui_script_widget):
         self.process_list_echo_times.setModel(self._foil_model)
         self.process_list_echo_times.setItemDelegate(self._foil_delegate)
         self._foil_model.setVerticalHeaderLabels(['All']+self.names)
+        self._foil_model.setHorizontalHeaderLabels([ 
+            str(val) for val in self.env.current_data.get_axis('Foil') ])
         for j in range(num_foils):
             self.process_list_echo_times.resizeColumnsToContents()
         
@@ -848,8 +850,9 @@ class PageScriptWidget(Ui_script_widget):
         container['Instrument'] = str(self.process_box_instrument.currentText())
 
         #get the detector
-        array = [ text[0] for text in self.env.instrument.detector.foil_file_list] + ['None']
-        container['Detector'] = str(array[self.process_box_detector.currentIndex()])
+        array = [ text[0] for text in self.env.instrument.detector.foil_file_list]
+        
+        container['detector'] = str(array[self.process_box_detector.currentIndex()])
 
         #get the exposure
         container['exposure'] = str(self.process_radio_exposure.isChecked())
@@ -1004,7 +1007,7 @@ class PageScriptWidget(Ui_script_widget):
         through a QFileDialog and then saves the file as
         a script.
         '''
-        filters = "mieze_script_save.py"
+        # filters = "mieze_script_save.py"
 
         # file_path = QtWidgets.QFileDialog.getSaveFileName(
         #         self.window, 
@@ -1019,7 +1022,7 @@ class PageScriptWidget(Ui_script_widget):
         a QFileDialog. Specify a file formated in the right
         way or saved through miezepy.
         '''
-        filters = "*.py"
+        # filters = "*.py"
 
         # file_path = QtWidgets.QFileDialog.getOpenFileName(
         #         self.window, 

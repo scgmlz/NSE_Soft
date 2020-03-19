@@ -22,14 +22,12 @@
 # *****************************************************************************
 
 import copy
-
 import numpy as np
 
-from .linear_comp   import LinearComposition
-from .radial_comp   import RadialComposition
-from .rectangle     import Rectangle
-from .triangle      import Triangle
-from .circle_arc    import CircleArc
+from .rectangle import Rectangle
+from .pie import Pie
+from .triangle import Triangle
+from .ellipse import Ellipse
 
 class MaskGenerator:
     
@@ -43,10 +41,9 @@ class MaskGenerator:
         self.resetElementClasses()
         self.dummies = [
             Rectangle(),
+            Pie(),
             Triangle(),
-            CircleArc(),
-            LinearComposition(),
-            RadialComposition()]
+            Ellipse()]
 
     def resetElementClasses(self):
         '''
@@ -77,7 +74,7 @@ class MaskGenerator:
         it depending on its type.
         '''
         for element in self.dummies:
-            if element.parameters['Name'] == mask_dict['Name']:
+            if element.parameters['Type'] == mask_dict['Type']:
                 self.element_classes.append(copy.deepcopy(element))
                 break
 

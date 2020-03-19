@@ -27,7 +27,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 #private dependencies
 # from .plot_widget               import PlotItem
 from .drag_drop_model           import DragModel, DropModel
-from simpleplot.model.node      import SessionNode
+from simpleplot.models.session_node      import SessionNode
 from .plot_node                 import PlotNode
 
 class ResultHandlerUI:

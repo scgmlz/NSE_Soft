@@ -22,13 +22,13 @@
 # *****************************************************************************
 
 from PyQt5 import QtWidgets, QtGui, QtCore
-from simpleplot.model.models import SessionModel
+from simpleplot.models.plot_model import PlotModel
 
 
-class MaskModel(SessionModel):
+class MaskModel(PlotModel):
     mask_updated = QtCore.pyqtSignal()
     def __init__(self,root_node):
-        SessionModel.__init__(self, root_node)
+        PlotModel.__init__(self, root_node)
         self._update = True
 
 

@@ -58,7 +58,7 @@ class PhaseProcessing():
             The current active result structure
         '''
         #Initialize the output dictionary with all def.
-        local_results = results.generateResult( name = 'Corrected Phase')
+        local_results = results.generateResult( name = 'Uncorrected Phase')
         data_meas   = target.bufferedData
         data_map    = target.map
         para_name   = self.para_dict['para_name']
