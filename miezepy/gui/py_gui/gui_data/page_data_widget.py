@@ -60,7 +60,8 @@ class PageDataWidget(Ui_data_import):
         self.elements       = []
         self.meta_elements  = []
         self.io_core        = None
-        self.data_list_files.reset()
+        if not self.data_list_files.model() is None:
+            self.data_list_files.model().clear()
         self.data_list_loaded.clear()
         self.data_list_meta.clear()
 
