@@ -695,6 +695,9 @@ class MetaHandler:
         '''
         try:
             del self.metadata_temp[row]
+        except:
+            pass
+        try:
             del self.selected_meta[row]
         except:
             pass
