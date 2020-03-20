@@ -208,10 +208,8 @@ class Generator:
         Check the sanity of the axes and all definitions
         '''
         reference   = self._getReference(import_objects)
-        print(reference)
         if reference is None:
             return ['No reference',None]
-        
         
         reference_axis = import_objects[[import_object.data_handler.parameter for import_object in import_objects].index(reference)].getAxes()[2]
         inside = [element in reference_axis for element in axes[2]]
@@ -297,7 +295,7 @@ class Generator:
                 for idx_1 in range(import_object.data_handler.dimension[0]):
                     for idx_2 in range(import_object.data_handler.dimension[1]):
                         address = list(idx[i][j]) + [idx_1,idx_2]
-                        data_structure[address] = data[idx_1,idx_2,:,:]
+                        data_structure[address] = np.transpose(data[idx_1,idx_2,:,:])
 
         data_structure.validate()
 
@@ -538,6 +536,7 @@ class FileHandler:
         with open(target) as f:
             loadeddata = np.fromfile(f, dtype=np.int32)[:8*16*128*128]
             data = loadeddata.reshape(8,16,128,128)
+            data = np.transpose(data,(0,1,3,2))
             for element in list(set(sum_axes))[::-1]:
                 data = np.sum(data, axis=element)
 
@@ -555,6 +554,7 @@ class FileHandler:
         with open(target) as f:
             loadeddata = np.fromfile(f, dtype=np.int32)[:8*16*128*128]
             data = loadeddata.reshape(8,16,128,128)
+            data = np.transpose(data,(0,1,3,2))
 
         return data
 
@@ -563,7 +563,8 @@ class FileHandler:
         This will generate the script of the current
         object.
         '''
-        common_path = str(os.path.sep).join(os.path.commonprefix(self.total_path_files).split(os.path.sep)[:-1])
+        common_path = str(os.path.sep).join(
+            os.path.commonprefix(self.total_path_files).split(os.path.sep)[:-1])
 
         script = ""
         script += indent * "    " + "\n"
@@ -694,6 +695,9 @@ class MetaHandler:
         '''
         try:
             del self.metadata_temp[row]
+        except:
+            pass
+        try:
             del self.selected_meta[row]
         except:
             pass

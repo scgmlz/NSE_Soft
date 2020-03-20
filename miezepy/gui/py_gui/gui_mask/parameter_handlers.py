@@ -23,103 +23,119 @@
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from simpleplot.model.parameter_class   import ParameterHandler
+from simpleplot.ploting.graph_items.pie_item import PieItem
+from simpleplot.ploting.graph_items.rectangle_item import RectangleItem
+from simpleplot.ploting.graph_items.triangle_item import TriangleItem
+from simpleplot.ploting.graph_items.ellipse_item import EllipseItem
 
-class DefaultHandler(ParameterHandler):
+class RectangleHandler(RectangleItem):
     def __init__(self):
-        super().__init__('Parameters')
-        self.addParameter(
-            'Position', [10.,10.], 
-            names = ['x','y'],
-            min     = -1000.,
-            max     = 1000.,
-            method = self._process)
-        self.addParameter(
-            'Angle', 0.,
-            min     = -360.,
-            max     = 360.,
-            method  = self._process)
-
-    def _process(self):
+        super().__init__('Rectangle')
+    
+    def refresh(self):
+        '''
+        Overwrite the refresh
+        '''
         pass
 
-    def flags(self, index):
-        if index.column() is 1: 
-            return QtCore.Qt.ItemIsEnabled  | QtCore.Qt.ItemIsEditable
-        else:
-            return QtCore.Qt.ItemIsEnabled 
-            
-class RectangleHandler(DefaultHandler):
-    def __init__(self):
-        super().__init__()
-        self.addParameter(
-            'Dimensions', [10.,10.], 
-            names = ['Width','Height'],
-            method = self._process)
+    def resetSubdivision(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
 
-class TriangleHandler(DefaultHandler):
-    def __init__(self):
-        super().__init__()
-        self.addParameter(
-            'Dimensions', [10.,10.], 
-            names = ['Width','Height'],
-            method = self._process)
+    def draw(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
 
-class ArcHandler(DefaultHandler):
-    def __init__(self):
-        super().__init__()
-        self.addParameter(
-            'Radial range', [0.,10.], 
-            names = ['Lower','Upper'],
-            method = self._process)
-        self.addParameter(
-            'Angular range', [0.,180.], 
-            names = ['Lower','Upper'],
-            method = self._process)
+    def drawGL(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
 
-class RadialHandler(DefaultHandler):
+class TriangleHandler(TriangleItem):
     def __init__(self):
-        super().__init__()
-        self.addParameter(
-            'Radial range', [0.,10.], 
-            names = ['Lower','Upper'],
-            method = self._process)
-        self.addParameter(
-            'Angular range', [0.,180.], 
-            min     = -360.,
-            max     = 360.,
-            names = ['Lower','Upper'],
-            method = self._process)
-        self.addParameter(
-            'Multiplicity', [2,2], 
-            names = ['Radial','Angular'],
-            method = self._process)
-        self.addParameter(
-            'Increment', True, 
-            names = ['Lower','Upper'],
-            method = self._process)
-        self.addParameter(
-            'Close Gap', True, 
-            names = ['Width','Height'],
-            method = self._process)
+        super().__init__('Triangle')
 
-class LinearHandler(DefaultHandler):
+    def refresh(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def resetSubdivision(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def draw(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def drawGL(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+class PieHandler(PieItem):
     def __init__(self):
-        super().__init__()
-        self.addParameter(
-            'Multiplicity', [2,2], 
-            names = ['Lower','Upper'],
-            method = self._process)
-        self.addParameter(
-            'Dimensions', [10.,10.], 
-            names = ['Width','Height'],
-            method = self._process)
-        self.addParameter(
-            'Increment', True, 
-            names = ['Lower','Upper'],
-            method = self._process)
-        self.addParameter(
-            'Close Gap', True, 
-            names = ['Width','Height'],
-            method = self._process)
-        
+        super().__init__('Pie')
+
+    def refresh(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def resetSubdivision(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def draw(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def drawGL(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+class EllipseHandler(EllipseItem):
+    def __init__(self):
+        super().__init__('Ellipse')
+
+    def refresh(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def resetSubdivision(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def draw(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass
+
+    def drawGL(self):
+        '''
+        Overwrite the refresh
+        '''
+        pass

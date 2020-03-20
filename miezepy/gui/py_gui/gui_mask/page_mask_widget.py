@@ -23,7 +23,6 @@
 
 #public dependencies
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QInputDialog
 import numpy as np
 import os
 
@@ -35,6 +34,11 @@ from .panel_worker                  import PanelWorker
 
 #private plotting library
 from simpleplot.canvas.multi_canvas import MultiCanvasItem
+from simpleplot.ploting.graph_items.pie_item import PieItem
+from simpleplot.ploting.graph_items.rectangle_item import RectangleItem
+from simpleplot.ploting.graph_items.triangle_item import TriangleItem
+from simpleplot.ploting.graph_items.ellipse_item import EllipseItem
+from simpleplot.gui_main.widgets.scientific_combobox import ScientificComboBox
 
 class PageMaskWidget(Ui_mask_editor):
     
@@ -46,13 +50,30 @@ class PageMaskWidget(Ui_mask_editor):
         self.parent         = parent
         self.stack          = stack
         self.local_widget   = QtWidgets.QWidget() 
-        self.mask_interface = mask_interface
+        self.mask_interface = mask_interface 
 
         #build GUI
         self.setupUi(self.local_widget)
+        self.para_group = QtWidgets.QGroupBox(self.local_widget)
         self._setup()
         self._initialize()
         self._connect()
+
+    def _resetPara(self):
+        '''
+        Reset the parameter setting group
+        '''
+        try:
+            self.para_group.deleteLater()
+        except:
+            pass
+
+        self.para_group = QtWidgets.QGroupBox(self.local_widget)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, 
+            QtWidgets.QSizePolicy.Fixed)
+        self.para_group.setSizePolicy(sizePolicy)
+        self.mask_layout_control.addWidget(self.para_group)
 
     def _setup(self):
         '''
@@ -61,14 +82,19 @@ class PageMaskWidget(Ui_mask_editor):
         area
         '''
         #initialise the widgets
-        self.tree = self.mask_interface.getTreeView()
+        self.tree               = self.mask_interface.getTreeView()
+        self.mask_combo_box     = self.mask_interface.getComboBox()
+        self.add_mask_button    = QtWidgets.QPushButton("+")
+        self.remove_mask_button = QtWidgets.QPushButton("-")
+
         self.mask_tree_layout.addWidget(self.tree)
-        self.mask_combo_box = self.mask_interface.getComboBox()
         size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
             QtWidgets.QSizePolicy.Fixed)
         self.mask_combo_box.setSizePolicy(size_policy)
         self.combo_layout.addWidget(self.mask_combo_box)
+        self.combo_layout.addWidget(self.add_mask_button)
+        self.combo_layout.addWidget(self.remove_mask_button)
 
         #initialise the graphs
         self.my_canvas    = MultiCanvasItem(
@@ -79,9 +105,9 @@ class PageMaskWidget(Ui_mask_editor):
             background  = "w",
             highlightthickness = 0)
         self.ax = self.my_canvas.getSubplot(0,0)
+        self.ax.axes.general_handler['Aspect ratio'] = [True, 1.]
         self.ax.pointer.pointer_handler['Sticky'] = 2
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
-        self.mask_plot = self.ax.addPlot('Surface', Name = 'Mask area' )
         self.ax.draw()
 
     def _initialize(self):
@@ -89,7 +115,9 @@ class PageMaskWidget(Ui_mask_editor):
         Reset all the inputs and all the fields
         present in the current view.
         '''
-        self.mask_core      = None
+        self.mask_core = None
+        self._plot_item = []
+        self.current_data = None
 
     def _connect(self):
         '''
@@ -100,12 +128,191 @@ class PageMaskWidget(Ui_mask_editor):
         self.mask_button_remove.clicked.connect(self.removeItem)
         self.mask_interface.mask_updated.connect(self._parseAndSend)
 
-    def link(self, mask_core):
+        self.add_mask_button.clicked.connect(self.newMask)
+        self.remove_mask_button.clicked.connect(self.mask_interface.removeCurrentMask)
+
+    def _populateSelectors(self):
+        '''
+        populate the window layout. The grid is the main
+        input of this method and all elements will be 
+        placed accordingly.
+        '''
+        #Visual selector
+        self._visual_mask_pixel     = QtWidgets.QRadioButton("View pixel mask")
+        self._visual_mask_data      = QtWidgets.QRadioButton("View data")
+        self._visual_button_group   = QtWidgets.QButtonGroup(self.widget)
+        self._visual_button_group.addButton(self._visual_mask_pixel, 0)
+        self._visual_button_group.addButton(self._visual_mask_data, 1)
+
+        self.visual_select = QtWidgets.QHBoxLayout()
+        self.visual_select.addWidget(self._visual_mask_pixel)
+        self.visual_select.addWidget(self._visual_mask_data)
+
+        self.para_vbox  = QtWidgets.QVBoxLayout()
+        self.para_grid  = QtWidgets.QGridLayout()
+        self.para_vbox.addLayout(self.visual_select)
+        self.para_vbox.addLayout(self.para_grid)
+        self.para_vbox.addStretch(1)
+        self.para_group.setLayout(self.para_vbox)
+
+        #initialise the tab
+        self.widget_list    = []
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QLabel('Parameter:', parent = self.para_group),
+            0, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
+        self.widget_list.append([
+            QtWidgets.QComboBox( parent = self.para_group),
+            0, 1, 1, 1, None])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Parameter') ])
+        self.para_drop = self.widget_list[-1][0]
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QLabel('Measurement:', parent = self.para_group),
+            1, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
+        self.widget_list.append([
+            QtWidgets.QComboBox( parent = self.para_group),
+            1, 1, 1, 1, None])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Measurement') ])
+        self.meas_drop = self.widget_list[-1][0]
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QLabel('Echo time:', parent = self.para_group),
+            2, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
+        self.widget_list.append([
+            ScientificComboBox( parent = self.para_group),
+            2, 1, 1, 1, None])
+        self.widget_list[-1][0].addItems(self.env.current_data.get_axis('Echo Time'))
+        self.echo_drop = self.widget_list[-1][0]
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QLabel('Foil:'),
+            3, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
+        self.widget_list.append([
+            QtWidgets.QComboBox( parent = self.para_group),
+            3, 1, 1, 1, None])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Foil') ])
+        self.foil_drop = self.widget_list[-1][0]
+
+        #---
+        self.widget_list.append([
+            QtWidgets.QCheckBox('Log view:'),
+            4, 1, 1, 1, None])
+        self.log_view = self.widget_list[-1][0]
+
+        ##############################################
+        #add the tabs
+        for element in self.widget_list:
+            self.para_grid.addWidget(
+                element[0], 
+                element[1], 
+                element[2], 
+                element[3], 
+                element[4])
+
+            if not element[5] is None:
+                element[0].setAlignment(element[5])
+
+    def _connectSelectors(self):
+        '''
+        Set the selectors to their methods
+        '''
+        self.widget_list[1][0].currentIndexChanged.connect(self._prepareData)
+        self.widget_list[3][0].currentIndexChanged.connect(self._prepareData)
+        self.widget_list[5][0].currentIndexChanged.connect(self._prepareData)
+        self.widget_list[7][0].currentIndexChanged.connect(self._prepareData)
+        self.widget_list[8][0].clicked.connect(self._prepareData)
+        self._visual_mask_pixel.clicked.connect(self._handleVis)
+        self._visual_mask_data.clicked.connect(self._handleVis)
+
+    def _handleVis(self):
+        '''
+        the computation will be done in a thread and 
+        if not finished interupted to allow the UI to
+        run smoothly
+        '''
+        if self._visual_button_group.checkedId() == 0:
+            for child in self.widget_list:
+                child[0].setVisible(False)
+            self._updateGraph()
+        else:
+            for child in self.widget_list:
+                child[0].setVisible(True)
+            self._prepareData()
+
+    def _prepareData(self):
+        '''
+        the computation will be done in a thread and 
+        if not finished interupted to allow the UI to
+        run smoothly
+        '''
+
+        ##############################################
+        #grab the parameters from the UI
+        para    = self.env.current_data.get_axis(
+            self.env.current_data.axes.names[0])[
+                self.widget_list[1][0].currentIndex()]
+        meas    = self.env.current_data.get_axis(
+            self.env.current_data.axes.names[1])[
+                self.widget_list[3][0].currentIndex()]
+        echo    = self.env.current_data.get_axis(
+            self.env.current_data.axes.names[2])[
+                self.widget_list[5][0].currentIndex()]
+        foil    = self.env.current_data.get_axis(
+            self.env.current_data.axes.names[3])[
+                self.widget_list[7][0].currentIndex()]
+
+        ##############################################
+        #process index
+        para_idx = self.env.current_data.get_axis_idx(
+            self.env.current_data.axes.names[0], para)
+        meas_idx = self.env.current_data.get_axis_idx(
+            self.env.current_data.axes.names[1], meas)
+        echo_idx = self.env.current_data.get_axis_idx(
+            self.env.current_data.axes.names[2], echo)
+        foil_idx = self.env.current_data.get_axis_idx(
+            self.env.current_data.axes.names[3], foil)
+
+        data = self.data[para_idx,meas_idx,echo_idx,foil_idx,:]
+        data = np.sum(data,axis=(0))
+
+        if self.log_view.isChecked():
+            data = np.log10(data+1)
+
+        self.current_data = data
+        self._updateGraph()
+
+    def newMask(self):
+        '''
+        This routine will create an input dialog
+        and then get it
+        '''
+        text, ok = QtWidgets.QInputDialog.getText(
+            self.widget, 'New mask name', 'Name of the new mask:')
+        if ok:
+            self.mask_interface.insertNewMask(text)
+
+    def link(self, mask_core, env):
         '''
         This routine will link to the io manager class
         from the core. 
         '''
-        self.mask_core = mask_core
+        self._resetPara()
+        self._initialize()
+
+        self.env        = env
+        self.data       = self.env.current_data.returnAsNumpy()
+        self.mask_core  = mask_core
+        
+        self._populateSelectors()
+        self._connectSelectors()
 
     def unlink(self):
         '''
@@ -127,9 +334,8 @@ class PageMaskWidget(Ui_mask_editor):
         Add an element into the list which is loaded 
         from a custom widget.
         '''
-        rows = self.tree.selectedIndexes()
-        if not rows == 0:
-            self.mask_interface.removeItem(rows[0].row())
+        index = self.tree.selectionModel().currentIndex()
+        self.mask_interface.removeItem(index.row())
 
     def _parseAndSend(self):
         '''
@@ -140,17 +346,45 @@ class PageMaskWidget(Ui_mask_editor):
             self.mask_core.sendToGenerator(recreate = True)
             self.mask_core.generateMask(
                 int(self.mask_input_x.text()), 
-                int(self.mask_input_y.text()))
+                int(self.mask_input_y.text())) 
             self._updateGraph()
+
+    def _checkUpdateNeed(self):
+        '''
+        Check what has to be actually updated
+        '''
+        if len(self._plot_item) != self.tree.model().root()._children:
+            self.ax.clear()
+            self.mask_plot = self.ax.addPlot('Surface', Name = 'Mask area')
+            self._plot_item = []
+            for child in self.tree.model().root()._children:
+                self._plot_item.append(self.ax.addItem(child._value))
+            self.ax.draw()
+
+        else:
+            for i,child in enumerate(self.tree.model().root()._children):
+                if child._value != self._plot_item[i]._name:
+                    self.ax.removeItem(self._plot_item[i])
+                    self._plot_item[i] = self.ax.addItem(child._value)
 
     def _updateGraph(self):
         '''
         '''
+        self._checkUpdateNeed()
 
-        self.mask_plot.setData(
-            x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
-            y = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[1])]), 
-            z = self.mask_core.mask_gen.mask)
+        for i,child in enumerate(self.tree.model().root()._children):
+            self._plot_item[i].load(child.save())
+
+        if self._visual_button_group.checkedId() == 0:
+            self.mask_plot.setData(
+                x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
+                y = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[1])]), 
+                z = self.mask_core.mask_gen.mask)
+        elif not self.current_data is None:
+            self.mask_plot.setData(
+                x = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[0])]), 
+                y = np.array([ i for i in range(self.mask_core.mask_gen.mask.shape[1])]), 
+                z = self.current_data)
         
     def saveSingle(self):
         '''
@@ -212,7 +446,6 @@ class PanelPageMaskWidget(PageMaskWidget):
         PageMaskWidget.__init__(self, stack, parent, mask_interface)
         self.local_widget.setStyleSheet(
             "#mask_editor{background:transparent;}")
-        self.para_group = QtWidgets.QGroupBox(self.local_widget)
         self._threads = []
 
     def link(self, mask_core, env):
@@ -231,6 +464,9 @@ class PanelPageMaskWidget(PageMaskWidget):
         self._connectSelectors()
 
     def _resetPara(self):
+        '''
+        Reset the parameter setting group
+        '''
         try:
             self.para_group.deleteLater()
         except:
@@ -238,12 +474,9 @@ class PanelPageMaskWidget(PageMaskWidget):
 
         self.para_group = QtWidgets.QGroupBox(self.local_widget)
         sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, 
-            QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+            QtWidgets.QSizePolicy.Expanding, 
+            QtWidgets.QSizePolicy.Fixed)
         self.para_group.setSizePolicy(sizePolicy)
-        self.para_group.setMaximumHeight(200)
         self.mask_layout_control.addWidget(self.para_group)
 
     def _setup(self):
@@ -254,14 +487,20 @@ class PanelPageMaskWidget(PageMaskWidget):
         '''
         #initialise the widgets
         self._live = False
-        self.tree = self.mask_interface.getTreeView()
+
+        self.tree               = self.mask_interface.getTreeView()
+        self.mask_combo_box     = self.mask_interface.getComboBox()
+        self.add_mask_button    = QtWidgets.QPushButton("+")
+        self.remove_mask_button = QtWidgets.QPushButton("-")
+
         self.mask_tree_layout.addWidget(self.tree)
-        self.mask_combo_box = self.mask_interface.getComboBox()
         size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
             QtWidgets.QSizePolicy.Fixed)
         self.mask_combo_box.setSizePolicy(size_policy)
         self.combo_layout.addWidget(self.mask_combo_box)
+        self.combo_layout.addWidget(self.add_mask_button)
+        self.combo_layout.addWidget(self.remove_mask_button)
 
         #initialise the graphs
         self.my_canvas    = MultiCanvasItem(
@@ -297,9 +536,9 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.first_surface_plot = self.ax.addPlot('Surface', Name = 'Data area' )
         self.second_surface_plot = self.bx.addPlot('Surface',Name = 'Mask and Data area')
         histogram_0 = self.first_surface_plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
-        self.ax.addItem('right', histogram_0)
+        self.ax.addHistogramItem('right', histogram_0)
         histogram_1 = self.second_surface_plot.childFromName('Surface').childFromName('Shader').getHistogramItem()
-        self.bx.addItem('right', histogram_1)
+        self.bx.addHistogramItem('right', histogram_1)
 
         #set the main scatter plot of the counts
         self.sine_data_plot = self.cx.addPlot(
@@ -322,10 +561,10 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.cx.draw()
         self.dx.draw()
 
-        self.ax.pointer.pointer_handler['Sticky'] = 2
-        self.bx.pointer.pointer_handler['Sticky'] = 2
-        self.cx.pointer.pointer_handler['Sticky'] = 3
-        self.dx.pointer.pointer_handler['Sticky'] = 3
+        self.ax.pointer.pointer_handler['Sticky'] = '2'
+        self.bx.pointer.pointer_handler['Sticky'] = '2'
+        self.cx.pointer.pointer_handler['Sticky'] = '3'
+        self.dx.pointer.pointer_handler['Sticky'] = '3'
 
         self.my_canvas.canvas_nodes[0][0][0].grid_layout.setMargin(0)
         self.my_canvas.canvas_nodes[0][1][0].grid_layout.setMargin(0)
@@ -338,8 +577,20 @@ class PanelPageMaskWidget(PageMaskWidget):
         input of this method and all elements will be 
         placed accordingly.
         '''
+        #Visual selector
+        self._visual_data_raw       = QtWidgets.QRadioButton("Raw data")
+        self._visual_data_corrected = QtWidgets.QRadioButton("Corrected data")
+        self._visual_button_group   = QtWidgets.QButtonGroup(self.widget)
+        self._visual_button_group.addButton(self._visual_data_raw, 0)
+        self._visual_button_group.addButton(self._visual_data_corrected, 1)
+
+        self.visual_select = QtWidgets.QHBoxLayout()
+        self.visual_select.addWidget(self._visual_data_raw)
+        self.visual_select.addWidget(self._visual_data_corrected)
+
         self.para_vbox  = QtWidgets.QVBoxLayout()
         self.para_grid  = QtWidgets.QGridLayout()
+        self.para_vbox.addLayout(self.visual_select)
         self.para_vbox.addLayout(self.para_grid)
         self.para_vbox.addStretch(1)
         self.para_group.setLayout(self.para_vbox)
@@ -354,7 +605,8 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list.append([
             QtWidgets.QComboBox( parent = self.para_group),
             0, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Parameter') ])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Parameter') ])
         self.para_drop = self.widget_list[-1][0]
 
         #---
@@ -364,7 +616,8 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list.append([
             QtWidgets.QComboBox( parent = self.para_group),
             1, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Measurement') ])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Measurement') ])
         self.meas_drop = self.widget_list[-1][0]
 
         #---
@@ -372,9 +625,9 @@ class PanelPageMaskWidget(PageMaskWidget):
             QtWidgets.QLabel('Echo time:', parent = self.para_group),
             2, 0, 1, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter])
         self.widget_list.append([
-            QtWidgets.QComboBox( parent = self.para_group),
+            ScientificComboBox( parent = self.para_group),
             2, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Echo Time') ])
+        self.widget_list[-1][0].addItems(self.env.current_data.get_axis('Echo Time'))
         self.echo_drop = self.widget_list[-1][0]
 
         #---
@@ -384,17 +637,25 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.widget_list.append([
             QtWidgets.QComboBox( parent = self.para_group),
             3, 1, 1, 1, None])
-        self.widget_list[-1][0].addItems([ str(val) for val in self.env.current_data.get_axis('Foil') ])
+        self.widget_list[-1][0].addItems([ 
+            str(val) for val in self.env.current_data.get_axis('Foil') ])
         self.foil_drop = self.widget_list[-1][0]
+
+       #---
+        self.widget_list.append([
+            QtWidgets.QCheckBox('Log view:'),
+            4, 0, 1, 1, None])
+        self.log_view = self.widget_list[-1][0]
+
+        self.widget_list.append([
+            QtWidgets.QCheckBox('Live refresh',parent = self.para_group),
+            4, 1, 1, 1, None])
+        self.widget_list[-1][0].setChecked(False)
 
         self.widget_list.append([
             QtWidgets.QPushButton('Compute', parent = self.para_group),
-            4, 0, 1, 1, None])
+            5, 1, 1, 1, None])
         self.compute_button = self.widget_list[-1][0]
-        self.widget_list.append([
-            QtWidgets.QCheckBox('Live',parent = self.para_group),
-            4, 1, 1, 1, None])
-        self.widget_list[-1][0].setChecked(False)
 
         ##############################################
         #add the tabs
@@ -413,11 +674,13 @@ class PanelPageMaskWidget(PageMaskWidget):
         '''
         Set the selectors to their methods
         '''
+        self._visual_data_raw.clicked.connect(self._parseAndSend)
+        self._visual_data_corrected.clicked.connect(self._parseAndSend)
         self.widget_list[1][0].currentIndexChanged.connect(self._parseAndSend)
         self.widget_list[3][0].currentIndexChanged.connect(self._parseAndSend)
         self.widget_list[5][0].currentIndexChanged.connect(self._parseAndSend)
         self.widget_list[7][0].currentIndexChanged.connect(self._parseAndSend)
-        self.widget_list[8][0].clicked.connect(self._parseAndSendManual)
+        self.widget_list[10][0].clicked.connect(self._parseAndSendManual)
         self.widget_list[9][0].stateChanged.connect(self._setLive)      
 
     def _setLive(self, num):
@@ -487,44 +750,23 @@ class PanelPageMaskWidget(PageMaskWidget):
         if not finished interupted to allow the UI to
         run smoothly
         '''
-        try:
-            self.env.results.getLastResult('Corrected Phase')
-        except:
+        results = self.env.results.generateResult(name = 'Contrast mode')
+        if self._visual_button_group.checkedId() == 0:
             self.env.process.calculateEcho()
-            self.env.fit.noCorrection(
-                self.env.current_data,
-                self.env.results)
-            
-        ##############################################
-        #grab the parameters from the UI
-        para    = self.env.current_data.get_axis(
-            self.env.current_data.axes.names[0])[
-                self.widget_list[1][0].currentIndex()]
-        meas    = self.env.current_data.get_axis(
-            self.env.current_data.axes.names[1])[
-                self.widget_list[3][0].currentIndex()]
-        echo    = self.env.current_data.get_axis(
-            self.env.current_data.axes.names[2])[
-                self.widget_list[5][0].currentIndex()]
-        foil    = self.env.current_data.get_axis(
-            self.env.current_data.axes.names[3])[
-                self.widget_list[7][0].currentIndex()]
-
-        ##############################################
-        #process index
-        para_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[0], para)
-        meas_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[1], meas)
-        echo_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[2], echo)
-        foil_idx = self.env.current_data.get_axis_idx(
-            self.env.current_data.axes.names[3], foil)
-        self.mask = self.env.mask.mask
+            self.env.fit.noCorrection(self.env.current_data,self.env.results)
+            self.data = self.env.results.getLastResult('Uncorrected Phase', 'Shift')
+            results['Mode'] = 'Uncorrected'
+        else:
+            self.data = self.env.results.getLastResult('Corrected Phase', 'Shift')
+            results['Mode'] = 'Corrected'
+        results.setComplete()
 
         return [
-            self.data[para_idx,meas_idx,echo_idx,foil_idx,:],
-            para,foil,self.mask,self.env.results, self.env.fit.para_dict['time_channels']]
+            self.data[self.widget_list[1][0].currentText()][int(float(self.widget_list[3][0].currentText()))][float(self.widget_list[5][0].currentData())][int(self.widget_list[7][0].currentText())],
+            self.widget_list[1][0].currentText(),
+            int(self.widget_list[7][0].currentText()),
+            self.env.mask.mask,self.env.results, 
+            self.env.fit.para_dict['time_channels']]
 
     def _updateVisual(self):
         '''
@@ -558,7 +800,7 @@ class PanelPageMaskWidget(PageMaskWidget):
         self.second_surface_plot.setData(
             x = x,
             y = y, 
-            z = np.log10(self.mask * np.sum(data, axis=(0))+1 ))
+            z = np.log10(self.env.mask.mask * np.sum(data, axis=(0))+1 ))
 
         #set the main scatter plot of the counts
         self.sine_data_plot.setData(

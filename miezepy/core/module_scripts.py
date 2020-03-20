@@ -535,7 +535,7 @@ class ScriptStructure:
 
         #set the detector
         python_string_init += "\n#Detector(edit in GUI)\n"
-        python_string_init += "detector = "+container['Detector']+"\n"
+        python_string_init += "detector = "+container['detector']+"\n"
 
         #set the exposure setting
         python_string_init += "\n#Use the high exposure setting (edit in GUI)\n"

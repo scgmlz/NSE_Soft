@@ -172,6 +172,13 @@ class Import_MIEZE_TOF:
                     for i in range(len(source[-1].split("x")))]
                 loadeddata      = np.fromfile(f, dtype=np.int32)[:np.prod(dimensionality)]
                 data            = loadeddata.reshape(*dimensionality)
+                data            = np.transpose(
+                    data, tuple([i for i in range(len(dimensionality)-2)])
+                    +(len(dimensionality)-1,)
+                    +(len(dimensionality)-2,))
+                print(tuple([i for i in range(len(dimensionality)-2)])
+                    +(len(dimensionality)-1,)
+                    +(len(dimensionality)-2,))
                 f.close()
                 
                 #fill the data into the target
@@ -180,6 +187,7 @@ class Import_MIEZE_TOF:
                         address = tuple(index) + (echo_idx,idx_2,idx_3)
                         target[address] = data[idx_2,idx_3,:,:]
                 echo_idx +=1
+
 
         #validate the loaded data
         target.validate() 
