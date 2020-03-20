@@ -6,7 +6,7 @@ from sys import platform
 class Test_launch(unittest.TestCase):
 
     def test_launch_version(self):
-        self.assertEqual(miezepy.__version__,'0.3.0')
+        self.assertEqual(miezepy.__version__,'0.3.1')
 
 
     @unittest.skipIf(platform == "linux" or platform == "linux2",
