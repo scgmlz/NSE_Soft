@@ -65,10 +65,9 @@ class CosineMinuit:
         minuit_dict['phase']       = 0
         minuit_dict['offset']      = np.mean(counts)
         minuit_dict['amplitude']   = np.abs(np.mean(counts) - np.amax(counts))
-        minuit_dict['pedantic']    = False
-        minuit_dict['print_level'] = 0
 
         fit     = iminuit.Minuit(self.cosine, **minuit_dict)
+        fit.errordef = iminuit.Minuit.LEAST_SQUARES
         fit.migrad()
 
         return fit 
@@ -127,18 +126,17 @@ class ExpMinuit:
 
         minuit_dict = {}
         minuit_dict['Gamma']       = 10
-        minuit_dict['pedantic']    = False
-        minuit_dict['print_level'] = 0
 
         fit = iminuit.Minuit(self.exp,**minuit_dict)
+        fit.errordef = iminuit.Minuit.LEAST_SQUARES
         fit.migrad()
 
         params  = fit.values
         chi2    = fit.fval
-        cov     = fit.np_matrix()
+        cov     = fit.covariance
         Cov     = np.array(cov).reshape([1,1])
         Gamma   = fit.values['Gamma']
-        Gammaerr = np.sqrt(Cov[0][0])
+        Gammaerr = np.sqrt(Cov[0][0]) if fit.covariance is not None else None
 
         return {'Gamma': Gamma,
                 'Gamma_error': Gammaerr,

@@ -243,7 +243,7 @@ class Test_Phase_correction(unittest.TestCase):
         #check the result
         result = self.env.results.getLastResult('Phase calculation')['Phase']
         keys = [key for key in result.keys()]
-        self.assertEqual(int(result[keys[0]].sum()),305861)
+        self.assertEqual(int(result[keys[0]].sum()),305857)
 
         #correct the phase
         self.env.fit.correctPhase(
@@ -452,14 +452,14 @@ class Test_Phase_correction(unittest.TestCase):
             self.env.results)
 
         self.result = self.env.results.getLastResult('Contrast fit')['Parameters']
-        
+
         self.assertEqual(self.result['reso']['y'].tolist(), [1,1,1])
         self.assertEqual(
             [round(e, 4) for e in self.result['5K']['y'].tolist()], 
-            [round(e, 4) for e in [0.8326, 0.7797, 0.6768]])
+            [round(e, 4) for e in [0.8325602710429816, 0.7798115451405204, 0.676853422535165]])
         self.assertEqual(
             [round(e, 4) for e in self.result['50K']['y'].tolist()], 
-            [round(e, 4) for e in [0.8443, 0.5087, 0.3239]])
+            [round(e, 4) for e in [0.8443877313400946, 0.5086612494351186, 0.32389345108503953]])
 
     @unittest.skipIf(
         ("APPVEYOR" in os.environ and os.environ["APPVEYOR"] == "True")
@@ -524,7 +524,7 @@ class Test_Phase_correction(unittest.TestCase):
         self.assertEqual(self.result['reso']['y'].tolist(), [1,1,1])
         self.assertEqual(
             [round(e, 4) for e in self.result['5K']['y'].tolist()], 
-            [round(e, 4) for e in [0.9202105470865976, 0.8952656900529399, 0.8204182337749286]])
+            [round(e, 4) for e in [0.9201912409994355, 0.8954817524620975, 0.8198329763249551]])
         self.assertEqual(
             [round(e, 4) for e in self.result['50K']['y'].tolist()], 
             [round(e, 4) for e in [0.7607151726522323, 0.5407819350675142, 0.13512816355553667]])

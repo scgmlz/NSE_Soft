@@ -108,7 +108,7 @@ def fitDataSinus(results, data, data_error, Q_min = 0, time_chan = 16, time_sele
         return False
 
     # covariance inaccurate
-    if not fit.matrix_accurate():
+    if not fit.accurate:
         local_results.addLog('error', 'cov_failed')
         local_results.setComplete()
         return False
@@ -125,7 +125,7 @@ def fitDataSinus(results, data, data_error, Q_min = 0, time_chan = 16, time_sele
 
     # Everything in order proceed
     len_data        = len(data)
-    Cov             = np.array(fit.np_matrix()).reshape([3,3])
+    Cov             = np.array(fit.covariance).reshape([3,3])
     amplitude       = params['amplitude']
     amplitude_error = np.sqrt(Cov[2][2])
     offset          = params['offset']
