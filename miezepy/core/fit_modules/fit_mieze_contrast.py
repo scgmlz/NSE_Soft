@@ -167,7 +167,7 @@ class ContrastProcessing:
         contrast_result = self.fitContrastSinus(combined_data, target, monitor)
         result_dict[idx] = contrast_result
 
-    def combineData(self, data_input, target, mask_item, foils_in_echo, foil_in):
+    def combineData(self, data_input:np.array, target, mask_item, foils_in_echo, foil_in, sum_foils=True):
         """
         This function proceeds to the contrast calculation 
         given a certain selected array to process
@@ -199,21 +199,21 @@ class ContrastProcessing:
         tcha_name = self.para_dict['tcha_name']
 
         # check if we want only a specific foil
-        if not foil_in == None:
-            foil_elements = [foil_in]
-        else:
-            foil_elements = target.get_axis(foil_name)
+        foil_elements = [foil_in] if foil_in is not None else target.get_axis(foil_name)
 
-        combined_data = np.zeros(target.get_axis_len(tcha_name))
-        # reduce the foils
+        combined_data = np.zeros((
+            target.get_axis_len(foil_name),
+            target.get_axis_len(tcha_name)), 
+            dtype=np.uint32)
+
+        # Apply the masks
         for foil in foil_elements:
-            if foils_in_echo[foil] == 1:
-                data_array = [
+            if foils_in_echo[foil]:
+                combined_data[foil, :] = [
                     np.multiply(data_input[foil, timechannel], mask_item).sum()
                     for timechannel in range(target.get_axis_len(tcha_name))]
-                combined_data += np.array(data_array)
 
-        return combined_data
+        return combined_data.sum(axis=0) if sum_foils else combined_data
 
     def fitContrastSinus(self, data_input, target, monitor):
         """
