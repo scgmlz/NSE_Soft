@@ -23,6 +23,7 @@
 
 import numpy as np
 import warnings
+from typing import List, Union
 
 from .fit_worker import WorkerPool
 from .library_fit import contrastEquation
@@ -34,6 +35,7 @@ from .library_fit import loopLibrary
 from .library_fit import multiAxis
 from .library_fit import reorganizeResult
 from .library_iminuit import ExpMinuit
+from ..module_data import DataStructure
 from ..module_result import ResultStructure
 
 
@@ -167,7 +169,8 @@ class ContrastProcessing:
         contrast_result = self.fitContrastSinus(combined_data, target, monitor)
         result_dict[idx] = contrast_result
 
-    def combineData(self, data_input:np.array, target, mask_item, foils_in_echo, foil_in, sum_foils=True):
+    def combineData(self, data_input: np.array, target: DataStructure, mask_item: np.array, foils_in_echo: List,
+                    foil_in: Union[List, None], sum_foils: bool = True):
         """
         This function proceeds to the contrast calculation 
         given a certain selected array to process
@@ -203,7 +206,7 @@ class ContrastProcessing:
 
         combined_data = np.zeros((
             target.get_axis_len(foil_name),
-            target.get_axis_len(tcha_name)), 
+            target.get_axis_len(tcha_name)),
             dtype=np.uint32)
 
         # Apply the masks
@@ -215,7 +218,7 @@ class ContrastProcessing:
 
         return combined_data.sum(axis=0) if sum_foils else combined_data
 
-    def fitContrastSinus(self, data_input, target, monitor):
+    def fitContrastSinus(self, data_input: np.array, target: DataStructure, monitor: int):
         """
         This function proceeds to the contrast calculation 
         given a certain selected array to process
@@ -232,26 +235,50 @@ class ContrastProcessing:
             The monitor value to be used on this measurement
         """
         tcha_name = self.para_dict['tcha_name']
-        echo_name = self.para_dict['echo_name']
         results = ResultStructure()
 
-        # fit the data
-        fitDataSinus(
-            results, data_input,
-            np.sqrt(data_input),
-            Q_min=0., time_chan=target.get_axis_len(tcha_name),
-            time_select=self.para_dict['time_channels'])
+        if len(data_input.shape) == 1:
+            # fit the data
+            fitDataSinus(
+                results, data_input,
+                np.sqrt(data_input),
+                Q_min=0., time_chan=target.get_axis_len(tcha_name),
+                time_select=self.para_dict['time_channels'])
 
-        result = results.getLastResult('Fit Data Sinus')
-        if result['amplitude'] == 0:
-            result.log.dump_to_console()
+            result = results.getLastResult('Fit Data Sinus')
+            if result['amplitude'] == 0:
+                result.log.dump_to_console()
 
-        # process the result
-        return [
-            result['amplitude'] / monitor,
-            result['amplitude_error'] / monitor,
-            result['mean'] / monitor,
-            result['mean_error'] / monitor]
+            # process the result
+            output = [
+                result['amplitude'] / monitor,
+                result['amplitude_error'] / monitor,
+                result['mean'] / monitor,
+                result['mean_error'] / monitor]
+        else:
+            output = []
+            for i in range(data_input.shape[0]):
+                results = ResultStructure()
+
+                # fit the data
+                fitDataSinus(
+                    results, data_input[i],
+                    np.sqrt(data_input[i]),
+                    Q_min=0., time_chan=target.get_axis_len(tcha_name),
+                    time_select=self.para_dict['time_channels'])
+
+                result = results.getLastResult('Fit Data Sinus')
+                if result['amplitude'] == 0:
+                    result.log.dump_to_console()
+
+                # process the result
+                output.append([
+                    result['amplitude'] / monitor,
+                    result['amplitude_error'] / monitor,
+                    result['mean'] / monitor,
+                    result['mean_error'] / monitor])
+
+        return output
 
     def calcContrastRef(self, target, mask, results):
         """
