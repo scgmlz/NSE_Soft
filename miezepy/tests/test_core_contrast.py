@@ -131,7 +131,7 @@ class Test_ContrastProcessing(unittest.TestCase):
     sin_fit_result_3 = [0, 0, 0, 0]
 
     @parameterized.expand([
-        # Test the behaciour
+        # Test the behaviour
         ('test_sinus_quarter_mask', result_0, sin_fit_result_0),
         ('test_sinus_flat_mask', result_1, sin_fit_result_1),
 
@@ -139,7 +139,7 @@ class Test_ContrastProcessing(unittest.TestCase):
         ('test_sinus_flat_0', result_2, sin_fit_result_3),
         ('test_sinus_flat_1', result_3, sin_fit_result_3),
     ])
-    def test_fitContrastSinus_not_summed_foils(self, _, data, expectation):
+    def test_fitContrastSinus_summed_foils(self, _, data, expectation):
         result = self.contrast_proc.fitContrastSinus(np.array(data), self.target, 1)
         self.assertEqual([round(e, 4) for e in expectation], [round(e, 4) for e in result])
 
@@ -164,7 +164,7 @@ class Test_ContrastProcessing(unittest.TestCase):
     sin_fit_result_no_sum_3 = [[0, 0, 0, 0] for j in range(8)]
 
     @parameterized.expand([
-        # Test the behaciour
+        # Test the behaviour
         ('test_sinus_quarter_mask', result_0_no_sum, sin_fit_result_no_sum_0),
         ('test_sinus_flat_mask', result_1_no_sum, sin_fit_result_no_sum_1),
 
