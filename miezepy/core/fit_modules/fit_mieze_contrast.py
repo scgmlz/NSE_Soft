@@ -26,12 +26,10 @@ import warnings
 from typing import List, Union
 
 from .fit_worker import WorkerPool
-from .library_fit import contrastEquation
-from .library_fit import contrastErrorEquation
 from .library_fit import contrastLogicMain
 from .library_fit import contrastLogicRef
 from .library_fit import fitDataSinus
-from .library_fit import loopLibrary
+
 from .library_fit import multiAxis
 from .library_fit import reorganizeResult
 from .library_iminuit import ExpMinuit
@@ -39,11 +37,40 @@ from ..module_data import DataStructure
 from ..module_result import ResultStructure
 
 
+class AuxillaryTarget:
+    """ To have a lower footprint in multi processing 
+    the target access functions will be hidden here in
+    this auxilary class """
+    def __init__(self, target:DataStructure, processing) -> None:
+        
+        self._names = [
+            processing.para_dict['para_name'],
+            processing.para_dict['meas_name'],
+            processing.para_dict['echo_name'],
+            processing.para_dict['foil_name'],
+            processing.para_dict['tcha_name']
+            ]
+
+        self._axes = {name: target.get_axis(name) for name in self._names}
+        self._axis_len = {name: target.get_axis_len(name) for name in self._names}
+
+    def get_axis(self, name):
+        return self._axes[name]
+
+    def get_axis_len(self, name):
+        return self._axis_len[name]
+
 class ContrastProcessing:
     para_dict = {}
     log = None
 
-    def calcContrastFit(self, select, data_input, target, mask, foil=None):
+    def test_parameter(self, value, target, mask, results)->Union[str,list]:
+        """
+        This funttion is purely virtual
+        """
+        return False
+
+    def calcContrastFit(self, select, data_input, target, mask, foil=None, sum_foils:bool=True):
         """
         This function proceeds to the contrast calculation 
         given a certain selected array to process
@@ -78,15 +105,12 @@ class ContrastProcessing:
         para_name = self.para_dict['para_name']
         meas_name = self.para_dict['meas_name']
         echo_name = self.para_dict['echo_name']
-        foil_name = self.para_dict['foil_name']
-        tcha_name = self.para_dict['tcha_name']
         foils_in_echo = self.para_dict['foils_in_echo']
+        
 
         para_axis = target.get_axis(para_name)
         meas_axis = target.get_axis(meas_name)
         echo_axis = target.get_axis(echo_name)
-        foil_axis = target.get_axis(foil_name)
-        cha_axis = target.get_axis(tcha_name)
 
         # loop over elements
         loop = [
@@ -100,9 +124,14 @@ class ContrastProcessing:
         for para, meas, echo in loop:
             index_array.append([para, meas, echo])
 
+        # Create a low weight axillary item
+        aux_target = AuxillaryTarget(target, self)
+
         # do the lifting
         idx = 0
-        worker_pool = WorkerPool(self.para_dict['processors'])
+        # It turns out that for these calculations the multiprocessing
+        # is considerably slower than just going through it.
+        worker_pool = WorkerPool(1)#self.para_dict['processors'])
         for para, meas, echo in loop:
 
             if not data_map[
@@ -122,9 +151,15 @@ class ContrastProcessing:
 
                 worker_pool.addWorker([
                     self.contrastProcedure,
-                    idx, data_input[para][meas][echo], target, mask_item,
-                    foils_in_echo[echo_axis.index(echo)], foil,
-                    monitor])
+                    idx, 
+                    data_input[
+                        para_axis.index(para),
+                        meas_axis.index(meas),
+                        echo_axis.index(echo)], 
+                    aux_target, mask_item,
+                    foils_in_echo[echo_axis.index(echo)], 
+                    foil,
+                    monitor, sum_foils])
 
             idx += 1
 
@@ -133,7 +168,7 @@ class ContrastProcessing:
 
         return temp_reorganized
 
-    def contrastProcedure(self, idx, data_input, target, mask_item, foils_in_echo, foil, monitor, result_dict):
+    def contrastProcedure(self, idx, data_input, target, mask_item, foils_in_echo, foil, monitor, sum_foils, result_dict):
         """
         This function proceeds to the contrast calculation 
         given a certain selected array to process
@@ -164,8 +199,11 @@ class ContrastProcessing:
 
         result_dict : shared dict
             This is the variable used to save the result
+
+        sum_foils : bool
+            This will pass on the command to sim foils
         """
-        combined_data = self.combineData(data_input, target, mask_item, foils_in_echo, foil)
+        combined_data = self.combineData(data_input, target, mask_item, foils_in_echo, foil, sum_foils=sum_foils)
         contrast_result = self.fitContrastSinus(combined_data, target, monitor)
         result_dict[idx] = contrast_result
 
@@ -203,7 +241,7 @@ class ContrastProcessing:
 
         # check if we want only a specific foil
         foil_elements = [foil_in] if foil_in is not None else target.get_axis(foil_name)
-
+        
         combined_data = np.zeros((
             target.get_axis_len(foil_name),
             target.get_axis_len(tcha_name)),
@@ -304,6 +342,7 @@ class ContrastProcessing:
         # extract the relevant parameters 
         data = results.getLastResult('Corrected Phase', 'Shift')
         reference = self.test_parameter('Reference', target, mask, results)
+        sum_foils = self.para_dict['sum_foils']
 
         # fit and calculate the contrast
         print(
@@ -311,8 +350,15 @@ class ContrastProcessing:
             + str(reference))
 
         reference = reference[0]
-        ref_result = self.calcContrastFit([reference], data, target, mask)
-        ref_result = contrastLogicRef(ref_result[reference][0], local_results)
+        ref_result = self.calcContrastFit([reference], data, target, mask, sum_foils=sum_foils)
+
+        foil_weights = []
+        if not sum_foils:
+            foil_name = self.para_dict['foil_name']
+            foil_axis_len = target.get_axis_len(foil_name)
+            foil_weights = [[1. for i in range(foil_axis_len)] for key in ref_result[reference][0].keys()]
+            #self._getFoilWeights(target, results, reference, [('0', key) for key in ref_result[reference][0].keys()])
+        ref_result = contrastLogicRef(ref_result[reference][0], local_results, foil_weights=foil_weights)
 
         # Process the result
         local_results['Reference'] = reference
@@ -344,6 +390,7 @@ class ContrastProcessing:
         """
         # Initialize the output dictionary with all def.
         local_results = results.generateResult(name='Contrast calculation')
+        sum_foils = self.para_dict['sum_foils']
 
         # extract the relevant parameters
         mode = results.getLastResult('Contrast mode', 'Mode')
@@ -355,7 +402,6 @@ class ContrastProcessing:
             data = results.getLastResult('Corrected Phase', 'Shift')
 
         BG = self.test_parameter('Background', target, mask, results)
-        para_name = self.test_parameter('para_name', target, mask, results)
 
         if select == False:
             select = self.test_parameter('Select', target, mask, results)
@@ -368,11 +414,11 @@ class ContrastProcessing:
                 'Processing the Background contrast calculation for: '
                 + str(BG))
             BG_result = self.calcContrastFit(
-                [BG], data, target, mask)
+                [BG], data, target, mask, sum_foils=sum_foils)
 
         # contrast calculation
         contrast_results = self.calcContrastFit(
-            select, data, target, mask, foil)
+            select, data, target, mask, foil, sum_foils=sum_foils)
 
         # now process the data on the axis
         axis, positions = multiAxis(select, target)
@@ -382,17 +428,23 @@ class ContrastProcessing:
         contrast_error = {}
 
         for para in axis.keys():
+            
             if 'BG_result' in locals():
                 BG_target = BG_result[BG][0]
             else:
                 BG_target = None
+
+            foil_weights = []
+            if not sum_foils:
+                foil_weights = self._getFoilWeights(target, results, para, positions[para])
 
             # result 
             result = contrastLogicMain(
                 positions[para],
                 contrast_results[para],
                 BG_target,
-                local_results)
+                local_results,
+                foil_weights=foil_weights)
 
             # if measurement it 0 initiate the dictionary
             contrast[para] = result[0]
@@ -439,6 +491,7 @@ class ContrastProcessing:
         """
         # Initialize the output dictionary with all def.
         local_results = results.generateResult(name='Contrast fit')
+        sum_foils = self.para_dict['sum_foils']
 
         # get the last contrast computaiton result
         contrast = results.getLastResult(
@@ -482,14 +535,37 @@ class ContrastProcessing:
             ref_data = np.asarray([contrast_ref[echo] for echo in x])
             ref_error = np.asarray([contrast_ref_error[echo] for echo in x])
 
+            if not sum_foils:
+                sum_fit_data = np.zeros(data.shape)
+                sum_data = np.zeros(data.shape)
+                sum_data_error = np.zeros(data.shape)
+                sum_ref_data = np.zeros(data.shape)
+                sum_ref_data_error = np.zeros(data.shape)
+
+                for j in range(data.shape[0]):
+                    for i in range(data.shape[1]):
+                        if not reference == None:
+                            sum_fit_data[j,i] = data[j, i] / ref_data[j, i]
+
+                        sum_data[j,i] = data[j, i]
+                        sum_data_error[j,i] = data_error[j, i]
+
+                        sum_ref_data[j,i] = ref_data[j, i]
+                        sum_ref_data_error[j,i] = ref_error[j, i]
+
+                sum_fit_data = np.sum(sum_fit_data, axis=1)
+                data = np.sum(sum_data, axis=1)
+                data_error = np.sum(sum_data_error, axis=1)
+                ref_data = np.sum(sum_ref_data, axis=1)
+                ref_error = np.sum(sum_ref_data_error, axis=1)
+
             if not reference == None:
-                y = np.abs(data / ref_data)
+                y = np.abs(data / ref_data if sum_foils else sum_fit_data)
                 y_error = y * np.sqrt(
                     (data_error / data) ** 2
                     + (ref_error / ref_data) ** 2)
-
             else:
-                y = np.abs(data)
+                y = np.abs(data  if sum_foils else sum_fit_data)
                 y_error = data_error
 
             # fit the data
@@ -520,6 +596,7 @@ class ContrastProcessing:
         local_results['Reference'] = reference
         local_results['Axis'] = axis
         local_results['Axis_unit'] = axis_unit
+        local_results['Sum_Foils'] = sum_foils
 
         # write the dictionary entries
         local_results.addLog('info', 'Fitting of the contrast was a success')
@@ -529,3 +606,42 @@ class ContrastProcessing:
         self.log.addLog(
             'info',
             'Fitting of the contrast was a success')
+
+    def _getFoilWeights(self, target, results, para, positions):
+        """
+        """
+        para_name = self.para_dict['para_name']
+        meas_name = self.para_dict['meas_name']
+        echo_name = self.para_dict['echo_name']
+        foil_name = self.para_dict['foil_name']
+
+        para_axis = target.get_axis(para_name)
+        meas_axis = target.get_axis(meas_name)
+        echo_axis = target.get_axis(echo_name)
+        
+        # extract the relevant parameters
+        mode = results.getLastResult('Contrast mode', 'Mode')
+        if mode == 'Uncorrected':
+            print('Uncorrected data used')
+            data = results.getLastResult('Uncorrected Phase', 'Shift')
+        else:
+            print('Corrected data used')
+            data = results.getLastResult('Corrected Phase', 'Shift')
+
+        foil_weights = []
+        para_idx = para_axis.index(para)
+        for position in positions:
+            echo_idx = echo_axis.index(position[1])
+            meas_idx = meas_axis.index(int(position[0]))
+
+            temp_data = data[para_idx, meas_idx, echo_idx]
+            temp_weigths = np.zeros(target.get_axis_len(foil_name))
+            for i in range(target.get_axis_len(foil_name)):
+                temp_weigths[i] = np.sum(temp_data[i])
+            foil_weights.append((temp_weigths / np.sum(temp_weigths)).tolist())
+
+
+        return foil_weights
+
+
+        
