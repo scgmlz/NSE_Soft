@@ -152,10 +152,8 @@ class ContrastProcessing:
                 worker_pool.addWorker([
                     self.contrastProcedure,
                     idx, 
-                    data_input[
-                        para_axis.index(para),
-                        meas_axis.index(meas),
-                        echo_axis.index(echo)], 
+                    data_input[para][meas][echo] if isinstance(data_input, dict)
+                    else data_input[para_axis.index(para), meas_axis.index(meas), echo_axis.index(echo)], 
                     aux_target, mask_item,
                     foils_in_echo[echo_axis.index(echo)], 
                     foil,
@@ -634,7 +632,7 @@ class ContrastProcessing:
             echo_idx = echo_axis.index(position[1])
             meas_idx = meas_axis.index(int(position[0]))
 
-            temp_data = data[para_idx, meas_idx, echo_idx]
+            temp_data = data[para, position[0], position[1]] if isinstance(data, dict) else data[para_idx, meas_idx, echo_idx]
             temp_weigths = np.zeros(target.get_axis_len(foil_name))
             for i in range(target.get_axis_len(foil_name)):
                 temp_weigths[i] = np.sum(temp_data[i])

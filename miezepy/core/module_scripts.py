@@ -287,6 +287,16 @@ class ScriptStructure:
             if not element == '':
                 time_channels = eval(element.split('TimeChannels = ' )[1])
 
+        #sum the foils
+        filtered_text_array = [
+            element if "sum_foils = " in element 
+            else '' 
+            for element in text_array]
+        sum_foils = True
+        for element in filtered_text_array:
+            if not element == '':
+                sum_foils = eval(element.split("sum_foils = ")[1])
+                
         del text_array
         #----------------------------------------#
         text_array = self.editable_scripts[2].split("\n")
@@ -316,6 +326,7 @@ class ScriptStructure:
                 reduction_mask = eval(element.split('(')[1].split(')')[0])
 
         del text_array
+
         container = {}
         container['foils_in_echo'] = foils_in_echo
         container['Selected']      = Selected
@@ -328,6 +339,7 @@ class ScriptStructure:
         container['detector']      = detector
         container['exposure']      = exposure
         container['time_channels'] = time_channels
+        container['sum_foils']     = sum_foils
         
         return container
 
@@ -540,6 +552,10 @@ class ScriptStructure:
         #set the exposure setting
         python_string_init += "\n#Use the high exposure setting (edit in GUI)\n"
         python_string_init += "exposure = "+container['exposure']+"\n"
+
+        #set the exposure setting
+        python_string_init += "\n#Use the foil summation methodology\n"
+        python_string_init += "sum_foils = "+container.get('sum_foils', 'True')+"\n"
 
         #find area to edit
         text = self.editable_scripts[1]

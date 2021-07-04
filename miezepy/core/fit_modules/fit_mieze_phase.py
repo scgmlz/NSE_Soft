@@ -351,16 +351,16 @@ class PhaseProcessing():
         idx = 0
         for key, meas, echo in loop_main:
             #grab the data slice
-            if data_map[para_axis.index(index_array[idx][0]), 
-                        meas_axis.index(index_array[idx][1]), 
+            if data_map[para_axis.index(index_array[idx][0]),
+                        meas_axis.index(index_array[idx][1]),
                         echo_axis.index(index_array[idx][2]), 0, 0] == -1:
                 pass
             else:
                 worker_pool.addWorker([
                     phaseExposure, idx,
                     data_meas[
-                        para_axis.index(index_array[idx][0]), 
-                        meas_axis.index(index_array[idx][1]), 
+                        para_axis.index(index_array[idx][0]),
+                        meas_axis.index(index_array[idx][1]),
                         echo_axis.index(index_array[idx][2])],
                     index_map[echo_axis.index(index_array[idx][2])],
                     loop_final, foil_axis, cha_axis])

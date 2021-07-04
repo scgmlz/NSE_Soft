@@ -38,6 +38,9 @@ detector = 14032019
 #Use the high exposure setting (edit in GUI)
 exposure = False
 
+#Use the foil summation methodology
+sum_foils = True
+
 environnement.fit.set_parameter( name = 'Select',        value = Selected     )
 environnement.fit.set_parameter( name = 'Reference',     value = Reference    )
 environnement.fit.set_parameter( name = 'Background',    value = Background   )
@@ -45,4 +48,5 @@ environnement.fit.set_parameter( name = 'foils_in_echo', value = foils_in_echo)
 environnement.fit.set_parameter( name = 'processors',    value = 1)
 environnement.fit.set_parameter( name = 'exposure',      value = exposure)
 environnement.fit.set_parameter( name = 'time_channels', value = TimeChannels)
+environnement.fit.set_parameter( name = 'sum_foils',     value = sum_foils)
 environnement.instrument.setDetector(instrument, detector)
