@@ -1,10 +1,10 @@
-import numpy as np
 import unittest
+import numpy as np
+
 from miezepy.core.module_result import ResultStructure
 from mock import Mock
 from parameterized import parameterized
-
-from ..core.fit_modules.fit_mieze import Fit_MIEZE
+from miezepy.core.fit_modules.fit_mieze import Fit_MIEZE
 
 
 class Test_ContrastProcessing_fit(unittest.TestCase):

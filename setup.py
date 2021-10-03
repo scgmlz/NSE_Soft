@@ -23,13 +23,27 @@
 
 from setuptools import setup, find_packages
 import miezepy
+import pip
+import os
+
+try:
+    import simpleplot
+except:
+    pip.main(['install', 'git+git://github.com/AlexanderSchober/simpleplot_qt.git'])
+
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'requirements.txt')) as file:
+    lines = file.readlines()
+    lines = [line.rstrip() for line in lines]
+
+for line in lines:
+    pip.main(['install', line])
 
 setup(
     name = 'miezepy',
     version = miezepy.__version__,
     license = 'GPL',
     author = 'Dr. Alexander Schober',
-#    install_requires = requirements,
+    # install_requires = lines,
 #    dependency_links =['https://github.com/AlexanderSchober/simpleplot_qt/tarball/master#egg=SimplePlot-0.1'],
     author_email = 'alex.schober@mac.com',
     description = 'Mieze analysis package',

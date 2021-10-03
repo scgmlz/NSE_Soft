@@ -9,8 +9,8 @@ class Test_launch(unittest.TestCase):
         self.assertEqual(miezepy.__version__,'0.3.1')
 
 
-    @unittest.skipIf(platform == "linux" or platform == "linux2",
-                    reason="requires xbc")
-    def test_launch_blank_gui(self):
-        app = Mieze(GUI = True)
-        self.assertTrue(app.success)
+    # @unittest.skipIf(platform == "linux" or platform == "linux2",
+    #                 reason="requires xbc")
+    # def test_launch_blank_gui(self):
+    #     app = Mieze(GUI = True)
+    #     self.assertTrue(app.success)
